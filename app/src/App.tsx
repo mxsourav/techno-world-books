@@ -46,6 +46,20 @@ function ScrollToTop() {
 }
 
 
+function KeepAlivePing() {
+  useEffect(() => {
+    // Ping backend every 14 minutes to prevent Render free-tier sleep
+    const interval = setInterval(() => {
+      const baseUrl = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || '';
+      fetch(`${baseUrl}/health`).catch(() => {});
+    }, 14 * 60 * 1000); // 14 minutes
+    
+    return () => clearInterval(interval);
+  }, []);
+  
+  return null;
+}
+
 function CustomerLayout() {
   return (
     <>
@@ -72,6 +86,7 @@ export default function App() {
   return (
     <AuthProvider>
       <StoreProvider>
+        <KeepAlivePing />
         <div className="flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900">
           <ScrollToTop />
           <Routes>
