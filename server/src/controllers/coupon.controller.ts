@@ -134,9 +134,11 @@ export const validate = async (req: Request, res: Response, next: NextFunction):
     }
 
     const uppercaseCode = code.toUpperCase();
+    console.log("BACKEND VALIDATING COUPON:", uppercaseCode, "CART TOTAL:", cartTotal, "USER:", userId);
     const coupon = await prisma.coupon.findUnique({ where: { code: uppercaseCode } });
 
     if (!coupon || !coupon.isActive) {
+      console.log("BACKEND COUPON NOT FOUND OR INACTIVE", coupon);
       res.status(200).json({ success: true, data: { valid: false, message: 'Invalid or inactive coupon code' } });
       return;
     }
