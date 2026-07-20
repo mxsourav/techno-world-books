@@ -162,7 +162,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     const c = code.trim().toUpperCase();
     try {
       const res = await couponService.validate({ code: c, cartTotal, userId: user?.id, cartItems });
-      const data = res.data?.data;
+      const data = res.data;
       if (data?.valid) {
         setCoupon(c);
         setCouponDiscount(data.discount || 0);

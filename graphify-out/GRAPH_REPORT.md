@@ -1,7 +1,7 @@
 # Graph Report - C:\Users\rodd\Desktop\Kimi_Agent_Build Book E‑Commerce Site  (2026-07-21)
 
 ## Corpus Check
-- 151 files · ~2,740,189 words
+- 151 files · ~2,740,195 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
