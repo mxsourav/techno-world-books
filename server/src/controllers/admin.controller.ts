@@ -93,7 +93,7 @@ export const analyzeImportBookCatalog = async (req: Request, res: Response, next
 export const executeImportBookCatalog = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     // Basic auth check (assuming middleware sets req.user)
-    const userId = (req as any).user?.id || 'admin-system-id';
+    const userId = (req as any).user?.id || null;
     
     const { 
       filename, 

@@ -10,7 +10,7 @@ export class ExecutionService {
    * Runs inside a massive Prisma transaction to ensure Atomicity.
    */
   static async executeImport(
-    userId: string,
+    userId: string | null,
     filename: string,
     toAdd: (ExcelRow & { row: number })[],
     toUpdate: (ExcelRow & { row: number })[],
