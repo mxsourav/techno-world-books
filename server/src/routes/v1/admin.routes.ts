@@ -6,7 +6,10 @@ import {
   executeImportBookCatalog,
   getBookPreview,
   uploadBookCover,
-  uploadBookPdf 
+  uploadBookPdf,
+  deleteBook,
+  deleteAllBooks,
+  updateBook
 } from '../../controllers/admin.controller.js';
 
 const router = Router();
@@ -20,6 +23,11 @@ router.get('/stats', getAdminStats);
 // Import Catalog
 router.post('/import/analyze', upload.single('file'), analyzeImportBookCatalog);
 router.post('/import/execute', executeImportBookCatalog);
+
+// Book Management
+router.delete('/books/all', deleteAllBooks);
+router.delete('/books/:id', deleteBook);
+router.patch('/books/:id', updateBook);
 
 // Book Media/Preview
 router.get('/books/:id/preview', getBookPreview);

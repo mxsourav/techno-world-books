@@ -177,3 +177,41 @@ export const uploadBookPdf = async (req: Request, res: Response, next: NextFunct
     next(error);
   }
 };
+
+export const deleteBook = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { id } = req.params;
+    await prisma.book.delete({ where: { id } });
+    res.status(200).json({ success: true, message: 'Book deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteAllBooks = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    await prisma.book.deleteMany({});
+    res.status(200).json({ success: true, message: 'All books deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateBook = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { title, price, mrp, stock } = req.body;
+    
+    // Minimal edit for the quick edit modal
+    const data: any = {};
+    if (title !== undefined) data.title = title;
+    if (price !== undefined) data.price = Number(price);
+    if (mrp !== undefined) data.mrp = Number(mrp);
+    if (stock !== undefined) data.stock = Number(stock);
+    
+    const book = await prisma.book.update({ where: { id }, data });
+    res.status(200).json({ success: true, message: 'Book updated successfully', data: book });
+  } catch (error) {
+    next(error);
+  }
+};
