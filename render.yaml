@@ -22,7 +22,7 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: CORS_ORIGIN
-        value: https://techno-world-books.onrender.com
+        value: https://techno-world-bookslogdata.vercel.app,https://techno-world-admin.onrender.com
     healthCheckPath: /api/v1
     autoDeploy: true
 
