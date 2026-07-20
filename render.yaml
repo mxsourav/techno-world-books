@@ -1,0 +1,49 @@
+# ─── Render Blueprint ───────────────────────────────────────
+# Deploys both the Express API and the React storefront.
+# https://docs.render.com/infrastructure-as-code
+
+services:
+  # ── Backend API (Express + Prisma + SQLite) ──
+  - type: web
+    name: techno-world-api
+    runtime: node
+    region: singapore
+    plan: free
+    rootDir: server
+    buildCommand: npm install && npx prisma generate && npx prisma db push && npx tsx prisma/seed.ts && npm run build
+    startCommand: node dist/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "5000"
+      - key: DATABASE_URL
+        value: file:./dev.db
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        value: https://techno-world-books.onrender.com
+    healthCheckPath: /api/v1
+    autoDeploy: true
+
+  # ── Frontend Storefront (Vite + React) ──
+  - type: web
+    name: techno-world-books
+    runtime: static
+    region: singapore
+    plan: free
+    rootDir: app
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=0, must-revalidate
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        value: https://techno-world-api.onrender.com/api/v1
+    autoDeploy: true
