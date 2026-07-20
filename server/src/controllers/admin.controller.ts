@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { ImportService } from '../services/import.service';
-import { ExecutionService } from '../services/import/execution.service';
+import { ImportService } from '../services/import.service.js';
+import { ExecutionService } from '../services/import/execution.service.js';
 
 const prisma = new PrismaClient();
 

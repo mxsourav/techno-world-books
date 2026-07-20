@@ -1,8 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
-import { ExcelRow } from '../import.service';
-import { EntityCreator } from './entityCreator';
-import { Writer, DuplicateStrategy } from './writer';
+import { ExcelRow } from '../import.service.js';
+import { EntityCreator } from './entityCreator.js';
+import { Writer, DuplicateStrategy } from './writer.js';
 
 export class ExecutionService {
   /**

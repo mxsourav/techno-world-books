@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client';
-import { ExcelRow } from '../import.service';
-import { Normalizer } from './normalizer';
+import { ExcelRow } from '../import.service.js';
+import { Normalizer } from './normalizer.js';
 
 export type DuplicateStrategy = 'SKIP' | 'UPDATE' | 'REPLACE';
 

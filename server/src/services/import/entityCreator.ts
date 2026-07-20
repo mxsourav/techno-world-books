@@ -1,5 +1,5 @@
 import { PrismaClient, Prisma } from '@prisma/client';
-import { Normalizer } from './normalizer';
+import { Normalizer } from './normalizer.js';
 
 export class EntityCreator {
   /**
