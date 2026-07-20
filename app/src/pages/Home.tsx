@@ -109,7 +109,7 @@ export default function Home() {
                   backgroundImage: "linear-gradient(to bottom, #FFFFFF 0%, #B8C4BE 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
-                  filter: "drop-shadow(0px 3px 5px rgba(0,0,0,0.4))"
+                  filter: "drop-shadow(0px 4px 8px rgba(0,0,0,0.8))"
                 }}
               >
                 Every book India reads,
@@ -120,7 +120,7 @@ export default function Home() {
                   backgroundImage: "linear-gradient(to bottom, #FFE885 0%, #E6A300 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
-                  filter: "drop-shadow(0px 4px 6px rgba(0,0,0,0.5))"
+                  filter: "drop-shadow(0px 5px 10px rgba(0,0,0,0.9))"
                 }}
               >
                 one search away.
