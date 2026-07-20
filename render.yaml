@@ -30,8 +30,6 @@ services:
   - type: web
     name: techno-world-books
     runtime: static
-    region: singapore
-    plan: free
     rootDir: app
     buildCommand: npm install && npm run build
     staticPublishPath: dist
