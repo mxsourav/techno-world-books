@@ -2,7 +2,8 @@ import type { Book } from '@/types';
 
 /** Generates a stylized CSS book cover — deterministic per book. */
 export function BookCover({ book, className = '' }: { book: Book; className?: string }) {
-  const h = book.coverHue;
+  // Calculate a deterministic hue based on title length and characters if coverHue is missing
+  const h = book.coverHue ?? (book.title.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) * 37) % 360;
   return (
     <div
       className={`relative flex flex-col justify-between overflow-hidden rounded-md shadow-md ${className}`}
