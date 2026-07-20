@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: book-ecommerce-site
+    env: static
+    buildCommand: pnpm install && pnpm run build
+    staticPublishPath: dist
+    autoDeploy: true
