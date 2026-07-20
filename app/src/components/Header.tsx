@@ -411,13 +411,13 @@ export default function Header() {
       {/* category strip */}
       <nav className="hidden border-t border-white/5 bg-[#0a2e1f] md:block">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-1">
-          <div className="relative flex flex-1 min-w-0 items-center before:absolute before:left-0 before:top-0 before:z-10 before:h-full before:w-4 before:bg-gradient-to-r before:from-[#0a2e1f] before:to-transparent after:absolute after:right-0 after:top-0 after:z-10 after:h-full after:w-8 after:bg-gradient-to-l after:from-[#0a2e1f] after:to-transparent">
-            <div className="flex w-full items-center gap-1 overflow-x-auto px-4 pr-20 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-              <span className="mr-2 flex shrink-0 items-center gap-1 whitespace-nowrap text-xs font-semibold text-emerald-300">
+          <div className="relative flex flex-1 min-w-0 items-center before:absolute before:left-0 before:top-0 before:z-10 before:h-full before:w-4 before:bg-gradient-to-r before:from-[#0a2e1f] before:to-transparent before:pointer-events-none after:absolute after:right-0 after:top-0 after:z-10 after:h-full after:w-8 after:bg-gradient-to-l after:from-[#0a2e1f] after:to-transparent after:pointer-events-none">
+            <div className="flex w-full items-center gap-1 overflow-x-auto px-4 pb-1 pt-1 pr-10 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              <span className="mr-1 flex shrink-0 items-center gap-1 whitespace-nowrap text-xs font-semibold text-emerald-300">
                 <ChevronDown className="h-3.5 w-3.5" /> Shop by category
               </span>
               {categories.map((c: any) => (
-                <Link key={c.slug} to={`/category/${c.slug}`} className="whitespace-nowrap rounded-full px-3 py-1 text-xs text-emerald-100 transition hover:bg-white/10 hover:text-white">
+                <Link key={c.slug} to={`/category/${c.slug}`} className="whitespace-nowrap rounded-full px-2.5 py-1 text-xs text-emerald-100 transition hover:bg-white/10 hover:text-white">
                   {c.name.replace(' Books', '')}
                 </Link>
               ))}
