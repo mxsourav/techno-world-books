@@ -204,3 +204,8 @@ export const cmsService = {
   updateSection: (key: string, data: any) => api.put<any>(`/cms/sections/${key}`, data),
   toggleSection: (key: string) => api.patch<any>(`/cms/sections/${key}/toggle`),
 };
+
+export const couponService = {
+  validate: (data: { code: string; cartTotal: number; userId?: string; cartItems?: { bookId: string; categoryId?: string; quantity: number; price: number }[] }) =>
+    api.post<any>('/coupons/validate', data),
+};

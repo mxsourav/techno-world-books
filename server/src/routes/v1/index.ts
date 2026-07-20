@@ -7,6 +7,7 @@ import searchRoutes from './search.routes.js';
 import orderRoutes from './order.routes.js';
 import mediaRoutes from './media.routes.js';
 import cmsRoutes from './cms.routes.js';
+import couponRoutes from './coupon.routes.js';
 
 const router = Router();
 
@@ -27,5 +28,6 @@ router.use('/search', searchRoutes);
 router.use('/orders', orderRoutes);
 router.use('/media', mediaRoutes);
 router.use('/cms', cmsRoutes);
+router.use('/coupons', couponRoutes);
 
 export default router;

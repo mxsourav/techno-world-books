@@ -173,6 +173,7 @@ model Category {
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
 
+  coupons        Coupon[]
   books          Book[]
 
   @@index([parentId])
@@ -394,23 +395,42 @@ model Notification {
 }
 
 model Coupon {
-  id             String     @id @default(uuid())
-  code           String     @unique
-  type           CouponType
-  value          Float
-  minOrderAmount Float?
-  maxDiscount    Float?
-  usageLimit     Int?
-  usedCount      Int        @default(0)
-  isActive       Boolean    @default(true)
-  validFrom      DateTime
-  validUntil     DateTime
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
+  id                String     @id @default(uuid())
+  code              String     @unique
+  type              CouponType
+  value             Float
+  minOrderAmount    Float?
+  maxDiscount       Float?
+  usageLimit        Int?
+  usageLimitPerUser Int        @default(1)
+  isFirstOrderOnly  Boolean    @default(false)
+  categoryId        String?
+  category          Category?  @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  usedCount         Int        @default(0)
+  isActive          Boolean    @default(true)
+  validFrom         DateTime
+  validUntil        DateTime
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
 
-  orders         Order[]
+  orders            Order[]
+  usages            CouponUsage[]
 
   @@index([code])
+  @@index([categoryId])
+}
+
+model CouponUsage {
+  id        String   @id @default(uuid())
+  couponId  String
+  coupon    Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  userId    String
+  orderId   String?
+  usedAt    DateTime @default(now())
+
+  @@unique([couponId, userId, orderId])
+  @@index([couponId])
+  @@index([userId])
 }
 
 model InventoryHistory {

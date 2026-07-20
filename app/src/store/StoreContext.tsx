@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react';
 import type { CartItem, Order, Address, User } from '@/types';
+import { couponService } from '@/services/api';
 
 
 interface StoreState {
@@ -13,6 +14,7 @@ interface StoreState {
   searchHistory: string[];
   recentlyViewed: string[];
   coupon: string | null;
+  couponDiscount: number;
   addToCart: (bookId: string, qty?: number) => void;
   removeFromCart: (bookId: string) => void;
   setQty: (bookId: string, qty: number) => void;
@@ -27,7 +29,7 @@ interface StoreState {
   addAddress: (a: Address) => void;
   addSearchToHistory: (q: string) => void;
   addRecentlyViewed: (bookId: string) => void;
-  applyCoupon: (code: string) => { ok: boolean; message: string };
+  applyCoupon: (code: string, cartTotal: number, cartItems?: { bookId: string; categoryId?: string; quantity: number; price: number }[]) => Promise<{ ok: boolean; message: string }>;
   clearCoupon: () => void;
   clearCart: () => void;
 }
@@ -56,11 +58,7 @@ const loadArray = <T,>(key: string): T[] => {
   }
 };
 
-export const COUPONS: Record<string, { pct: number; desc: string }> = {
-  BOOKWORM10: { pct: 10, desc: '10% off on all books' },
-  STUDENT15: { pct: 15, desc: '15% student discount' },
-  NEWUSER20: { pct: 20, desc: '20% off first order (max ₹500)' },
-};
+// Coupons are now validated via the backend API — no hardcoded list needed
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>(() => loadArray('twb_cart'));
@@ -72,6 +70,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [searchHistory, setSearchHistory] = useState<string[]>(() => loadArray('twb_history'));
   const [recentlyViewed, setRecentlyViewed] = useState<string[]>(() => loadArray('twb_recent'));
   const [coupon, setCoupon] = useState<string | null>(() => load('twb_coupon', null));
+  const [couponDiscount, setCouponDiscount] = useState<number>(() => load('twb_coupon_discount', 0));
 
   useEffect(() => { localStorage.setItem('twb_cart', JSON.stringify(cart)); }, [cart]);
   useEffect(() => { localStorage.setItem('twb_saved', JSON.stringify(savedForLater)); }, [savedForLater]);
@@ -82,6 +81,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => { localStorage.setItem('twb_history', JSON.stringify(searchHistory)); }, [searchHistory]);
   useEffect(() => { localStorage.setItem('twb_recent', JSON.stringify(recentlyViewed)); }, [recentlyViewed]);
   useEffect(() => { localStorage.setItem('twb_coupon', JSON.stringify(coupon)); }, [coupon]);
+  useEffect(() => { localStorage.setItem('twb_coupon_discount', JSON.stringify(couponDiscount)); }, [couponDiscount]);
 
   const addToCart = useCallback((bookId: string, qty = 1) => {
     setCart((c) => {
@@ -158,24 +158,30 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     setRecentlyViewed((r) => [bookId, ...r.filter((id) => id !== bookId)].slice(0, 10));
   }, []);
 
-  const applyCoupon = useCallback((code: string) => {
+  const applyCoupon = useCallback(async (code: string, cartTotal: number, cartItems?: { bookId: string; categoryId?: string; quantity: number; price: number }[]) => {
     const c = code.trim().toUpperCase();
-    if (COUPONS[c]) {
-      setCoupon(c);
-      return { ok: true, message: `${c} applied — ${COUPONS[c].desc}` };
+    try {
+      const res = await couponService.validate({ code: c, cartTotal, userId: user?.id, cartItems });
+      if (res.data?.valid) {
+        setCoupon(c);
+        setCouponDiscount(res.data.discount || 0);
+        return { ok: true, message: res.data.message || `${c} applied!` };
+      }
+      return { ok: false, message: res.data?.message || 'Invalid coupon code' };
+    } catch (err: any) {
+      return { ok: false, message: err?.message || 'Failed to validate coupon' };
     }
-    return { ok: false, message: 'Invalid coupon code' };
-  }, []);
+  }, [user]);
 
-  const clearCoupon = useCallback(() => setCoupon(null), []);
+  const clearCoupon = useCallback(() => { setCoupon(null); setCouponDiscount(0); }, []);
   const clearCart = useCallback(() => setCart([]), []);
 
   const value = useMemo<StoreState>(() => ({
-    cart, savedForLater, wishlist, orders, user, addresses, searchHistory, recentlyViewed, coupon,
+    cart, savedForLater, wishlist, orders, user, addresses, searchHistory, recentlyViewed, coupon, couponDiscount,
     addToCart, removeFromCart, setQty, saveForLater, moveToCart, toggleWishlist, isWishlisted,
     placeOrder, cancelOrder, login, logout, addAddress, addSearchToHistory, addRecentlyViewed,
     applyCoupon, clearCoupon, clearCart,
-  }), [cart, savedForLater, wishlist, orders, user, addresses, searchHistory, recentlyViewed, coupon,
+  }), [cart, savedForLater, wishlist, orders, user, addresses, searchHistory, recentlyViewed, coupon, couponDiscount,
     addToCart, removeFromCart, setQty, saveForLater, moveToCart, toggleWishlist, isWishlisted,
     placeOrder, cancelOrder, login, logout, addAddress, addSearchToHistory, addRecentlyViewed,
     applyCoupon, clearCoupon, clearCart]);

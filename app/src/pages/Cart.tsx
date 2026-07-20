@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { Trash2, ShoppingBag, Tag, Truck, ArrowRight, Heart, Loader2 } from 'lucide-react';
 import { formatINR } from '@/utils/helpers';
-import { useStore, COUPONS } from '@/store/StoreContext';
+import { useStore } from '@/store/StoreContext';
 import { BookCover } from '@/components/BookCover';
 import { BookRow } from '@/components/BookCard';
 import { bookService } from '@/services/api';
@@ -10,7 +10,7 @@ import type { Book } from '@/types';
 import { toast } from 'sonner';
 
 export function useCartTotals() {
-  const { cart, coupon } = useStore();
+  const { cart, coupon, couponDiscount } = useStore();
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<{status: number, message: string} | null>(null);
@@ -48,12 +48,10 @@ export function useCartTotals() {
     const subtotal = items.reduce((s, i) => s + i.book.price * i.qty, 0);
     const mrpTotal = items.reduce((s, i) => s + i.book.mrp * i.qty, 0);
     const shipping = subtotal === 0 || subtotal >= 499 ? 0 : 40;
-    const couponPct = coupon ? COUPONS[coupon]?.pct ?? 0 : 0;
-    let discount = Math.round((subtotal * couponPct) / 100);
-    if (coupon === 'NEWUSER20') discount = Math.min(discount, 500);
+    const discount = coupon ? couponDiscount : 0;
     const total = subtotal - discount + shipping;
     return { items, subtotal, mrpTotal, shipping, discount, total, coupon, loading, error };
-  }, [cart, books, coupon, loading, error]);
+  }, [cart, books, coupon, couponDiscount, loading, error]);
 }
 
 export default function Cart() {
@@ -162,14 +160,14 @@ export default function Cart() {
               <div className="flex gap-2">
                 <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="Coupon code" className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs outline-none focus:border-emerald-500" />
                 <button
-                  onClick={() => { 
-                    const r = applyCoupon(code); 
+                  onClick={async () => { 
+                    const r = await applyCoupon(code, subtotal); 
                     if (r.ok) { toast.success(r.message) } else { toast.error(r.message) } 
                   }}
                   className="rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-white"
                 >Apply</button>
               </div>
-              <p className="mt-1.5 text-[11px] text-slate-400">Try: BOOKWORM10 · STUDENT15 · NEWUSER20</p>
+              <p className="mt-1.5 text-[11px] text-slate-400">Enter a valid coupon code</p>
             </div>
           )}
           <dl className="space-y-2 border-b border-dashed border-slate-200 pb-3 text-sm">
