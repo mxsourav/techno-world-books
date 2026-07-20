@@ -1,12 +1,12 @@
 # Graph Report - C:\Users\rodd\Desktop\Kimi_Agent_Build Book E‑Commerce Site  (2026-07-21)
 
 ## Corpus Check
-- 149 files · ~2,738,357 words
+- 151 files · ~2,740,189 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 412 nodes · 367 edges · 107 communities detected
-- Extraction: 88% EXTRACTED · 12% INFERRED · 0% AMBIGUOUS · INFERRED: 45 edges (avg confidence: 0.8)
+- 420 nodes · 395 edges · 107 communities detected
+- Extraction: 84% EXTRACTED · 16% INFERRED · 0% AMBIGUOUS · INFERRED: 64 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
@@ -119,16 +119,16 @@
 - [[_COMMUNITY_Community 106|Community 106]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `next()` - 25 edges
-2. `useAuthStore()` - 4 edges
-3. `Normalizer` - 4 edges
-4. `verify()` - 3 edges
-5. `handleFileUploadPreview()` - 3 edges
-6. `getBookPreview()` - 3 edges
-7. `uploadBookCover()` - 3 edges
-8. `uploadBookPdf()` - 3 edges
-9. `getBooks()` - 3 edges
-10. `getBookBySlug()` - 3 edges
+1. `next()` - 31 edges
+2. `update()` - 11 edges
+3. `create()` - 7 edges
+4. `useAuthStore()` - 4 edges
+5. `uploadBookCover()` - 4 edges
+6. `uploadBookPdf()` - 4 edges
+7. `updateSection()` - 4 edges
+8. `toggleSection()` - 4 edges
+9. `login()` - 4 edges
+10. `Normalizer` - 4 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `next()` --calls--> `requestIdMiddleware()`  [INFERRED]
@@ -139,26 +139,26 @@
   C:\Users\rodd\Desktop\Kimi_Agent_Build Book E‑Commerce Site\app\src\components\HeroFeaturedBooks.tsx → C:\Users\rodd\Desktop\Kimi_Agent_Build Book E‑Commerce Site\server\src\controllers\admin.controller.ts
 - `next()` --calls--> `deleteAllBooks()`  [INFERRED]
   C:\Users\rodd\Desktop\Kimi_Agent_Build Book E‑Commerce Site\app\src\components\HeroFeaturedBooks.tsx → C:\Users\rodd\Desktop\Kimi_Agent_Build Book E‑Commerce Site\server\src\controllers\admin.controller.ts
-- `next()` --calls--> `updateBook()`  [INFERRED]
-  C:\Users\rodd\Desktop\Kimi_Agent_Build Book E‑Commerce Site\app\src\components\HeroFeaturedBooks.tsx → C:\Users\rodd\Desktop\Kimi_Agent_Build Book E‑Commerce Site\server\src\controllers\admin.controller.ts
+- `next()` --calls--> `getBooks()`  [INFERRED]
+  C:\Users\rodd\Desktop\Kimi_Agent_Build Book E‑Commerce Site\app\src\components\HeroFeaturedBooks.tsx → C:\Users\rodd\Desktop\Kimi_Agent_Build Book E‑Commerce Site\server\src\controllers\book.controller.ts
 
 ## Communities
 
 ### Community 0 - "Community 0"
 Cohesion: 0.06
-Nodes (25): deleteAllBooks(), deleteBook(), getAdminStats(), getBookPreview(), updateBook(), uploadBookCover(), uploadBookPdf(), getCategories() (+17 more)
+Nodes (34): deleteAllBooks(), deleteBook(), executeImportBookCatalog(), getAdminStats(), getBookPreview(), updateBook(), uploadBookCover(), uploadBookPdf() (+26 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.12
-Nodes (9): analyzeImportBookCatalog(), executeImportBookCatalog(), handleExecuteImport(), handleFileUpload(), EntityCreator, ExecutionService, ImportService, Normalizer (+1 more)
-
-### Community 2 - "Community 2"
 Cohesion: 0.13
 Nodes (5): requireAuth(), login(), verify(), generateTokens(), verifyToken()
 
-### Community 3 - "Community 3"
+### Community 2 - "Community 2"
 Cohesion: 0.15
 Nodes (2): AppError, requestIdMiddleware()
+
+### Community 3 - "Community 3"
+Cohesion: 0.15
+Nodes (7): analyzeImportBookCatalog(), handleFileUpload(), EntityCreator, ExecutionService, ImportService, Normalizer, Writer
 
 ### Community 4 - "Community 4"
 Cohesion: 0.2
@@ -274,31 +274,31 @@ Nodes (0):
 
 ### Community 32 - "Community 32"
 Cohesion: 0.5
-Nodes (1): ApiError
+Nodes (0): 
 
 ### Community 33 - "Community 33"
 Cohesion: 0.5
-Nodes (0): 
+Nodes (1): ApiError
 
 ### Community 34 - "Community 34"
-Cohesion: 1.0
-Nodes (2): extractImages(), main()
+Cohesion: 0.5
+Nodes (0): 
 
 ### Community 35 - "Community 35"
 Cohesion: 1.0
-Nodes (2): main(), testPdf()
+Nodes (2): extractImages(), main()
 
 ### Community 36 - "Community 36"
 Cohesion: 1.0
-Nodes (2): extractText(), main()
+Nodes (2): main(), testPdf()
 
 ### Community 37 - "Community 37"
 Cohesion: 1.0
-Nodes (2): dump(), run()
+Nodes (2): extractText(), main()
 
 ### Community 38 - "Community 38"
-Cohesion: 0.67
-Nodes (0): 
+Cohesion: 1.0
+Nodes (2): dump(), run()
 
 ### Community 39 - "Community 39"
 Cohesion: 0.67
@@ -337,7 +337,7 @@ Cohesion: 0.67
 Nodes (0): 
 
 ### Community 48 - "Community 48"
-Cohesion: 1.0
+Cohesion: 0.67
 Nodes (0): 
 
 ### Community 49 - "Community 49"
@@ -573,75 +573,73 @@ Cohesion: 1.0
 Nodes (0): 
 
 ## Knowledge Gaps
-- **Thin community `Community 48`** (2 nodes): `extract_test_2.js`, `extractImages()`
+- **Thin community `Community 49`** (2 nodes): `extract_test_2.js`, `extractImages()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 49`** (2 nodes): `extract_test_3.js`, `extractImages()`
+- **Thin community `Community 50`** (2 nodes): `extract_test_3.js`, `extractImages()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 50`** (2 nodes): `search_text.js`, `search()`
+- **Thin community `Community 51`** (2 nodes): `search_text.js`, `search()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 51`** (2 nodes): `spatial_test.js`, `spatialExtraction()`
+- **Thin community `Community 52`** (2 nodes): `spatial_test.js`, `spatialExtraction()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 52`** (2 nodes): `spatial_test2.js`, `spatialExtraction()`
+- **Thin community `Community 53`** (2 nodes): `spatial_test2.js`, `spatialExtraction()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 53`** (2 nodes): `spatial_test3.js`, `spatialExtraction()`
+- **Thin community `Community 54`** (2 nodes): `spatial_test3.js`, `spatialExtraction()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 54`** (2 nodes): `text_debug.js`, `debug()`
+- **Thin community `Community 55`** (2 nodes): `text_debug.js`, `debug()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 55`** (2 nodes): `text_debug_2.js`, `debug()`
+- **Thin community `Community 56`** (2 nodes): `text_debug_2.js`, `debug()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 56`** (2 nodes): `extractBooks.js`, `extract()`
+- **Thin community `Community 57`** (2 nodes): `extractBooks.js`, `extract()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 57`** (2 nodes): `BookCover()`, `BookCover.tsx`
+- **Thin community `Community 58`** (2 nodes): `BookCover()`, `BookCover.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 58`** (2 nodes): `Footer.tsx`, `Footer()`
+- **Thin community `Community 59`** (2 nodes): `Footer.tsx`, `Footer()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 59`** (2 nodes): `AspectRatio()`, `aspect-ratio.tsx`
+- **Thin community `Community 60`** (2 nodes): `AspectRatio()`, `aspect-ratio.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 60`** (2 nodes): `Badge()`, `badge.tsx`
+- **Thin community `Community 61`** (2 nodes): `Badge()`, `badge.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 61`** (2 nodes): `ButtonGroup()`, `button-group.tsx`
+- **Thin community `Community 62`** (2 nodes): `ButtonGroup()`, `button-group.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 62`** (2 nodes): `cn()`, `button.tsx`
+- **Thin community `Community 63`** (2 nodes): `cn()`, `button.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 63`** (2 nodes): `checkbox.tsx`, `Checkbox()`
+- **Thin community `Community 64`** (2 nodes): `checkbox.tsx`, `Checkbox()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 64`** (2 nodes): `collapsible.tsx`, `Collapsible()`
+- **Thin community `Community 65`** (2 nodes): `collapsible.tsx`, `Collapsible()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 65`** (2 nodes): `empty.tsx`, `cn()`
+- **Thin community `Community 66`** (2 nodes): `empty.tsx`, `cn()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 66`** (2 nodes): `field.tsx`, `cn()`
+- **Thin community `Community 67`** (2 nodes): `field.tsx`, `cn()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 67`** (2 nodes): `hover-card.tsx`, `HoverCard()`
+- **Thin community `Community 68`** (2 nodes): `hover-card.tsx`, `HoverCard()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 68`** (2 nodes): `input-group.tsx`, `cn()`
+- **Thin community `Community 69`** (2 nodes): `input-group.tsx`, `cn()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 69`** (2 nodes): `input.tsx`, `Input()`
+- **Thin community `Community 70`** (2 nodes): `input.tsx`, `Input()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 70`** (2 nodes): `kbd.tsx`, `cn()`
+- **Thin community `Community 71`** (2 nodes): `kbd.tsx`, `cn()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 71`** (2 nodes): `label.tsx`, `Label()`
+- **Thin community `Community 72`** (2 nodes): `label.tsx`, `Label()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 72`** (2 nodes): `separator.tsx`, `Separator()`
+- **Thin community `Community 73`** (2 nodes): `separator.tsx`, `Separator()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 73`** (2 nodes): `skeleton.tsx`, `Skeleton()`
+- **Thin community `Community 74`** (2 nodes): `skeleton.tsx`, `Skeleton()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 74`** (2 nodes): `spinner.tsx`, `Spinner()`
+- **Thin community `Community 75`** (2 nodes): `spinner.tsx`, `Spinner()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 75`** (2 nodes): `textarea.tsx`, `cn()`
+- **Thin community `Community 76`** (2 nodes): `textarea.tsx`, `cn()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 76`** (2 nodes): `tooltip.tsx`, `TooltipContent()`
+- **Thin community `Community 77`** (2 nodes): `tooltip.tsx`, `TooltipContent()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 77`** (2 nodes): `use-mobile.ts`, `useIsMobile()`
+- **Thin community `Community 78`** (2 nodes): `use-mobile.ts`, `useIsMobile()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 78`** (2 nodes): `utils.ts`, `cn()`
+- **Thin community `Community 79`** (2 nodes): `utils.ts`, `cn()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 79`** (2 nodes): `About()`, `About.tsx`
+- **Thin community `Community 80`** (2 nodes): `About()`, `About.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 80`** (2 nodes): `Cart.tsx`, `useCartTotals()`
+- **Thin community `Community 81`** (2 nodes): `Cart.tsx`, `useCartTotals()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 81`** (2 nodes): `Home.tsx`, `byCategory()`
-  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 82`** (2 nodes): `update_featured.ts`, `main()`
+- **Thin community `Community 82`** (2 nodes): `Home.tsx`, `byCategory()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `Community 83`** (2 nodes): `seed.ts`, `main()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
@@ -695,17 +693,17 @@ Nodes (0):
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `next()` connect `Community 0` to `Community 2`, `Community 3`, `Community 12`?**
-  _High betweenness centrality (0.041) - this node is a cross-community bridge._
-- **Why does `requireAuth()` connect `Community 2` to `Community 0`?**
-  _High betweenness centrality (0.016) - this node is a cross-community bridge._
-- **Are the 24 inferred relationships involving `next()` (e.g. with `getAdminStats()` and `getBookPreview()`) actually correct?**
-  _`next()` has 24 INFERRED edges - model-reasoned connections that need verification._
+- **Why does `next()` connect `Community 0` to `Community 1`, `Community 2`, `Community 12`, `Community 21`?**
+  _High betweenness centrality (0.045) - this node is a cross-community bridge._
+- **Why does `create()` connect `Community 0` to `Community 1`, `Community 3`?**
+  _High betweenness centrality (0.020) - this node is a cross-community bridge._
+- **Why does `login()` connect `Community 1` to `Community 0`?**
+  _High betweenness centrality (0.011) - this node is a cross-community bridge._
+- **Are the 30 inferred relationships involving `next()` (e.g. with `getAdminStats()` and `getBookPreview()`) actually correct?**
+  _`next()` has 30 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 9 inferred relationships involving `update()` (e.g. with `main()` and `uploadBookCover()`) actually correct?**
+  _`update()` has 9 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 6 inferred relationships involving `create()` (e.g. with `next()` and `uploadMedia()`) actually correct?**
+  _`create()` has 6 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 3 inferred relationships involving `useAuthStore()` (e.g. with `AdminLayout()` and `AdminProtectedRoute()`) actually correct?**
   _`useAuthStore()` has 3 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 2 inferred relationships involving `verify()` (e.g. with `login()` and `verifyToken()`) actually correct?**
-  _`verify()` has 2 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 2 inferred relationships involving `handleFileUploadPreview()` (e.g. with `uploadBookCover()` and `uploadBookPdf()`) actually correct?**
-  _`handleFileUploadPreview()` has 2 INFERRED edges - model-reasoned connections that need verification._
-- **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.06 - nodes in this community are weakly interconnected._

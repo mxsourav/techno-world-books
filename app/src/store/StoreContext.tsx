@@ -162,14 +162,15 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     const c = code.trim().toUpperCase();
     try {
       const res = await couponService.validate({ code: c, cartTotal, userId: user?.id, cartItems });
-      if (res.data?.valid) {
+      const data = res.data?.data;
+      if (data?.valid) {
         setCoupon(c);
-        setCouponDiscount(res.data.discount || 0);
-        return { ok: true, message: res.data.message || `${c} applied!` };
+        setCouponDiscount(data.discount || 0);
+        return { ok: true, message: data.message || `${c} applied!` };
       }
-      return { ok: false, message: res.data?.message || 'Invalid coupon code' };
+      return { ok: false, message: data?.message || 'Invalid coupon code' };
     } catch (err: any) {
-      return { ok: false, message: err?.message || 'Failed to validate coupon' };
+      return { ok: false, message: err?.response?.data?.message || err?.message || 'Failed to validate coupon' };
     }
   }, [user]);
 
