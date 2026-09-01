@@ -280,6 +280,7 @@ export const adminService = {
     senderEmail?: string;
     senderName?: string;
   }) => api.post<any>('/admin/smtp/test', data),
+  getEmailLogs: (params?: { limit?: number }) => api.get<any[]>('/admin/emails', params),
 };
 
 export const searchService = {
