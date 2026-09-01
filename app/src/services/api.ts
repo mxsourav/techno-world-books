@@ -387,6 +387,9 @@ export const profileService = {
   }) => api.post<any>('/profile/payment-methods', data),
   deletePaymentMethod: (id: string) => api.delete<any>(`/profile/payment-methods/${id}`),
   getPoints: () => api.get<any>('/profile/points'),
+  getOrders: () => api.get<any[]>('/profile/orders'),
+  getNotifications: () => api.get<any[]>('/profile/notifications'),
+  markNotificationRead: (id: string) => api.patch<any>(`/profile/notifications/${id}/read`),
 };
 
 export const shippingService = {

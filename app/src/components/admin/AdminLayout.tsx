@@ -188,34 +188,53 @@ export default function AdminLayout() {
                         <p className="text-xs font-semibold">No pending orders. All caught up!</p>
                       </div>
                     ) : (
-                      pendingOrders.map((ord: any) => (
-                        <div key={ord.id} className="p-3.5 hover:bg-slate-50 transition-colors">
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="font-extrabold text-xs text-slate-900">#{ord.orderNumber}</span>
-                            <span className="font-bold text-xs text-emerald-700">{formatINR(ord.totalAmount)}</span>
+                      pendingOrders.map((ord: any) => {
+                        const timeStr = ord.createdAt
+                          ? new Date(ord.createdAt).toLocaleDateString('en-IN', {
+                              day: 'numeric',
+                              month: 'short',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })
+                          : '';
+                        
+                        const diffSec = ord.createdAt ? Math.floor((Date.now() - new Date(ord.createdAt).getTime()) / 1000) : 0;
+                        const relTime = diffSec < 60 ? 'Just now' : diffSec < 3600 ? `${Math.floor(diffSec / 60)}m ago` : diffSec < 86400 ? `${Math.floor(diffSec / 3600)}h ago` : timeStr;
+
+                        return (
+                          <div key={ord.id} className="p-3.5 hover:bg-slate-50 transition-colors">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="font-extrabold text-xs text-slate-900">#{ord.orderNumber}</span>
+                              <span className="font-bold text-xs text-emerald-700">{formatINR(ord.totalAmount)}</span>
+                            </div>
+                            <div className="flex items-center justify-between gap-2 mt-0.5">
+                              <p className="text-xs text-slate-600 font-medium truncate">
+                                Customer: <b>{ord.address?.fullName || ord.user?.name || 'Customer'}</b>
+                              </p>
+                              <span className="text-[10px] font-semibold text-slate-400 shrink-0" title={timeStr}>
+                                🕒 {relTime}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-slate-400 truncate mt-0.5">
+                              {ord.items?.map((i: any) => i.book?.title || 'Book').join(', ')}
+                            </p>
+                            <div className="mt-2 flex items-center justify-between pt-1 border-t border-slate-100">
+                              <span className="text-[10px] text-amber-700 font-bold flex items-center gap-1">
+                                <AlertTriangle className="h-3 w-3" /> Awaiting Approval
+                              </span>
+                              <button
+                                onClick={() => {
+                                  setIsNotifOpen(false);
+                                  navigate('/admin/dashboard?tab=orders');
+                                }}
+                                className="flex items-center gap-1 text-[11px] font-bold text-emerald-700 hover:text-emerald-800"
+                              >
+                                Review <ArrowRight className="h-3 w-3" />
+                              </button>
+                            </div>
                           </div>
-                          <p className="text-xs text-slate-600 font-medium mt-0.5">
-                            Customer: <b>{ord.address?.fullName || ord.user?.name || 'Customer'}</b>
-                          </p>
-                          <p className="text-[11px] text-slate-400 truncate">
-                            {ord.items?.map((i: any) => i.book?.title || 'Book').join(', ')}
-                          </p>
-                          <div className="mt-2 flex items-center justify-between pt-1 border-t border-slate-100">
-                            <span className="text-[10px] text-amber-700 font-bold flex items-center gap-1">
-                              <AlertTriangle className="h-3 w-3" /> Awaiting Approval
-                            </span>
-                            <button
-                              onClick={() => {
-                                setIsNotifOpen(false);
-                                navigate('/admin/dashboard?tab=orders');
-                              }}
-                              className="flex items-center gap-1 text-[11px] font-bold text-emerald-700 hover:text-emerald-800"
-                            >
-                              Review <ArrowRight className="h-3 w-3" />
-                            </button>
-                          </div>
-                        </div>
-                      ))
+                        );
+                      })
                     )}
                   </div>
                 </div>
