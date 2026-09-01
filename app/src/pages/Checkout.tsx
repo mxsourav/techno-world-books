@@ -6,7 +6,7 @@ import { useStore } from '@/store/StoreContext';
 import { useCartTotals } from '@/hooks/useCartTotals';
 import type { Address, Order } from '@/types';
 import { toast } from 'sonner';
-import { shippingService, profileService } from '@/services/api';
+import { shippingService, profileService, orderService } from '@/services/api';
 
 const PAYMENTS = [
   { id: 'upi', name: 'UPI', desc: 'GPay, PhonePe, Paytm & more', icon: Smartphone },
@@ -44,7 +44,7 @@ export default function Checkout() {
       return true;
     });
   }, [dbAddresses, storeAddresses]);
-  const { items, subtotal, shipping, discount, total, coupon, appliedCoupon, couponError, isValid, errors, loading, error } = useCartTotals();
+  const { items, subtotal, shipping, discount, total, appliedCoupon, couponError, isValid, errors, loading, error } = useCartTotals();
   const [placed, setPlaced] = useState<Order | null>(null);
   const [selectedAddr, setSelectedAddr] = useState<string>('new');
   const [payment, setPayment] = useState('upi');
@@ -178,21 +178,20 @@ export default function Checkout() {
 
     setIsSubmitting(true);
     try {
-      const { orderService } = await import('@/services/api');
-      
       const orderPayload = {
         items: items.map((i: any) => ({ bookId: i.bookId, quantity: i.quantity })),
-        addressId: address.id,
+        addressId: address.id?.startsWith('addr_') ? undefined : address.id,
         address: {
-          fullName: address.name,
-          phone: address.phone,
-          addressLine1: address.line1,
-          city: address.city,
-          state: address.state,
-          pincode: address.pincode,
+          fullName: address.name || (address as any).fullName || form.name || 'Valued Customer',
+          phone: address.phone || form.phone || '9876543210',
+          addressLine1: address.line1 || (address as any).addressLine1 || form.line1 || 'Delivery Address',
+          addressLine2: (address as any).line2 || (address as any).addressLine2 || null,
+          city: address.city || form.city || 'Kolkata',
+          state: address.state || form.state || 'West Bengal',
+          pincode: address.pincode || form.pincode || '700001',
         },
-        paymentMethod: PAYMENTS.find(p => p.id === payment)!.name,
-        couponCode: coupon,
+        paymentMethod: PAYMENTS.find(p => p.id === payment)?.name || 'Cash on Delivery',
+        couponCode: appliedCoupon ? appliedCoupon : undefined,
       };
 
       const res = await orderService.create(orderPayload);

@@ -31,7 +31,12 @@ export class ApiError extends Error {
 async function handleResponse<T>(response: Response): Promise<ApiResponse<T>> {
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new ApiError(response.status, data.message || `Server returned ${response.status}`);
+    let msg = data.message || `Server returned ${response.status}`;
+    if (data.errors && Array.isArray(data.errors) && data.errors.length > 0) {
+      const detailed = data.errors.map((e: any) => `${e.field ? e.field + ': ' : ''}${e.message}`).join(', ');
+      msg = `${msg}: ${detailed}`;
+    }
+    throw new ApiError(response.status, msg);
   }
   return data;
 }
