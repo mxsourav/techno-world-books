@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router';
-import { MapPin, CreditCard, CheckCircle2, Smartphone, Landmark, Banknote, Wallet, PartyPopper, Download, Tag, Loader2, ShieldCheck, AlertCircle } from 'lucide-react';
+import { MapPin, CreditCard, CheckCircle2, Smartphone, Landmark, Banknote, Wallet, PartyPopper, Download, Tag, Loader2, ShieldCheck, AlertCircle, Truck } from 'lucide-react';
 import { formatINR } from '@/utils/helpers';
 import { useStore } from '@/store/StoreContext';
 import { useCartTotals } from '@/hooks/useCartTotals';
@@ -21,6 +21,14 @@ const INDIAN_STATES = ['West Bengal', 'Maharashtra', 'Delhi', 'Karnataka', 'Tami
 export default function Checkout() {
   const { user, addresses: storeAddresses, addAddress, clearCart, applyCoupon, clearCoupon } = useStore();
   const [dbAddresses, setDbAddresses] = useState<any[]>([]);
+  const [selectedAddr, setSelectedAddr] = useState<string>('new');
+  const [payment, setPayment] = useState('upi');
+  const [form, setForm] = useState({ name: user?.name ?? '', phone: user?.phone ?? '', line1: '', city: '', state: 'West Bengal', pincode: '', type: 'Home' as 'Home' | 'Work' });
+  const [upiId, setUpiId] = useState('');
+  const [card, setCard] = useState({ number: '', expiry: '', cvv: '', name: '' });
+  const [couponInput, setCouponInput] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [placed, setPlaced] = useState<Order | null>(null);
 
   useEffect(() => {
     profileService.getAddresses().then((res: any) => {
@@ -44,15 +52,42 @@ export default function Checkout() {
       return true;
     });
   }, [dbAddresses, storeAddresses]);
-  const { items, subtotal, shipping, discount, total, appliedCoupon, couponError, isValid, errors, loading, error } = useCartTotals();
-  const [placed, setPlaced] = useState<Order | null>(null);
-  const [selectedAddr, setSelectedAddr] = useState<string>('new');
-  const [payment, setPayment] = useState('upi');
-  const [form, setForm] = useState({ name: user?.name ?? '', phone: user?.phone ?? '', line1: '', city: '', state: 'West Bengal', pincode: '', type: 'Home' as 'Home' | 'Work' });
-  const [upiId, setUpiId] = useState('');
-  const [card, setCard] = useState({ number: '', expiry: '', cvv: '', name: '' });
-  const [couponInput, setCouponInput] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const selectedAddressObj = useMemo(() => {
+    if (selectedAddr !== 'new') {
+      return addresses.find((a: any) => a.id === selectedAddr);
+    }
+    return null;
+  }, [selectedAddr, addresses]);
+
+  const activePincode = useMemo(() => {
+    if (selectedAddressObj) {
+      return selectedAddressObj.pincode;
+    }
+    const clean = form.pincode.replace(/\D/g, '').slice(0, 6);
+    if (clean.length === 6 && /^[1-8]\d{5}$/.test(clean)) {
+      return clean;
+    }
+    return undefined;
+  }, [selectedAddressObj, form.pincode]);
+
+  const {
+    items,
+    subtotal,
+    shipping,
+    isShippingCalculated,
+    shippingZone,
+    estimatedTransitDays,
+    discount,
+    total,
+    appliedCoupon,
+    couponError,
+    isValid,
+    errors,
+    loading,
+    error,
+  } = useCartTotals(activePincode, selectedAddressObj?.id);
+
   const [pincodeStatus, setPincodeStatus] = useState<{
     loading: boolean;
     verified: boolean;
@@ -437,7 +472,7 @@ export default function Checkout() {
             )}
           </div>
 
-          <dl className="mt-3 space-y-1.5 text-sm">
+          <dl className="mt-3 space-y-2 text-sm">
             <div className="flex justify-between"><dt className="text-slate-500">Subtotal</dt><dd>{formatINR(subtotal)}</dd></div>
             {discount > 0 && (
               <div className="flex justify-between">
@@ -445,8 +480,37 @@ export default function Checkout() {
                 <dd className="font-bold text-emerald-700">− {formatINR(discount)}</dd>
               </div>
             )}
-            <div className="flex justify-between"><dt className="text-slate-500">Delivery</dt><dd>{shipping === 0 ? <span className="font-semibold text-emerald-700">FREE</span> : formatINR(shipping)}</dd></div>
-            <div className="flex justify-between border-t pt-2 text-base font-extrabold"><span>Total</span><span>{formatINR(total)}</span></div>
+            <div className="flex justify-between items-center">
+              <dt className="text-slate-500">Delivery</dt>
+              <dd>
+                {isShippingCalculated ? (
+                  shipping === 0 ? (
+                    <span className="font-bold text-emerald-700">FREE</span>
+                  ) : (
+                    <span className="font-semibold text-slate-900">{formatINR(shipping)}</span>
+                  )
+                ) : (
+                  <span className="rounded-md bg-amber-50 border border-amber-200 px-2 py-0.5 text-[11px] font-bold text-amber-800">
+                    Calculated at address step
+                  </span>
+                )}
+              </dd>
+            </div>
+
+            {isShippingCalculated && (
+              <div className="rounded-lg bg-emerald-50/80 border border-emerald-200 p-2 text-[11px] text-emerald-900 flex items-center gap-1.5">
+                <Truck className="h-3.5 w-3.5 text-emerald-700 shrink-0" />
+                <span>India Post {shippingZone} · Est. <b>{estimatedTransitDays}</b></span>
+              </div>
+            )}
+
+            <div className="flex justify-between border-t pt-2 text-base font-extrabold">
+              <span>Total</span>
+              <span>{formatINR(total)}</span>
+            </div>
+            {!isShippingCalculated && (
+              <p className="text-[10px] text-slate-400 text-right">Delivery fee added once address + pincode is confirmed</p>
+            )}
           </dl>
           {errors && errors?.length > 0 && (
             <div className="mt-3 rounded-lg bg-rose-50 p-3 text-xs text-rose-700">

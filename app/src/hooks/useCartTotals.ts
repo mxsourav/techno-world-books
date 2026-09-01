@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useStore } from '@/store/StoreContext';
 import { pricingService } from '@/services/api';
 
-export function useCartTotals() {
+export function useCartTotals(pincode?: string, addressId?: string) {
   const { cart, coupon, user } = useStore();
   const [pricing, setPricing] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -18,6 +18,8 @@ export function useCartTotals() {
           subtotal: 0,
           mrpTotal: 0,
           shippingCharge: 0,
+          isShippingCalculated: false,
+          shippingMessage: 'Enter pincode at address step',
           couponDiscount: 0,
           totalAmount: 0,
           totalSavings: 0,
@@ -40,16 +42,18 @@ export function useCartTotals() {
 
         if (validCart?.length === 0) {
           setPricing({
-            items: [], subtotal: 0, mrpTotal: 0, shippingCharge: 0, couponDiscount: 0, totalAmount: 0, totalSavings: 0, couponCode: null, isValid: true, errors: []
+            items: [], subtotal: 0, mrpTotal: 0, shippingCharge: 0, isShippingCalculated: false, shippingMessage: 'Enter pincode at address step', couponDiscount: 0, totalAmount: 0, totalSavings: 0, couponCode: null, isValid: true, errors: []
           });
           setLoading(false);
           return;
         }
 
-        const payload = {
+        const payload: any = {
           items: validCart,
           couponCode: coupon,
-          userId: (user as any)?.id
+          userId: (user as any)?.id,
+          pincode: pincode || undefined,
+          addressId: addressId || undefined,
         };
 
         const res = await pricingService.calculate(payload);
@@ -70,13 +74,12 @@ export function useCartTotals() {
       }
     }
 
-    // Basic debounce to avoid spamming the endpoint when clicking quantity rapidly
-    const timeout = setTimeout(loadPricing, 300);
+    const timeout = setTimeout(loadPricing, 250);
     return () => {
       active = false;
       clearTimeout(timeout);
     };
-  }, [cart, coupon, user]);
+  }, [cart, coupon, user, pincode, addressId]);
 
   const rawPromoCode = pricing?.promotionCode || pricing?.couponCode || null;
   const promoError = pricing?.promotionError || pricing?.couponError || null;
@@ -87,6 +90,10 @@ export function useCartTotals() {
     subtotal: pricing?.subtotal || 0, 
     mrpTotal: pricing?.mrpTotal || 0, 
     shipping: pricing?.shippingCharge || 0, 
+    isShippingCalculated: Boolean(pricing?.isShippingCalculated),
+    shippingZone: pricing?.shippingZone || 'Pending Address',
+    shippingMessage: pricing?.shippingMessage || 'Calculated at address step',
+    estimatedTransitDays: pricing?.estimatedTransitDays || '3–4 Business Days',
     discount, 
     total: pricing?.totalAmount || 0, 
     coupon: rawPromoCode, 

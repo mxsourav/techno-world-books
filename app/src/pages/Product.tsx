@@ -36,6 +36,7 @@ export default function Product() {
     verified: boolean | null;
     postOffice?: string;
     error?: string;
+    dispatchInfo?: any;
   }>({ loading: false, verified: null });
   
   // Accordion open states (Flipkart style)
@@ -202,10 +203,74 @@ export default function Product() {
             'Appendix: Rapid Revision Mind Maps & Answer Keys'
           ]);
 
+  // Calculate India Post batch dispatch schedule & countdown
+  const getIndiaPostDispatchInfo = (cleanPin: string) => {
+    const now = new Date();
+    // India Post Cutoff: 4:00 PM IST (Mon-Sat)
+    const cutoffHour = 16;
+    const currentHour = now.getHours();
+    const currentDay = now.getDay(); // 0 = Sun
+
+    let isSameDayDispatch = currentDay !== 0 && currentHour < cutoffHour;
+    let cutoffDate = new Date();
+    if (isSameDayDispatch) {
+      cutoffDate.setHours(cutoffHour, 0, 0, 0);
+    } else {
+      // Next business day 10:00 AM dispatch
+      cutoffDate.setDate(cutoffDate.getDate() + (currentDay === 0 ? 1 : (currentDay === 6 ? 2 : 1)));
+      cutoffDate.setHours(10, 0, 0, 0);
+    }
+
+    const diffMs = Math.max(0, cutoffDate.getTime() - now.getTime());
+    const hoursLeft = Math.floor(diffMs / (1000 * 60 * 60));
+    const minsLeft = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+    // Calculate transit days based on Indian postal zone (Origin: 700009 Kolkata)
+    const pinNum = parseInt(cleanPin, 10);
+    let transitDaysMin = 3;
+    let transitDaysMax = 5;
+    let zoneName = 'National Zone';
+
+    if (pinNum >= 700001 && pinNum <= 700160) {
+      transitDaysMin = 1;
+      transitDaysMax = 2;
+      zoneName = 'Local Kolkata Zone';
+    } else if (pinNum >= 710000 && pinNum <= 749999) {
+      transitDaysMin = 2;
+      transitDaysMax = 3;
+      zoneName = 'West Bengal Zone';
+    } else if (['11', '12', '20', '40', '50', '56', '60'].includes(cleanPin.slice(0, 2))) {
+      transitDaysMin = 3;
+      transitDaysMax = 4;
+      zoneName = 'Metro Zone';
+    } else {
+      transitDaysMin = 4;
+      transitDaysMax = 6;
+      zoneName = 'Rest of India';
+    }
+
+    const dispatchOffset = isSameDayDispatch ? 0 : 1;
+    const estDateMin = new Date();
+    estDateMin.setDate(estDateMin.getDate() + dispatchOffset + transitDaysMin);
+    const estDateMax = new Date();
+    estDateMax.setDate(estDateMax.getDate() + dispatchOffset + transitDaysMax);
+
+    const formatD = (d: Date) => d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+    const estString = `${formatD(estDateMin)} – ${formatD(estDateMax)}`;
+
+    return {
+      isSameDayDispatch,
+      countdown: `${hoursLeft}h ${minsLeft}m`,
+      estDelivery: estString,
+      zoneName,
+      dispatchBatch: isSameDayDispatch ? "Today's 4:00 PM Speed Post Batch" : "Tomorrow's 10:00 AM Morning Batch",
+    };
+  };
+
   const checkPincode = async () => {
     const cleanPin = pincode.replace(/\D/g, '').trim();
     if (!/^\d{6}$/.test(cleanPin)) {
-      setPincodeCheck({ loading: false, verified: false, error: 'Please enter a valid 6-digit PIN code' });
+      setPincodeCheck({ loading: false, verified: false, error: 'Please enter a valid 6-digit Indian PIN code' });
       return toast.error('Please enter a valid 6-digit Indian PIN code');
     }
 
@@ -214,11 +279,8 @@ export default function Product() {
       const res = await shippingService.verifyPincode(cleanPin);
       if (res.success && Array.isArray(res.data) && res.data.length > 0) {
         const office = res.data[0];
-        const days = 2 + (parseInt(cleanPin[0], 10) % 3);
-        const d = new Date();
-        d.setDate(d.getDate() + days);
-        const dateStr = d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
-        setDeliveryDate(dateStr);
+        const dispatchInfo = getIndiaPostDispatchInfo(cleanPin);
+        setDeliveryDate(dispatchInfo.estDelivery);
         const locationLabel = office.city_name && !office.office_name.includes(office.city_name)
           ? `${office.office_name}, ${office.city_name}, ${office.state_name}`
           : `${office.office_name}, ${office.state_name}`;
@@ -226,14 +288,15 @@ export default function Product() {
           loading: false,
           verified: true,
           postOffice: locationLabel,
+          dispatchInfo,
         });
-        toast.success(`Speed Post available to ${locationLabel}! Estimated ${dateStr}`);
+        toast.success(`India Post Speed Post available to ${locationLabel}!`);
       } else {
         setDeliveryDate('');
         setPincodeCheck({
           loading: false,
           verified: false,
-          error: `PIN code ${cleanPin} is non-existent or unserviceable`,
+          error: `PIN code ${cleanPin} is non-existent or unserviceable by India Post`,
         });
         toast.error(`PIN code ${cleanPin} is non-existent or unserviceable`);
       }
@@ -580,14 +643,30 @@ export default function Product() {
 
                 {/* Verification result states */}
                 {pincodeCheck.verified === true && (
-                  <div className="mt-2.5 rounded-lg border border-emerald-200 bg-emerald-50/80 p-2.5 text-xs text-emerald-800">
-                    <p className="flex items-center gap-1.5 font-bold">
-                      <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
-                      Speed Post Deliverable to {pincodeCheck.postOffice}
-                    </p>
-                    <p className="mt-1 flex items-center gap-1.5 text-slate-700">
-                      <Truck className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-                      <span>Delivery by <b>{deliveryDate}</b> · {price >= 499 ? <span className="font-bold text-emerald-700">FREE</span> : '₹40'}</span>
+                  <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50/70 p-3.5 text-xs text-emerald-950 space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="flex items-center gap-1.5 font-extrabold text-emerald-900">
+                        <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
+                        Speed Post Deliverable to {pincodeCheck.postOffice}
+                      </p>
+                      <span className="rounded-full bg-emerald-200/80 px-2 py-0.5 text-[10px] font-black text-emerald-800 shrink-0">
+                        CEPT Verified
+                      </span>
+                    </div>
+
+                    <div className="rounded-lg bg-white/90 border border-emerald-100 p-2.5 space-y-1">
+                      <div className="flex items-center gap-1.5 text-slate-800 font-bold">
+                        <Truck className="h-4 w-4 text-emerald-600 shrink-0" />
+                        <span>Estimated Delivery: <b className="text-emerald-900">{pincodeCheck.dispatchInfo?.estDelivery || deliveryDate}</b></span>
+                      </div>
+                      <p className="text-[11px] text-slate-600 flex items-center gap-1">
+                        <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />
+                        <span>Order within <b>{pincodeCheck.dispatchInfo?.countdown}</b> for <b>{pincodeCheck.dispatchInfo?.dispatchBatch}</b></span>
+                      </p>
+                    </div>
+
+                    <p className="text-[10px] text-slate-500 flex items-center gap-1">
+                      <span>ℹ️ Delivery charges (if applicable) are calculated at checkout based on full address and weight.</span>
                     </p>
                   </div>
                 )}
@@ -605,9 +684,9 @@ export default function Product() {
                 )}
 
                 {pincodeCheck.verified === null && (
-                  <div className="mt-3 flex items-center gap-2 text-xs font-bold text-slate-800">
-                    <Truck className="h-4 w-4 text-emerald-600" />
-                    <span>Estimated Delivery in 3–4 Business Days · {price >= 499 ? <span className="text-emerald-700">FREE</span> : '₹40'}</span>
+                  <div className="mt-3 flex items-center gap-2 text-xs font-semibold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg p-2.5">
+                    <Truck className="h-4 w-4 text-emerald-600 shrink-0" />
+                    <span>Enter PIN code above to see exact India Post batch dispatch schedule & delivery date</span>
                   </div>
                 )}
 
