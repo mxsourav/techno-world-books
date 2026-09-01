@@ -1,6 +1,8 @@
+import { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router';
-import { LayoutDashboard, Store, LogOut, Package, ShoppingCart, Users, Tag, Image, Star, BarChart3, ChevronRight, FolderOpen, FileEdit } from 'lucide-react';
+import { LayoutDashboard, Store, LogOut, Package, ShoppingCart, Users, Tag, Image, Star, BarChart3, ChevronRight, FolderOpen, FileEdit, Bell } from 'lucide-react';
 import { useAuthStore } from '@/store/AuthStore';
+import { orderService } from '@/services/api';
 
 const TABS = [
   { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard },
@@ -21,8 +23,25 @@ export default function AdminLayout() {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const currentTab = searchParams.get('tab') || 'dashboard';
+  const [pendingCount, setPendingCount] = useState<number>(0);
 
   const tabName = TABS.find(t => t.id === currentTab)?.name || 'Dashboard';
+
+  useEffect(() => {
+    const fetchNotifications = () => {
+      orderService.getNotifications()
+        .then((res: any) => {
+          if (res.success && typeof res.pendingCount === 'number') {
+            setPendingCount(res.pendingCount);
+          }
+        })
+        .catch(() => {});
+    };
+
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 20000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="flex h-screen overflow-hidden bg-slate-50 font-sans text-slate-900">
@@ -53,7 +72,12 @@ export default function AdminLayout() {
                 }`}
               >
                 <t.icon className={`h-4.5 w-4.5 ${isActive ? 'text-emerald-400' : 'text-slate-500'}`} />
-                {t.name}
+                <span>{t.name}</span>
+                {t.id === 'orders' && pendingCount > 0 && (
+                  <span className="ml-auto rounded-full bg-rose-500 text-white text-[10px] font-extrabold px-2 py-0.5 shadow-sm animate-pulse">
+                    {pendingCount}
+                  </span>
+                )}
               </Link>
             )
           })}
@@ -81,7 +105,20 @@ export default function AdminLayout() {
             <span className="text-slate-900">{tabName}</span>
           </div>
 
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-4">
+            <Link
+              to="/admin/dashboard?tab=orders"
+              className="relative p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors"
+              title="Orders requiring review"
+            >
+              <Bell className="h-5 w-5" />
+              {pendingCount > 0 && (
+                <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-600 text-[9px] font-bold text-white shadow">
+                  {pendingCount}
+                </span>
+              )}
+            </Link>
+
             <a
               href="/"
               target="_blank"

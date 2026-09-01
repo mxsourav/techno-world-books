@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router';
-import { BookOpen, Plus, Search, ShoppingCart, Users, Download, IndianRupee, AlertCircle, Pause, Play, Trash2, Edit3, Truck, Printer, ShieldCheck, X, Loader2 } from 'lucide-react';
+import { BookOpen, Plus, Search, ShoppingCart, Users, Download, IndianRupee, AlertCircle, Pause, Play, Trash2, Edit3, Truck, Printer, ShieldCheck, X, Loader2, Mail, CheckCircle2, XCircle, Send, AlertTriangle, MessageSquare, ChevronDown, ChevronUp } from 'lucide-react';
 import { formatINR } from '@/utils/helpers';
 import type { Book } from '@/types/index';
 import { adminService, bookService, categoryService, orderService, mediaService, cmsService, promotionService, shippingService } from '@/services/api';
@@ -31,6 +31,21 @@ export default function Dashboard() {
   const [shippingLoading, setShippingLoading] = useState<string | null>(null);
   const [shippingModalLabel, setShippingModalLabel] = useState<any | null>(null);
   const [shippingTrackingModal, setShippingTrackingModal] = useState<any | null>(null);
+  
+  const [orderStatusFilter, setOrderStatusFilter] = useState<string>('ALL');
+  const [emailModalOrder, setEmailModalOrder] = useState<any | null>(null);
+  const [emailTemplate, setEmailTemplate] = useState<string>('DELAY_NOTICE');
+  const [emailSubject, setEmailSubject] = useState<string>('');
+  const [emailMessage, setEmailMessage] = useState<string>('');
+  const [emailRecipient, setEmailRecipient] = useState<string>('');
+  const [emailSending, setEmailSending] = useState(false);
+
+  const [rejectModalOrder, setRejectModalOrder] = useState<any | null>(null);
+  const [rejectReason, setRejectReason] = useState<string>('Book currently out of print / unavailable from publisher');
+  const [rejectCustomReason, setRejectCustomReason] = useState<string>('');
+  const [rejecting, setRejecting] = useState(false);
+  const [expandedNotesOrderId, setExpandedNotesOrderId] = useState<string | null>(null);
+
   const [mediaItems, setMediaItems] = useState<any[]>([]);
   const [cmsSections, setCmsSections] = useState<any[]>([]);
   const [cmsEditing, setCmsEditing] = useState<Record<string, any>>({});  const [isUploading, setIsUploading] = useState(false);
@@ -152,6 +167,142 @@ export default function Dashboard() {
     document.body.appendChild(link);
     link.click();
     link.remove();
+  };
+
+  // Quick Template Helper for Admin Customer Emails
+  const applyEmailTemplate = (templateKey: string, order: any) => {
+    setEmailTemplate(templateKey);
+    const customerName = order.address?.name || order.user?.name || 'Valued Customer';
+    const firstBookTitle = order.items?.[0]?.book?.title || 'the ordered title(s)';
+
+    if (templateKey === 'DELAY_NOTICE') {
+      setEmailSubject(`Important Update: Order #${order.orderNumber} Dispatch Notice - Techno World Books`);
+      setEmailMessage(
+`Dear ${customerName},
+
+Thank you for placing order #${order.orderNumber} with Techno World Books.
+
+We would like to inform you that "${firstBookTitle}" is currently being arranged from our publisher warehouse. As a result, there will be a slight delay of 2–3 business days in dispatching your package.
+
+Rest assured, your order is confirmed and prioritized. As soon as it is packed, we will dispatch it via India Post Speed Post and email your live tracking barcode immediately.
+
+Thank you for your patience and understanding.
+
+Warm regards,
+Techno World Orders Team
+admin@technoworld.com | https://techno-world-books.vercel.app`
+      );
+    } else if (templateKey === 'ADDRESS_CLARIFICATION') {
+      setEmailSubject(`Address Clarification Required: Order #${order.orderNumber} - Techno World Books`);
+      setEmailMessage(
+`Dear ${customerName},
+
+We are getting your order #${order.orderNumber} ready for dispatch via India Post Speed Post.
+
+To ensure seamless delivery by the postal carrier, could you please confirm your complete street address, nearby landmark, and 6-digit postal PIN code?
+
+Recipient Address on File:
+${order.address?.line1 || ''}, ${order.address?.city || ''}, ${order.address?.state || ''} - ${order.address?.pincode || ''}
+
+Thank you for your quick confirmation.
+
+Warm regards,
+Techno World Dispatch Team
+admin@technoworld.com`
+      );
+    } else if (templateKey === 'ORDER_CONFIRMATION') {
+      setEmailSubject(`Order Confirmed: #${order.orderNumber} is Being Prepared - Techno World Books`);
+      setEmailMessage(
+`Dear ${customerName},
+
+Great news! Your order #${order.orderNumber} for "${firstBookTitle}" has been reviewed and accepted by our fulfillment team.
+
+We are currently packing your books with protective bubble wrap. You will receive an India Post Speed Post tracking number once the consignment is dispatched.
+
+Thank you for choosing Techno World Books!
+
+Warm regards,
+Techno World Books Team`
+      );
+    } else {
+      setEmailSubject(`Update regarding your Order #${order.orderNumber} - Techno World Books`);
+      setEmailMessage(
+`Dear ${customerName},
+
+We are writing to you regarding your order #${order.orderNumber}.
+
+
+
+Warm regards,
+Techno World Orders Team
+admin@technoworld.com`
+      );
+    }
+  };
+
+  const openEmailModal = (order: any, initialTemplate = 'DELAY_NOTICE') => {
+    setEmailModalOrder(order);
+    setEmailRecipient(order.user?.email || 'customer@technoworld.com');
+    applyEmailTemplate(initialTemplate, order);
+  };
+
+  const handleSendCustomEmail = async () => {
+    if (!emailModalOrder || !emailSubject.trim() || !emailMessage.trim()) {
+      return toast.error('Please enter a subject and message');
+    }
+
+    setEmailSending(true);
+    try {
+      const res = await orderService.sendCustomEmail(emailModalOrder.id, {
+        subject: emailSubject,
+        message: emailMessage,
+        templateType: emailTemplate as any,
+        recipientEmail: emailRecipient,
+        recipientName: emailModalOrder.address?.name || emailModalOrder.user?.name,
+      });
+
+      if (res.success) {
+        toast.success(`Email sent from admin@technoworld.com to ${emailRecipient}`);
+        setEmailModalOrder(null);
+        // Refresh orders to reflect updated communication notes
+        orderService.getAllOrders().then(r => r.data && setOrders(r.data));
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to send email');
+    } finally {
+      setEmailSending(false);
+    }
+  };
+
+  const handleAcceptOrder = async (order: any) => {
+    try {
+      await orderService.updateStatus(order.id, 'PROCESSING', 'Order accepted by Admin for fulfillment');
+      toast.success(`Order #${order.orderNumber} accepted! Status changed to PROCESSING.`);
+      setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'PROCESSING' } : o));
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to accept order');
+    }
+  };
+
+  const handleRejectOrderSubmit = async () => {
+    if (!rejectModalOrder) return;
+    const finalReason = rejectReason === 'Other' ? rejectCustomReason : rejectReason;
+    if (!finalReason.trim()) {
+      return toast.error('Please specify a rejection reason');
+    }
+
+    setRejecting(true);
+    try {
+      await orderService.updateStatus(rejectModalOrder.id, 'CANCELLED', undefined, finalReason);
+      toast.success(`Order #${rejectModalOrder.orderNumber} cancelled. Notification email sent to customer.`);
+      setOrders(prev => prev.map(o => o.id === rejectModalOrder.id ? { ...o, status: 'CANCELLED' } : o));
+      setRejectModalOrder(null);
+      setRejectCustomReason('');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to reject order');
+    } finally {
+      setRejecting(false);
+    }
   };
 
   const updateOrderStatus = async (id: string, status: string) => {
@@ -349,85 +500,229 @@ export default function Dashboard() {
 
         {tab === 'products' && <ProductsWorkspace />}
         {tab === 'orders' && (
-          <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="mb-6 flex items-center justify-between">
-              <div>
-                <p className="text-base font-bold text-slate-800">Order Management & Logistics</p>
-                <p className="text-xs text-slate-500">Book consignments via India Post Speed Post, generate labels, and track shipments</p>
+          <div className="space-y-6">
+            {/* Header & Status Filter Pills */}
+            <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="flex flex-wrap items-center justify-between gap-4 pb-5 border-b border-slate-100">
+                <div>
+                  <div className="flex items-center gap-2.5">
+                    <h2 className="text-lg font-extrabold text-slate-900">Order Management & Logistics Hub</h2>
+                    {orders.filter(o => o.status === 'PENDING').length > 0 && (
+                      <span className="flex items-center gap-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300 px-2.5 py-0.5 text-xs font-bold animate-pulse">
+                        <AlertTriangle className="h-3.5 w-3.5 text-amber-700" />
+                        {orders.filter(o => o.status === 'PENDING').length} Pending Decision
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Accept or reject customer orders, dispatch India Post Speed Post consignments, or notify customers of stock procurement delays directly from admin email.
+                  </p>
+                </div>
+                <span className="rounded-full bg-red-50 border border-red-200 px-3.5 py-1.5 text-xs font-bold text-red-700 flex items-center gap-1.5 shadow-sm">
+                  <ShieldCheck className="h-4 w-4 text-red-600" /> India Post CEPT Integrated
+                </span>
               </div>
-              <span className="rounded-full bg-red-50 border border-red-200 px-3 py-1 text-xs font-bold text-red-700 flex items-center gap-1.5">
-                <ShieldCheck className="h-3.5 w-3.5" /> India Post CEPT Integrated
-              </span>
+
+              {/* Status Filter Tabs */}
+              <div className="mt-4 flex flex-wrap gap-2">
+                {[
+                  { id: 'ALL', label: `All (${orders.length})` },
+                  { id: 'PENDING', label: `Pending Review (${orders.filter(o => o.status === 'PENDING').length})`, alert: orders.filter(o => o.status === 'PENDING').length > 0 },
+                  { id: 'CONFIRMED', label: `Confirmed (${orders.filter(o => o.status === 'CONFIRMED').length})` },
+                  { id: 'PROCESSING', label: `Processing (${orders.filter(o => o.status === 'PROCESSING').length})` },
+                  { id: 'SHIPPED', label: `Shipped (${orders.filter(o => o.status === 'SHIPPED').length})` },
+                  { id: 'DELIVERED', label: `Delivered (${orders.filter(o => o.status === 'DELIVERED').length})` },
+                  { id: 'CANCELLED', label: `Cancelled (${orders.filter(o => o.status === 'CANCELLED').length})` },
+                ].map((f) => (
+                  <button
+                    key={f.id}
+                    onClick={() => setOrderStatusFilter(f.id)}
+                    className={`rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all flex items-center gap-1.5 ${
+                      orderStatusFilter === f.id
+                        ? 'bg-slate-900 text-white shadow'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    } ${f.alert && orderStatusFilter !== f.id ? 'border border-amber-300 bg-amber-50 text-amber-800' : ''}`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {orders.length === 0 ? (
-              <p className="text-sm text-slate-500">No customer orders yet.</p>
+            {/* Orders List */}
+            {orders.filter(o => orderStatusFilter === 'ALL' || o.status === orderStatusFilter).length === 0 ? (
+              <div className="rounded-xl border border-slate-200 bg-white p-12 text-center text-slate-500 shadow-sm">
+                <ShoppingCart className="mx-auto h-10 w-10 text-slate-300 mb-2" />
+                <p className="text-sm font-semibold">No orders found in "{orderStatusFilter}" status.</p>
+              </div>
             ) : (
               <div className="space-y-4">
-                {orders.map((o) => (
-                  <div key={o.id} className="rounded-xl border border-slate-200 p-4 text-sm hover:border-emerald-200 transition-colors bg-slate-50/50">
-                    <div className="flex flex-wrap items-center justify-between gap-4">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <p className="font-bold text-slate-900 text-base">{o.orderNumber}</p>
-                          <span className="text-slate-300">|</span>
-                          <span className="font-extrabold text-emerald-700">{formatINR(o.totalAmount)}</span>
-                          {o.trackingNumber && (
-                            <span className="rounded bg-red-100 text-red-800 text-xs px-2 py-0.5 font-bold flex items-center gap-1">
-                              <Truck className="h-3 w-3" /> {o.trackingNumber}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs text-slate-500">
-                          Customer: <span className="font-medium text-slate-700">{o.user?.name || 'Guest'}</span> · Method: <span className="font-medium text-slate-700">{o.paymentMethod}</span> · Carrier: <span className="font-medium text-slate-700">{o.shippingCarrier || 'Unassigned'}</span>
-                        </p>
-                      </div>
+                {orders
+                  .filter(o => orderStatusFilter === 'ALL' || o.status === orderStatusFilter)
+                  .map((o) => {
+                    const isPending = o.status === 'PENDING';
+                    const hasNotes = Boolean(o.notes);
 
-                      <div className="flex items-center gap-2 flex-wrap">
-                        {/* India Post Consignment Booking & Label Actions */}
-                        {!o.trackingNumber ? (
-                          <button
-                            disabled={shippingLoading === o.id}
-                            onClick={() => bookIndiaPostShipment(o.id)}
-                            className="flex items-center gap-1.5 rounded-lg bg-red-700 px-3.5 py-2 text-xs font-bold text-white hover:bg-red-800 disabled:opacity-50 transition-colors shadow-sm"
-                          >
-                            {shippingLoading === o.id ? (
-                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                            ) : (
-                              <Truck className="h-3.5 w-3.5" />
-                            )}
-                            Ship with India Post
-                          </button>
-                        ) : (
-                          <>
-                            <button
-                              onClick={() => openShippingLabel(o.id)}
-                              className="flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-sm"
-                            >
-                              <Printer className="h-3.5 w-3.5 text-slate-600" /> Print Label
-                            </button>
-                            <button
-                              onClick={() => openTrackingModal(o.trackingNumber || o.orderNumber)}
-                              className="flex items-center gap-1 rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800 hover:bg-emerald-100 shadow-sm"
-                            >
-                              <Truck className="h-3.5 w-3.5 text-emerald-700" /> Live Track
-                            </button>
-                          </>
+                    return (
+                      <div
+                        key={o.id}
+                        className={`rounded-xl border p-5 text-sm transition-all bg-white shadow-sm ${
+                          isPending ? 'border-amber-300 ring-2 ring-amber-400/20' : 'border-slate-200'
+                        }`}
+                      >
+                        {/* Pending Decision Banner */}
+                        {isPending && (
+                          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-amber-50 border border-amber-200 px-3.5 py-2.5 text-xs text-amber-900">
+                            <div className="flex items-center gap-2 font-bold">
+                              <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
+                              <span>Requires Decision: Verify stock availability or send procurement delay notice to customer.</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => handleAcceptOrder(o)}
+                                className="flex items-center gap-1 rounded bg-emerald-700 px-2.5 py-1 text-xs font-bold text-white hover:bg-emerald-800 transition-colors shadow-sm"
+                              >
+                                <CheckCircle2 className="h-3.5 w-3.5" /> Accept Order
+                              </button>
+                              <button
+                                onClick={() => openEmailModal(o, 'DELAY_NOTICE')}
+                                className="flex items-center gap-1 rounded bg-blue-700 px-2.5 py-1 text-xs font-bold text-white hover:bg-blue-800 transition-colors shadow-sm"
+                              >
+                                <Mail className="h-3.5 w-3.5" /> Slight Delay Notice
+                              </button>
+                              <button
+                                onClick={() => setRejectModalOrder(o)}
+                                className="flex items-center gap-1 rounded bg-rose-700 px-2.5 py-1 text-xs font-bold text-white hover:bg-rose-800 transition-colors shadow-sm"
+                              >
+                                <XCircle className="h-3.5 w-3.5" /> Reject
+                              </button>
+                            </div>
+                          </div>
                         )}
 
-                        <select
-                          value={o.status}
-                          onChange={(e) => updateOrderStatus(o.id, e.target.value)}
-                          className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold outline-none focus:ring-2 focus:ring-emerald-500/20 shadow-sm"
-                        >
-                          {['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'].map((s) => (
-                            <option key={s} value={s}>{s}</option>
-                          ))}
-                        </select>
+                        <div className="flex flex-wrap items-start justify-between gap-4">
+                          {/* Order Summary & Customer Info */}
+                          <div className="min-w-0 flex-1 space-y-1.5">
+                            <div className="flex flex-wrap items-center gap-2.5">
+                              <span className="font-extrabold text-slate-900 text-base">{o.orderNumber}</span>
+                              <span className="text-slate-300">|</span>
+                              <span className="font-black text-emerald-700 text-base">{formatINR(o.totalAmount)}</span>
+                              <span className={`rounded-full px-2.5 py-0.5 text-xs font-extrabold ${
+                                o.status === 'PENDING' ? 'bg-amber-100 text-amber-800' :
+                                o.status === 'CONFIRMED' ? 'bg-blue-100 text-blue-800' :
+                                o.status === 'PROCESSING' ? 'bg-indigo-100 text-indigo-800' :
+                                o.status === 'SHIPPED' ? 'bg-purple-100 text-purple-800' :
+                                o.status === 'DELIVERED' ? 'bg-emerald-100 text-emerald-800' :
+                                'bg-rose-100 text-rose-800'
+                              }`}>
+                                {o.status}
+                              </span>
+                              {o.trackingNumber && (
+                                <span className="rounded bg-red-100 text-red-800 text-xs px-2.5 py-0.5 font-bold flex items-center gap-1">
+                                  <Truck className="h-3.5 w-3.5" /> {o.trackingNumber}
+                                </span>
+                              )}
+                            </div>
+
+                            <p className="text-xs text-slate-600">
+                              <b>Customer:</b> <span className="font-semibold text-slate-800">{o.address?.name || o.user?.name || 'Guest'}</span> ({o.user?.email || 'N/A'}) · <b>Phone:</b> {o.address?.phone || 'N/A'} · <b>Payment:</b> {o.paymentMethod}
+                            </p>
+
+                            {o.address && (
+                              <p className="text-xs text-slate-500">
+                                📍 <b>Delivery Address:</b> {o.address.line1}, {o.address.city}, {o.address.state} — <b>{o.address.pincode}</b>
+                              </p>
+                            )}
+
+                            {/* Book items list */}
+                            {Array.isArray(o.items) && o.items.length > 0 && (
+                              <div className="mt-2 pt-2 border-t border-slate-100 flex flex-wrap gap-2 text-xs text-slate-700">
+                                {o.items.map((item: any, idx: number) => (
+                                  <span key={idx} className="bg-slate-100 px-2 py-1 rounded font-medium border border-slate-200">
+                                    📖 {item.book?.title || 'Book'} <span className="text-slate-500 font-bold">×{item.quantity}</span>
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Action Buttons Toolbar */}
+                          <div className="flex items-center gap-2 flex-wrap self-center">
+                            {/* Send Custom Email / Delay Modal Button */}
+                            <button
+                              onClick={() => openEmailModal(o)}
+                              className="flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50/80 px-3 py-2 text-xs font-bold text-blue-700 hover:bg-blue-100 transition-colors shadow-sm"
+                              title="Send custom communication from admin@technoworld.com"
+                            >
+                              <Mail className="h-3.5 w-3.5" /> Email Customer
+                            </button>
+
+                            {/* India Post Speed Post Booking & Label */}
+                            {!o.trackingNumber && o.status !== 'CANCELLED' ? (
+                              <button
+                                disabled={shippingLoading === o.id}
+                                onClick={() => bookIndiaPostShipment(o.id)}
+                                className="flex items-center gap-1.5 rounded-lg bg-red-700 px-3.5 py-2 text-xs font-bold text-white hover:bg-red-800 disabled:opacity-50 transition-colors shadow-sm"
+                              >
+                                {shippingLoading === o.id ? (
+                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                ) : (
+                                  <Truck className="h-3.5 w-3.5" />
+                                )}
+                                Ship with India Post
+                              </button>
+                            ) : o.trackingNumber ? (
+                              <>
+                                <button
+                                  onClick={() => openShippingLabel(o.id)}
+                                  className="flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-sm"
+                                >
+                                  <Printer className="h-3.5 w-3.5 text-slate-600" /> Print Label
+                                </button>
+                                <button
+                                  onClick={() => openTrackingModal(o.trackingNumber || o.orderNumber)}
+                                  className="flex items-center gap-1 rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-800 hover:bg-emerald-100 shadow-sm"
+                                >
+                                  <Truck className="h-3.5 w-3.5 text-emerald-700" /> Live Track
+                                </button>
+                              </>
+                            ) : null}
+
+                            {/* Status Quick Select */}
+                            <select
+                              value={o.status}
+                              onChange={(e) => updateOrderStatus(o.id, e.target.value)}
+                              className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold outline-none focus:ring-2 focus:ring-emerald-500/20 shadow-sm"
+                            >
+                              {['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'].map((s) => (
+                                <option key={s} value={s}>{s}</option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+
+                        {/* Communication / Notes Timeline Expander */}
+                        {hasNotes && (
+                          <div className="mt-3 pt-3 border-t border-slate-100">
+                            <button
+                              onClick={() => setExpandedNotesOrderId(expandedNotesOrderId === o.id ? null : o.id)}
+                              className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-800"
+                            >
+                              <MessageSquare className="h-3.5 w-3.5 text-slate-400" />
+                              Communication & Activity Log ({o.notes.split('\n').length})
+                              {expandedNotesOrderId === o.id ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                            </button>
+
+                            {expandedNotesOrderId === o.id && (
+                              <div className="mt-2 rounded-lg bg-slate-50 border border-slate-200 p-3 text-xs text-slate-700 font-mono whitespace-pre-line space-y-1">
+                                {o.notes}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  </div>
-                ))}
+                    );
+                  })}
               </div>
             )}
           </div>
@@ -1118,6 +1413,193 @@ export default function Dashboard() {
             >
               Close
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Admin Custom Email & Delay Notice Modal */}
+      {emailModalOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
+            <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-6 py-4">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white shadow">
+                  <Mail className="h-4 w-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 text-base">Send Direct Customer Email</h3>
+                  <p className="text-xs text-slate-500">From official admin email: <span className="font-semibold text-slate-700">admin@technoworld.com</span></p>
+                </div>
+              </div>
+              <button onClick={() => setEmailModalOrder(null)} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-200">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4 overflow-y-auto flex-1">
+              {/* Order Info Strip */}
+              <div className="rounded-lg bg-blue-50 border border-blue-100 p-3 text-xs text-blue-900 flex justify-between items-center">
+                <span>Order <b>#{emailModalOrder.orderNumber}</b> · Total: <b>{formatINR(emailModalOrder.totalAmount)}</b></span>
+                <span>Customer: <b>{emailModalOrder.address?.name || emailModalOrder.user?.name}</b></span>
+              </div>
+
+              {/* Template Selector */}
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Quick Email Template</label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  {[
+                    { id: 'DELAY_NOTICE', label: '⏳ Slight Delay (Procurement)' },
+                    { id: 'ADDRESS_CLARIFICATION', label: '📍 Address / PIN Clarification' },
+                    { id: 'ORDER_CONFIRMATION', label: '✅ Order Accepted & Confirmed' },
+                  ].map(t => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => applyEmailTemplate(t.id, emailModalOrder)}
+                      className={`px-3 py-2 rounded-lg text-xs font-bold border text-left transition-all ${
+                        emailTemplate === t.id
+                          ? 'border-blue-500 bg-blue-50 text-blue-800 ring-2 ring-blue-500/20'
+                          : 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100'
+                      }`}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Recipient Email */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Recipient Email</label>
+                <input
+                  type="email"
+                  value={emailRecipient}
+                  onChange={(e) => setEmailRecipient(e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 px-3.5 py-2 text-xs font-medium outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                />
+              </div>
+
+              {/* Subject */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Subject</label>
+                <input
+                  type="text"
+                  value={emailSubject}
+                  onChange={(e) => setEmailSubject(e.target.value)}
+                  placeholder="Enter email subject"
+                  className="w-full rounded-lg border border-slate-300 px-3.5 py-2 text-xs font-semibold outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                />
+              </div>
+
+              {/* Message Body */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Message Body</label>
+                <textarea
+                  rows={8}
+                  value={emailMessage}
+                  onChange={(e) => setEmailMessage(e.target.value)}
+                  placeholder="Write your email message to the customer..."
+                  className="w-full rounded-lg border border-slate-300 p-3 text-xs font-normal outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-sans"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 border-t border-slate-200 bg-slate-50 px-6 py-4">
+              <button
+                type="button"
+                onClick={() => setEmailModalOrder(null)}
+                className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={emailSending}
+                onClick={handleSendCustomEmail}
+                className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-5 py-2 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-50 transition-colors shadow"
+              >
+                {emailSending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+                Send Email to Customer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Rejection Modal */}
+      {rejectModalOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden border border-slate-200">
+            <div className="flex items-center justify-between border-b border-slate-200 bg-rose-50 px-6 py-4">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-600 text-white shadow">
+                  <XCircle className="h-4 w-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-rose-950 text-base">Reject Order #{rejectModalOrder.orderNumber}</h3>
+                  <p className="text-xs text-rose-700">Will cancel order and notify customer with refund details</p>
+                </div>
+              </div>
+              <button onClick={() => setRejectModalOrder(null)} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-200">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Select Cancellation Reason</p>
+              <div className="space-y-2">
+                {[
+                  'Book currently out of print / unavailable from publisher',
+                  'Delivery pincode is currently unserviceable by India Post',
+                  'Customer requested cancellation before fulfillment',
+                  'Suspected duplicate or invalid order details',
+                  'Other',
+                ].map((reason) => (
+                  <label key={reason} className="flex items-center gap-2.5 rounded-lg border border-slate-200 p-2.5 text-xs font-medium cursor-pointer hover:bg-slate-50">
+                    <input
+                      type="radio"
+                      name="rejectReason"
+                      checked={rejectReason === reason}
+                      onChange={() => setRejectReason(reason)}
+                      className="text-rose-600"
+                    />
+                    <span>{reason}</span>
+                  </label>
+                ))}
+              </div>
+
+              {rejectReason === 'Other' && (
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Specify Custom Reason</label>
+                  <textarea
+                    rows={3}
+                    value={rejectCustomReason}
+                    onChange={(e) => setRejectCustomReason(e.target.value)}
+                    placeholder="Enter reason to be sent to customer..."
+                    className="w-full rounded-lg border border-slate-300 p-2.5 text-xs outline-none focus:border-rose-500"
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 border-t border-slate-200 bg-slate-50 px-6 py-4">
+              <button
+                type="button"
+                onClick={() => setRejectModalOrder(null)}
+                className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100"
+              >
+                Go Back
+              </button>
+              <button
+                type="button"
+                disabled={rejecting}
+                onClick={handleRejectOrderSubmit}
+                className="flex items-center gap-1.5 rounded-lg bg-rose-600 px-5 py-2 text-xs font-bold text-white hover:bg-rose-700 disabled:opacity-50 transition-colors shadow"
+              >
+                {rejecting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <XCircle className="h-3.5 w-3.5" />}
+                Confirm Rejection & Notify
+              </button>
+            </div>
           </div>
         </div>
       )}

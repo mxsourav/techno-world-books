@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
-import { MapPin, CreditCard, CheckCircle2, Smartphone, Landmark, Banknote, Wallet, PartyPopper, Download, Tag, Loader2, ShieldCheck } from 'lucide-react';
+import { MapPin, CreditCard, CheckCircle2, Smartphone, Landmark, Banknote, Wallet, PartyPopper, Download, Tag, Loader2, ShieldCheck, AlertCircle } from 'lucide-react';
 import { formatINR } from '@/utils/helpers';
 import { useStore } from '@/store/StoreContext';
 import { useCartTotals } from '@/hooks/useCartTotals';
@@ -28,18 +28,19 @@ export default function Checkout() {
   const [upiId, setUpiId] = useState('');
   const [card, setCard] = useState({ number: '', expiry: '', cvv: '', name: '' });
   const [couponInput, setCouponInput] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [pincodeStatus, setPincodeStatus] = useState<{
     loading: boolean;
     verified: boolean;
     postOffice?: string;
-    fallback: boolean;
-  }>({ loading: false, verified: false, fallback: false });
+    error?: string;
+  }>({ loading: false, verified: false });
 
-  // Real-time India Post Pincode Lookup with Fail-Safe Degradation
+  // Real-time India Post Pincode Lookup
   useEffect(() => {
     const cleanPin = form.pincode.replace(/\D/g, '').slice(0, 6);
     if (cleanPin.length === 6) {
-      setPincodeStatus({ loading: true, verified: false, fallback: false });
+      setPincodeStatus({ loading: true, verified: false });
       shippingService
         .verifyPincode(cleanPin)
         .then((res) => {
@@ -48,8 +49,7 @@ export default function Checkout() {
             setPincodeStatus({
               loading: false,
               verified: true,
-              postOffice: office.office_name,
-              fallback: false,
+              postOffice: `${office.office_name}, ${office.state_name}`,
             });
             setForm((prev) => ({
               ...prev,
@@ -57,18 +57,24 @@ export default function Checkout() {
               state: INDIAN_STATES.includes(office.state_name) ? office.state_name : prev.state,
             }));
           } else {
-            setPincodeStatus({ loading: false, verified: false, fallback: true });
+            setPincodeStatus({
+              loading: false,
+              verified: false,
+              error: `PIN code ${cleanPin} is non-existent or unserviceable`,
+            });
           }
         })
-        .catch(() => {
-          // Graceful fallback to manual entry if India Post API is unreachable
-          setPincodeStatus({ loading: false, verified: false, fallback: true });
+        .catch((err) => {
+          setPincodeStatus({
+            loading: false,
+            verified: false,
+            error: err?.response?.data?.message || `Invalid or non-existent PIN code (${cleanPin})`,
+          });
         });
     } else {
-      setPincodeStatus({ loading: false, verified: false, fallback: false });
+      setPincodeStatus({ loading: false, verified: false });
     }
   }, [form.pincode]);
-
 
   if (loading) {
     return (
@@ -127,8 +133,6 @@ export default function Checkout() {
       </div>
     );
   }
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handlePlaceOrder = async () => {
     let address: Address;
@@ -305,9 +309,10 @@ export default function Checkout() {
                       Speed Post Deliverable: {pincodeStatus.postOffice}
                     </p>
                   )}
-                  {pincodeStatus.fallback && form.pincode.length === 6 && (
-                    <p className="mt-1.5 text-xs text-slate-400">
-                      ✓ Standard courier delivery available (Manual address entry)
+                  {pincodeStatus.error && form.pincode.length === 6 && (
+                    <p className="mt-1.5 flex items-center gap-1.5 text-xs font-semibold text-rose-600 bg-rose-50 px-2.5 py-1 rounded border border-rose-100">
+                      <AlertCircle className="h-3.5 w-3.5 text-rose-600" />
+                      {pincodeStatus.error}
                     </p>
                   )}
                 </div>

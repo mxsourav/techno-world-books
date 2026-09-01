@@ -261,11 +261,23 @@ export const searchService = {
 };
 
 export const orderService = {
-  create: (data: { items: { bookId: string; quantity: number }[]; addressId?: string; paymentMethod?: string }) =>
+  create: (data: { items: { bookId: string; quantity: number }[]; addressId?: string; paymentMethod?: string; couponCode?: string }) =>
     api.post<any>('/orders', data),
   getUserOrders: () => api.get<any>('/orders/my-orders'),
-  getAllOrders: () => api.get<any>('/orders/admin/all'),
-  updateStatus: (id: string, status: string) => api.patch<any>(`/orders/admin/${id}/status`, { status }),
+  getAllOrders: (params?: { status?: string; page?: number; limit?: number }) => api.get<any>('/orders/admin/all', params),
+  getNotifications: () => api.get<any>('/orders/admin/notifications'),
+  updateStatus: (id: string, status: string, notes?: string, reason?: string) =>
+    api.patch<any>(`/orders/admin/${id}/status`, { status, notes, reason }),
+  sendCustomEmail: (
+    id: string,
+    data: {
+      subject: string;
+      message: string;
+      templateType?: 'DELAY_NOTICE' | 'REJECT_NOTICE' | 'ACCEPT_NOTICE' | 'CUSTOM';
+      recipientEmail?: string;
+      recipientName?: string;
+    }
+  ) => api.post<any>(`/orders/admin/${id}/email`, data),
 };
 
 export const mediaService = {
