@@ -159,6 +159,14 @@ export default function Checkout() {
       const orderPayload = {
         items: items.map((i: any) => ({ bookId: i.bookId, quantity: i.quantity })),
         addressId: address.id,
+        address: {
+          fullName: address.name,
+          phone: address.phone,
+          addressLine1: address.line1,
+          city: address.city,
+          state: address.state,
+          pincode: address.pincode,
+        },
         paymentMethod: PAYMENTS.find(p => p.id === payment)!.name,
         couponCode: coupon,
       };

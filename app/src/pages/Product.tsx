@@ -219,12 +219,15 @@ export default function Product() {
         d.setDate(d.getDate() + days);
         const dateStr = d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
         setDeliveryDate(dateStr);
+        const locationLabel = office.city_name && !office.office_name.includes(office.city_name)
+          ? `${office.office_name}, ${office.city_name}, ${office.state_name}`
+          : `${office.office_name}, ${office.state_name}`;
         setPincodeCheck({
           loading: false,
           verified: true,
-          postOffice: `${office.office_name}, ${office.state_name}`,
+          postOffice: locationLabel,
         });
-        toast.success(`Speed Post available to ${office.office_name}! Estimated ${dateStr}`);
+        toast.success(`Speed Post available to ${locationLabel}! Estimated ${dateStr}`);
       } else {
         setDeliveryDate('');
         setPincodeCheck({
