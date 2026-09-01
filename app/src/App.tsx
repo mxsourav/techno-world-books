@@ -12,6 +12,7 @@ import Cart from '@/pages/Cart';
 import Checkout from '@/pages/Checkout';
 import Wishlist from '@/pages/Wishlist';
 import Account from '@/pages/Account';
+import Profile from '@/pages/Profile';
 import Track from '@/pages/Track';
 import { BlogList, BlogPost } from '@/pages/Blog';
 import Help from '@/pages/Help';
@@ -113,6 +114,7 @@ export default function App() {
               <Route path="/my-orders" element={<MyOrders />} />
               <Route path="/wishlist" element={<Wishlist />} />
               <Route path="/account" element={<Account />} />
+              <Route path="/profile" element={<Profile />} />
               <Route path="/track" element={<Track />} />
               <Route path="/blog" element={<BlogList />} />
               <Route path="/blog/:slug" element={<BlogPost />} />

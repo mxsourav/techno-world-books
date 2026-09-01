@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router';
 import { MapPin, CreditCard, CheckCircle2, Smartphone, Landmark, Banknote, Wallet, PartyPopper, Download, Tag, Loader2, ShieldCheck, AlertCircle } from 'lucide-react';
 import { formatINR } from '@/utils/helpers';
@@ -6,7 +6,7 @@ import { useStore } from '@/store/StoreContext';
 import { useCartTotals } from '@/hooks/useCartTotals';
 import type { Address, Order } from '@/types';
 import { toast } from 'sonner';
-import { shippingService } from '@/services/api';
+import { shippingService, profileService } from '@/services/api';
 
 const PAYMENTS = [
   { id: 'upi', name: 'UPI', desc: 'GPay, PhonePe, Paytm & more', icon: Smartphone },
@@ -19,7 +19,31 @@ const PAYMENTS = [
 const INDIAN_STATES = ['West Bengal', 'Maharashtra', 'Delhi', 'Karnataka', 'Tamil Nadu', 'Uttar Pradesh', 'Telangana', 'Gujarat', 'Rajasthan', 'Kerala', 'Bihar', 'Madhya Pradesh', 'Punjab', 'Odisha', 'Assam', 'Other'];
 
 export default function Checkout() {
-  const { user, addresses, addAddress, clearCart, applyCoupon, clearCoupon } = useStore();
+  const { user, addresses: storeAddresses, addAddress, clearCart, applyCoupon, clearCoupon } = useStore();
+  const [dbAddresses, setDbAddresses] = useState<any[]>([]);
+
+  useEffect(() => {
+    profileService.getAddresses().then((res: any) => {
+      if (res.success && Array.isArray(res.data)) {
+        setDbAddresses(res.data);
+      }
+    }).catch(() => {});
+  }, []);
+
+  // Strict Address Deduplication: unique by address line and pincode
+  const addresses = useMemo(() => {
+    const rawList = dbAddresses.length > 0 ? dbAddresses : storeAddresses;
+    if (!rawList || !Array.isArray(rawList)) return [];
+    const seen = new Set<string>();
+    return rawList.filter((a: any) => {
+      const line = (a.line1 || a.addressLine1 || '').trim().toLowerCase();
+      const pin = (a.pincode || '').trim();
+      const key = `${line}_${pin}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [dbAddresses, storeAddresses]);
   const { items, subtotal, shipping, discount, total, coupon, appliedCoupon, couponError, isValid, errors, loading, error } = useCartTotals();
   const [placed, setPlaced] = useState<Order | null>(null);
   const [selectedAddr, setSelectedAddr] = useState<string>('new');
@@ -137,7 +161,7 @@ export default function Checkout() {
   const handlePlaceOrder = async () => {
     let address: Address;
     if (selectedAddr !== 'new') {
-      address = addresses.find((a) => a.id === selectedAddr)!;
+      address = addresses.find((a: any) => a.id === selectedAddr)!;
     } else {
       if (!form.name || !/^\d{10}$/.test(form.phone) || !form.line1 || !form.city || !/^\d{6}$/.test(form.pincode)) {
         return toast.error('Please fill a complete delivery address (valid phone & pincode)');
@@ -255,12 +279,12 @@ export default function Checkout() {
             </p>
             {addresses?.length > 0 && (
               <div className="mb-4 space-y-2">
-                {addresses.map((a) => (
+                {addresses.map((a: any) => (
                   <label key={a.id} className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 ${selectedAddr === a.id ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200'}`}>
                     <input type="radio" checked={selectedAddr === a.id} onChange={() => setSelectedAddr(a.id)} className="mt-1" />
                     <span className="text-sm">
-                      <b>{a.name}</b> <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold">{a.type}</span><br />
-                      <span className="text-slate-500">{a.line1}, {a.city}, {a.state} — {a.pincode} · {a.phone}</span>
+                      <b>{a.name || a.fullName}</b> <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold">{a.type || 'HOME'}</span><br />
+                      <span className="text-slate-500">{a.line1 || a.addressLine1}, {a.city}, {a.state} — <b>{a.pincode}</b> · +91 {a.phone}</span>
                     </span>
                   </label>
                 ))}
@@ -432,6 +456,17 @@ export default function Checkout() {
               </ul>
             </div>
           )}
+          {/* Techno Points Reward Preview */}
+          <div className="mt-4 rounded-xl border border-amber-200 bg-gradient-to-r from-amber-50 to-amber-100/60 p-3 flex items-center gap-3">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-400 text-xs font-black text-slate-900 shadow-sm shrink-0">
+              🪙
+            </span>
+            <div className="text-left">
+              <p className="text-xs font-extrabold text-amber-950">Earn {Math.floor(total / 100)} Techno Points</p>
+              <p className="text-[10px] text-amber-800 font-medium">1 Coin per ₹100 spent · Valid for 1 year upon delivery</p>
+            </div>
+          </div>
+
           <button disabled={isSubmitting || !isValid} onClick={handlePlaceOrder} className="mt-4 w-full rounded-xl bg-amber-400 py-3.5 text-sm font-extrabold text-slate-900 shadow hover:bg-amber-500 disabled:opacity-50">
             {isSubmitting ? 'Processing...' : payment === 'cod' ? `Place Order · ${formatINR(total)}` : `Pay ${formatINR(total)} Securely`}
           </button>

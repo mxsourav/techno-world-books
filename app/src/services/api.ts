@@ -328,6 +328,38 @@ export const authService = {
   login: (data: { email: string; password: string }) => api.post<any>('/auth/login', data),
   logout: () => api.post<any>('/auth/logout'),
   me: () => api.get<any>('/auth/me'),
+  devGoogleBypass: (data?: { email?: string; name?: string; googleId?: string; avatarUrl?: string }) =>
+    api.post<any>('/auth/google/dev-bypass', data || {}),
+};
+
+export const profileService = {
+  getProfile: () => api.get<any>('/profile'),
+  updateProfile: (data: { name?: string; phone?: string | null; avatarUrl?: string | null }) =>
+    api.patch<any>('/profile', data),
+  getAddresses: () => api.get<any[]>('/profile/address'),
+  createAddress: (data: {
+    fullName: string;
+    phone: string;
+    addressLine1: string;
+    addressLine2?: string | null;
+    city: string;
+    state: string;
+    pincode: string;
+    type?: 'HOME' | 'WORK' | 'OTHER';
+    isDefault?: boolean;
+  }) => api.post<any>('/profile/address', data),
+  updateAddress: (id: string, data: any) => api.patch<any>(`/profile/address/${id}`, data),
+  deleteAddress: (id: string) => api.delete<any>(`/profile/address/${id}`),
+  getPaymentMethods: () => api.get<any[]>('/profile/payment-methods'),
+  savePaymentMethod: (data: {
+    type: 'UPI' | 'CARD' | 'NETBANKING';
+    provider?: string;
+    maskedData: string;
+    holderName?: string | null;
+    isDefault?: boolean;
+  }) => api.post<any>('/profile/payment-methods', data),
+  deletePaymentMethod: (id: string) => api.delete<any>(`/profile/payment-methods/${id}`),
+  getPoints: () => api.get<any>('/profile/points'),
 };
 
 export const shippingService = {
