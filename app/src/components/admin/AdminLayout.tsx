@@ -1,13 +1,31 @@
-import { useState, useEffect } from 'react';
-import { Link, Outlet, useLocation } from 'react-router';
-import { LayoutDashboard, Store, LogOut, Package, ShoppingCart, Users, Tag, Image, Star, BarChart3, ChevronRight, FolderOpen, FileEdit, Bell } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router';
+import {
+  LayoutDashboard,
+  Store,
+  LogOut,
+  Package,
+  ShoppingCart,
+  Users,
+  Tag,
+  Image,
+  Star,
+  BarChart3,
+  ChevronRight,
+  FolderOpen,
+  FileEdit,
+  Bell,
+  Settings,
+  AlertTriangle,
+  ArrowRight,
+} from 'lucide-react';
 import { useAuthStore } from '@/store/AuthStore';
 import { orderService } from '@/services/api';
+import { formatINR } from '@/utils/helpers';
 
 const TABS = [
   { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard },
   { id: 'products', name: 'Products', icon: Package },
-
   { id: 'orders', name: 'Orders', icon: ShoppingCart },
   { id: 'customers', name: 'Customers', icon: Users },
   { id: 'coupons', name: 'Coupons', icon: Tag },
@@ -16,31 +34,50 @@ const TABS = [
   { id: 'media', name: 'Media Library', icon: FolderOpen },
   { id: 'cms', name: 'Homepage CMS', icon: FileEdit },
   { id: 'reports', name: 'Reports', icon: BarChart3 },
+  { id: 'settings', name: 'Settings & Email', icon: Settings },
 ];
 
 export default function AdminLayout() {
   const { logout } = useAuthStore();
   const location = useLocation();
+  const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
   const currentTab = searchParams.get('tab') || 'dashboard';
+
   const [pendingCount, setPendingCount] = useState<number>(0);
+  const [pendingOrders, setPendingOrders] = useState<any[]>([]);
+  const [isNotifOpen, setIsNotifOpen] = useState<boolean>(false);
+  const notifRef = useRef<HTMLDivElement>(null);
 
   const tabName = TABS.find(t => t.id === currentTab)?.name || 'Dashboard';
 
-  useEffect(() => {
-    const fetchNotifications = () => {
-      orderService.getNotifications()
-        .then((res: any) => {
-          if (res.success && typeof res.pendingCount === 'number') {
-            setPendingCount(res.pendingCount);
-          }
-        })
-        .catch(() => {});
-    };
+  const fetchNotifications = () => {
+    orderService.getNotifications()
+      .then((res: any) => {
+        if (res.success) {
+          setPendingCount(res.pendingCount || 0);
+          setPendingOrders(res.pendingOrders || []);
+        }
+      })
+      .catch(() => {});
+  };
 
+  useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 20000);
+    // Fast polling every 4 seconds for real-time order alerts
+    const interval = setInterval(fetchNotifications, 4000);
     return () => clearInterval(interval);
+  }, []);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
+        setIsNotifOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   return (
@@ -97,7 +134,7 @@ export default function AdminLayout() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 bg-slate-50 h-full">
         {/* Top Header */}
-        <header className="h-16 flex items-center justify-between px-8 bg-white border-b border-slate-200 flex-shrink-0 z-10">
+        <header className="h-16 flex items-center justify-between px-8 bg-white border-b border-slate-200 flex-shrink-0 z-20 relative">
           {/* Breadcrumbs */}
           <div className="flex items-center text-sm font-medium">
             <span className="text-slate-400">Admin</span>
@@ -106,18 +143,84 @@ export default function AdminLayout() {
           </div>
 
           <div className="flex items-center gap-4">
-            <Link
-              to="/admin/dashboard?tab=orders"
-              className="relative p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors"
-              title="Orders requiring review"
-            >
-              <Bell className="h-5 w-5" />
-              {pendingCount > 0 && (
-                <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-600 text-[9px] font-bold text-white shadow">
-                  {pendingCount}
-                </span>
+            {/* Interactive Notification Bell */}
+            <div className="relative" ref={notifRef}>
+              <button
+                onClick={() => setIsNotifOpen(!isNotifOpen)}
+                className={`relative p-2 rounded-full transition-colors ${
+                  isNotifOpen ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100'
+                }`}
+                title="Orders requiring review"
+              >
+                <Bell className="h-5 w-5" />
+                {pendingCount > 0 && (
+                  <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-600 text-[9px] font-bold text-white shadow animate-pulse">
+                    {pendingCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Notification Popover Dropdown */}
+              {isNotifOpen && (
+                <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl border border-slate-200 bg-white shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
+                  <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3 bg-slate-50">
+                    <div className="flex items-center gap-2">
+                      <span className="font-extrabold text-sm text-slate-900">Order Action Center</span>
+                      {pendingCount > 0 && (
+                        <span className="rounded-full bg-rose-100 text-rose-800 text-[10px] font-extrabold px-2 py-0.5">
+                          {pendingCount} Pending
+                        </span>
+                      )}
+                    </div>
+                    <Link
+                      to="/admin/dashboard?tab=orders"
+                      onClick={() => setIsNotifOpen(false)}
+                      className="text-xs font-bold text-emerald-700 hover:underline"
+                    >
+                      View All
+                    </Link>
+                  </div>
+
+                  <div className="max-h-80 overflow-y-auto divide-y divide-slate-100">
+                    {pendingOrders.length === 0 ? (
+                      <div className="p-8 text-center text-slate-400">
+                        <Bell className="mx-auto h-8 w-8 text-slate-300 mb-2" />
+                        <p className="text-xs font-semibold">No pending orders. All caught up!</p>
+                      </div>
+                    ) : (
+                      pendingOrders.map((ord: any) => (
+                        <div key={ord.id} className="p-3.5 hover:bg-slate-50 transition-colors">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-extrabold text-xs text-slate-900">#{ord.orderNumber}</span>
+                            <span className="font-bold text-xs text-emerald-700">{formatINR(ord.totalAmount)}</span>
+                          </div>
+                          <p className="text-xs text-slate-600 font-medium mt-0.5">
+                            Customer: <b>{ord.address?.fullName || ord.user?.name || 'Customer'}</b>
+                          </p>
+                          <p className="text-[11px] text-slate-400 truncate">
+                            {ord.items?.map((i: any) => i.book?.title || 'Book').join(', ')}
+                          </p>
+                          <div className="mt-2 flex items-center justify-between pt-1 border-t border-slate-100">
+                            <span className="text-[10px] text-amber-700 font-bold flex items-center gap-1">
+                              <AlertTriangle className="h-3 w-3" /> Awaiting Approval
+                            </span>
+                            <button
+                              onClick={() => {
+                                setIsNotifOpen(false);
+                                navigate('/admin/dashboard?tab=orders');
+                              }}
+                              className="flex items-center gap-1 text-[11px] font-bold text-emerald-700 hover:text-emerald-800"
+                            >
+                              Review <ArrowRight className="h-3 w-3" />
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
               )}
-            </Link>
+            </div>
 
             <a
               href="/"
@@ -128,9 +231,14 @@ export default function AdminLayout() {
               <Store className="h-4 w-4" />
               View Store
             </a>
-            <div className="w-8 h-8 rounded-full bg-emerald-100 border border-emerald-200 flex items-center justify-center text-sm font-bold text-emerald-700">
+
+            <Link
+              to="/admin/dashboard?tab=settings"
+              className="w-8 h-8 rounded-full bg-emerald-100 border border-emerald-300 flex items-center justify-center text-xs font-bold text-emerald-800 hover:ring-2 hover:ring-emerald-500/20 transition-all cursor-pointer"
+              title="Admin Profile & Outbound Email Settings"
+            >
               AD
-            </div>
+            </Link>
           </div>
         </header>
 

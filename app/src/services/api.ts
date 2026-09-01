@@ -259,6 +259,27 @@ export const adminService = {
     formData.append('file', file);
     return api.upload<any>(`/admin/books/${id}/pdf`, formData);
   },
+  getSettings: () => api.get<any>('/admin/settings'),
+  updateProfile: (data: { name?: string; email?: string; phone?: string | null; password?: string }) =>
+    api.patch<any>('/admin/profile', data),
+  updateSmtp: (data: {
+    senderEmail: string;
+    senderName: string;
+    host: string;
+    port: number;
+    user: string;
+    pass: string;
+    secure: boolean;
+  }) => api.put<any>('/admin/smtp', data),
+  testSmtp: (data: {
+    toEmail: string;
+    host?: string;
+    port?: number;
+    user?: string;
+    pass?: string;
+    senderEmail?: string;
+    senderName?: string;
+  }) => api.post<any>('/admin/smtp/test', data),
 };
 
 export const searchService = {

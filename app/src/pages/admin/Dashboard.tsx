@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { useLocation } from 'react-router';
-import { BookOpen, Plus, Search, ShoppingCart, Users, Download, IndianRupee, AlertCircle, Pause, Play, Trash2, Edit3, Truck, Printer, ShieldCheck, X, Loader2, Mail, CheckCircle2, XCircle, Send, AlertTriangle, MessageSquare, ChevronDown, ChevronUp } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router';
+import { BookOpen, Plus, Search, ShoppingCart, Users, Download, IndianRupee, AlertCircle, Pause, Play, Trash2, Edit3, Truck, Printer, ShieldCheck, X, Loader2, Mail, CheckCircle2, XCircle, Send, AlertTriangle, MessageSquare, ChevronDown, ChevronUp, Settings, ArrowRight, Bell } from 'lucide-react';
 import { formatINR } from '@/utils/helpers';
 import type { Book } from '@/types/index';
 import { adminService, bookService, categoryService, orderService, mediaService, cmsService, promotionService, shippingService } from '@/services/api';
@@ -12,6 +12,7 @@ export default function Dashboard() {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const tab = searchParams.get('tab') || 'dashboard';
+  const navigate = useNavigate();
 
 
   
@@ -63,15 +64,29 @@ export default function Dashboard() {
       adminService.getStats().then(res => setStats(res.data)).catch(console.error);
       categoryService.getCategories().then(res => setCategories(res.data)).catch(console.error);
       bookService.getBooks({ limit: 6 }).then(res => setLowStockBooks(res.data)).catch(console.error);
+      orderService.getNotifications().then((res: any) => {
+        if (res.success) setPendingOrdersSummary(res.pendingOrders || []);
+      }).catch(() => {});
+    }
+    if (tab === 'settings') {
+      fetchAdminSettings();
     }
   }, [tab]);
 
-
+  // Live polling on Orders tab so newly placed orders pop up immediately
   useEffect(() => {
     if (tab === 'orders') {
-      orderService.getAllOrders().then(res => setOrders(res.data)).catch(console.error);
+      const fetchOrders = () => {
+        orderService.getAllOrders().then(res => setOrders(res.data || [])).catch(console.error);
+      };
+      fetchOrders();
+      const interval = setInterval(fetchOrders, 4000);
+      return () => clearInterval(interval);
     }
   }, [tab]);
+
+
+
 
   useEffect(() => {
     if (tab === 'media') {
@@ -364,6 +379,129 @@ admin@technoworld.com`
   };
 
 
+
+  // Settings & SMTP State
+  const [adminProfile, setAdminProfile] = useState<any>({ name: '', email: '', phone: '' });
+  const [adminPassword, setAdminPassword] = useState('');
+  const [adminConfirmPassword, setAdminConfirmPassword] = useState('');
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+
+  const [smtpForm, setSmtpForm] = useState({
+    senderEmail: 'admin@technoworld.com',
+    senderName: 'Techno World Books',
+    host: 'smtp.gmail.com',
+    port: 587,
+    user: '',
+    pass: '',
+    secure: false,
+  });
+  const [isSavingSmtp, setIsSavingSmtp] = useState(false);
+
+  const [testEmailTo, setTestEmailTo] = useState('');
+  const [isTestingSmtp, setIsTestingSmtp] = useState(false);
+  const [isTestEmailModalOpen, setIsTestEmailModalOpen] = useState(false);
+
+  const [pendingOrdersSummary, setPendingOrdersSummary] = useState<any[]>([]);
+
+  const fetchAdminSettings = () => {
+    adminService.getSettings()
+      .then((res: any) => {
+        if (res.success && res.data) {
+          if (res.data.admin) {
+            setAdminProfile({
+              name: res.data.admin.name || '',
+              email: res.data.admin.email || '',
+              phone: res.data.admin.phone || '',
+            });
+          }
+          if (res.data.smtp) {
+            setSmtpForm((prev: any) => ({
+              ...prev,
+              ...res.data.smtp,
+            }));
+          }
+        }
+      })
+      .catch(() => {});
+  };
+
+  const handleSaveAdminProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!adminProfile.name || !adminProfile.email) {
+      return toast.error('Name and email are required');
+    }
+    if (adminPassword && adminPassword.length < 6) {
+      return toast.error('Password must be at least 6 characters');
+    }
+    if (adminPassword && adminPassword !== adminConfirmPassword) {
+      return toast.error('Passwords do not match');
+    }
+
+    setIsSavingProfile(true);
+    try {
+      const res = await adminService.updateProfile({
+        name: adminProfile.name,
+        email: adminProfile.email,
+        phone: adminProfile.phone || null,
+        password: adminPassword || undefined,
+      });
+      if (res.success) {
+        toast.success('Admin profile credentials updated successfully!');
+        setAdminPassword('');
+        setAdminConfirmPassword('');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to update admin profile');
+    } finally {
+      setIsSavingProfile(false);
+    }
+  };
+
+  const handleSaveSmtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!smtpForm.senderEmail || !smtpForm.host || !smtpForm.port) {
+      return toast.error('Sender email, SMTP Host, and Port are required');
+    }
+
+    setIsSavingSmtp(true);
+    try {
+      const res = await adminService.updateSmtp(smtpForm);
+      if (res.success) {
+        toast.success('Outbound email & SMTP settings saved successfully!');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to save SMTP settings');
+    } finally {
+      setIsSavingSmtp(false);
+    }
+  };
+
+  const handleSendTestEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!testEmailTo) return toast.error('Please enter a recipient email address');
+
+    setIsTestingSmtp(true);
+    try {
+      const res = await adminService.testSmtp({
+        toEmail: testEmailTo,
+        host: smtpForm.host,
+        port: Number(smtpForm.port),
+        user: smtpForm.user,
+        pass: smtpForm.pass,
+        senderEmail: smtpForm.senderEmail,
+        senderName: smtpForm.senderName,
+      });
+      if (res.success) {
+        toast.success(res.message || 'Test email dispatched successfully!');
+        setIsTestEmailModalOpen(false);
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'SMTP Test failed. Check credentials.');
+    } finally {
+      setIsTestingSmtp(false);
+    }
+  };
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
       <div className="mb-6 flex items-center justify-between">
@@ -381,6 +519,33 @@ admin@technoworld.com`
       <div className="min-w-0 flex-1">
         {tab === 'dashboard' && (
           <div className="space-y-6">
+            {/* Urgent Pending Orders Approval Banner */}
+            {pendingOrdersSummary.length > 0 && (
+              <div className="rounded-2xl border-2 border-amber-400 bg-gradient-to-r from-amber-50 via-amber-100/60 to-amber-50 p-6 shadow-md animate-in fade-in">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div className="flex items-center gap-3.5">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500 text-white shadow-md animate-bounce">
+                      <Bell className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <h2 className="text-base font-extrabold text-amber-950 flex items-center gap-2">
+                        <span>Action Required: {pendingOrdersSummary.length} New Order(s) Awaiting Decision</span>
+                        <span className="rounded-full bg-rose-600 text-white text-[10px] font-black px-2 py-0.5">Urgent</span>
+                      </h2>
+                      <p className="text-xs text-amber-900/80 mt-0.5">
+                        Customer orders placed on the bookstore require your review to accept, cancel, or notify regarding publisher stock delay.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => navigate('/admin/dashboard?tab=orders')}
+                    className="flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-xs font-bold text-white shadow-md hover:bg-slate-800 transition-all"
+                  >
+                    Review Pending Orders <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
               {[
                 { icon: IndianRupee, t: 'Revenue (30d)', v: formatINR(stats.revenue), s: '+18.2% vs last month', c: 'emerald' },
@@ -1193,6 +1358,271 @@ admin@technoworld.com`
           </div>
         )}
 
+{/* Settings & Outbound Email Workspace */}
+        {tab === 'settings' && (
+          <div className="space-y-6">
+            <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+                <div>
+                  <h2 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                    <Settings className="h-5 w-5 text-emerald-700" /> Admin Details & Outbound Email System
+                  </h2>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Change your admin login credentials and configure the sender email ID (Gmail SMTP / Custom SMTP) for customer delay notices and order updates.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Card 1: Admin Account Credentials */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h3 className="text-base font-extrabold text-slate-900 mb-1 flex items-center gap-2">
+                  <Users className="h-4 w-4 text-emerald-700" /> Admin Account Credentials
+                </h3>
+                <p className="text-xs text-slate-500 mb-5">Manage your display name, login email, and login password.</p>
+
+                <form onSubmit={handleSaveAdminProfile} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Admin Display Name</label>
+                    <input
+                      type="text"
+                      value={adminProfile.name}
+                      onChange={(e) => setAdminProfile({ ...adminProfile, name: e.target.value })}
+                      className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-xs font-semibold text-slate-800 outline-none focus:border-emerald-500"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Admin Login Email</label>
+                    <input
+                      type="email"
+                      value={adminProfile.email}
+                      onChange={(e) => setAdminProfile({ ...adminProfile, email: e.target.value })}
+                      className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-xs font-semibold text-slate-800 outline-none focus:border-emerald-500"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Phone Number (Optional)</label>
+                    <input
+                      type="text"
+                      value={adminProfile.phone}
+                      onChange={(e) => setAdminProfile({ ...adminProfile, phone: e.target.value })}
+                      placeholder="9876543210"
+                      className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-xs font-semibold text-slate-800 outline-none focus:border-emerald-500"
+                    />
+                  </div>
+
+                  <div className="border-t border-slate-100 pt-3 space-y-3">
+                    <p className="text-xs font-bold text-slate-700">Change Admin Password (leave blank to keep current)</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">New Password</label>
+                        <input
+                          type="password"
+                          value={adminPassword}
+                          onChange={(e) => setAdminPassword(e.target.value)}
+                          placeholder="Min 6 characters"
+                          className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-xs font-semibold outline-none focus:border-emerald-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-500 mb-1">Confirm Password</label>
+                        <input
+                          type="password"
+                          value={adminConfirmPassword}
+                          onChange={(e) => setAdminConfirmPassword(e.target.value)}
+                          placeholder="Repeat password"
+                          className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-xs font-semibold outline-none focus:border-emerald-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isSavingProfile}
+                    className="flex items-center gap-2 rounded-xl bg-emerald-700 px-5 py-2.5 text-xs font-bold text-white hover:bg-emerald-800 shadow transition-all disabled:opacity-50 mt-2"
+                  >
+                    {isSavingProfile ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                    Update Admin Profile
+                  </button>
+                </form>
+              </div>
+
+              {/* Card 2: Outbound Email & Gmail SMTP Configuration */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <div className="flex items-center justify-between mb-1">
+                  <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                    <Mail className="h-4 w-4 text-emerald-700" /> Outbound Sender Email & SMTP
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTestEmailTo(adminProfile.email || 'customer@example.com');
+                      setIsTestEmailModalOpen(true);
+                    }}
+                    className="rounded-lg border border-slate-300 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-100 shadow-sm"
+                  >
+                    🚀 Test SMTP
+                  </button>
+                </div>
+                <p className="text-xs text-slate-500 mb-5">
+                  Configure your email address so delay notifications and cancellation updates send from your real address.
+                </p>
+
+                <form onSubmit={handleSaveSmtp} className="space-y-3.5">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Sender Display Name</label>
+                      <input
+                        type="text"
+                        value={smtpForm.senderName}
+                        onChange={(e) => setSmtpForm({ ...smtpForm, senderName: e.target.value })}
+                        placeholder="Techno World Books"
+                        className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-800 outline-none focus:border-emerald-500"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Sender From Email</label>
+                      <input
+                        type="email"
+                        value={smtpForm.senderEmail}
+                        onChange={(e) => setSmtpForm({ ...smtpForm, senderEmail: e.target.value })}
+                        placeholder="admin@technoworld.com"
+                        className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-800 outline-none focus:border-emerald-500"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="col-span-2">
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">SMTP Host (e.g. Gmail)</label>
+                      <input
+                        type="text"
+                        value={smtpForm.host}
+                        onChange={(e) => setSmtpForm({ ...smtpForm, host: e.target.value })}
+                        placeholder="smtp.gmail.com"
+                        className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-800 outline-none focus:border-emerald-500"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Port</label>
+                      <input
+                        type="number"
+                        value={smtpForm.port}
+                        onChange={(e) => setSmtpForm({ ...smtpForm, port: Number(e.target.value) })}
+                        placeholder="587"
+                        className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-800 outline-none focus:border-emerald-500"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">SMTP Username / Email</label>
+                      <input
+                        type="text"
+                        value={smtpForm.user}
+                        onChange={(e) => setSmtpForm({ ...smtpForm, user: e.target.value })}
+                        placeholder="yourname@gmail.com"
+                        className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-800 outline-none focus:border-emerald-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">SMTP App Password</label>
+                      <input
+                        type="password"
+                        value={smtpForm.pass}
+                        onChange={(e) => setSmtpForm({ ...smtpForm, pass: e.target.value })}
+                        placeholder="16-character App Password"
+                        className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-800 outline-none focus:border-emerald-500 font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Gmail Help Accordion / Box */}
+                  <div className="rounded-xl bg-slate-50 border border-slate-200 p-3.5 text-xs text-slate-600 space-y-1.5">
+                    <p className="font-bold text-slate-800 flex items-center gap-1.5">
+                      <span>💡 How to connect Gmail to send official emails:</span>
+                    </p>
+                    <ol className="list-decimal list-inside space-y-1 text-[11px] text-slate-600">
+                      <li>Open your <b>Google Account</b> &rarr; <b>Security</b> &rarr; enable <b>2-Step Verification</b>.</li>
+                      <li>Search for <b>&quot;App Passwords&quot;</b> in Google Account settings.</li>
+                      <li>Create an app password named <i>&quot;Techno World Bookstore&quot;</i> and copy the 16-character code.</li>
+                      <li>Paste it into the <b>SMTP App Password</b> field above and click <b>Save SMTP Settings</b>!</li>
+                    </ol>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isSavingSmtp}
+                    className="flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-xs font-bold text-white hover:bg-slate-800 shadow transition-all disabled:opacity-50"
+                  >
+                    {isSavingSmtp ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                    Save Outbound SMTP Settings
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            {/* Test Email Modal */}
+            {isTestEmailModalOpen && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+                <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden border border-slate-200">
+                  <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 bg-slate-50">
+                    <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-emerald-700" /> Send Live SMTP Test Email
+                    </h3>
+                    <button onClick={() => setIsTestEmailModalOpen(false)} className="p-1 text-slate-400 hover:bg-slate-200 rounded-lg">
+                      ✕
+                    </button>
+                  </div>
+
+                  <form onSubmit={handleSendTestEmail} className="p-6 space-y-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">Send Test Email To</label>
+                      <input
+                        type="email"
+                        value={testEmailTo}
+                        onChange={(e) => setTestEmailTo(e.target.value)}
+                        placeholder="your-personal-email@gmail.com"
+                        className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-xs font-semibold text-slate-800 outline-none focus:border-emerald-500"
+                        required
+                      />
+                      <span className="text-[11px] text-slate-400 mt-1 block">We will dispatch a sample verification email to this address.</span>
+                    </div>
+
+                    <div className="flex items-center justify-end gap-2 border-t border-slate-100 pt-4">
+                      <button
+                        type="button"
+                        onClick={() => setIsTestEmailModalOpen(false)}
+                        className="rounded-xl border border-slate-300 px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={isTestingSmtp}
+                        className="flex items-center gap-1.5 rounded-xl bg-emerald-700 px-5 py-2 text-xs font-bold text-white hover:bg-emerald-800 shadow disabled:opacity-50"
+                      >
+                        {isTestingSmtp ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+                        Send Test Email
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {editingPromotion && (
@@ -1603,7 +2033,6 @@ admin@technoworld.com`
           </div>
         </div>
       )}
-
     </div>
   );
 }
