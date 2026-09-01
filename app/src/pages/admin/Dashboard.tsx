@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router';
-import { BookOpen, Plus, Search, ShoppingCart, Users, Download, IndianRupee, AlertCircle, Pause, Play, Trash2, Edit3 } from 'lucide-react';
+import { BookOpen, Plus, Search, ShoppingCart, Users, Download, IndianRupee, AlertCircle, Pause, Play, Trash2, Edit3, Truck, Printer, ShieldCheck, X, Loader2 } from 'lucide-react';
 import { formatINR } from '@/utils/helpers';
 import type { Book } from '@/types/index';
-import { adminService, bookService, categoryService, orderService, mediaService, cmsService, promotionService } from '@/services/api';
+import { adminService, bookService, categoryService, orderService, mediaService, cmsService, promotionService, shippingService } from '@/services/api';
 import { toast } from 'sonner';
 import PromotionEditModal from '@/components/admin/PromotionEditModal';
 import ProductsWorkspace from '@/components/admin/catalog/ProductsWorkspace';
@@ -28,6 +28,9 @@ export default function Dashboard() {
 
   const [lowStockBooks, setLowStockBooks] = useState<Book[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
+  const [shippingLoading, setShippingLoading] = useState<string | null>(null);
+  const [shippingModalLabel, setShippingModalLabel] = useState<any | null>(null);
+  const [shippingTrackingModal, setShippingTrackingModal] = useState<any | null>(null);
   const [mediaItems, setMediaItems] = useState<any[]>([]);
   const [cmsSections, setCmsSections] = useState<any[]>([]);
   const [cmsEditing, setCmsEditing] = useState<Record<string, any>>({});  const [isUploading, setIsUploading] = useState(false);
@@ -158,6 +161,54 @@ export default function Dashboard() {
       setOrders(orders.map(o => o.id === id ? { ...o, status } : o));
     } catch (err) {
       toast.error('Failed to update status');
+    }
+  };
+
+  const bookIndiaPostShipment = async (orderId: string) => {
+    setShippingLoading(orderId);
+    try {
+      const res = await shippingService.bookShipment(orderId);
+      if (res.success && res.data) {
+        toast.success(`Consignment booked via India Post! Barcode: ${res.data.barcode}`);
+        setOrders((prev) =>
+          prev.map((o) =>
+            o.id === orderId || o.orderNumber === orderId
+              ? {
+                  ...o,
+                  trackingNumber: res.data.barcode,
+                  shippingCarrier: res.data.carrier,
+                  status: o.status === 'PENDING' ? 'PROCESSING' : o.status,
+                }
+              : o
+          )
+        );
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to book consignment with India Post');
+    } finally {
+      setShippingLoading(null);
+    }
+  };
+
+  const openShippingLabel = async (orderId: string) => {
+    try {
+      const res = await shippingService.getShippingLabel(orderId);
+      if (res.success && res.data) {
+        setShippingModalLabel(res.data.printableData);
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to load shipping label');
+    }
+  };
+
+  const openTrackingModal = async (identifier: string) => {
+    try {
+      const res = await shippingService.trackShipment(identifier);
+      if (res.success && res.data) {
+        setShippingTrackingModal(res.data);
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to load live tracking data');
     }
   };
 
@@ -299,20 +350,82 @@ export default function Dashboard() {
         {tab === 'products' && <ProductsWorkspace />}
         {tab === 'orders' && (
           <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="mb-6 text-sm font-bold text-slate-800">Order Management</p>
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <p className="text-base font-bold text-slate-800">Order Management & Logistics</p>
+                <p className="text-xs text-slate-500">Book consignments via India Post Speed Post, generate labels, and track shipments</p>
+              </div>
+              <span className="rounded-full bg-red-50 border border-red-200 px-3 py-1 text-xs font-bold text-red-700 flex items-center gap-1.5">
+                <ShieldCheck className="h-3.5 w-3.5" /> India Post CEPT Integrated
+              </span>
+            </div>
+
             {orders.length === 0 ? (
               <p className="text-sm text-slate-500">No customer orders yet.</p>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {orders.map((o) => (
-                  <div key={o.id} className="flex flex-wrap items-center gap-4 rounded-xl border border-slate-200 p-4 text-sm">
-                    <div className="min-w-0 flex-1">
-                      <p className="font-bold text-slate-900 text-base mb-1">{o.orderNumber} <span className="mx-2 text-slate-300">|</span> {formatINR(o.totalAmount)}</p>
-                      <p className="text-slate-500">{o.user?.name || 'Guest'} · <span className="font-medium">{o.paymentMethod}</span></p>
+                  <div key={o.id} className="rounded-xl border border-slate-200 p-4 text-sm hover:border-emerald-200 transition-colors bg-slate-50/50">
+                    <div className="flex flex-wrap items-center justify-between gap-4">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="font-bold text-slate-900 text-base">{o.orderNumber}</p>
+                          <span className="text-slate-300">|</span>
+                          <span className="font-extrabold text-emerald-700">{formatINR(o.totalAmount)}</span>
+                          {o.trackingNumber && (
+                            <span className="rounded bg-red-100 text-red-800 text-xs px-2 py-0.5 font-bold flex items-center gap-1">
+                              <Truck className="h-3 w-3" /> {o.trackingNumber}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-slate-500">
+                          Customer: <span className="font-medium text-slate-700">{o.user?.name || 'Guest'}</span> · Method: <span className="font-medium text-slate-700">{o.paymentMethod}</span> · Carrier: <span className="font-medium text-slate-700">{o.shippingCarrier || 'Unassigned'}</span>
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {/* India Post Consignment Booking & Label Actions */}
+                        {!o.trackingNumber ? (
+                          <button
+                            disabled={shippingLoading === o.id}
+                            onClick={() => bookIndiaPostShipment(o.id)}
+                            className="flex items-center gap-1.5 rounded-lg bg-red-700 px-3.5 py-2 text-xs font-bold text-white hover:bg-red-800 disabled:opacity-50 transition-colors shadow-sm"
+                          >
+                            {shippingLoading === o.id ? (
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                              <Truck className="h-3.5 w-3.5" />
+                            )}
+                            Ship with India Post
+                          </button>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => openShippingLabel(o.id)}
+                              className="flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-sm"
+                            >
+                              <Printer className="h-3.5 w-3.5 text-slate-600" /> Print Label
+                            </button>
+                            <button
+                              onClick={() => openTrackingModal(o.trackingNumber || o.orderNumber)}
+                              className="flex items-center gap-1 rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800 hover:bg-emerald-100 shadow-sm"
+                            >
+                              <Truck className="h-3.5 w-3.5 text-emerald-700" /> Live Track
+                            </button>
+                          </>
+                        )}
+
+                        <select
+                          value={o.status}
+                          onChange={(e) => updateOrderStatus(o.id, e.target.value)}
+                          className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold outline-none focus:ring-2 focus:ring-emerald-500/20 shadow-sm"
+                        >
+                          {['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'].map((s) => (
+                            <option key={s} value={s}>{s}</option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
-                    <select value={o.status} onChange={(e) => updateOrderStatus(o.id, e.target.value)} className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-emerald-500/20">
-                      {['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'].map((s) => <option key={s} value={s}>{s}</option>)}
-                    </select>
                   </div>
                 ))}
               </div>
@@ -874,6 +987,136 @@ export default function Dashboard() {
 
             <button onClick={() => { setIsImportModalOpen(false); setImportResult(null); }} className="w-full rounded-lg bg-emerald-600 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-700 transition-colors shadow-sm">
               Done
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* India Post Printable Shipping Label Modal */}
+      {shippingModalLabel && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="h-5 w-5 text-red-600" />
+                <h3 className="font-bold text-slate-900">India Post Shipping Label</h3>
+              </div>
+              <button onClick={() => setShippingModalLabel(null)} className="rounded-lg p-1 text-slate-400 hover:bg-slate-100">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Label Visual Canvas */}
+            <div className="rounded-xl border-2 border-dashed border-slate-300 p-5 bg-white space-y-4 text-xs text-slate-800 font-sans">
+              <div className="flex items-start justify-between border-b pb-3">
+                <div>
+                  <p className="font-extrabold text-sm tracking-wider uppercase text-red-700">INDIA POST</p>
+                  <p className="font-bold text-[11px]">{shippingModalLabel.service_type || 'SPEED POST (DOMESTIC)'}</p>
+                </div>
+                <div className="text-right">
+                  <span className="inline-block border border-slate-400 px-2 py-0.5 font-bold text-[10px]">POSTAGE PREPAID / BNPL</span>
+                  <p className="text-[10px] text-slate-500 mt-0.5">Booking Hub: {shippingModalLabel.booking_office_name}</p>
+                </div>
+              </div>
+
+              {/* Barcode Mock */}
+              <div className="text-center py-2 bg-slate-50 border border-slate-200 rounded">
+                <div className="h-8 flex items-center justify-center gap-1">
+                  {[4, 2, 6, 1, 5, 2, 4, 3, 6, 2, 5, 1, 4, 2, 6, 3, 5, 1, 4, 2, 6, 3].map((h, i) => (
+                    <span key={i} className="bg-black inline-block" style={{ width: `${(i % 3) + 1}px`, height: `${h * 4 + 10}px` }} />
+                  ))}
+                </div>
+                <p className="mt-1 font-mono font-bold text-sm tracking-widest">{shippingModalLabel.barcode_no}</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 border-b pb-3">
+                <div>
+                  <p className="font-bold uppercase text-[10px] text-slate-500 mb-1">To (Consignee):</p>
+                  <p className="font-bold text-sm text-slate-900">{shippingModalLabel.recipient_name}</p>
+                  <p className="text-slate-600">{shippingModalLabel.recipient_address}</p>
+                  <p className="text-slate-600">{shippingModalLabel.recipient_city}, {shippingModalLabel.recipient_state}</p>
+                  <p className="font-extrabold text-sm text-slate-900 mt-1">PIN: {shippingModalLabel.recipient_pin}</p>
+                  <p className="text-slate-600">Mob: {shippingModalLabel.recipient_mobile}</p>
+                </div>
+                <div className="border-l pl-4">
+                  <p className="font-bold uppercase text-[10px] text-slate-500 mb-1">From (Sender):</p>
+                  <p className="font-bold text-slate-900">{shippingModalLabel.sender_name}</p>
+                  <p className="text-slate-600">{shippingModalLabel.sender_address}</p>
+                  <p className="text-slate-600">{shippingModalLabel.sender_city} — {shippingModalLabel.sender_pin}</p>
+                  <p className="text-slate-600">Mob: {shippingModalLabel.sender_mobile}</p>
+                  <p className="mt-2 text-[10px] text-slate-500">Weight: {shippingModalLabel.weight || 450}g</p>
+                </div>
+              </div>
+
+              <p className="text-[10px] text-slate-400 text-center">Generated on {shippingModalLabel.booking_datetime}</p>
+            </div>
+
+            <div className="mt-5 flex gap-3">
+              <button
+                onClick={() => window.print()}
+                className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-emerald-700 py-3 text-sm font-bold text-white hover:bg-emerald-800 shadow-sm"
+              >
+                <Printer className="h-4 w-4" /> Print Label
+              </button>
+              <button
+                onClick={() => setShippingModalLabel(null)}
+                className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* India Post Live Tracking Modal */}
+      {shippingTrackingModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
+              <div className="flex items-center gap-2">
+                <Truck className="h-5 w-5 text-emerald-600" />
+                <h3 className="font-bold text-slate-900">Consignment Live Status</h3>
+              </div>
+              <button onClick={() => setShippingTrackingModal(null)} className="rounded-lg p-1 text-slate-400 hover:bg-slate-100">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="mb-4 rounded-xl bg-slate-50 p-4 border border-slate-200 text-xs text-slate-700">
+              <p className="font-bold text-sm text-slate-900">
+                AWB: {shippingTrackingModal.tracking?.article_number || 'N/A'}
+              </p>
+              <p className="mt-1 text-slate-500">
+                Status: <b className="text-emerald-700 uppercase">{shippingTrackingModal.tracking?.del_status?.del_status || 'IN TRANSIT'}</b>
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {shippingTrackingModal.tracking?.tracking_details?.map((evt: any, i: number) => (
+                <div key={i} className="flex gap-3 text-xs">
+                  <div className="flex flex-col items-center">
+                    <span className="h-6 w-6 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-[10px]">
+                      {i + 1}
+                    </span>
+                    {i < shippingTrackingModal.tracking.tracking_details.length - 1 && (
+                      <span className="h-8 w-0.5 bg-slate-200 mt-1" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-bold text-slate-900">{evt.event}</p>
+                    <p className="text-slate-600">{evt.office} · {evt.date} {evt.time}</p>
+                    {evt.description && <p className="text-slate-400 text-[11px]">{evt.description}</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setShippingTrackingModal(null)}
+              className="mt-6 w-full rounded-xl bg-slate-100 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-200"
+            >
+              Close
             </button>
           </div>
         </div>

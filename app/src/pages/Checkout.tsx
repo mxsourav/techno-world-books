@@ -1,12 +1,12 @@
-/* eslint-disable no-useless-escape */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
-import { MapPin, CreditCard, CheckCircle2, Smartphone, Landmark, Banknote, Wallet, PartyPopper, Download, Tag } from 'lucide-react';
+import { MapPin, CreditCard, CheckCircle2, Smartphone, Landmark, Banknote, Wallet, PartyPopper, Download, Tag, Loader2, ShieldCheck } from 'lucide-react';
 import { formatINR } from '@/utils/helpers';
 import { useStore } from '@/store/StoreContext';
 import { useCartTotals } from '@/hooks/useCartTotals';
 import type { Address, Order } from '@/types';
 import { toast } from 'sonner';
+import { shippingService } from '@/services/api';
 
 const PAYMENTS = [
   { id: 'upi', name: 'UPI', desc: 'GPay, PhonePe, Paytm & more', icon: Smartphone },
@@ -28,6 +28,47 @@ export default function Checkout() {
   const [upiId, setUpiId] = useState('');
   const [card, setCard] = useState({ number: '', expiry: '', cvv: '', name: '' });
   const [couponInput, setCouponInput] = useState('');
+  const [pincodeStatus, setPincodeStatus] = useState<{
+    loading: boolean;
+    verified: boolean;
+    postOffice?: string;
+    fallback: boolean;
+  }>({ loading: false, verified: false, fallback: false });
+
+  // Real-time India Post Pincode Lookup with Fail-Safe Degradation
+  useEffect(() => {
+    const cleanPin = form.pincode.replace(/\D/g, '').slice(0, 6);
+    if (cleanPin.length === 6) {
+      setPincodeStatus({ loading: true, verified: false, fallback: false });
+      shippingService
+        .verifyPincode(cleanPin)
+        .then((res) => {
+          if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+            const office = res.data[0];
+            setPincodeStatus({
+              loading: false,
+              verified: true,
+              postOffice: office.office_name,
+              fallback: false,
+            });
+            setForm((prev) => ({
+              ...prev,
+              city: prev.city || office.city_name || '',
+              state: INDIAN_STATES.includes(office.state_name) ? office.state_name : prev.state,
+            }));
+          } else {
+            setPincodeStatus({ loading: false, verified: false, fallback: true });
+          }
+        })
+        .catch(() => {
+          // Graceful fallback to manual entry if India Post API is unreachable
+          setPincodeStatus({ loading: false, verified: false, fallback: true });
+        });
+    } else {
+      setPincodeStatus({ loading: false, verified: false, fallback: false });
+    }
+  }, [form.pincode]);
+
 
   if (loading) {
     return (
@@ -225,11 +266,50 @@ export default function Checkout() {
                 <select value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} className="rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-emerald-500">
                   {INDIAN_STATES.map((s) => <option key={s}>{s}</option>)}
                 </select>
-                <input value={form.pincode} onChange={(e) => setForm({ ...form, pincode: e.target.value.replace(/\D/g, '').slice(0, 6) })} placeholder="Pincode" inputMode="numeric" className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-emerald-500" />
-                <div className="flex gap-2">
-                  {(['Home', 'Work'] as const).map((t) => (
-                    <button key={t} onClick={() => setForm({ ...form, type: t })} className={`rounded-lg border px-4 py-2 text-xs font-bold ${form.type === t ? 'border-emerald-500 bg-emerald-50 text-emerald-800' : 'border-slate-200 text-slate-500'}`}>{t}</button>
-                  ))}
+                <div className="sm:col-span-2">
+                  <div className="flex gap-3">
+                    <input
+                      value={form.pincode}
+                      onChange={(e) => setForm({ ...form, pincode: e.target.value.replace(/\D/g, '').slice(0, 6) })}
+                      placeholder="6-digit Pincode"
+                      inputMode="numeric"
+                      className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-emerald-500"
+                    />
+                    <div className="flex shrink-0 gap-2">
+                      {(['Home', 'Work'] as const).map((t) => (
+                        <button
+                          key={t}
+                          type="button"
+                          onClick={() => setForm({ ...form, type: t })}
+                          className={`rounded-lg border px-4 py-2 text-xs font-bold ${
+                            form.type === t
+                              ? 'border-emerald-500 bg-emerald-50 text-emerald-800'
+                              : 'border-slate-200 text-slate-500'
+                          }`}
+                        >
+                          {t}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* India Post Pincode Deliverability Feedback */}
+                  {pincodeStatus.loading && (
+                    <p className="mt-1.5 flex items-center gap-1.5 text-xs text-slate-500">
+                      <Loader2 className="h-3 w-3 animate-spin text-emerald-600" /> Verifying postal delivery via India Post...
+                    </p>
+                  )}
+                  {pincodeStatus.verified && (
+                    <p className="mt-1.5 flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-100">
+                      <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+                      Speed Post Deliverable: {pincodeStatus.postOffice}
+                    </p>
+                  )}
+                  {pincodeStatus.fallback && form.pincode.length === 6 && (
+                    <p className="mt-1.5 text-xs text-slate-400">
+                      ✓ Standard courier delivery available (Manual address entry)
+                    </p>
+                  )}
                 </div>
               </div>
             )}

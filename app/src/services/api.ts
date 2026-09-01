@@ -318,3 +318,23 @@ export const authService = {
   me: () => api.get<any>('/auth/me'),
 };
 
+export const shippingService = {
+  verifyPincode: (pincode: string) => api.get<any>(`/shipping/pincode/${pincode}`),
+  calculateTariff: (data: {
+    productCode?: string;
+    weight: number;
+    sourcePincode: string;
+    destinationPincode: string;
+    length?: number;
+    width?: number;
+    height?: number;
+    declaredValue?: number;
+    isCOD?: boolean;
+    codValue?: number;
+  }) => api.post<any>('/shipping/tariff', data),
+  trackShipment: (identifier: string) => api.get<any>(`/shipping/track/${identifier}`),
+  bookShipment: (orderId: string, data?: any) => api.post<any>(`/shipping/book/${orderId}`, data || {}),
+  getShippingLabel: (orderId: string) => api.get<any>(`/shipping/label/${orderId}`),
+};
+
+
