@@ -10,7 +10,8 @@
 - [3. Core Features & What Works](#3-core-features--what-works)
 - [4. Database Architecture & Schema](#4-database-architecture--schema)
 - [5. Migrating to Supabase / Cloud PostgreSQL](#5-migrating-to-supabase--cloud-postgresql)
-- [6. Developer Quickstart](#6-developer-quickstart)
+- [6. Sample Excel & Catalog Datasets](#6-sample-excel--catalog-datasets)
+- [7. Developer Quickstart](#7-developer-quickstart)
 - [7. Default Test Credentials](#7-default-test-credentials)
 - [8. API Endpoints & Swagger Docs](#8-api-endpoints--swagger-docs)
 - [9. Directory Map & Codebase Guide](#9-directory-map--codebase-guide)
@@ -157,7 +158,22 @@ To connect to **Supabase** or any cloud PostgreSQL instance:
 
 ---
 
-## 6. Developer Quickstart
+
+---
+
+## 6. Sample Excel & Catalog Datasets
+
+Pre-formatted, production-ready sample Excel (`.xlsx`) and CSV files are available in the [`sample_data/`](sample_data/) directory for batch catalog testing:
+
+| File | Format | Rows | Use Case |
+| :--- | :--- | :--- | :--- |
+| [`sample_data/demo_1000_books.xlsx`](sample_data/demo_1000_books.xlsx) | Excel (`.xlsx`) | ~1,000 | Complete academic & exam book catalog (UPSC, WBJEE, GATE, SSC, Engineering). |
+| [`sample_data/demo_books.xlsx`](sample_data/demo_books.xlsx) | Excel (`.xlsx`) | ~100 | Starter sample catalog with pricing and taxonomy. |
+| [`sample_data/Techno_World_Books_Import.csv`](sample_data/Techno_World_Books_Import.csv) | CSV (`.csv`) | Varied | Batch CSV format dataset. |
+
+> 💡 **How to Ingest**: Go to Admin Dashboard $\rightarrow$ **Products Workspace** $\rightarrow$ click **"📥 Bulk Import Catalog"** and upload any of these files to automatically ingest the catalog!
+
+## 7. Developer Quickstart
 
 ### Prerequisites
 - **Node.js**: v18+ or v20+
@@ -186,7 +202,7 @@ npm run dev -- --host
 
 ---
 
-## 7. Default Test Credentials
+## 8. Default Test Credentials
 
 | Account | Email / Identifier | Password | Access Level |
 | :--- | :--- | :--- | :--- |
@@ -195,7 +211,7 @@ npm run dev -- --host
 
 ---
 
-## 8. API Endpoints & Swagger Docs
+## 9. API Endpoints & Swagger Docs
 
 Interactive Swagger UI available at: [**http://localhost:5000/docs**](http://localhost:5000/docs)
 
@@ -209,10 +225,15 @@ Interactive Swagger UI available at: [**http://localhost:5000/docs**](http://loc
 
 ---
 
-## 9. Directory Map & Codebase Guide
+## 10. Directory Map & Codebase Guide
 
 ```
 techno-world-books/
+├── sample_data/                      # 📊 Sample Excel & CSV Catalog Files (1000+ books)
+│   ├── demo_1000_books.xlsx
+│   ├── demo_books.xlsx
+│   ├── Techno_World_Books_Import.csv
+│   └── README.md
 ├── app/                              # Frontend Application (React 19 + Vite)
 │   ├── src/
 │   │   ├── components/               # Header, Footer, BookCard, AdminLayout, etc.
