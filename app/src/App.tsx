@@ -98,6 +98,11 @@ function CustomerLayout() {
 }
 
 export default function App() {
+  const isAdminDomain = typeof window !== 'undefined' && (
+    window.location.hostname.includes('admin') ||
+    window.location.hostname.startsWith('admin.')
+  );
+
   return (
     <StoreProvider>
       <AuthProvider>
@@ -106,12 +111,21 @@ export default function App() {
         <Toaster position="top-center" />
         <ErrorBoundary>
           <Routes>
+            {/* Dedicated Admin Subdomain (e.g. techno-world-admin.vercel.app) */}
+            {isAdminDomain && (
+              <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
+            )}
+
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<AdminProtectedRoute><AdminLayout /></AdminProtectedRoute>}>
               <Route index element={<Navigate to="dashboard" replace />} />
               <Route path="dashboard" element={<Dashboard />} />
             </Route>
+
+            {/* Support /login and /dashboard directly on admin subdomain */}
+            <Route path="/login" element={<AdminLogin />} />
+            <Route path="/dashboard" element={<Navigate to="/admin/dashboard" replace />} />
 
             {/* Customer Routes */}
             <Route element={<CustomerLayout />}>
