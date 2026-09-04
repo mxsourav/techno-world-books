@@ -27,7 +27,7 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import AdminProtectedRoute from '@/components/admin/AdminProtectedRoute';
 import AdminLogin from '@/pages/admin/AdminLogin';
 import Dashboard from '@/pages/admin/Dashboard';
-import { AuthProvider } from '@/store/AuthStore';
+import { AuthProvider, useAuthStore } from '@/store/AuthStore';
 import OrderSuccess from '@/pages/OrderSuccess';
 import MyOrders from '@/pages/MyOrders';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -97,10 +97,107 @@ function CustomerLayout() {
   );
 }
 
+function AdminPortal() {
+  const { accessToken } = useAuthStore();
+
+  return (
+    <Routes>
+      <Route path="/login" element={<AdminLogin />} />
+      <Route path="/admin/login" element={<AdminLogin />} />
+
+      <Route
+        path="/admin"
+        element={
+          <AdminProtectedRoute>
+            <AdminLayout />
+          </AdminProtectedRoute>
+        }
+      >
+        <Route index element={<Navigate to="/admin/dashboard" replace />} />
+        <Route path="dashboard" element={<Dashboard />} />
+      </Route>
+
+      <Route
+        path="/dashboard"
+        element={
+          <AdminProtectedRoute>
+            <AdminLayout />
+          </AdminProtectedRoute>
+        }
+      >
+        <Route index element={<Dashboard />} />
+      </Route>
+
+      <Route
+        path="/"
+        element={<Navigate to={accessToken ? "/admin/dashboard" : "/admin/login"} replace />}
+      />
+      <Route
+        path="*"
+        element={<Navigate to={accessToken ? "/admin/dashboard" : "/admin/login"} replace />}
+      />
+    </Routes>
+  );
+}
+
+function CustomerStorefront() {
+  return (
+    <Routes>
+      {/* Admin routes still accessible on storefront for operators */}
+      <Route path="/admin/login" element={<AdminLogin />} />
+      <Route
+        path="/admin"
+        element={
+          <AdminProtectedRoute>
+            <AdminLayout />
+          </AdminProtectedRoute>
+        }
+      >
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="dashboard" element={<Dashboard />} />
+      </Route>
+      <Route path="/dashboard" element={<Navigate to="/admin/dashboard" replace />} />
+
+      {/* Customer Storefront Routes */}
+      <Route element={<CustomerLayout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/category/:category" element={<Listing />} />
+        <Route path="/search" element={<Listing />} />
+        <Route path="/book/:slug" element={<Product />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/order-success" element={<OrderSuccess />} />
+        <Route path="/my-orders" element={<MyOrders />} />
+        <Route path="/wishlist" element={<Wishlist />} />
+        <Route path="/account" element={<Account />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/track" element={<Track />} />
+        <Route path="/blog" element={<BlogList />} />
+        <Route path="/blog/:slug" element={<BlogPost />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/help" element={<Help />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/terms-of-service" element={<Terms />} />
+        <Route path="/refund-policy" element={<RefundPolicy />} />
+        <Route path="/cancellation-refund" element={<RefundPolicy />} />
+        <Route path="/cancellation-policy" element={<RefundPolicy />} />
+        <Route path="/shipping-policy" element={<ShippingPolicy />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/contact-us" element={<Contact />} />
+        <Route path="*" element={<Listing />} />
+      </Route>
+    </Routes>
+  );
+}
+
 export default function App() {
   const isAdminDomain = typeof window !== 'undefined' && (
     window.location.hostname.includes('admin') ||
-    window.location.hostname.startsWith('admin.')
+    window.location.hostname.startsWith('admin.') ||
+    window.location.search.includes('mode=admin') ||
+    import.meta.env.VITE_APP_MODE === 'admin' ||
+    import.meta.env.VITE_IS_ADMIN === 'true'
   );
 
   return (
@@ -108,55 +205,9 @@ export default function App() {
       <AuthProvider>
         <ScrollToTop />
         <KeepAlivePing />
-        <Toaster position="top-center" />
+        <Toaster position="top-center" richColors />
         <ErrorBoundary>
-          <Routes>
-            {/* Dedicated Admin Subdomain (e.g. techno-world-admin.vercel.app) */}
-            {isAdminDomain && (
-              <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
-            )}
-
-            {/* Admin Routes */}
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin" element={<AdminProtectedRoute><AdminLayout /></AdminProtectedRoute>}>
-              <Route index element={<Navigate to="dashboard" replace />} />
-              <Route path="dashboard" element={<Dashboard />} />
-            </Route>
-
-            {/* Support /login and /dashboard directly on admin subdomain */}
-            <Route path="/login" element={<AdminLogin />} />
-            <Route path="/dashboard" element={<Navigate to="/admin/dashboard" replace />} />
-
-            {/* Customer Routes */}
-            <Route element={<CustomerLayout />}>
-              <Route path="/" element={<Home />} />
-              <Route path="/category/:category" element={<Listing />} />
-              <Route path="/search" element={<Listing />} />
-              <Route path="/book/:slug" element={<Product />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/order-success" element={<OrderSuccess />} />
-              <Route path="/my-orders" element={<MyOrders />} />
-              <Route path="/wishlist" element={<Wishlist />} />
-              <Route path="/account" element={<Account />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/track" element={<Track />} />
-              <Route path="/blog" element={<BlogList />} />
-              <Route path="/blog/:slug" element={<BlogPost />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/help" element={<Help />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/terms-of-service" element={<Terms />} />
-              <Route path="/refund-policy" element={<RefundPolicy />} />
-              <Route path="/cancellation-refund" element={<RefundPolicy />} />
-              <Route path="/cancellation-policy" element={<RefundPolicy />} />
-              <Route path="/shipping-policy" element={<ShippingPolicy />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/contact-us" element={<Contact />} />
-              <Route path="*" element={<Listing />} />
-            </Route>
-          </Routes>
+          {isAdminDomain ? <AdminPortal /> : <CustomerStorefront />}
         </ErrorBoundary>
       </AuthProvider>
     </StoreProvider>
