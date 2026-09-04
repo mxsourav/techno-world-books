@@ -135,25 +135,39 @@ Opens interactive GUI at **http://localhost:5555**.
 
 ---
 
-## 5. Migrating to Supabase / Cloud PostgreSQL
+## 5. Migrating to Cloud MySQL
 
-To connect to **Supabase** or any cloud PostgreSQL instance:
+The project uses **MySQL** (via Prisma ORM). For local development use a local MySQL 8.0+ server. For production, use any cloud MySQL provider:
 
-1. In [`server/prisma/schema.prisma`](server/prisma/schema.prisma), change the datasource provider:
-   ```prisma
-   datasource db {
-     provider = "postgresql"
-     url      = env("DATABASE_URL")
-   }
-   ```
+**Recommended cloud providers:**
+- [PlanetScale](https://planetscale.com/) (free tier, serverless MySQL)
+- [Railway](https://railway.app/) (free tier)
+- [Aiven](https://aiven.io/) (managed MySQL)
+- [Hostinger](https://www.hostinger.com/) (shared hosting MySQL)
+
+### Setup Steps
+
+1. Create a database on your MySQL server (e.g. `techno_world_books`).
+
 2. Update `DATABASE_URL` in `server/.env`:
    ```env
-   DATABASE_URL="postgresql://postgres:[YOUR-PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres"
+   # Local MySQL
+   DATABASE_URL="mysql://root:yourpassword@localhost:3306/techno_world_books"
+
+   # Cloud MySQL (example: PlanetScale)
+   DATABASE_URL="mysql://username:password@host/database?ssl={"rejectUnauthorized":true}"
    ```
-3. Push schema to Supabase:
+
+3. Push the schema to MySQL:
    ```bash
    cd server
+   npx prisma generate
    npx prisma db push
+   ```
+
+4. (Optional) Seed initial data:
+   ```bash
+   npx tsx prisma/seed.ts
    ```
 
 ---
