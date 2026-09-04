@@ -30,6 +30,10 @@ server/dist/
 # Database
 server/prisma/*.db
 server/prisma/*.db-journal
+server/*.db
+server/*.db-journal
+*.db
+*.db-journal
 
 # Uploads (keep folder structure)
 server/uploads/*

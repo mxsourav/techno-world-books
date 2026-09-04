@@ -24,10 +24,14 @@ import {
   ExternalLink,
   ChevronRight,
   Package,
+  Store,
+  CalendarCheck,
+  Download,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/AuthStore';
 import { useStore } from '@/store/StoreContext';
-import { profileService, authService } from '@/services/api';
+import { profileService, authService, orderService } from '@/services/api';
+import { generateAndPrintInvoice } from '@/utils/generateInvoice';
 import { toast } from 'sonner';
 
 export default function Profile() {
@@ -42,6 +46,8 @@ export default function Profile() {
   const [isLoadingOrders, setIsLoadingOrders] = useState(false);
   const [userNotifs, setUserNotifs] = useState<any[]>([]);
   const [isLoadingNotifs, setIsLoadingNotifs] = useState(false);
+  const [selectedSlotsByOrder, setSelectedSlotsByOrder] = useState<{ [orderId: string]: string }>({});
+  const [isConfirmingSlot, setIsConfirmingSlot] = useState<string | null>(null);
 
   // Edit Profile State
   const [name, setName] = useState('');
@@ -57,6 +63,8 @@ export default function Profile() {
     phone: '',
     addressLine1: '',
     addressLine2: '',
+    postOffice: '',
+    landmark: '',
     city: '',
     state: '',
     pincode: '',
@@ -129,6 +137,34 @@ export default function Profile() {
     } catch {}
     finally {
       setIsLoadingOrders(false);
+    }
+  };
+
+  const handleConfirmSlot = async (orderId: string) => {
+    const order = userOrders.find(o => o.id === orderId);
+    let slots: string[] = [];
+    try {
+      slots = typeof order?.pickupSlots === 'string' ? JSON.parse(order.pickupSlots) : (order?.pickupSlots || []);
+    } catch (_e) {}
+
+    const chosen = selectedSlotsByOrder[orderId] || slots[0];
+    if (!chosen) {
+      return toast.error('Please select one of the proposed pickup time slots.');
+    }
+
+    setIsConfirmingSlot(orderId);
+    try {
+      const res = await orderService.confirmPickupSlot(orderId, chosen);
+      if (res.success) {
+        toast.success('Pickup appointment slot confirmed!');
+        fetchUserOrders();
+      } else {
+        toast.error(res.message || 'Failed to confirm pickup slot');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to confirm pickup slot');
+    } finally {
+      setIsConfirmingSlot(null);
     }
   };
 
@@ -461,11 +497,16 @@ export default function Profile() {
                         {/* Order Header */}
                         <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
                           <div>
-                            <div className="flex items-center gap-2.5">
+                            <div className="flex items-center gap-2.5 flex-wrap">
                               <span className="text-base font-black text-slate-900">#{ord.orderNumber}</span>
                               <span className={`rounded-full px-3 py-0.5 text-xs font-black border ${statusColor}`}>
                                 {statusLabel}
                               </span>
+                              {(ord.shippingMethod === 'SELF_PICKUP' || ord.shippingCarrier === 'STORE_TAKEAWAY') && (
+                                <span className="rounded-full px-2.5 py-0.5 text-[11px] font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+                                  <Store className="h-3 w-3 text-emerald-600" /> Store Takeaway
+                                </span>
+                              )}
                             </div>
                             <p className="text-xs text-slate-500 mt-1 flex items-center gap-2">
                               <span>Placed on: <b>{new Date(ord.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</b></span>
@@ -503,6 +544,213 @@ export default function Profile() {
                             </div>
                           ))}
                         </div>
+
+                        {/* Store Self-Pickup Appointment & Official Invoice Card */}
+                        {(ord.shippingMethod === 'SELF_PICKUP' || ord.shippingCarrier === 'STORE_TAKEAWAY') && (
+                          <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 space-y-3">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <p className="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
+                                <Store className="h-4 w-4 text-emerald-700" />
+                                Store Takeaway Desk (College Street Office)
+                              </p>
+                              <button
+                                type="button"
+                                onClick={() => generateAndPrintInvoice(ord)}
+                                className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-800 shadow-sm transition-colors"
+                              >
+                                <Download className="h-3.5 w-3.5" /> Download Tax Invoice
+                              </button>
+                            </div>
+
+                            {ord.pickupStatus === 'SLOTS_OFFERED' && (() => {
+                              let slots: string[] = [];
+                              try {
+                                slots = typeof ord.pickupSlots === 'string' ? JSON.parse(ord.pickupSlots) : (ord.pickupSlots || []);
+                              } catch (_e) {
+                                slots = [];
+                              }
+                              const chosenSlot = selectedSlotsByOrder[ord.id] || slots[0] || '';
+
+                              return (
+                                <div className="rounded-xl border border-amber-300 bg-amber-50/70 p-3.5 space-y-2.5">
+                                  <div className="flex items-center gap-2">
+                                    <CalendarCheck className="h-4 w-4 text-amber-700 shrink-0" />
+                                    <p className="text-xs font-bold text-amber-950">
+                                      Action Required: Select Your Pickup Time Slot
+                                    </p>
+                                  </div>
+                                  <p className="text-[11px] text-amber-900 leading-relaxed">
+                                    Admin has prepared your books and proposed the following appointment slots. Choose one to schedule your pickup:
+                                  </p>
+                                  <div className="space-y-1.5 pt-1">
+                                    {slots.map((s, idx) => (
+                                      <label
+                                        key={idx}
+                                        className={`flex cursor-pointer items-center gap-2.5 rounded-lg border p-2.5 text-xs transition-all ${
+                                          chosenSlot === s
+                                            ? 'border-emerald-600 bg-white font-bold text-emerald-950 shadow-xs'
+                                            : 'border-amber-200/80 bg-white/70 text-slate-700 hover:bg-white'
+                                        }`}
+                                      >
+                                        <input
+                                          type="radio"
+                                          name={`slot_${ord.id}`}
+                                          checked={chosenSlot === s}
+                                          onChange={() => setSelectedSlotsByOrder({ ...selectedSlotsByOrder, [ord.id]: s })}
+                                        />
+                                        <span>{s}</span>
+                                      </label>
+                                    ))}
+                                  </div>
+                                  <div className="pt-2 flex justify-end">
+                                    <button
+                                      type="button"
+                                      disabled={isConfirmingSlot === ord.id}
+                                      onClick={() => handleConfirmSlot(ord.id)}
+                                      className="rounded-xl bg-emerald-700 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-800 shadow transition-colors disabled:opacity-50 inline-flex items-center gap-1.5"
+                                    >
+                                      {isConfirmingSlot === ord.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+                                      Confirm This Time Slot
+                                    </button>
+                                  </div>
+                                </div>
+                              );
+                            })()}
+
+                            {ord.pickupStatus === 'SLOT_CONFIRMED' && (
+                              <div className="rounded-xl border border-emerald-200 bg-emerald-50/80 p-3.5 space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-[10px] text-white font-bold">✓</span>
+                                  <p className="text-xs font-bold text-emerald-950">
+                                    Pickup Appointment Confirmed: <span className="font-extrabold underline">{ord.selectedPickupSlot}</span>
+                                  </p>
+                                </div>
+                                <p className="text-[11px] text-emerald-900 leading-relaxed">
+                                  Please present your <b>Official Tax Invoice</b> (click Download Tax Invoice above or bring printout) at our College Street dispatch desk during this appointed slot to collect your books.
+                                </p>
+                                <div className="text-[10px] text-emerald-800 border-t border-emerald-200/60 pt-2 space-y-0.5">
+                                  <p><b>Desk Location:</b> 90/6A, Mahatma Gandhi Rd, opp. Grace Cinema, Calcutta University, College Street, Kolkata 700007</p>
+                                  <p><b>Collector Name:</b> {ord.pickupName || ord.user?.name} (Mobile: +91 {ord.pickupPhone || ord.user?.phone})</p>
+                                </div>
+                              </div>
+                            )}
+
+                            {ord.pickupStatus === 'PENDING_SLOTS' && (
+                              <div className="rounded-xl border border-slate-200 bg-white p-3 text-xs text-slate-600 space-y-1">
+                                <p className="font-bold text-slate-800 flex items-center gap-1.5">
+                                  <Clock className="h-3.5 w-3.5 text-slate-400" /> Preparing Takeaway & Proposing Time Slots
+                                </p>
+                                <p className="text-[11px] text-slate-500 leading-relaxed">
+                                  Our team is packaging your books at our College Street facility. 3–4 pickup slots will be proposed here and in your Notification Center shortly.
+                                </p>
+                              </div>
+                            )}
+
+                            {ord.pickupStatus === 'COLLECTED' && (
+                              <div className="rounded-xl border border-slate-200 bg-white p-3 text-xs text-slate-700 flex items-center justify-between">
+                                <span className="font-bold flex items-center gap-1.5 text-emerald-800">
+                                  <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Books Collected from College Street Desk
+                                </span>
+                                <span className="text-[11px] text-slate-400">Order Completed</span>
+                              </div>
+                            )}
+
+                            {/* Enterprise Division Notice */}
+                            <p className="text-[10px] text-slate-400 leading-relaxed">
+                              * <b>Notice:</b> Techno World Books Online and the College Street offline retail store operate independently under the same trademark. Offline retail counter exchanges are strictly prohibited. Takeaway collection is via official invoice verification only.
+                            </p>
+                          </div>
+                        )}
+
+                        {/* 7-Day Replacement & Return Policy Window */}
+                        {ord.status === 'DELIVERED' && (() => {
+                          const deliveryTimestamp = ord.deliveredAt || ord.updatedAt || ord.createdAt;
+                          const deliveryDate = new Date(deliveryTimestamp);
+                          const daysSinceDelivery = Math.floor((Date.now() - deliveryDate.getTime()) / (1000 * 60 * 60 * 24));
+                          const isReplacementEligible = daysSinceDelivery <= 7;
+                          const replacementDaysRemaining = Math.max(0, 7 - daysSinceDelivery);
+
+                          return isReplacementEligible ? (
+                            <div className="rounded-2xl border border-emerald-300 bg-gradient-to-r from-emerald-50 via-teal-50/60 to-white p-4 space-y-2.5 shadow-sm">
+                              <div className="flex flex-wrap items-center justify-between gap-3">
+                                <div className="flex items-start gap-2.5">
+                                  <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-emerald-600 text-white text-xs font-bold shadow-sm shrink-0 mt-0.5">
+                                    🔄
+                                  </span>
+                                  <div>
+                                    <div className="flex items-center gap-2">
+                                      <p className="text-xs font-black text-emerald-950">
+                                        7-Day Replacement Window Active
+                                      </p>
+                                      <span className="rounded-full bg-emerald-200/80 px-2 py-0.5 text-[10px] font-black text-emerald-900 uppercase tracking-wide">
+                                        {replacementDaysRemaining === 0 ? 'Expires today' : `${replacementDaysRemaining} day${replacementDaysRemaining > 1 ? 's' : ''} left`}
+                                      </span>
+                                    </div>
+                                    <p className="text-[11px] text-emerald-800 mt-0.5 leading-relaxed">
+                                      Delivered on <b>{deliveryDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</b>. Eligible for free replacement in case of transit damage, manufacturing defect, or wrong book.
+                                    </p>
+                                  </div>
+                                </div>
+                                <a
+                                  href="https://docs.google.com/forms/d/e/1FAIpQLSdP7BBi2SNX67XU0xoBDzqiXSaL4nyBBIwDfVacG8M9kVR1RQ/viewform?usp=publish-editor"
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-700 px-4 py-2 text-xs font-extrabold text-white shadow hover:bg-emerald-800 transition-colors shrink-0"
+                                >
+                                  Request Replacement <ExternalLink className="h-3.5 w-3.5" />
+                                </a>
+                              </div>
+                              <div className="border-t border-emerald-200/60 pt-2 text-[10px] text-slate-500 leading-relaxed flex flex-wrap items-center justify-between gap-2">
+                                <span>⚠️ <b>Store Policy:</b> Replacements only — no monetary return refunds. Use Order <span className="font-mono font-bold text-slate-700">#{ord.orderNumber}</span> in the Google form.</span>
+                                <Link to="/refund-policy" className="font-bold text-emerald-700 hover:underline">Read Policy →</Link>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 flex items-center justify-between text-xs text-slate-500">
+                              <span className="flex items-center gap-1.5">
+                                <Clock className="h-3.5 w-3.5 text-slate-400" />
+                                <span>7-Day Replacement Window has ended for this order</span>
+                              </span>
+                              <Link to="/help" className="text-[11px] text-emerald-700 font-semibold hover:underline">
+                                Need Help?
+                              </Link>
+                            </div>
+                          );
+                        })()}
+
+                        {/* In-Transit Non-Cancellation Notice */}
+                        {ord.status === 'SHIPPED' && (
+                          <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-3.5 text-xs text-purple-950 space-y-1">
+                            <p className="font-bold flex items-center gap-1.5 text-purple-900">
+                              <Truck className="h-4 w-4 text-purple-700" /> Dispatched & In-Transit (Non-Cancellable):
+                            </p>
+                            <p className="text-[11px] text-purple-800 leading-relaxed">
+                              This parcel is with India Post / courier. As per terms, dispatched orders cannot be cancelled or refunded. Refusal of delivery at doorstep (RTO) is strictly non-refundable.
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Pre-Dispatch Cancellation Notice */}
+                        {(ord.status === 'PENDING' || ord.status === 'CONFIRMED' || ord.status === 'PROCESSING') && (
+                          <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-3.5 text-xs text-blue-950 flex flex-wrap items-center justify-between gap-3">
+                            <div className="space-y-0.5">
+                              <p className="font-bold text-blue-900 flex items-center gap-1.5">
+                                <Package className="h-4 w-4 text-blue-700" /> Preparing for Dispatch:
+                              </p>
+                              <p className="text-[11px] text-blue-800">
+                                Eligible for 100% refund cancellation strictly before courier handover.
+                              </p>
+                            </div>
+                            <a
+                              href={`https://wa.me/919876543210?text=Hi%20Techno%20World%20Books%2C%20I%20want%20to%20cancel%20my%20pre-dispatch%20order%20%23${ord.orderNumber}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="rounded-lg border border-blue-300 bg-white px-3 py-1.5 text-xs font-bold text-blue-800 hover:bg-blue-100 transition shrink-0"
+                            >
+                              Request Cancellation
+                            </a>
+                          </div>
+                        )}
 
                         {/* Tracking / Admin Notice Banner */}
                         {ord.notes && (
@@ -692,6 +940,8 @@ export default function Profile() {
                       phone: profileData?.phone || '',
                       addressLine1: '',
                       addressLine2: '',
+                      postOffice: '',
+                      landmark: '',
                       city: 'Kolkata',
                       state: 'West Bengal',
                       pincode: '',
@@ -742,6 +992,8 @@ export default function Profile() {
                                 phone: addr.phone,
                                 addressLine1: addr.addressLine1,
                                 addressLine2: addr.addressLine2 || '',
+                                postOffice: addr.postOffice || '',
+                                landmark: addr.landmark || '',
                                 city: addr.city,
                                 state: addr.state,
                                 pincode: addr.pincode,

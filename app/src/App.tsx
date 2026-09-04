@@ -17,6 +17,11 @@ import Track from '@/pages/Track';
 import { BlogList, BlogPost } from '@/pages/Blog';
 import Help from '@/pages/Help';
 import About from '@/pages/About';
+import Terms from '@/pages/Terms';
+import RefundPolicy from '@/pages/RefundPolicy';
+import ShippingPolicy from '@/pages/ShippingPolicy';
+import PrivacyPolicy from '@/pages/PrivacyPolicy';
+import Contact from '@/pages/Contact';
 
 import AdminLayout from '@/components/admin/AdminLayout';
 import AdminProtectedRoute from '@/components/admin/AdminProtectedRoute';
@@ -41,6 +46,12 @@ function ScrollToTop() {
       '/blog': 'Book Lists & Study Guides | Techno World Books Blog',
       '/about': 'About Us | Techno World Books',
       '/help': 'Help Center | Techno World Books',
+      '/terms': 'Terms & Conditions | Techno World Books',
+      '/terms-of-service': 'Terms & Conditions | Techno World Books',
+      '/refund-policy': 'Cancellation & Replacement Policy | Techno World Books',
+      '/shipping-policy': 'Shipping Policy | Techno World Books',
+      '/privacy-policy': 'Privacy Policy | Techno World Books',
+      '/contact': 'Contact Us | Techno World Books',
       '/admin/login': 'Admin Login | Techno World Books',
       '/admin/dashboard': 'Admin Dashboard | Techno World Books',
     };
@@ -120,6 +131,15 @@ export default function App() {
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="/about" element={<About />} />
               <Route path="/help" element={<Help />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/terms-of-service" element={<Terms />} />
+              <Route path="/refund-policy" element={<RefundPolicy />} />
+              <Route path="/cancellation-refund" element={<RefundPolicy />} />
+              <Route path="/cancellation-policy" element={<RefundPolicy />} />
+              <Route path="/shipping-policy" element={<ShippingPolicy />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/contact-us" element={<Contact />} />
               <Route path="*" element={<Listing />} />
             </Route>
           </Routes>

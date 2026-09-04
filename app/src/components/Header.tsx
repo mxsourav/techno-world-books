@@ -5,10 +5,17 @@ import {
   History, TrendingUp, ChevronDown, LogOut, MapPin, Tag
 } from 'lucide-react';
 import { POPULAR_SEARCHES } from '@/data/blog';
+import { CATEGORIES as WEBSITE_CATEGORIES } from '@/data/books';
 import { useStore } from '@/store/StoreContext';
 import { useAuthStore } from '@/store/AuthStore';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { toast } from 'sonner';
 import { searchService, categoryService, authService } from '@/services/api';
@@ -34,12 +41,22 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
   };
 
   const handleGoogleDevBypass = async () => {
+    const promptEmail = window.prompt('Please enter your Google Email address for order invoices & tracking:', '')?.trim();
+    if (!promptEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(promptEmail)) {
+      if (promptEmail) {
+        toast.error('Please enter a valid email address');
+      }
+      return;
+    }
+
+    const promptName = promptEmail.split('@')[0];
+
     setLoadingBypass(true);
     try {
       // TODO: [OAUTH_REAL_KEYS_INJECTED] Replace devGoogleBypass with window.location.href = '/api/v1/auth/google' once live client keys are injected
       const res = await authService.devGoogleBypass({
-        name: 'Sourav Biswas',
-        email: 'sourav.reader@technoworld.com',
+        name: promptName,
+        email: promptEmail,
       });
       if (res.success && res.data) {
         authLogin(res.data.accessToken, res.data.user);
@@ -49,11 +66,11 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
           phone: res.data.user.phone || '',
           rewardPoints: res.data.user.technoPoints || 120,
         });
-        toast.success('Welcome, Sourav! Signed in via Developer Google OAuth Bypass');
+        toast.success(`Welcome, ${res.data.user.name}! Signed in successfully.`);
         onClose();
       }
     } catch (err: any) {
-      toast.error(err.message || 'Google bypass failed');
+      toast.error(err.message || 'Sign in failed');
     } finally {
       setLoadingBypass(false);
     }
@@ -319,7 +336,7 @@ export function SearchBar({ autoFocus = false, className = '' }: { autoFocus?: b
 export default function Header() {
   const { cart, wishlist, user, logout } = useStore();
   const [loginOpen, setLoginOpen] = useState(false);
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>(WEBSITE_CATEGORIES);
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -437,23 +454,45 @@ export default function Header() {
 
       {/* category strip */}
       <nav className="hidden border-t border-white/5 bg-[#0a2e1f] md:block">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-1">
-          <div className="relative flex flex-1 min-w-0 items-center before:absolute before:left-0 before:top-0 before:z-10 before:h-full before:w-4 before:bg-gradient-to-r before:from-[#0a2e1f] before:to-transparent before:pointer-events-none after:absolute after:right-0 after:top-0 after:z-10 after:h-full after:w-8 after:bg-gradient-to-l after:from-[#0a2e1f] after:to-transparent after:pointer-events-none">
-            <div className="flex w-full items-center gap-1 overflow-x-auto px-4 pb-1 pt-1 pr-10 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-              <span className="mr-1 flex shrink-0 items-center gap-1 whitespace-nowrap text-xs font-semibold text-emerald-300">
-                <ChevronDown className="h-3.5 w-3.5" /> Shop by category
-              </span>
-              {categories.map((c: any) => (
-                <Link key={c.slug} to={`/category/${c.slug}`} className="whitespace-nowrap rounded-full px-2.5 py-1 text-xs text-emerald-100 transition hover:bg-white/10 hover:text-white">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 py-1">
+          <div className="flex flex-1 min-w-0 items-center overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <div className="flex items-center gap-0.5 sm:gap-1 shrink-0 pr-4">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="mr-1.5 flex shrink-0 items-center gap-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-semibold text-emerald-300 hover:bg-white/10 hover:text-white transition-colors cursor-pointer outline-none">
+                    <ChevronDown className="h-3.5 w-3.5 text-emerald-400" /> Shop by category
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-60 max-h-96 overflow-y-auto bg-[#061d13] border border-emerald-800/80 text-emerald-100 p-1.5 shadow-2xl z-50">
+                  <div className="px-2 py-1.5 text-[11px] font-bold text-emerald-400 uppercase tracking-wider border-b border-emerald-900/60 mb-1">
+                    All Categories
+                  </div>
+                  {(categories?.length ? categories : WEBSITE_CATEGORIES).map((c: any) => (
+                    <DropdownMenuItem key={c.slug || c.id} asChild className="focus:bg-emerald-800 focus:text-white rounded-md cursor-pointer text-xs py-1.5 px-2">
+                      <Link to={`/category/${c.slug}`} className="flex items-center gap-2 w-full">
+                        <span className="text-emerald-400 text-sm">📚</span>
+                        <span>{c.name}</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {WEBSITE_CATEGORIES.map((c: any) => (
+                <Link
+                  key={c.slug}
+                  to={`/category/${c.slug}`}
+                  className="whitespace-nowrap rounded-full px-2 lg:px-2.5 py-0.5 text-xs text-emerald-100 transition hover:bg-white/10 hover:text-white shrink-0"
+                >
                   {c.name.replace(' Books', '')}
                 </Link>
               ))}
             </div>
           </div>
-          <div className="flex shrink-0 items-center gap-2 pl-6 border-l border-white/10">
-            <Link to="/search?publisher=Techno%20World%20Publications" className="whitespace-nowrap rounded-full px-4 py-1 text-xs font-bold text-emerald-100 transition-colors hover:bg-white/10 hover:text-white">Our Publications</Link>
-            <Link to="/about" className="whitespace-nowrap rounded-full px-4 py-1 text-xs font-bold text-emerald-100 transition-colors hover:bg-white/10 hover:text-white">About</Link>
-            <Link to="/blog" className="whitespace-nowrap rounded-full px-4 py-1 text-xs font-bold text-amber-300 transition-colors hover:bg-white/10">Blog</Link>
+          <div className="flex shrink-0 items-center gap-2 pl-4 border-l border-white/10 ml-2">
+            <Link to="/search?publisher=Techno%20World%20Publications" className="whitespace-nowrap rounded-full px-3 py-1 text-xs font-bold text-emerald-100 transition-colors hover:bg-white/10 hover:text-white">Our Publications</Link>
+            <Link to="/about" className="whitespace-nowrap rounded-full px-3 py-1 text-xs font-bold text-emerald-100 transition-colors hover:bg-white/10 hover:text-white">About</Link>
+            <Link to="/blog" className="whitespace-nowrap rounded-full px-3 py-1 text-xs font-bold text-amber-300 transition-colors hover:bg-white/10">Blog</Link>
           </div>
         </div>
       </nav>

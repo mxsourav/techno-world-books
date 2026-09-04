@@ -33,7 +33,7 @@ const TABS = [
   { id: 'reviews', name: 'Reviews', icon: Star },
   { id: 'media', name: 'Media Library', icon: FolderOpen },
   { id: 'cms', name: 'Homepage CMS', icon: FileEdit },
-  { id: 'reports', name: 'Reports', icon: BarChart3 },
+  { id: 'analytics', name: 'Analytics & Trends', icon: BarChart3 },
   { id: 'settings', name: 'Settings & Email', icon: Settings },
 ];
 
@@ -47,7 +47,10 @@ export default function AdminLayout() {
   const [pendingCount, setPendingCount] = useState<number>(0);
   const [pendingOrders, setPendingOrders] = useState<any[]>([]);
   const [isNotifOpen, setIsNotifOpen] = useState<boolean>(false);
+  const [isOrdersFlyoutOpen, setIsOrdersFlyoutOpen] = useState<boolean>(false);
+  const [flyoutPos, setFlyoutPos] = useState<{ top: number; left: number }>({ top: 0, left: 260 });
   const notifRef = useRef<HTMLDivElement>(null);
+  const ordersBtnRef = useRef<HTMLDivElement>(null);
 
   const tabName = TABS.find(t => t.id === currentTab)?.name || 'Dashboard';
 
@@ -83,7 +86,7 @@ export default function AdminLayout() {
   return (
     <div className="flex h-screen overflow-hidden bg-slate-50 font-sans text-slate-900">
       {/* Sidebar - Dark/Premium */}
-      <aside className="w-64 flex-shrink-0 bg-slate-950 flex flex-col border-r border-slate-900 h-full">
+      <aside className="w-64 flex-shrink-0 bg-slate-950 flex flex-col border-r border-slate-900 h-full relative z-30 overflow-x-hidden overflow-y-hidden">
         <div className="p-6 flex items-center gap-3 border-b border-slate-800/50 flex-shrink-0">
           <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center shadow-lg shadow-emerald-900/50">
             <Store className="h-5 w-5 text-white" />
@@ -94,10 +97,47 @@ export default function AdminLayout() {
           </div>
         </div>
         
-        <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-1.5 scrollbar-hide">
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden py-6 px-4 space-y-1.5 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 px-2">Menu</div>
           {TABS.map((t) => {
-            const isActive = currentTab === t.id;
+            const isActive = currentTab === t.id || (t.id === 'analytics' && currentTab === 'reports');
+            const isOrdersTab = t.id === 'orders';
+
+            if (isOrdersTab) {
+              return (
+                <div
+                  key={t.id}
+                  ref={ordersBtnRef}
+                  className="relative"
+                  onMouseEnter={() => {
+                    if (ordersBtnRef.current) {
+                      const rect = ordersBtnRef.current.getBoundingClientRect();
+                      setFlyoutPos({ top: rect.top, left: rect.right + 6 });
+                    }
+                    setIsOrdersFlyoutOpen(true);
+                  }}
+                  onMouseLeave={() => setIsOrdersFlyoutOpen(false)}
+                >
+                  <Link
+                    to={`/admin/dashboard?tab=orders&stage=to_accept`}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                      isActive 
+                        ? 'bg-emerald-500/10 text-emerald-400' 
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                    }`}
+                  >
+                    <t.icon className={`h-4.5 w-4.5 ${isActive ? 'text-emerald-400' : 'text-slate-500'}`} />
+                    <span>{t.name}</span>
+                    {pendingCount > 0 && (
+                      <span className="ml-auto rounded-full bg-rose-500 text-white text-[10px] font-extrabold px-2 py-0.5 shadow-sm animate-pulse">
+                        {pendingCount}
+                      </span>
+                    )}
+                  </Link>
+                </div>
+              );
+            }
+
             return (
               <Link
                 key={t.id}
@@ -110,11 +150,6 @@ export default function AdminLayout() {
               >
                 <t.icon className={`h-4.5 w-4.5 ${isActive ? 'text-emerald-400' : 'text-slate-500'}`} />
                 <span>{t.name}</span>
-                {t.id === 'orders' && pendingCount > 0 && (
-                  <span className="ml-auto rounded-full bg-rose-500 text-white text-[10px] font-extrabold px-2 py-0.5 shadow-sm animate-pulse">
-                    {pendingCount}
-                  </span>
-                )}
               </Link>
             )
           })}
@@ -266,6 +301,59 @@ export default function AdminLayout() {
           <Outlet />
         </main>
       </div>
+      {/* Floating Orders Hover Flyout using Fixed Positioning (Guarantees zero container scrollbars) */}
+      {isOrdersFlyoutOpen && (
+        <div
+          style={{ top: `${flyoutPos.top}px`, left: `${flyoutPos.left}px` }}
+          onMouseEnter={() => setIsOrdersFlyoutOpen(true)}
+          onMouseLeave={() => setIsOrdersFlyoutOpen(false)}
+          className="fixed w-56 rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl z-50 text-slate-800 animate-in fade-in zoom-in-95 duration-100"
+        >
+          <div className="px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 border-b border-slate-100 mb-1">
+            Orders Pipeline
+          </div>
+
+          <Link
+            to="/admin/dashboard?tab=orders&stage=to_accept"
+            onClick={() => setIsOrdersFlyoutOpen(false)}
+            className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-slate-800 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+          >
+            <span className="flex items-center gap-2">
+              <ShoppingCart className="h-3.5 w-3.5 text-blue-600" />
+              Active Orders
+            </span>
+            {pendingCount > 0 && (
+              <span className="rounded-full bg-blue-100 text-blue-800 text-[10px] font-extrabold px-1.5 py-0.5">
+                {pendingCount}
+              </span>
+            )}
+          </Link>
+
+          <Link
+            to="/admin/dashboard?tab=orders&stage=returns"
+            onClick={() => setIsOrdersFlyoutOpen(false)}
+            className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-slate-800 hover:bg-amber-50 hover:text-amber-800 transition-colors"
+          >
+            <span className="flex items-center gap-2">
+              <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />
+              Returns
+            </span>
+            <span className="text-[10px] text-slate-400 font-semibold">0</span>
+          </Link>
+
+          <Link
+            to="/admin/dashboard?tab=orders&stage=cancellations"
+            onClick={() => setIsOrdersFlyoutOpen(false)}
+            className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-slate-800 hover:bg-rose-50 hover:text-rose-700 transition-colors"
+          >
+            <span className="flex items-center gap-2">
+              <LogOut className="h-3.5 w-3.5 text-rose-600 rotate-180" />
+              Cancellations
+            </span>
+            <span className="text-[10px] text-slate-400 font-semibold">0</span>
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

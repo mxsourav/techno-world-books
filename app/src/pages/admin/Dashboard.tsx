@@ -1,13 +1,19 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router';
-import { BookOpen, Plus, Search, ShoppingCart, Users, Download, IndianRupee, AlertCircle, Pause, Play, Trash2, Edit3, Truck, Printer, ShieldCheck, X, Loader2, Mail, CheckCircle2, XCircle, Send, AlertTriangle, MessageSquare, ChevronDown, ChevronUp, Settings, ArrowRight, Bell, RotateCcw } from 'lucide-react';
-import { formatINR } from '@/utils/helpers';
+import {
+  BookOpen, Plus, Search, ShoppingCart, Users, Download, IndianRupee, AlertCircle,
+  Pause, Play, Trash2, Edit3, Truck, Printer, ShieldCheck, X, Loader2, Mail,
+  CheckCircle2, XCircle, Send, ChevronDown, ChevronUp,
+  Settings, ArrowRight, Bell, RotateCcw, Box, Star, ExternalLink,
+  SlidersHorizontal, Clock, Package, Zap, Store, CalendarCheck
+} from 'lucide-react';
+import { formatINR, formatClientSku, formatClientFsn } from '@/utils/helpers';
 import type { Book } from '@/types/index';
 import { adminService, bookService, categoryService, orderService, mediaService, cmsService, promotionService, shippingService } from '@/services/api';
 import { toast } from 'sonner';
 import PromotionEditModal from '@/components/admin/PromotionEditModal';
 import ProductsWorkspace from '@/components/admin/catalog/ProductsWorkspace';
-
+import SearchAnalyticsWorkspace from '@/components/admin/analytics/SearchAnalyticsWorkspace';
 export default function Dashboard() {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -29,11 +35,58 @@ export default function Dashboard() {
 
   const [lowStockBooks, setLowStockBooks] = useState<Book[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
-  const [shippingLoading, setShippingLoading] = useState<string | null>(null);
+  const [shippingLoading, setShippingLoading] = useState<string | null>(null); void shippingLoading;
   const [shippingModalLabel, setShippingModalLabel] = useState<any | null>(null);
   const [shippingTrackingModal, setShippingTrackingModal] = useState<any | null>(null);
   
-  const [orderStatusFilter, setOrderStatusFilter] = useState<string>('ALL');
+  // Flipkart Seller Hub style Forward Orders State
+  const [orderViewMode, setOrderViewMode] = useState<'smart_groups' | 'order_id'>('smart_groups');
+  const urlStage = searchParams.get('stage') as any;
+  const [forwardStage, setForwardStage] = useState<'to_accept' | 'to_pack' | 'to_dispatch' | 'in_transit' | 'pending_service' | 'completed' | 'upcoming' | 'returns' | 'cancellations'>(urlStage || 'to_accept');
+
+  useEffect(() => {
+    if (urlStage && ['to_accept', 'to_pack', 'to_dispatch', 'in_transit', 'pending_service', 'completed', 'upcoming', 'returns', 'cancellations'].includes(urlStage)) {
+      setForwardStage(urlStage);
+    }
+  }, [urlStage]);
+
+  const [orderSearchQuery, setOrderSearchQuery] = useState('');
+  const [selectedChannelFilter, setSelectedChannelFilter] = useState('ALL');
+  const [selectedLogisticsFilter, setSelectedLogisticsFilter] = useState('ALL');
+  const [selectedGroupKeys, setSelectedGroupKeys] = useState<Set<string>>(new Set());
+  const [selectedOrderIds, setSelectedOrderIds] = useState<Set<string>>(new Set());
+  const [expandedGroupKeys, setExpandedGroupKeys] = useState<Set<string>>(new Set());
+  const [isOtherActionsOpen, setIsOtherActionsOpen] = useState(false);
+  const otherActionsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (otherActionsRef.current && !otherActionsRef.current.contains(e.target as Node)) {
+        setIsOtherActionsOpen(false);
+      }
+    };
+    if (isOtherActionsOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOtherActionsOpen]);
+
+  const [editingDimensionsBook, setEditingDimensionsBook] = useState<any | null>(null);
+  const [dimensionsForm, setDimensionsForm] = useState({ length: '24', width: '22', height: '1', weight: '0.50' });
+  const [isSavingDimensions, setIsSavingDimensions] = useState(false);
+  const [isBatchAccepting, setIsBatchAccepting] = useState(false);
+
+  // Book & Order Details Modals + Customers Tab State
+  const [previewBook, setPreviewBook] = useState<any | null>(null);
+  const [previewOrder, setPreviewOrder] = useState<any | null>(null);
+  const [customersList, setCustomersList] = useState<any[]>([]);
+  const [customerSearchQuery, setCustomerSearchQuery] = useState('');
+  const [isLoadingCustomers, setIsLoadingCustomers] = useState(false);
+  const [selectedCustomerDetail, setSelectedCustomerDetail] = useState<any | null>(null);
+
+
   const [emailModalOrder, setEmailModalOrder] = useState<any | null>(null);
   const [emailTemplate, setEmailTemplate] = useState<string>('DELAY_NOTICE');
   const [emailSubject, setEmailSubject] = useState<string>('');
@@ -45,7 +98,65 @@ export default function Dashboard() {
   const [rejectReason, setRejectReason] = useState<string>('Book currently out of print / unavailable from publisher');
   const [rejectCustomReason, setRejectCustomReason] = useState<string>('');
   const [rejecting, setRejecting] = useState(false);
-  const [expandedNotesOrderId, setExpandedNotesOrderId] = useState<string | null>(null);
+
+  const [expressModalOrder, setExpressModalOrder] = useState<string | null>(null);
+  const [expressPartner, setExpressPartner] = useState('');
+  const [expressAgentPhone, setExpressAgentPhone] = useState('');
+
+  const [pickupSlotsModalOrder, setPickupSlotsModalOrder] = useState<any | null>(null);
+  const [pickupSlotInputs, setPickupSlotInputs] = useState<string[]>([
+    'Today, 3:30 PM – 5:30 PM',
+    'Tomorrow, 11:30 AM – 1:30 PM',
+    'Tomorrow, 4:00 PM – 6:30 PM',
+    'Day after Tomorrow, 12:00 PM – 3:00 PM',
+  ]);
+  const [isSavingPickupSlots, setIsSavingPickupSlots] = useState(false);
+  const [isCollectingOrder, setIsCollectingOrder] = useState<string | null>(null);
+
+  const handleSetPickupSlotsSubmit = async () => {
+    if (!pickupSlotsModalOrder) return;
+    const filtered = pickupSlotInputs.map(s => s.trim()).filter(Boolean);
+    if (filtered.length < 2) {
+      return toast.error('Please provide at least 2 or 3 pickup time slot options for the customer.');
+    }
+
+    setIsSavingPickupSlots(true);
+    try {
+      const res = await orderService.setPickupSlots(pickupSlotsModalOrder.id, filtered);
+      if (res.success) {
+        toast.success(`${filtered.length} pickup time slots offered to customer!`);
+        setPickupSlotsModalOrder(null);
+        fetchOrders();
+      } else {
+        toast.error(res.message || 'Failed to save pickup slots');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to set pickup slots');
+    } finally {
+      setIsSavingPickupSlots(false);
+    }
+  };
+
+  const handleMarkOrderCollected = async (orderId: string) => {
+    if (!confirm('Confirm order handover? Ensure customer has presented their official invoice at the College Street dispatch desk.')) {
+      return;
+    }
+    setIsCollectingOrder(orderId);
+    try {
+      const res = await orderService.markOrderCollected(orderId);
+      if (res.success) {
+        toast.success('Order completed & handed over to customer!');
+        fetchOrders();
+      } else {
+        toast.error(res.message || 'Failed to mark order as collected');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to mark order collected');
+    } finally {
+      setIsCollectingOrder(null);
+    }
+  };
+
 
   const [mediaItems, setMediaItems] = useState<any[]>([]);
   const [cmsSections, setCmsSections] = useState<any[]>([]);
@@ -56,6 +167,7 @@ export default function Dashboard() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isImporting, setIsImporting] = useState(false);
   const [importResult, setImportResult] = useState<any>(null);
+  const [importStrategy, setImportStrategy] = useState<'UPDATE' | 'ADD_STOCK' | 'SKIP' | 'REPLACE'>('UPDATE');
 
 
 
@@ -71,19 +183,194 @@ export default function Dashboard() {
     if (tab === 'settings') {
       fetchAdminSettings();
     }
+    if (tab === 'customers') {
+      fetchCustomers();
+    }
   }, [tab]);
+
+  const fetchCustomers = (search?: string) => {
+    setIsLoadingCustomers(true);
+    adminService.getCustomers({ search: search || customerSearchQuery })
+      .then((res: any) => {
+        if (res.success && res.data) {
+          setCustomersList(res.data.customers || []);
+        }
+      })
+      .catch(console.error)
+      .finally(() => setIsLoadingCustomers(false));
+  };
+
+  const navigateToCustomer = (customerIdentifier: string) => {
+    setPreviewOrder(null);
+    setCustomerSearchQuery(customerIdentifier);
+    navigate('/admin/dashboard?tab=customers');
+    fetchCustomers(customerIdentifier);
+  };
+
+  const fetchOrders = () => {
+    orderService.getAllOrders().then(res => setOrders(res.data || [])).catch(console.error);
+  };
 
   // Live polling on Orders tab so newly placed orders pop up immediately
   useEffect(() => {
     if (tab === 'orders') {
-      const fetchOrders = () => {
-        orderService.getAllOrders().then(res => setOrders(res.data || [])).catch(console.error);
-      };
       fetchOrders();
       const interval = setInterval(fetchOrders, 4000);
       return () => clearInterval(interval);
     }
   }, [tab]);
+
+  // Auto-generate clean, readable human SKU ID following Flipkart client standards
+  const getDisplaySku = (book: any) => formatClientSku(book);
+  const getDisplayFsn = (book: any) => formatClientFsn(book);
+
+  // Helper to compute 2 PM dispatch batch key (e.g. 2026-09-04_14:00)
+  const getOrderBatchKey = (dateStr: string) => {
+    const d = new Date(dateStr);
+    const cutoff = new Date(d);
+    cutoff.setHours(14, 0, 0, 0);
+    if (d.getTime() >= cutoff.getTime()) {
+      cutoff.setDate(cutoff.getDate() + 1);
+    }
+    return `${cutoff.getFullYear()}-${String(cutoff.getMonth() + 1).padStart(2, '0')}-${String(cutoff.getDate()).padStart(2, '0')}_14:00`;
+  };
+
+  // Smart Groups: Bundles all orders and books placed by the same customer in the same 2 PM dispatch batch to the same address
+  const getSmartGroups = (filteredOrdersList: any[]) => {
+    const groupMap: { [key: string]: any } = {};
+
+    filteredOrdersList.forEach((ord: any) => {
+      const isSelfPickup = ord.shippingMethod === 'SELF_PICKUP' || ord.shippingCarrier === 'STORE_TAKEAWAY';
+      const phone = (ord.pickupPhone || ord.address?.phone || ord.user?.phone || ord.userId || 'guest').trim();
+      const pin = (ord.address?.pincode || '700001').trim();
+      const line1 = (ord.address?.addressLine1 || ord.address?.line1 || '').trim().toLowerCase();
+      const batchKey = getOrderBatchKey(ord.createdAt);
+
+      // Store Pickup orders get distinct keys so they don't combine with courier dispatch
+      const groupKey = isSelfPickup ? `pickup_${ord.id}` : `${phone}_${pin}_${line1}_${batchKey}`;
+
+      const items = Array.isArray(ord.items) && ord.items.length > 0 ? ord.items : [];
+
+      if (!groupMap[groupKey]) {
+        groupMap[groupKey] = {
+          key: groupKey,
+          isSelfPickup,
+          orders: [ord],
+          order: ord, // primary order for single actions
+          orderNumbers: [ord.orderNumber],
+          orderNumber: ord.orderNumber,
+          createdAt: ord.createdAt,
+          customerName: ord.pickupName || ord.address?.fullName || ord.address?.name || ord.user?.name || 'Valued Customer',
+          customerPhone: ord.pickupPhone || ord.address?.phone || ord.user?.phone || 'N/A',
+          customerEmail: ord.pickupEmail || ord.customerEmail || ord.address?.email || ord.user?.email || 'N/A',
+          postOffice: isSelfPickup ? 'College Street Takeaway Desk' : (ord.address?.postOffice || 'Local Post Office'),
+          landmark: isSelfPickup ? 'Opp. Grace Cinema, Calcutta University' : (ord.address?.landmark || ''),
+          city: ord.address?.city || 'Kolkata',
+          state: ord.address?.state || 'West Bengal',
+          pincode: isSelfPickup ? '700007' : (ord.address?.pincode || '700001'),
+          items: [...items],
+          totalAmount: ord.totalAmount,
+          pickupSlots: ord.pickupSlots,
+          selectedPickupSlot: ord.selectedPickupSlot,
+          pickupStatus: ord.pickupStatus || 'NONE',
+        };
+      } else {
+        // Customer placed multiple orders in the same 2 PM batch to the same delivery address!
+        groupMap[groupKey].orders.push(ord);
+        groupMap[groupKey].orderNumbers.push(ord.orderNumber);
+        groupMap[groupKey].items.push(...items);
+        groupMap[groupKey].totalAmount += ord.totalAmount;
+      }
+    });
+
+    return Object.values(groupMap).map((grp: any) => {
+      const totalBookCount = grp.items.reduce((sum: number, it: any) => sum + (it.quantity || 1), 0);
+      const totalWeightKg = (totalBookCount * 0.45).toFixed(2);
+      const dimensions = `${Math.min(24 + (totalBookCount - 1) * 2, 40)}-22-${Math.min(2 + totalBookCount, 15)}cm`;
+      const isMultiOrder = grp.orders.length > 1;
+
+      return {
+        ...grp,
+        totalBookCount,
+        isMultiOrder,
+        orderCount: grp.orders.length,
+        dimensions,
+        weight: `${totalWeightKg}kg`,
+        packaging: totalBookCount > 1 ? `Consignment Box (${totalBookCount} Books in ${grp.orders.length} Orders)` : 'Standard Book Sleeve',
+        priceDisplay: `₹${grp.totalAmount}`,
+      };
+    });
+  };
+
+  const handleBatchAcceptSelected = async () => {
+    let orderIdsToAccept: string[] = [];
+    if (orderViewMode === 'smart_groups') {
+      const activeStageOrders = orders.filter((o: any) => {
+        if (forwardStage === 'to_accept') return o.status === 'PENDING';
+        if (forwardStage === 'to_pack') return o.status === 'CONFIRMED';
+        if (forwardStage === 'to_dispatch') return o.status === 'PROCESSING';
+        if (forwardStage === 'in_transit') return o.status === 'SHIPPED';
+        if (forwardStage === 'completed') return o.status === 'DELIVERED';
+        return true;
+      });
+      const activeGroups = getSmartGroups(activeStageOrders);
+      selectedGroupKeys.forEach((k: string) => {
+        const found = activeGroups.find((g: any) => g.key === k);
+        if (found && (found as any).order) {
+          orderIdsToAccept.push((found as any).order.id);
+        }
+      });
+    } else {
+      orderIdsToAccept = Array.from(selectedOrderIds);
+    }
+
+    orderIdsToAccept = Array.from(new Set(orderIdsToAccept));
+    if (orderIdsToAccept.length === 0) {
+      return toast.error('Please select at least one group or order to accept');
+    }
+
+    setIsBatchAccepting(true);
+    try {
+      const res = await orderService.batchUpdateStatus({
+        orderIds: orderIdsToAccept,
+        status: 'CONFIRMED',
+        notes: `Batch accepted from Forward Orders dashboard`,
+      });
+      if (res.success) {
+        toast.success(`Accepted ${orderIdsToAccept.length} order(s) successfully!`);
+        setSelectedGroupKeys(new Set());
+        setSelectedOrderIds(new Set());
+        fetchOrders();
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to batch accept orders');
+    } finally {
+      setIsBatchAccepting(false);
+    }
+  };
+
+  const handleSaveBookDimensions = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingDimensionsBook) return;
+    setIsSavingDimensions(true);
+    try {
+      const dimsStr = `${dimensionsForm.length}-${dimensionsForm.width}-${dimensionsForm.height}cm`;
+      const wtNum = parseFloat(dimensionsForm.weight) || 0.5;
+      const res = await orderService.updateBookDimensions(editingDimensionsBook.id, {
+        dimensions: dimsStr,
+        weight: wtNum,
+      });
+      if (res.success) {
+        toast.success('Packaging dimensions and weight updated successfully!');
+        setEditingDimensionsBook(null);
+        fetchOrders();
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to update book dimensions');
+    } finally {
+      setIsSavingDimensions(false);
+    }
+  };
 
 
 
@@ -156,7 +443,7 @@ export default function Dashboard() {
         newAuthors: importAnalysis.newAuthors,
         newPublishers: importAnalysis.newPublishers,
         warnings: importAnalysis.warnings,
-        strategy: 'SKIP', // or OVERWRITE
+        strategy: importStrategy,
       });
       toast.success(`Import success! Added: ${(res as any).recordsAdded}, Updated: ${(res as any).recordsUpdated}, Skipped: ${(res as any).recordsSkipped}`);
       setImportResult(res);
@@ -257,7 +544,8 @@ admin@technoworld.com`
 
   const openEmailModal = (order: any, initialTemplate = 'DELAY_NOTICE') => {
     setEmailModalOrder(order);
-    setEmailRecipient(order.user?.email || 'customer@technoworld.com');
+    const targetEmail = order.customerEmail || order.address?.email || order.user?.email || '';
+    setEmailRecipient(targetEmail);
     applyEmailTemplate(initialTemplate, order);
   };
 
@@ -330,20 +618,28 @@ admin@technoworld.com`
     }
   };
 
-  const bookIndiaPostShipment = async (orderId: string) => {
+  const bookIndiaPostShipment = async (orderId: string, deliveryPartner?: string, agentPhone?: string) => {
     setShippingLoading(orderId);
     try {
-      const res = await shippingService.bookShipment(orderId);
+      const payload: any = {};
+      if (deliveryPartner) payload.deliveryPartner = deliveryPartner;
+      if (agentPhone) payload.agentPhone = agentPhone;
+      
+      const res = await shippingService.bookShipment(orderId, payload);
       if (res.success && res.data) {
-        toast.success(`Consignment booked via India Post! Barcode: ${res.data.barcode}`);
+        if (res.data.method === 'EXPRESS_LOCAL') {
+          toast.success(`Dispatched via ${res.data.carrier}!`);
+        } else {
+          toast.success(`Consignment booked via ${res.data.carrier || 'India Post'}! Barcode: ${res.data.barcode || 'N/A'}`);
+        }
         setOrders((prev) =>
           prev.map((o) =>
             o.id === orderId || o.orderNumber === orderId
               ? {
                   ...o,
-                  trackingNumber: res.data.barcode,
+                  trackingNumber: res.data.barcode || o.trackingNumber,
                   shippingCarrier: res.data.carrier,
-                  status: o.status === 'PENDING' ? 'PROCESSING' : o.status,
+                  status: res.data.method === 'EXPRESS_LOCAL' ? 'SHIPPED' : (o.status === 'PENDING' ? 'PROCESSING' : o.status),
                 }
               : o
           )
@@ -681,234 +977,1577 @@ admin@technoworld.com`
         )}
 
         {tab === 'products' && <ProductsWorkspace />}
-        {tab === 'orders' && (
-          <div className="space-y-6">
-            {/* Header & Status Filter Pills */}
-            <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-              <div className="flex flex-wrap items-center justify-between gap-4 pb-5 border-b border-slate-100">
-                <div>
-                  <div className="flex items-center gap-2.5">
-                    <h2 className="text-lg font-extrabold text-slate-900">Order Management & Logistics Hub</h2>
-                    {orders.filter(o => o.status === 'PENDING').length > 0 && (
-                      <span className="flex items-center gap-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300 px-2.5 py-0.5 text-xs font-bold animate-pulse">
-                        <AlertTriangle className="h-3.5 w-3.5 text-amber-700" />
-                        {orders.filter(o => o.status === 'PENDING').length} Pending Decision
-                      </span>
+        {tab === 'orders' && (() => {
+          // Filter orders according to Flipkart fulfillment stages
+          const getStageOrders = (stg: string) => {
+            return orders.filter(o => {
+              if (stg === 'to_accept') return o.status === 'PENDING';
+              if (stg === 'to_pack') return o.status === 'CONFIRMED';
+              if (stg === 'to_dispatch') return o.status === 'PROCESSING';
+              if (stg === 'in_transit') return o.status === 'SHIPPED';
+              if (stg === 'pending_service') return Boolean(o.notes && o.status === 'PENDING');
+              if (stg === 'completed') return o.status === 'DELIVERED';
+              if (stg === 'upcoming') return false;
+              return true;
+            });
+          };
+
+          const toAcceptCount = getStageOrders('to_accept').length;
+          const toPackCount = getStageOrders('to_pack').length;
+          const toDispatchCount = getStageOrders('to_dispatch').length;
+          const inTransitCount = getStageOrders('in_transit').length;
+          const pendingServiceCount = getStageOrders('pending_service').length;
+          const returnsCount = getStageOrders('returns').length;
+          const cancellationsCount = getStageOrders('cancellations').length;
+          const completedCount = getStageOrders('completed').length;
+
+          const activeStageOrders = getStageOrders(forwardStage).filter(o => {
+            if (!orderSearchQuery.trim()) return true;
+            const q = orderSearchQuery.toLowerCase().trim();
+            const ordNum = (o.orderNumber || '').toLowerCase();
+            const custName = (o.address?.fullName || o.address?.name || o.user?.name || '').toLowerCase();
+            const custEmail = (o.user?.email || '').toLowerCase();
+            const phone = (o.address?.phone || o.user?.phone || '').toLowerCase();
+            const city = (o.address?.city || '').toLowerCase();
+            const pincode = (o.address?.pincode || '').toLowerCase();
+            const tracking = (o.trackingNumber || '').toLowerCase();
+
+            const hasItem = Array.isArray(o.items) && o.items.some((i: any) => {
+              const b = i.book || {};
+              const title = (b.title || '').toLowerCase();
+              const rawSku = (b.sku || '').toLowerCase();
+              const formattedSku = formatClientSku(b).toLowerCase();
+              const rawIsbn = (b.isbn13 || b.isbn10 || b.isbn || '').toLowerCase();
+              const formattedFsn = formatClientFsn(b).toLowerCase();
+              const publisher = (b.publisher?.name || b.publisher || '').toLowerCase();
+              const author = (b.author || '').toLowerCase();
+
+              return (
+                title.includes(q) ||
+                rawSku.includes(q) ||
+                formattedSku.includes(q) ||
+                rawIsbn.includes(q) ||
+                formattedFsn.includes(q) ||
+                publisher.includes(q) ||
+                author.includes(q)
+              );
+            });
+
+            return (
+              ordNum.includes(q) ||
+              custName.includes(q) ||
+              custEmail.includes(q) ||
+              phone.includes(q) ||
+              city.includes(q) ||
+              pincode.includes(q) ||
+              tracking.includes(q) ||
+              hasItem
+            );
+          });
+
+          // Smart groups: combined user packages
+          const smartGroups = getSmartGroups(activeStageOrders);
+
+          // Flattened order items for normal separate book rows view (grouped consistently with smart consignments)
+          const flattenedBookItems = smartGroups.flatMap((grp: any) => {
+            if (!Array.isArray(grp.items) || grp.items.length === 0) {
+              return [{
+                rowId: `${grp.order.id}_default`,
+                order: grp.order,
+                item: null,
+                book: { title: 'Book Order', sku: 'TW-ORDER', isbn13: grp.order.orderNumber },
+                quantity: 1,
+                price: grp.order.totalAmount,
+                isBundled: grp.isMultiOrder,
+              }];
+            }
+            return grp.items.map((it: any, idx: number) => {
+              const itemOrder = grp.orders.find((o: any) => 
+                Array.isArray(o.items) && o.items.some((subIt: any) => subIt.id === it.id || (subIt.bookId && subIt.bookId === it.bookId))
+              ) || grp.order;
+
+              return {
+                rowId: `${itemOrder.id}_${it.id || idx}`,
+                order: itemOrder,
+                item: it,
+                book: it.book || {},
+                quantity: it.quantity || 1,
+                price: it.priceAtPurchase || (it.quantity ? itemOrder.totalAmount / it.quantity : itemOrder.totalAmount),
+                isBundled: grp.isMultiOrder,
+              };
+            });
+          });
+          const totalOrdersInActiveStage = activeStageOrders.length;
+
+          return (
+            <div className="space-y-4">
+              {/* Flipkart Seller Hub Header */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <h2 className="text-xl font-black tracking-tight text-slate-900">Forward Orders</h2>
+                  </div>
+
+                  {/* Search bar */}
+                  <div className="relative flex-1 max-w-md">
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <input
+                      type="text"
+                      value={orderSearchQuery}
+                      onChange={(e) => setOrderSearchQuery(e.target.value)}
+                      placeholder="Search by Order ID (TW-...), SKU, ISBN-13, Book Name, Customer, Phone..."
+                      className="w-full rounded-xl border border-slate-300 bg-slate-50/50 pl-9 pr-4 py-2 text-xs font-semibold text-slate-800 placeholder-slate-400 outline-none focus:border-blue-500 focus:bg-white transition-all shadow-inner"
+                    />
+                    {orderSearchQuery && (
+                      <button
+                        onClick={() => setOrderSearchQuery('')}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold"
+                        title="Clear search"
+                      >
+                        ✕
+                      </button>
                     )}
                   </div>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Accept or reject customer orders, dispatch India Post Speed Post consignments, or notify customers of stock procurement delays directly from admin email.
-                  </p>
                 </div>
-                <span className="rounded-full bg-red-50 border border-red-200 px-3.5 py-1.5 text-xs font-bold text-red-700 flex items-center gap-1.5 shadow-sm">
-                  <ShieldCheck className="h-4 w-4 text-red-600" /> India Post CEPT Integrated
-                </span>
-              </div>
 
-              {/* Status Filter Tabs */}
-              <div className="mt-4 flex flex-wrap gap-2">
-                {[
-                  { id: 'ALL', label: `All (${orders.length})` },
-                  { id: 'PENDING', label: `Pending Review (${orders.filter(o => o.status === 'PENDING').length})`, alert: orders.filter(o => o.status === 'PENDING').length > 0 },
-                  { id: 'CONFIRMED', label: `Confirmed (${orders.filter(o => o.status === 'CONFIRMED').length})` },
-                  { id: 'PROCESSING', label: `Processing (${orders.filter(o => o.status === 'PROCESSING').length})` },
-                  { id: 'SHIPPED', label: `Shipped (${orders.filter(o => o.status === 'SHIPPED').length})` },
-                  { id: 'DELIVERED', label: `Delivered (${orders.filter(o => o.status === 'DELIVERED').length})` },
-                  { id: 'CANCELLED', label: `Cancelled (${orders.filter(o => o.status === 'CANCELLED').length})` },
-                ].map((f) => (
-                  <button
-                    key={f.id}
-                    onClick={() => setOrderStatusFilter(f.id)}
-                    className={`rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all flex items-center gap-1.5 ${
-                      orderStatusFilter === f.id
-                        ? 'bg-slate-900 text-white shadow'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                    } ${f.alert && orderStatusFilter !== f.id ? 'border border-amber-300 bg-amber-50 text-amber-800' : ''}`}
-                  >
-                    {f.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Orders List */}
-            {orders.filter(o => orderStatusFilter === 'ALL' || o.status === orderStatusFilter).length === 0 ? (
-              <div className="rounded-xl border border-slate-200 bg-white p-12 text-center text-slate-500 shadow-sm">
-                <ShoppingCart className="mx-auto h-10 w-10 text-slate-300 mb-2" />
-                <p className="text-sm font-semibold">No orders found in "{orderStatusFilter}" status.</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {orders
-                  .filter(o => orderStatusFilter === 'ALL' || o.status === orderStatusFilter)
-                  .map((o) => {
-                    const isPending = o.status === 'PENDING';
-                    const hasNotes = Boolean(o.notes);
-
+                {/* Flow Stage Pipeline Cards */}
+                <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8 border-t border-slate-100 pt-4">
+                  {[
+                    { id: 'to_accept', count: toAcceptCount, label: 'To Accept' },
+                    { id: 'to_pack', count: toPackCount, label: 'To Pack' },
+                    { id: 'to_dispatch', count: toDispatchCount, label: 'To Dispatch' },
+                    { id: 'in_transit', count: inTransitCount, label: 'In Transit' },
+                    { id: 'pending_service', count: pendingServiceCount, label: 'Pending Service' },
+                    { id: 'returns', count: returnsCount, label: 'Returns' },
+                    { id: 'cancellations', count: cancellationsCount, label: 'Cancellations' },
+                    { id: 'completed', count: completedCount, label: 'Completed' },
+                  ].map((stg) => {
+                    const isActive = forwardStage === stg.id;
                     return (
-                      <div
-                        key={o.id}
-                        className={`rounded-xl border p-5 text-sm transition-all bg-white shadow-sm ${
-                          isPending ? 'border-amber-300 ring-2 ring-amber-400/20' : 'border-slate-200'
+                      <button
+                        key={stg.id}
+                        onClick={() => {
+                          setForwardStage(stg.id as any);
+                          setSelectedGroupKeys(new Set());
+                          setSelectedOrderIds(new Set());
+                        }}
+                        className={`flex flex-col items-start justify-between rounded-xl p-3 text-left transition-all border ${
+                          isActive
+                            ? 'bg-blue-50/70 border-blue-400 shadow-sm ring-2 ring-blue-500/20'
+                            : 'bg-white border-slate-200 hover:bg-slate-50 hover:border-slate-300'
                         }`}
                       >
-                        {/* Pending Decision Banner */}
-                        {isPending && (
-                          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-amber-50 border border-amber-200 px-3.5 py-2.5 text-xs text-amber-900">
-                            <div className="flex items-center gap-2 font-bold">
-                              <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
-                              <span>Requires Decision: Verify stock availability or send procurement delay notice to customer.</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => handleAcceptOrder(o)}
-                                className="flex items-center gap-1 rounded bg-emerald-700 px-2.5 py-1 text-xs font-bold text-white hover:bg-emerald-800 transition-colors shadow-sm"
-                              >
-                                <CheckCircle2 className="h-3.5 w-3.5" /> Accept Order
-                              </button>
-                              <button
-                                onClick={() => openEmailModal(o, 'DELAY_NOTICE')}
-                                className="flex items-center gap-1 rounded bg-blue-700 px-2.5 py-1 text-xs font-bold text-white hover:bg-blue-800 transition-colors shadow-sm"
-                              >
-                                <Mail className="h-3.5 w-3.5" /> Slight Delay Notice
-                              </button>
-                              <button
-                                onClick={() => setRejectModalOrder(o)}
-                                className="flex items-center gap-1 rounded bg-rose-700 px-2.5 py-1 text-xs font-bold text-white hover:bg-rose-800 transition-colors shadow-sm"
-                              >
-                                <XCircle className="h-3.5 w-3.5" /> Reject
-                              </button>
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="flex flex-wrap items-start justify-between gap-4">
-                          {/* Order Summary & Customer Info */}
-                          <div className="min-w-0 flex-1 space-y-1.5">
-                            <div className="flex flex-wrap items-center gap-2.5">
-                              <span className="font-extrabold text-slate-900 text-base">{o.orderNumber}</span>
-                              <span className="text-slate-300">|</span>
-                              <span className="font-black text-emerald-700 text-base">{formatINR(o.totalAmount)}</span>
-                              <span className={`rounded-full px-2.5 py-0.5 text-xs font-extrabold ${
-                                o.status === 'PENDING' ? 'bg-amber-100 text-amber-800' :
-                                o.status === 'CONFIRMED' ? 'bg-blue-100 text-blue-800' :
-                                o.status === 'PROCESSING' ? 'bg-indigo-100 text-indigo-800' :
-                                o.status === 'SHIPPED' ? 'bg-purple-100 text-purple-800' :
-                                o.status === 'DELIVERED' ? 'bg-emerald-100 text-emerald-800' :
-                                'bg-rose-100 text-rose-800'
-                              }`}>
-                                {o.status}
-                              </span>
-                              {o.trackingNumber && (
-                                <span className="rounded bg-red-100 text-red-800 text-xs px-2.5 py-0.5 font-bold flex items-center gap-1">
-                                  <Truck className="h-3.5 w-3.5" /> {o.trackingNumber}
-                                </span>
-                              )}
-                            </div>
-
-                            <p className="text-xs text-slate-600">
-                              <b>Customer:</b> <span className="font-semibold text-slate-800">{o.address?.name || o.user?.name || 'Guest'}</span> ({o.user?.email || 'N/A'}) · <b>Phone:</b> {o.address?.phone || 'N/A'} · <b>Payment:</b> {o.paymentMethod}
-                            </p>
-
-                            {o.address && (
-                              <p className="text-xs text-slate-500">
-                                📍 <b>Delivery Address:</b> {o.address.line1}, {o.address.city}, {o.address.state} — <b>{o.address.pincode}</b>
-                              </p>
-                            )}
-
-                            {/* Book items list */}
-                            {Array.isArray(o.items) && o.items.length > 0 && (
-                              <div className="mt-2 pt-2 border-t border-slate-100 flex flex-wrap gap-2 text-xs text-slate-700">
-                                {o.items.map((item: any, idx: number) => (
-                                  <span key={idx} className="bg-slate-100 px-2 py-1 rounded font-medium border border-slate-200">
-                                    📖 {item.book?.title || 'Book'} <span className="text-slate-500 font-bold">×{item.quantity}</span>
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Action Buttons Toolbar */}
-                          <div className="flex items-center gap-2 flex-wrap self-center">
-                            {/* Send Custom Email / Delay Modal Button */}
-                            <button
-                              onClick={() => openEmailModal(o)}
-                              className="flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50/80 px-3 py-2 text-xs font-bold text-blue-700 hover:bg-blue-100 transition-colors shadow-sm"
-                              title="Send custom communication from admin@technoworld.com"
-                            >
-                              <Mail className="h-3.5 w-3.5" /> Email Customer
-                            </button>
-
-                            {/* India Post Speed Post Booking & Label */}
-                            {!o.trackingNumber && o.status !== 'CANCELLED' ? (
-                              <button
-                                disabled={shippingLoading === o.id}
-                                onClick={() => bookIndiaPostShipment(o.id)}
-                                className="flex items-center gap-1.5 rounded-lg bg-red-700 px-3.5 py-2 text-xs font-bold text-white hover:bg-red-800 disabled:opacity-50 transition-colors shadow-sm"
-                              >
-                                {shippingLoading === o.id ? (
-                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                ) : (
-                                  <Truck className="h-3.5 w-3.5" />
-                                )}
-                                Ship with India Post
-                              </button>
-                            ) : o.trackingNumber ? (
-                              <>
-                                <button
-                                  onClick={() => openShippingLabel(o.id)}
-                                  className="flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-sm"
-                                >
-                                  <Printer className="h-3.5 w-3.5 text-slate-600" /> Print Label
-                                </button>
-                                <button
-                                  onClick={() => openTrackingModal(o.trackingNumber || o.orderNumber)}
-                                  className="flex items-center gap-1 rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-800 hover:bg-emerald-100 shadow-sm"
-                                >
-                                  <Truck className="h-3.5 w-3.5 text-emerald-700" /> Live Track
-                                </button>
-                              </>
-                            ) : null}
-
-                            {/* Status Quick Select */}
-                            <select
-                              value={o.status}
-                              onChange={(e) => updateOrderStatus(o.id, e.target.value)}
-                              className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold outline-none focus:ring-2 focus:ring-emerald-500/20 shadow-sm"
-                            >
-                              {['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'].map((s) => (
-                                <option key={s} value={s}>{s}</option>
-                              ))}
-                            </select>
-                          </div>
-                        </div>
-
-                        {/* Communication / Notes Timeline Expander */}
-                        {hasNotes && (
-                          <div className="mt-3 pt-3 border-t border-slate-100">
-                            <button
-                              onClick={() => setExpandedNotesOrderId(expandedNotesOrderId === o.id ? null : o.id)}
-                              className="flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-slate-800"
-                            >
-                              <MessageSquare className="h-3.5 w-3.5 text-slate-400" />
-                              Communication & Activity Log ({o.notes.split('\n').length})
-                              {expandedNotesOrderId === o.id ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-                            </button>
-
-                            {expandedNotesOrderId === o.id && (
-                              <div className="mt-2 rounded-lg bg-slate-50 border border-slate-200 p-3 text-xs text-slate-700 font-mono whitespace-pre-line space-y-1">
-                                {o.notes}
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
+                        <span className="text-xl font-black tracking-tight text-slate-900">{stg.count}</span>
+                        <span className={`mt-1 text-xs font-bold ${isActive ? 'text-blue-700' : 'text-slate-500'}`}>
+                          {stg.label}
+                        </span>
+                      </button>
                     );
                   })}
+                </div>
+
+                {/* SLA 2:00 PM Cutoff Dispatch Notification Banner */}
+                {toAcceptCount > 0 && forwardStage === 'to_accept' && (() => {
+                  const currentHour = new Date().getHours();
+                  const isBefore2PM = currentHour < 14;
+                  return (
+                    <div className={`mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl px-4 py-2.5 text-xs border shadow-sm transition-all ${
+                      isBefore2PM
+                        ? 'bg-blue-50/90 border-blue-300 text-blue-950'
+                        : 'bg-amber-50/90 border-amber-300 text-amber-950'
+                    }`}>
+                      <div className="flex items-center gap-2 font-bold">
+                        <Clock className={`h-4 w-4 ${isBefore2PM ? 'text-blue-600' : 'text-amber-700'}`} />
+                        {isBefore2PM ? (
+                          <span>
+                            ✓ <b>Same Day Dispatch Batch</b>: Orders placed before 2:00 PM ({toAcceptCount} pending approval for today's pickup)
+                          </span>
+                        ) : (
+                          <span>
+                            ✓ <b>Next Day Dispatch Batch</b>: Orders placed after 2:00 PM ({toAcceptCount} scheduled for tomorrow's pickup)
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[11px] font-extrabold px-2.5 py-0.5 rounded-full border shadow-sm ${
+                          isBefore2PM
+                            ? 'bg-white text-blue-700 border-blue-200'
+                            : 'bg-white text-amber-800 border-amber-200'
+                        }`}>
+                          {isBefore2PM ? '⚡ Same Day Dispatch' : '🕒 Next Day Dispatch'}
+                        </span>
+                        <span className="text-[11px] font-semibold text-slate-500 bg-white/80 px-2.5 py-0.5 rounded-full border border-slate-200">
+                          India Post Speed Post
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+
+              {/* Action Toolbar & Filters */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  {/* Left Filters */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex items-center gap-1 text-xs font-bold text-slate-500 mr-1">
+                      <SlidersHorizontal className="h-3.5 w-3.5" /> Filters:
+                    </div>
+
+                    <select
+                      value={selectedChannelFilter}
+                      onChange={(e) => setSelectedChannelFilter(e.target.value)}
+                      className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 outline-none"
+                    >
+                      <option value="ALL">Channel: All / Direct</option>
+                      <option value="DIRECT">Techno World Direct</option>
+                      <option value="MARKETPLACE">Marketplace / Affiliates</option>
+                    </select>
+
+                    <select
+                      value={selectedLogisticsFilter}
+                      onChange={(e) => setSelectedLogisticsFilter(e.target.value)}
+                      className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 outline-none"
+                    >
+                      <option value="ALL">Logistics Partner: India Post</option>
+                      <option value="INDIA_POST">Speed Post (National)</option>
+                      <option value="LOCAL">Kolkata Local Courier</option>
+                    </select>
+
+                    <span className="rounded-full bg-slate-100 border border-slate-200 px-3 py-1 text-xs font-black text-slate-700">
+                      # Total {orderViewMode === 'smart_groups' ? `${smartGroups.length} groups (${totalOrdersInActiveStage} orders)` : `${totalOrdersInActiveStage} orders`}
+                    </span>
+                  </div>
+
+                  {/* Right View Switcher & Actions */}
+                  <div className="flex items-center gap-3">
+                    {/* View Switcher: Smart Groups vs Order ID */}
+                    <div className="flex rounded-xl border border-slate-200 bg-slate-100 p-1">
+                      <button
+                        onClick={() => setOrderViewMode('smart_groups')}
+                        className={`flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-bold transition-all ${
+                          orderViewMode === 'smart_groups'
+                            ? 'bg-white text-blue-700 shadow-sm font-extrabold'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        <Star className={`h-3.5 w-3.5 ${orderViewMode === 'smart_groups' ? 'fill-blue-600 text-blue-600' : 'text-slate-400'}`} />
+                        <span>Smart Groups</span>
+                      </button>
+
+                      <button
+                        onClick={() => setOrderViewMode('order_id')}
+                        className={`flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-bold transition-all ${
+                          orderViewMode === 'order_id'
+                            ? 'bg-white text-blue-700 shadow-sm font-extrabold'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        <Box className="h-3.5 w-3.5 text-slate-500" />
+                        <span>Order ID</span>
+                      </button>
+                    </div>
+
+                    {/* Other Actions Dropdown */}
+                    <div className="relative" ref={otherActionsRef}>
+                      <button
+                        onClick={() => setIsOtherActionsOpen(!isOtherActionsOpen)}
+                        className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-sm transition-all"
+                      >
+                        <span>Other Actions</span>
+                        <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+                      </button>
+
+                      {isOtherActionsOpen && (
+                        <div className="absolute right-0 mt-2 w-48 rounded-xl border border-slate-200 bg-white shadow-xl z-30 py-1 text-xs font-semibold text-slate-700">
+                          <button
+                            onClick={() => {
+                              const csvRows = ['OrderNumber,Customer,Phone,TotalAmount,Status,Date'];
+                              activeStageOrders.forEach(o => {
+                                csvRows.push(`${o.orderNumber},"${o.address?.name || o.user?.name || ''}",${o.address?.phone || ''},${o.totalAmount},${o.status},"${new Date(o.createdAt).toISOString()}"`);
+                              });
+                              const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
+                              const url = URL.createObjectURL(blob);
+                              const a = document.createElement('a');
+                              a.href = url;
+                              a.download = `orders_${forwardStage}_${Date.now()}.csv`;
+                              a.click();
+                              setIsOtherActionsOpen(false);
+                            }}
+                            className="w-full text-left px-4 py-2 hover:bg-slate-50 flex items-center gap-2"
+                          >
+                            <Download className="h-3.5 w-3.5 text-slate-500" /> Download Order List (.csv)
+                          </button>
+                          <button
+                            onClick={() => {
+                              setIsOtherActionsOpen(false);
+                              handleBatchAcceptSelected();
+                            }}
+                            className="w-full text-left px-4 py-2 hover:bg-slate-50 flex items-center gap-2 text-emerald-700 font-bold"
+                          >
+                            <CheckCircle2 className="h-3.5 w-3.5" /> Accept All Selected
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Accept Orders Primary Action */}
+                    {forwardStage === 'to_accept' && (
+                      <button
+                        onClick={handleBatchAcceptSelected}
+                        disabled={isBatchAccepting || (selectedGroupKeys.size === 0 && selectedOrderIds.size === 0)}
+                        className="flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-1.5 text-xs font-extrabold text-white hover:bg-blue-700 shadow transition-all disabled:opacity-50"
+                      >
+                        {isBatchAccepting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+                        Accept Orders
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Main Content: Smart Groups View */}
+              {/* Main Content: Smart Groups View (Consolidates all books ordered by one user at same time) */}
+              {orderViewMode === 'smart_groups' && (
+                <div className="rounded-2xl border border-slate-200 bg-white shadow-sm min-h-[480px] pb-44 overflow-visible">
+                  {smartGroups.length === 0 ? (
+                    <div className="p-16 text-center text-slate-400">
+                      <Box className="mx-auto h-12 w-12 text-slate-300 mb-3" />
+                      <h4 className="text-base font-bold text-slate-800">No orders in "{forwardStage.replace('_', ' ').toUpperCase()}" stage</h4>
+                      <p className="text-xs text-slate-500 mt-1">Orders placed by customers will automatically populate in User Smart Groups here.</p>
+                    </div>
+                  ) : (
+                    <div className="overflow-visible">
+                      <table className="w-full text-left text-xs text-slate-700">
+                        <thead className="bg-slate-50 border-b border-slate-200 text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
+                          <tr>
+                            <th className="w-10 px-4 py-3 text-center">
+                              <input
+                                type="checkbox"
+                                checked={selectedGroupKeys.size === smartGroups.length && smartGroups.length > 0}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setSelectedGroupKeys(new Set(smartGroups.map(g => g.key)));
+                                  } else {
+                                    setSelectedGroupKeys(new Set());
+                                  }
+                                }}
+                                className="rounded border-slate-300"
+                              />
+                            </th>
+                            <th className="px-4 py-3 min-w-[140px]">Customer & Order</th>
+                            <th className="px-4 py-3 min-w-[360px]">All Books in this User's Consignment</th>
+                            <th className="px-4 py-3 min-w-[200px]">Postal Destination & SLA</th>
+                            <th className="px-4 py-3 text-right min-w-[160px]">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {smartGroups.map((grp: any) => {
+                            const isSelected = selectedGroupKeys.has(grp.key);
+                            const isExpanded = expandedGroupKeys.has(grp.key);
+                            const ord = grp.order;
+
+                            // Calculate 2:00 PM Dispatch SLA
+                            const orderHour = ord?.createdAt ? new Date(ord.createdAt).getHours() : 12;
+                            const isSameDay = orderHour < 14;
+
+                            return (
+                              <React.Fragment key={grp.key}>
+                                <tr className={`hover:bg-slate-50/80 transition-colors ${isSelected ? 'bg-blue-50/40' : ''}`}>
+                                  {/* Checkbox */}
+                                  <td className="px-4 py-4 text-center align-top">
+                                    <input
+                                      type="checkbox"
+                                      checked={isSelected}
+                                      onChange={(e) => {
+                                        const next = new Set(selectedGroupKeys);
+                                        if (e.target.checked) next.add(grp.key);
+                                        else next.delete(grp.key);
+                                        setSelectedGroupKeys(next);
+                                      }}
+                                      className="rounded border-slate-300 mt-1"
+                                    />
+                                  </td>
+
+                                  {/* Customer & Order ID */}
+                                  <td className="px-4 py-4 align-top space-y-1">
+                                    <div className="flex flex-wrap items-center gap-1">
+                                      {grp.orderNumbers.map((num: string, nIdx: number) => {
+                                        const thisOrd = grp.orders[nIdx] || ord;
+                                        return (
+                                          <button
+                                            key={num}
+                                            onClick={() => setPreviewOrder(thisOrd)}
+                                            className="font-extrabold text-blue-600 hover:underline hover:text-blue-800 cursor-pointer text-left font-mono inline-block text-xs"
+                                            title="Click to view full consignment details"
+                                          >
+                                            #{num}
+                                          </button>
+                                        );
+                                      })}
+                                    </div>
+                                    {grp.isMultiOrder && (
+                                      <span className="inline-flex items-center gap-1 rounded bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 text-[10px] font-extrabold text-emerald-800">
+                                        📦 {grp.orderCount} Orders Bundled
+                                      </span>
+                                    )}
+                                    <span
+                                      onClick={() => {
+                                        setCustomerSearchQuery(grp.customerName);
+                                        navigate('/admin/dashboard?tab=customers');
+                                      }}
+                                      className="font-bold text-slate-900 hover:text-emerald-700 hover:underline cursor-pointer flex items-center gap-1 text-xs"
+                                      title="Click to view customer profile"
+                                    >
+                                      {grp.customerName}
+                                      <ExternalLink className="h-2.5 w-2.5 text-slate-400" />
+                                    </span>
+                                    <span className="text-[10px] text-slate-400 block font-mono">
+                                      📞 {grp.customerPhone}
+                                    </span>
+                                  </td>
+
+                                  {/* Books Ordered by this user at same time */}
+                                  <td className="px-4 py-4 align-top">
+                                    <div className="space-y-2">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 border border-blue-200 px-2 py-0.5 text-[11px] font-extrabold text-blue-700 shadow-sm">
+                                          <Box className="h-3 w-3" />
+                                          {grp.totalBookCount} {grp.totalBookCount === 1 ? 'Book in Package' : 'Books Combined in Package'}
+                                        </span>
+                                        <button
+                                          onClick={() => {
+                                            const next = new Set(expandedGroupKeys);
+                                            if (isExpanded) next.delete(grp.key);
+                                            else next.add(grp.key);
+                                            setExpandedGroupKeys(next);
+                                          }}
+                                          className="text-[11px] font-bold text-slate-500 hover:text-blue-600 flex items-center gap-0.5"
+                                        >
+                                          {isExpanded ? 'Hide breakdown' : 'View all items'}
+                                          {isExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                                        </button>
+                                      </div>
+
+                                      {/* Primary / Collage Books Display */}
+                                      <div className="grid gap-1.5">
+                                        {grp.items.slice(0, 2).map((it: any, iIdx: number) => {
+                                          const bk = it.book || {};
+                                          return (
+                                            <div key={iIdx} className="flex items-start gap-2.5 bg-slate-50/80 rounded-lg p-1.5 border border-slate-100">
+                                              <span className="flex h-5 w-5 items-center justify-center rounded bg-white border border-slate-200 text-[10px] font-extrabold text-slate-700 shrink-0">
+                                                {it.quantity || 1}×
+                                              </span>
+                                              <div className="h-8 w-6 rounded bg-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
+                                                {bk.coverUrl ? (
+                                                  <img src={bk.coverUrl} alt={bk.title} className="h-full w-full object-cover" />
+                                                ) : (
+                                                  <span className="text-[10px]">📖</span>
+                                                )}
+                                              </div>
+                                              <div className="min-w-0 flex-1">
+                                                <h5
+                                                  onClick={() => setPreviewBook(bk)}
+                                                  className="font-bold text-slate-800 line-clamp-1 hover:text-blue-600 cursor-pointer hover:underline text-xs"
+                                                >
+                                                  {bk.title || 'Academic Book'}
+                                                </h5>
+                                                <p className="text-[10px] font-mono text-slate-500">
+                                                  SKU: {getDisplaySku(bk)} · FSN: {getDisplayFsn(bk)}
+                                                </p>
+                                              </div>
+                                            </div>
+                                          );
+                                        })}
+                                        {grp.items.length > 2 && (
+                                          <p className="text-[10px] font-bold text-slate-500 pl-1">
+                                            +{grp.items.length - 2} more books in this user's shipment
+                                          </p>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </td>
+
+                                  {/* Postal Destination & India Post Route / Store Takeaway Desk */}
+                                  <td className="px-4 py-4 align-top space-y-1">
+                                    {grp.isSelfPickup || ord.shippingMethod === 'SELF_PICKUP' ? (
+                                      <>
+                                        <p className="text-[11px] text-emerald-800 font-bold flex items-center gap-1">
+                                          <Store className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                                          <b>College Street Desk</b>
+                                        </p>
+                                        <p className="text-[10px] text-slate-600 leading-tight">
+                                          90/6A, MG Rd, opp. Grace Cinema
+                                        </p>
+                                        <p className="text-[10px] text-slate-700">
+                                          Collector: <b>{grp.customerName}</b> ({grp.customerPhone})
+                                        </p>
+                                        <div className="pt-1">
+                                          {ord.selectedPickupSlot ? (
+                                            <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded border bg-emerald-50 text-emerald-800 border-emerald-200">
+                                              📅 {ord.selectedPickupSlot}
+                                            </span>
+                                          ) : (
+                                            <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded border bg-amber-50 text-amber-800 border-amber-200">
+                                              ⏳ {ord.pickupStatus === 'SLOTS_OFFERED' ? 'Slots Offered (Awaiting User)' : 'Slots Needed'}
+                                            </span>
+                                          )}
+                                        </div>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <p className="text-[11px] text-slate-800 font-semibold">
+                                          🏤 <b>{grp.postOffice}</b>
+                                        </p>
+                                        <p className="text-[11px] text-slate-600">
+                                          {grp.city}, {grp.state} — <b>{grp.pincode}</b>
+                                        </p>
+                                        {grp.landmark && (
+                                          <p className="text-[10px] text-slate-500">
+                                            📍 Landmark: {grp.landmark}
+                                          </p>
+                                        )}
+                                        <div className="flex items-center gap-1.5 pt-1">
+                                          <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded border ${
+                                            isSameDay
+                                              ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                              : 'bg-amber-50 text-amber-800 border-amber-200'
+                                          }`}>
+                                            {isSameDay ? '⚡ Same Day 2PM' : '🕒 Next Day 2PM'}
+                                          </span>
+                                          <span className="text-[11px] font-mono font-bold text-slate-900">
+                                            {grp.priceDisplay}
+                                          </span>
+                                        </div>
+                                      </>
+                                    )}
+                                  </td>
+
+                                  {/* Action Buttons */}
+                                  <td className="px-4 py-4 text-right align-top">
+                                    <div className="flex items-center justify-end gap-1.5 flex-wrap">
+                                      {ord.status === 'PENDING' && (
+                                        <button
+                                          onClick={async () => {
+                                            for (const o of grp.orders) {
+                                              await handleAcceptOrder(o);
+                                            }
+                                          }}
+                                          className="h-7 px-2.5 rounded-lg bg-emerald-700 text-white hover:bg-emerald-800 text-xs font-bold inline-flex items-center justify-center gap-1 shadow-sm transition-all"
+                                        >
+                                          <CheckCircle2 className="h-3 w-3" /> Accept {grp.isMultiOrder ? `All (${grp.orderCount})` : ''}
+                                        </button>
+                                      )}
+                                      {ord.status === 'CONFIRMED' && (
+                                        <button
+                                          onClick={async () => {
+                                            for (const o of grp.orders) {
+                                              await updateOrderStatus(o.id, 'PROCESSING');
+                                            }
+                                          }}
+                                          className="h-7 px-2.5 rounded-lg bg-blue-700 text-white hover:bg-blue-800 text-xs font-bold inline-flex items-center justify-center gap-1 shadow-sm transition-all"
+                                        >
+                                          <Package className="h-3 w-3" /> Pack Parcel
+                                        </button>
+                                      )}
+                                      {ord.shippingMethod === 'SELF_PICKUP' ? (
+                                        <>
+                                          {ord.pickupStatus === 'PENDING_SLOTS' || !ord.pickupSlots || ord.pickupStatus === 'NONE' ? (
+                                            <button
+                                              onClick={() => {
+                                                setPickupSlotsModalOrder(ord);
+                                                try {
+                                                  if (ord.pickupSlots) {
+                                                    const parsed = JSON.parse(ord.pickupSlots);
+                                                    if (Array.isArray(parsed) && parsed.length > 0) setPickupSlotInputs(parsed);
+                                                  }
+                                                } catch (_e) {}
+                                              }}
+                                              className="h-7 px-2.5 rounded-lg bg-emerald-700 text-white hover:bg-emerald-800 text-xs font-bold inline-flex items-center justify-center gap-1 shadow-sm transition-all whitespace-nowrap"
+                                            >
+                                              <CalendarCheck className="h-3 w-3" /> Set Pickup Slots
+                                            </button>
+                                          ) : ord.pickupStatus === 'SLOTS_OFFERED' ? (
+                                            <div className="flex items-center gap-1">
+                                              <span className="rounded bg-amber-50 border border-amber-200 text-amber-800 px-2 py-0.5 text-[10px] font-extrabold">
+                                                ⏱️ Slots Offered
+                                              </span>
+                                              <button
+                                                onClick={() => {
+                                                  setPickupSlotsModalOrder(ord);
+                                                  try {
+                                                    if (ord.pickupSlots) {
+                                                      const parsed = JSON.parse(ord.pickupSlots);
+                                                      if (Array.isArray(parsed) && parsed.length > 0) setPickupSlotInputs(parsed);
+                                                    }
+                                                  } catch (_e) {}
+                                                }}
+                                                className="h-7 px-2 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-[11px] font-bold"
+                                              >
+                                                Edit
+                                              </button>
+                                            </div>
+                                          ) : ord.pickupStatus === 'SLOT_CONFIRMED' ? (
+                                            <button
+                                              disabled={isCollectingOrder === ord.id}
+                                              onClick={() => handleMarkOrderCollected(ord.id)}
+                                              className="h-7 px-2.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-extrabold inline-flex items-center justify-center gap-1 shadow-sm transition-all whitespace-nowrap"
+                                            >
+                                              {isCollectingOrder === ord.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Store className="h-3 w-3" />}
+                                              Hand Over Book
+                                            </button>
+                                          ) : (
+                                    <span className="rounded bg-slate-100 border border-slate-200 text-slate-700 px-2 py-0.5 text-[10px] font-bold">
+                                              ✅ Collected
+                                            </span>
+                                          )}
+                                        </>
+                                      ) : (
+                                        ord.status === 'PROCESSING' && !ord.trackingNumber && (
+                                          ord.shippingMethod === 'SPEED_POST' ? (
+                                            <button
+                                              onClick={() => bookIndiaPostShipment(ord.id)}
+                                              className="relative h-7 px-2.5 rounded-lg text-white text-xs font-bold inline-flex items-center justify-center gap-1 overflow-hidden shadow-sm"
+                                            >
+                                              <span
+                                                className="absolute -inset-[150%] m-auto aspect-square pointer-events-none animate-spin"
+                                                style={{
+                                                  background: 'conic-gradient(from 0deg, transparent 0deg, transparent 340deg, #fb923c 360deg)',
+                                                }}
+                                              />
+                                              <span
+                                                className="absolute inset-[1.5px] rounded-[6.5px] bg-[#ea580c]"
+                                              />
+                                              <span className="relative z-10 flex items-center gap-1"><Truck className="h-3 w-3" /> Speed Post</span>
+                                            </button>
+                                          ) : ord.shippingMethod === 'EXPRESS_LOCAL' ? (
+                                            <button
+                                              onClick={() => {
+                                                setExpressPartner('');
+                                                setExpressAgentPhone('');
+                                                setExpressModalOrder(ord.id);
+                                              }}
+                                              className="h-7 px-2.5 rounded-lg text-white hover:brightness-110 text-xs font-bold inline-flex items-center gap-1 shadow-sm transition-all"
+                                              style={{ background: 'linear-gradient(135deg, #3b0764, #581c87)' }}
+                                            >
+                                              <Zap className="h-3 w-3" /> Express
+                                            </button>
+                                          ) : (
+                                            <button
+                                              onClick={() => bookIndiaPostShipment(ord.id)}
+                                              className="h-7 px-2.5 rounded-lg bg-red-700 text-white hover:bg-red-800 text-xs font-bold inline-flex items-center justify-center gap-1 shadow-sm transition-all whitespace-nowrap"
+                                            >
+                                              <Package className="h-3 w-3" /> Book Post
+                                            </button>
+                                          )
+                                        )
+                                      )}
+                                      {ord.trackingNumber && (
+                                        <>
+                                          <button
+                                            onClick={() => openShippingLabel(ord.id)}
+                                            className="h-7 px-2.5 rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 text-xs font-bold inline-flex items-center justify-center gap-1 shadow-sm transition-all"
+                                          >
+                                            <Printer className="h-3 w-3" /> Label
+                                          </button>
+                                          <button
+                                            onClick={() => openTrackingModal(ord.trackingNumber || ord.orderNumber)}
+                                            className="h-7 px-2.5 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 text-xs font-bold inline-flex items-center justify-center gap-1 shadow-sm transition-all"
+                                          >
+                                            <Truck className="h-3 w-3" /> Track
+                                          </button>
+                                        </>
+                                      )}
+                                      <button
+                                        onClick={() => openEmailModal(ord, 'DELAY_NOTICE')}
+                                        className="h-7 px-2.5 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-bold inline-flex items-center justify-center gap-1 transition-all"
+                                      >
+                                        <Mail className="h-3 w-3" /> Delay
+                                      </button>
+                                      <button
+                                        onClick={() => setRejectModalOrder(ord)}
+                                        className="h-7 px-2.5 rounded-lg border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 text-xs font-bold inline-flex items-center justify-center gap-1 transition-all"
+                                      >
+                                        <XCircle className="h-3 w-3" /> Reject
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+
+                                {/* Expanded Full Item Breakdown */}
+                                {isExpanded && (
+                                  <tr className="bg-slate-50/70 border-y border-slate-200/80">
+                                    <td colSpan={5} className="px-6 py-4">
+                                      <div className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-sm">
+                                        <div className="px-4 py-2.5 bg-slate-100/70 border-b border-slate-200 flex items-center justify-between">
+                                          <span className="text-xs font-extrabold text-slate-800 uppercase tracking-wide">
+                                            All {grp.items.length} Books in Consignment #{grp.orderNumber}
+                                          </span>
+                                          <span className="text-xs font-bold text-slate-600">
+                                            Package Weight: {grp.weight} · Box: {grp.dimensions}
+                                          </span>
+                                        </div>
+                                        <table className="w-full text-left text-xs">
+                                          <thead className="bg-slate-50 text-[10px] font-bold text-slate-500 uppercase border-b border-slate-200">
+                                            <tr>
+                                              <th className="px-4 py-2">Book Title & Details</th>
+                                              <th className="px-4 py-2">SKU ID</th>
+                                              <th className="px-4 py-2">ISBN / FSN</th>
+                                              <th className="px-4 py-2 text-center">Quantity</th>
+                                              <th className="px-4 py-2 text-right">Price</th>
+                                            </tr>
+                                          </thead>
+                                          <tbody className="divide-y divide-slate-100">
+                                            {grp.items.map((it: any, sIdx: number) => {
+                                              const bk = it.book || {};
+                                              return (
+                                                <tr key={sIdx} className="hover:bg-slate-50">
+                                                  <td className="px-4 py-2.5">
+                                                    <div className="flex items-center gap-2.5">
+                                                      <div className="h-10 w-8 rounded border border-slate-200 bg-slate-100 overflow-hidden shrink-0 flex items-center justify-center">
+                                                        {bk.coverUrl ? (
+                                                          <img src={bk.coverUrl} alt={bk.title} className="h-full w-full object-cover" />
+                                                        ) : (
+                                                          <span className="text-xs">📖</span>
+                                                        )}
+                                                      </div>
+                                                      <div>
+                                                        <h6
+                                                          onClick={() => setPreviewBook(bk)}
+                                                          className="font-bold text-slate-900 hover:text-blue-600 hover:underline cursor-pointer"
+                                                        >
+                                                          {bk.title || 'Book Title'}
+                                                        </h6>
+                                                        <span className="text-[10px] text-slate-400">
+                                                          {bk.author || (Array.isArray(bk.authors) ? bk.authors.map((a: any) => a.name).join(', ') : '')}
+                                                        </span>
+                                                      </div>
+                                                    </div>
+                                                  </td>
+                                                  <td className="px-4 py-2.5 font-mono text-slate-700 font-semibold">
+                                                    {getDisplaySku(bk)}
+                                                  </td>
+                                                  <td className="px-4 py-2.5 font-mono text-slate-700">
+                                                    {getDisplayFsn(bk)}
+                                                  </td>
+                                                  <td className="px-4 py-2.5 text-center font-extrabold text-slate-900">
+                                                    {it.quantity || 1}
+                                                  </td>
+                                                  <td className="px-4 py-2.5 text-right font-extrabold text-slate-900">
+                                                    ₹{it.priceAtPurchase || (it.quantity ? ord.totalAmount / it.quantity : ord.totalAmount)}
+                                                  </td>
+                                                </tr>
+                                              );
+                                            })}
+                                          </tbody>
+                                        </table>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                )}
+                              </React.Fragment>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              )}
+              {orderViewMode === 'order_id' && (
+                <div className="rounded-2xl border border-slate-200 bg-white shadow-sm min-h-[420px] pb-32">
+                  {flattenedBookItems.length === 0 ? (
+                    <div className="p-16 text-center text-slate-400">
+                      <ShoppingCart className="mx-auto h-12 w-12 text-slate-300 mb-3" />
+                      <h4 className="text-base font-bold text-slate-800">No books found in this stage</h4>
+                    </div>
+                  ) : (
+                    <div className="overflow-visible">
+                      <table className="w-full text-left text-xs text-slate-700">
+                        <thead className="bg-slate-50 border-b border-slate-200 text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
+                          <tr>
+                            <th className="w-10 px-4 py-3 text-center">
+                              <input
+                                type="checkbox"
+                                checked={selectedOrderIds.size === activeStageOrders.length && activeStageOrders.length > 0}
+                                onChange={(e) => {
+                                  if (e.target.checked) setSelectedOrderIds(new Set(activeStageOrders.map(o => o.id)));
+                                  else setSelectedOrderIds(new Set());
+                                }}
+                                className="rounded border-slate-300"
+                              />
+                            </th>
+                            <th className="px-4 py-3 min-w-[130px]">Order ID</th>
+                            <th className="px-4 py-3 min-w-[320px]">Individual Book Details</th>
+                            <th className="px-4 py-3 min-w-[120px] text-center">Quantity & Price</th>
+                            <th className="px-4 py-3 min-w-[200px]">Recipient & Post Office</th>
+                            <th className="px-4 py-3 text-right min-w-[160px]">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {flattenedBookItems.map((entry: any) => {
+                            const ord = entry.order;
+                            const book = entry.book || {};
+                            const isSelected = selectedOrderIds.has(ord.id);
+
+                            return (
+                              <tr key={entry.rowId} className={`hover:bg-slate-50/80 transition-colors ${isSelected ? 'bg-blue-50/40' : ''}`}>
+                                <td className="px-4 py-4 text-center align-top">
+                                  <input
+                                    type="checkbox"
+                                    checked={isSelected}
+                                    onChange={(e) => {
+                                      const next = new Set(selectedOrderIds);
+                                      if (e.target.checked) next.add(ord.id);
+                                      else next.delete(ord.id);
+                                      setSelectedOrderIds(next);
+                                    }}
+                                    className="rounded border-slate-300 mt-1"
+                                  />
+                                </td>
+
+                                <td className="px-4 py-4 align-top space-y-0.5">
+                                  <button
+                                    onClick={() => setPreviewOrder(ord)}
+                                    className="font-extrabold text-blue-600 block hover:underline hover:text-blue-800 cursor-pointer text-left font-mono"
+                                    title="Click to view delivery address and order details"
+                                  >
+                                    {ord.orderNumber}
+                                  </button>
+                                  {entry.isBundled && (
+                                    <span className="inline-flex items-center gap-1 rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-700 border border-amber-200">
+                                      📦 Bundled Package
+                                    </span>
+                                  )}
+                                  <span className="text-[10px] text-slate-400 block font-mono">
+                                    {new Date(ord.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                                  </span>
+                                </td>
+
+                                <td className="px-4 py-4 align-top">
+                                  <div className="flex items-start gap-3">
+                                    <div className="h-12 w-9 rounded-lg border border-slate-200 bg-slate-50 overflow-hidden shrink-0 flex items-center justify-center">
+                                      {book.coverUrl ? (
+                                        <img src={book.coverUrl} alt={book.title} className="h-full w-full object-cover" />
+                                      ) : (
+                                        <span className="text-xs">📖</span>
+                                      )}
+                                    </div>
+                                    <div className="min-w-0 flex-1 space-y-0.5">
+                                      <h4
+                                        onClick={() => setPreviewBook(book)}
+                                        className="font-bold text-slate-900 line-clamp-1 hover:text-blue-600 hover:underline cursor-pointer flex items-center gap-1"
+                                        title="Click to view book details"
+                                      >
+                                        <span>{book.title || 'Academic Book'}</span>
+                                        <ExternalLink className="h-3 w-3 text-slate-400 shrink-0" />
+                                      </h4>
+                                      <p className="text-[11px] font-mono text-slate-600">
+                                        <span className="font-bold text-slate-800">SKU:</span> {getDisplaySku(book)} <span className="text-slate-300">|</span> <span className="font-bold text-slate-800">FSN:</span> {getDisplayFsn(book)}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </td>
+
+                                <td className="px-4 py-4 align-top text-center space-y-0.5">
+                                  <span className="inline-block rounded-md bg-slate-100 border border-slate-200 px-2 py-0.5 text-xs font-extrabold text-slate-800">
+                                    Qty: {entry.quantity}
+                                  </span>
+                                  <p className="text-xs font-extrabold text-slate-900">
+                                    ₹{entry.price}
+                                  </p>
+                                </td>
+
+                                <td className="px-4 py-4 align-top space-y-0.5">
+                                  {ord.shippingMethod === 'SELF_PICKUP' ? (
+                                    <>
+                                      <span className="inline-flex items-center gap-1 rounded bg-emerald-50 border border-emerald-200 text-emerald-800 px-1.5 py-0.5 text-[10px] font-extrabold mb-1">
+                                        🏪 Store Takeaway
+                                      </span>
+                                      <p className="font-bold text-slate-900 flex items-center gap-1">
+                                        {ord.pickupName || ord.user?.name || 'Customer Collector'}
+                                      </p>
+                                      <p className="text-[11px] text-slate-700 font-semibold">
+                                        📞 {ord.pickupPhone || ord.user?.phone || 'No phone'}
+                                      </p>
+                                      <p className="text-[10px] text-emerald-800 font-medium">
+                                        📍 College Street Takeaway Desk
+                                      </p>
+                                      {ord.selectedPickupSlot && (
+                                        <p className="text-[10px] text-purple-700 font-bold bg-purple-50 rounded px-1 py-0.5 mt-0.5">
+                                          ⏰ {ord.selectedPickupSlot}
+                                        </p>
+                                      )}
+                                    </>
+                                  ) : (
+                                    <>
+                                      <p
+                                        onClick={() => {
+                                          const custName = ord.address?.name || ord.address?.fullName || ord.user?.name || 'Customer';
+                                          setCustomerSearchQuery(custName);
+                                          navigate('/admin/dashboard?tab=customers');
+                                        }}
+                                        className="font-bold text-slate-900 hover:text-emerald-700 hover:underline cursor-pointer flex items-center gap-1"
+                                        title="Click to view customer details"
+                                      >
+                                        {ord.address?.name || ord.address?.fullName || ord.user?.name || 'Customer'}
+                                        <ExternalLink className="h-2.5 w-2.5 text-slate-400" />
+                                      </p>
+                                      <p className="text-[11px] text-slate-700 font-semibold">
+                                        🏤 {ord.address?.postOffice || 'Local Post Office'}
+                                      </p>
+                                      <p className="text-[10px] text-slate-500">
+                                        {ord.address?.city || 'City'}, {ord.address?.state || 'State'} — <b>{ord.address?.pincode}</b>
+                                      </p>
+                                    </>
+                                  )}
+                                </td>
+
+                                <td className="px-4 py-4 text-right align-top">
+                                  <div className="flex items-center justify-end gap-1.5 flex-wrap">
+                                    {ord.status === 'PENDING' && (
+                                      <button
+                                        onClick={() => handleAcceptOrder(ord)}
+                                        className="h-7 px-2.5 rounded-lg bg-emerald-700 text-white hover:bg-emerald-800 text-xs font-bold inline-flex items-center justify-center gap-1 shadow-sm transition-all"
+                                      >
+                                        <CheckCircle2 className="h-3 w-3" /> Accept
+                                      </button>
+                                    )}
+                                    {ord.status === 'CONFIRMED' && (
+                                      <button
+                                        onClick={() => updateOrderStatus(ord.id, 'PROCESSING')}
+                                        className="h-7 px-2.5 rounded-lg bg-blue-700 text-white hover:bg-blue-800 text-xs font-bold inline-flex items-center justify-center gap-1 shadow-sm transition-all"
+                                      >
+                                        <Package className="h-3 w-3" /> Pack Order
+                                      </button>
+                                    )}
+                                    {ord.shippingMethod === 'SELF_PICKUP' ? (
+                                      <>
+                                        {ord.pickupStatus === 'PENDING_SLOTS' || !ord.pickupSlots || ord.pickupStatus === 'NONE' ? (
+                                          <button
+                                            onClick={() => {
+                                              setPickupSlotsModalOrder(ord);
+                                              try {
+                                                if (ord.pickupSlots) {
+                                                  const parsed = JSON.parse(ord.pickupSlots);
+                                                  if (Array.isArray(parsed) && parsed.length > 0) setPickupSlotInputs(parsed);
+                                                }
+                                              } catch (_e) {}
+                                            }}
+                                            className="h-7 px-2.5 rounded-lg bg-emerald-700 text-white hover:bg-emerald-800 text-xs font-bold inline-flex items-center justify-center gap-1 shadow-sm transition-all whitespace-nowrap"
+                                          >
+                                            <CalendarCheck className="h-3 w-3" /> Set Pickup Slots
+                                          </button>
+                                        ) : ord.pickupStatus === 'SLOTS_OFFERED' ? (
+                                          <div className="flex items-center gap-1">
+                                            <span className="rounded bg-amber-50 border border-amber-200 text-amber-800 px-2 py-0.5 text-[10px] font-extrabold">
+                                              ⏱️ Slots Offered
+                                            </span>
+                                            <button
+                                              onClick={() => {
+                                                setPickupSlotsModalOrder(ord);
+                                                try {
+                                                  if (ord.pickupSlots) {
+                                                    const parsed = JSON.parse(ord.pickupSlots);
+                                                    if (Array.isArray(parsed) && parsed.length > 0) setPickupSlotInputs(parsed);
+                                                  }
+                                                } catch (_e) {}
+                                              }}
+                                              className="h-7 px-2 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-[11px] font-bold"
+                                            >
+                                              Edit
+                                            </button>
+                                          </div>
+                                        ) : ord.pickupStatus === 'SLOT_CONFIRMED' ? (
+                                          <button
+                                            disabled={isCollectingOrder === ord.id}
+                                            onClick={() => handleMarkOrderCollected(ord.id)}
+                                            className="h-7 px-2.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-extrabold inline-flex items-center justify-center gap-1 shadow-sm transition-all whitespace-nowrap"
+                                          >
+                                            {isCollectingOrder === ord.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Store className="h-3 w-3" />}
+                                            Hand Over Book
+                                          </button>
+                                        ) : (
+                                          <span className="rounded bg-slate-100 border border-slate-200 text-slate-700 px-2 py-0.5 text-[10px] font-bold">
+                                            ✅ Collected
+                                          </span>
+                                        )}
+                                      </>
+                                    ) : (
+                                      <>
+                                        {ord.status === 'PROCESSING' && !ord.trackingNumber && (
+                                          ord.shippingMethod === 'SPEED_POST' ? (
+                                            <button
+                                              onClick={() => bookIndiaPostShipment(ord.id)}
+                                              className="relative h-7 px-2.5 rounded-lg text-white text-xs font-bold inline-flex items-center gap-1 overflow-hidden"
+                                              style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)' }}
+                                            >
+                                              <span className="absolute inset-0 rounded-lg" style={{
+                                                background: 'conic-gradient(from 0deg, transparent 0%, rgba(255,200,100,0.8) 10%, transparent 20%)',
+                                                animation: 'spin 2s linear infinite',
+                                              }} />
+                                              <span className="absolute inset-[2px] rounded-md" style={{
+                                                background: 'linear-gradient(135deg, #f97316, #ea580c)',
+                                              }} />
+                                              <span className="relative z-10 flex items-center gap-1"><Truck className="h-3 w-3" /> Speed Post</span>
+                                            </button>
+                                          ) : ord.shippingMethod === 'EXPRESS_LOCAL' ? (
+                                            <button
+                                              onClick={() => {
+                                                setExpressPartner('');
+                                                setExpressAgentPhone('');
+                                                setExpressModalOrder(ord.id);
+                                              }}
+                                              className="h-7 px-2.5 rounded-lg text-white text-xs font-bold inline-flex items-center gap-1 shadow-sm"
+                                              style={{ background: 'linear-gradient(135deg, #581c87, #7e22ce)' }}
+                                            >
+                                              <Zap className="h-3 w-3" /> Express
+                                            </button>
+                                          ) : (
+                                            <button
+                                              onClick={() => bookIndiaPostShipment(ord.id)}
+                                              className="h-7 px-2.5 rounded-lg bg-red-700 text-white hover:bg-red-800 text-xs font-bold inline-flex items-center justify-center gap-1 shadow-sm transition-all whitespace-nowrap"
+                                            >
+                                              <Package className="h-3 w-3" /> Book Post
+                                            </button>
+                                          )
+                                        )}
+                                        {ord.trackingNumber && (
+                                          <>
+                                            <button
+                                              onClick={() => openShippingLabel(ord.id)}
+                                              className="h-7 px-2.5 rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 text-xs font-bold inline-flex items-center justify-center gap-1 shadow-sm transition-all"
+                                            >
+                                              <Printer className="h-3 w-3" /> Label
+                                            </button>
+                                            <button
+                                              onClick={() => openTrackingModal(ord.trackingNumber || ord.orderNumber)}
+                                              className="h-7 px-2.5 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 text-xs font-bold inline-flex items-center justify-center gap-1 shadow-sm transition-all"
+                                            >
+                                              <Truck className="h-3 w-3" /> Track
+                                            </button>
+                                          </>
+                                        )}
+                                      </>
+                                    )}
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Edit Package Dimensions Modal */}
+              {editingDimensionsBook && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+                  <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden border border-slate-200">
+                    <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 bg-slate-50">
+                      <h3 className="font-extrabold text-slate-900 text-sm flex items-center gap-2">
+                        <Box className="h-4 w-4 text-blue-600" /> Edit Packaging Dimensions & Weight
+                      </h3>
+                      <button onClick={() => setEditingDimensionsBook(null)} className="text-slate-400 hover:text-slate-600 text-lg font-bold">&times;</button>
+                    </div>
+
+                    <form onSubmit={handleSaveBookDimensions} className="p-6 space-y-4">
+                      <p className="text-xs text-slate-500 font-semibold truncate">
+                        Book: <b>{editingDimensionsBook.title}</b>
+                      </p>
+
+                      <div className="grid grid-cols-3 gap-3">
+                        <div>
+                          <label className="block text-[11px] font-bold text-slate-600 mb-1">Length (cm)</label>
+                          <input
+                            type="number"
+                            value={dimensionsForm.length}
+                            onChange={(e) => setDimensionsForm({ ...dimensionsForm, length: e.target.value })}
+                            className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-800 outline-none focus:border-blue-500"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[11px] font-bold text-slate-600 mb-1">Width (cm)</label>
+                          <input
+                            type="number"
+                            value={dimensionsForm.width}
+                            onChange={(e) => setDimensionsForm({ ...dimensionsForm, width: e.target.value })}
+                            className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-800 outline-none focus:border-blue-500"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[11px] font-bold text-slate-600 mb-1">Height (cm)</label>
+                          <input
+                            type="number"
+                            value={dimensionsForm.height}
+                            onChange={(e) => setDimensionsForm({ ...dimensionsForm, height: e.target.value })}
+                            className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-800 outline-none focus:border-blue-500"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-600 mb-1">Dead Weight (kg)</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={dimensionsForm.weight}
+                          onChange={(e) => setDimensionsForm({ ...dimensionsForm, weight: e.target.value })}
+                          className="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-xs font-bold text-slate-800 outline-none focus:border-blue-500"
+                          required
+                        />
+                        <span className="text-[10px] text-slate-400 mt-1 block">Used by India Post CEPT for automatic Speed Post rate calculation.</span>
+                      </div>
+
+                      <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                        <button
+                          type="button"
+                          onClick={() => setEditingDimensionsBook(null)}
+                          className="rounded-xl border border-slate-200 px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={isSavingDimensions}
+                          className="flex items-center gap-1.5 rounded-xl bg-blue-600 px-5 py-2 text-xs font-bold text-white hover:bg-blue-700 shadow disabled:opacity-50"
+                        >
+                          {isSavingDimensions ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                          Save Dimensions
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              )}
+
+              {/* Book Details Preview Modal */}
+              {previewBook && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-150">
+                  <div className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
+                    <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 bg-slate-50">
+                      <div className="flex items-center gap-2.5">
+                        <BookOpen className="h-5 w-5 text-blue-600" />
+                        <h3 className="font-extrabold text-slate-900 text-sm">Product & Catalog Specifications</h3>
+                      </div>
+                      <button onClick={() => setPreviewBook(null)} className="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+                    </div>
+
+                    <div className="p-6 overflow-y-auto space-y-6 text-xs text-slate-700">
+                      <div className="flex flex-col sm:flex-row gap-5 items-start">
+                        <div className="h-44 w-32 rounded-xl border border-slate-200 bg-slate-100 overflow-hidden shrink-0 flex items-center justify-center shadow-md">
+                          {previewBook.coverUrl ? (
+                            <img src={previewBook.coverUrl} alt={previewBook.title} className="h-full w-full object-cover" />
+                          ) : (
+                            <span className="text-3xl">📖</span>
+                          )}
+                        </div>
+
+                        <div className="flex-1 space-y-2">
+                          <h2 className="text-base font-extrabold text-slate-900 leading-snug">{previewBook.title}</h2>
+                          
+                          <div className="flex flex-wrap gap-2 text-[11px] font-mono">
+                            <span className="rounded-lg bg-blue-50 border border-blue-200 px-2.5 py-1 text-blue-800 font-bold">
+                              SKU: {formatClientSku(previewBook)}
+                            </span>
+                            <span className="rounded-lg bg-slate-100 border border-slate-200 px-2.5 py-1 text-slate-700 font-bold">
+                              FSN / ISBN: {formatClientFsn(previewBook)}
+                            </span>
+                          </div>
+
+                          <div className="pt-2 flex items-baseline gap-3">
+                            <span className="text-lg font-black text-emerald-700">{formatINR(previewBook.price || 0)}</span>
+                            {previewBook.mrp > previewBook.price && (
+                              <span className="text-xs text-slate-400 line-through">{formatINR(previewBook.mrp)}</span>
+                            )}
+                            <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${
+                              (previewBook.stock || 0) > 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                            }`}>
+                              {(previewBook.stock || 0) > 0 ? `In Stock (${previewBook.stock} available)` : 'Out of Stock'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Specifications Grid */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 border-t border-b border-slate-100 py-4 text-slate-600">
+                        <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                          <span className="block text-[10px] text-slate-400 font-bold uppercase">Publisher</span>
+                          <span className="font-bold text-slate-900">{previewBook.publisher?.name || previewBook.publisher || 'Techno World'}</span>
+                        </div>
+                        <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                          <span className="block text-[10px] text-slate-400 font-bold uppercase">Category</span>
+                          <span className="font-bold text-slate-900">{previewBook.category?.name || previewBook.category || 'Academic & Exams'}</span>
+                        </div>
+                        <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                          <span className="block text-[10px] text-slate-400 font-bold uppercase">Dimensions</span>
+                          <span className="font-mono font-bold text-slate-900">{previewBook.dimensions || '24-22-1cm'}</span>
+                        </div>
+                        <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                          <span className="block text-[10px] text-slate-400 font-bold uppercase">Weight</span>
+                          <span className="font-mono font-bold text-slate-900">{previewBook.weight ? `${previewBook.weight}kg` : '0.50kg'}</span>
+                        </div>
+                      </div>
+
+                      {/* Description */}
+                      {previewBook.description && (
+                        <div>
+                          <h4 className="font-bold text-slate-900 mb-1">Book Overview & Summary:</h4>
+                          <p className="text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-200 max-h-36 overflow-y-auto">
+                            {previewBook.description}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex justify-end gap-2 border-t border-slate-200 px-6 py-3.5 bg-slate-50">
+                      <button
+                        onClick={() => setPreviewBook(null)}
+                        className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Order Details & Destination Modal */}
+              {previewOrder && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-150">
+                  <div className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl overflow-hidden border border-slate-200 flex flex-col max-h-[90vh]">
+                    <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 bg-slate-50">
+                      <div className="flex items-center gap-2.5">
+                        <Package className="h-5 w-5 text-blue-600" />
+                        <div>
+                          <h3 className="font-extrabold text-slate-900 text-sm">Order Dispatch Breakdown: #{previewOrder.orderNumber}</h3>
+                          <span className="text-[11px] text-slate-500">
+                            Placed on {new Date(previewOrder.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                      </div>
+                      <button onClick={() => setPreviewOrder(null)} className="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+                    </div>
+
+                    <div className="p-6 overflow-y-auto space-y-5 text-xs text-slate-700">
+                      {/* Destination Address Card */}
+                      <div className="rounded-xl border border-blue-200 bg-blue-50/60 p-4 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="font-extrabold text-blue-900 flex items-center gap-1.5">
+                            📍 Delivery Destination & Consignee:
+                          </span>
+                          <span className="text-[11px] font-bold text-blue-800 bg-white px-2.5 py-0.5 rounded-full border border-blue-200 shadow-sm">
+                            India Post Speed Post Route
+                          </span>
+                        </div>
+
+                        <div className="text-slate-800 space-y-0.5 text-xs font-medium">
+                          <p className="text-sm font-extrabold text-slate-950">
+                            {previewOrder.address?.fullName || previewOrder.user?.name || 'Customer Name'}
+                          </p>
+                          <p><b>Phone:</b> {previewOrder.address?.phone || previewOrder.user?.phone || 'N/A'}</p>
+                          <p><b>Recipient Email:</b> <span className="font-mono text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">{previewOrder.customerEmail || previewOrder.address?.email || previewOrder.user?.email || 'N/A'}</span></p>
+                          <p><b>Post Office:</b> 🏤 {previewOrder.address?.postOffice || 'Local Post Office'}</p>
+                          <p><b>Address:</b> {previewOrder.address?.addressLine1 || previewOrder.address?.line1 || 'Street Address'}, {previewOrder.address?.landmark ? `${previewOrder.address.landmark}, ` : ''}{previewOrder.address?.city || 'Kolkata'}, {previewOrder.address?.state || 'West Bengal'} — <b>{previewOrder.address?.pincode || '700001'}</b></p>
+                        </div>
+
+                        {/* Customer Profile Link */}
+                        <div className="pt-2 border-t border-blue-100 flex items-center justify-between">
+                          <span className="text-[11px] text-slate-500">Customer Account: <b>{previewOrder.user?.email || 'Guest User'}</b></span>
+                          <button
+                            onClick={() => navigateToCustomer(previewOrder.address?.fullName || previewOrder.user?.name || previewOrder.user?.email || '')}
+                            className="flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1 text-[11px] font-bold text-white hover:bg-blue-700 shadow-sm transition-all"
+                          >
+                            <Users className="h-3.5 w-3.5" /> View Customer Profile &rarr;
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Items in Order */}
+                      <div className="space-y-2">
+                        <h4 className="font-bold text-slate-900 flex items-center justify-between">
+                          <span>Items in Package ({previewOrder.items?.length || 0} books):</span>
+                          <span className="text-slate-500 font-normal">Payment: <b>{previewOrder.paymentMethod}</b> ({previewOrder.paymentStatus})</span>
+                        </h4>
+
+                        <div className="rounded-xl border border-slate-200 divide-y divide-slate-100 overflow-hidden">
+                          {Array.isArray(previewOrder.items) && previewOrder.items.map((item: any, idx: number) => {
+                            const b = item.book || {};
+                            return (
+                              <div key={idx} className="p-3 flex items-center justify-between gap-3 bg-white">
+                                <div className="flex items-center gap-3">
+                                  <div className="h-12 w-9 rounded border border-slate-200 bg-slate-50 overflow-hidden shrink-0 flex items-center justify-center">
+                                    {b.coverUrl ? <img src={b.coverUrl} alt={b.title} className="h-full w-full object-cover" /> : <span>📖</span>}
+                                  </div>
+                                  <div>
+                                    <h5 className="font-bold text-slate-900 line-clamp-1">{b.title || 'Book Title'}</h5>
+                                    <p className="text-[11px] font-mono text-slate-500">
+                                      SKU: {formatClientSku(b)} | FSN: {formatClientFsn(b)}
+                                    </p>
+                                  </div>
+                                </div>
+
+                                <div className="text-right shrink-0">
+                                  <span className="font-bold text-slate-900 block">{formatINR(item.priceAtPurchase || b.price || 0)} &times; {item.quantity || 1}</span>
+                                  <span className="text-[10px] font-semibold text-slate-400">Total: {formatINR((item.priceAtPurchase || b.price || 0) * (item.quantity || 1))}</span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Total Calculation */}
+                      <div className="rounded-xl bg-slate-50 p-4 border border-slate-200 flex items-center justify-between">
+                        <div>
+                          <span className="font-bold text-slate-700 block">
+                            {previewOrder.paymentMethod === 'COD' ? 'Total COD Amount to Collect:' : 'Total Order Amount Paid:'}
+                          </span>
+                          {previewOrder.paymentMethod === 'COD' && (
+                            <span className="text-[11px] font-medium text-amber-700">Includes ₹20 Cash on Delivery handling fee</span>
+                          )}
+                        </div>
+                        <span className="text-lg font-black text-emerald-700">{formatINR(previewOrder.totalAmount || 0)}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between border-t border-slate-200 px-6 py-3.5 bg-slate-50">
+                      <div className="flex items-center gap-2">
+                        {previewOrder.status === 'PENDING' && (
+                          <button
+                            onClick={() => {
+                              handleAcceptOrder(previewOrder);
+                              setPreviewOrder(null);
+                            }}
+                            className="flex items-center gap-1 rounded-xl bg-emerald-700 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-800 shadow"
+                          >
+                            <CheckCircle2 className="h-3.5 w-3.5" /> Accept Order
+                          </button>
+                        )}
+                        <button
+                          onClick={() => {
+                            openEmailModal(previewOrder, 'DELAY_NOTICE');
+                            setPreviewOrder(null);
+                          }}
+                          className="flex items-center gap-1 rounded-xl border border-blue-200 bg-blue-50 px-3.5 py-2 text-xs font-bold text-blue-700 hover:bg-blue-100"
+                        >
+                          <Mail className="h-3.5 w-3.5" /> Slight Delay Notice
+                        </button>
+                      </div>
+
+                      <button
+                        onClick={() => setPreviewOrder(null)}
+                        className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })()}
+
+        
+        {tab === 'customers' && (
+          <div className="space-y-6">
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="flex flex-wrap items-center justify-between gap-4 pb-5 border-b border-slate-100">
+                <div>
+                  <h2 className="text-xl font-black text-slate-900">Customer Accounts & Order History</h2>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Search customer accounts, inspect shipping addresses, lifetime book spend, and TechnoPoints balances.
+                  </p>
+                </div>
+
+                <div className="relative w-full max-w-sm">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <input
+                    type="text"
+                    value={customerSearchQuery}
+                    onChange={(e) => {
+                      setCustomerSearchQuery(e.target.value);
+                      fetchCustomers(e.target.value);
+                    }}
+                    placeholder="Search by customer name, email, phone..."
+                    className="w-full rounded-xl border border-slate-300 bg-slate-50 pl-9 pr-4 py-2 text-xs font-semibold text-slate-800 placeholder-slate-400 outline-none focus:border-blue-500 focus:bg-white transition-all shadow-inner"
+                  />
+                  {customerSearchQuery && (
+                    <button
+                      onClick={() => {
+                        setCustomerSearchQuery('');
+                        fetchCustomers('');
+                      }}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Customers Table */}
+              {isLoadingCustomers ? (
+                <div className="py-16 text-center text-slate-400">
+                  <Loader2 className="mx-auto h-8 w-8 animate-spin text-blue-600 mb-2" />
+                  <p className="text-xs font-semibold">Loading customer accounts...</p>
+                </div>
+              ) : customersList.length === 0 ? (
+                <div className="py-16 text-center text-slate-400">
+                  <Users className="mx-auto h-12 w-12 text-slate-300 mb-3" />
+                  <h4 className="text-base font-bold text-slate-800">No customers found</h4>
+                  <p className="text-xs text-slate-500 mt-1">Customers who register or place orders on the bookstore will appear here.</p>
+                </div>
+              ) : (
+                <div className="mt-4 overflow-x-auto">
+                  <table className="w-full text-left text-xs text-slate-700">
+                    <thead className="bg-slate-50 border-b border-slate-200 text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
+                      <tr>
+                        <th className="px-4 py-3">Customer</th>
+                        <th className="px-4 py-3">Contact</th>
+                        <th className="px-4 py-3">Total Orders</th>
+                        <th className="px-4 py-3">Lifetime Spend</th>
+                        <th className="px-4 py-3">TechnoPoints</th>
+                        <th className="px-4 py-3">Primary Address</th>
+                        <th className="px-4 py-3 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {customersList.map((c: any) => {
+                        const defaultAddr = c.addresses?.[0] || {};
+                        return (
+                          <tr key={c.id} className="hover:bg-slate-50/80 transition-colors">
+                            <td className="px-4 py-3.5">
+                              <div className="flex items-center gap-3">
+                                <div className="h-9 w-9 rounded-full bg-blue-100 text-blue-800 font-extrabold flex items-center justify-center text-xs shrink-0 shadow-sm border border-blue-200">
+                                  {(c.name || 'C').charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                  <span className="font-bold text-slate-900 block">{c.name || 'Anonymous User'}</span>
+                                  <span className="text-[11px] text-slate-400 block font-mono">{c.email}</span>
+                                </div>
+                              </div>
+                            </td>
+
+                            <td className="px-4 py-3.5 font-semibold text-slate-700">
+                              {c.phone || defaultAddr.phone || 'No phone'}
+                            </td>
+
+                            <td className="px-4 py-3.5">
+                              <span className="rounded-full bg-blue-50 border border-blue-200 px-2.5 py-0.5 font-extrabold text-blue-800 text-xs">
+                                {c.totalOrders} {c.totalOrders === 1 ? 'Order' : 'Orders'}
+                              </span>
+                            </td>
+
+                            <td className="px-4 py-3.5 font-black text-slate-900 text-sm">
+                              {formatINR(c.totalSpent || 0)}
+                            </td>
+
+                            <td className="px-4 py-3.5">
+                              <span className="rounded-full bg-amber-50 border border-amber-200 px-2.5 py-0.5 font-bold text-amber-800 text-xs">
+                                ⭐ {c.technoPoints || 0} pts
+                              </span>
+                            </td>
+
+                            <td className="px-4 py-3.5 text-[11px] text-slate-500 max-w-xs truncate">
+                              {defaultAddr.city ? (
+                                <span>📍 {defaultAddr.addressLine1 || defaultAddr.line1}, {defaultAddr.city} ({defaultAddr.pincode})</span>
+                              ) : (
+                                <span className="text-slate-400">No saved address</span>
+                              )}
+                            </td>
+
+                            <td className="px-4 py-3.5 text-right">
+                              <button
+                                onClick={() => setSelectedCustomerDetail(c)}
+                                className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-sm"
+                              >
+                                View History
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            {/* Customer History Detail Modal */}
+            {selectedCustomerDetail && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-150">
+                <div className="w-full max-w-xl rounded-2xl bg-white shadow-2xl overflow-hidden border border-slate-200 flex flex-col max-h-[85vh]">
+                  <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 bg-slate-50">
+                    <div className="flex items-center gap-2.5">
+                      <Users className="h-5 w-5 text-blue-600" />
+                      <div>
+                        <h3 className="font-extrabold text-slate-900 text-sm">{selectedCustomerDetail.name || 'Customer Profile'}</h3>
+                        <span className="text-[11px] text-slate-500">{selectedCustomerDetail.email}</span>
+                      </div>
+                    </div>
+                    <button onClick={() => setSelectedCustomerDetail(null)} className="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+                  </div>
+
+                  <div className="p-6 overflow-y-auto space-y-4 text-xs">
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-center">
+                        <span className="block text-[10px] uppercase font-bold text-slate-400">Total Orders</span>
+                        <span className="text-base font-black text-slate-900">{selectedCustomerDetail.totalOrders}</span>
+                      </div>
+                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-center">
+                        <span className="block text-[10px] uppercase font-bold text-slate-400">Total Spend</span>
+                        <span className="text-base font-black text-emerald-700">{formatINR(selectedCustomerDetail.totalSpent || 0)}</span>
+                      </div>
+                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-center">
+                        <span className="block text-[10px] uppercase font-bold text-slate-400">TechnoPoints</span>
+                        <span className="text-base font-black text-amber-700">⭐ {selectedCustomerDetail.technoPoints || 0}</span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="font-bold text-slate-900 mb-2">Recent Orders:</h4>
+                      {selectedCustomerDetail.orders?.length === 0 ? (
+                        <p className="text-slate-400 text-xs italic">No orders placed yet.</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {selectedCustomerDetail.orders.map((o: any) => (
+                            <div key={o.id} className="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white shadow-sm">
+                              <div>
+                                <span className="font-extrabold text-slate-900">#{o.orderNumber}</span>
+                                <span className="block text-[10px] text-slate-400">{new Date(o.createdAt).toLocaleDateString()}</span>
+                              </div>
+                              <div className="text-right">
+                                <span className="font-bold text-slate-900">{formatINR(o.totalAmount)}</span>
+                                <span className="block text-[10px] font-bold text-blue-700">{o.status}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end border-t border-slate-200 px-6 py-3 bg-slate-50">
+                    <button
+                      onClick={() => setSelectedCustomerDetail(null)}
+                      className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
           </div>
         )}
+
 
         {tab === 'reviews' && (
           <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -1790,6 +3429,10 @@ admin@technoworld.com`
             )}
           </div>
         )}
+
+        {(tab === 'analytics' || tab === 'reports') && (
+          <SearchAnalyticsWorkspace />
+        )}
       </div>
 
       {editingPromotion && (
@@ -1811,18 +3454,93 @@ admin@technoworld.com`
             
             <div className="grid grid-cols-3 gap-4 mb-6">
               <div className="rounded-xl bg-emerald-50 p-4 border border-emerald-100">
-                <p className="text-xs font-bold text-emerald-700 uppercase tracking-wider mb-1">To Add</p>
+                <p className="text-xs font-bold text-emerald-700 uppercase tracking-wider mb-1">New Books to Add</p>
                 <p className="text-2xl font-extrabold text-emerald-900">{importAnalysis.toAdd.length}</p>
               </div>
               <div className="rounded-xl bg-blue-50 p-4 border border-blue-100">
-                <p className="text-xs font-bold text-blue-700 uppercase tracking-wider mb-1">To Update</p>
+                <p className="text-xs font-bold text-blue-700 uppercase tracking-wider mb-1">Existing / Duplicate</p>
                 <p className="text-2xl font-extrabold text-blue-900">{importAnalysis.toUpdate.length}</p>
               </div>
               <div className="rounded-xl bg-rose-50 p-4 border border-rose-100">
-                <p className="text-xs font-bold text-rose-700 uppercase tracking-wider mb-1">Errors</p>
+                <p className="text-xs font-bold text-rose-700 uppercase tracking-wider mb-1">Row Errors</p>
                 <p className="text-2xl font-extrabold text-rose-900">{importAnalysis.errors.length}</p>
               </div>
             </div>
+
+            {/* Existing Books / Repetition Confirmation & Strategy Picker */}
+            {importAnalysis.toUpdate.length > 0 && (
+              <div className="mb-6 rounded-2xl border border-blue-200 bg-blue-50/70 p-4 space-y-3">
+                <div className="flex items-center gap-2 font-bold text-blue-950 text-xs">
+                  <Package className="h-4 w-4 text-blue-600" />
+                  <span>Found {importAnalysis.toUpdate.length} book(s) already in your catalog. How should repetitions be handled?</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <label className={`flex flex-col p-3 rounded-xl border cursor-pointer transition-all ${
+                    importStrategy === 'UPDATE'
+                      ? 'bg-white border-blue-500 ring-2 ring-blue-500/20 shadow-sm'
+                      : 'bg-white/60 border-slate-200 hover:bg-white'
+                  }`}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <input
+                        type="radio"
+                        name="importStrategy"
+                        value="UPDATE"
+                        checked={importStrategy === 'UPDATE'}
+                        onChange={() => setImportStrategy('UPDATE')}
+                        className="text-blue-600"
+                      />
+                      <span className="font-extrabold text-slate-900 text-xs">Update Stock</span>
+                    </div>
+                    <span className="text-[11px] text-slate-500 leading-tight">
+                      Overwrites stock count with Excel quantity and updates prices.
+                    </span>
+                  </label>
+
+                  <label className={`flex flex-col p-3 rounded-xl border cursor-pointer transition-all ${
+                    importStrategy === 'ADD_STOCK'
+                      ? 'bg-white border-emerald-500 ring-2 ring-emerald-500/20 shadow-sm'
+                      : 'bg-white/60 border-slate-200 hover:bg-white'
+                  }`}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <input
+                        type="radio"
+                        name="importStrategy"
+                        value="ADD_STOCK"
+                        checked={importStrategy === 'ADD_STOCK'}
+                        onChange={() => setImportStrategy('ADD_STOCK')}
+                        className="text-emerald-600"
+                      />
+                      <span className="font-extrabold text-slate-900 text-xs">Add to Stock</span>
+                    </div>
+                    <span className="text-[11px] text-slate-500 leading-tight">
+                      Adds Excel quantity to existing stock (e.g. 10 + 20 = 30).
+                    </span>
+                  </label>
+
+                  <label className={`flex flex-col p-3 rounded-xl border cursor-pointer transition-all ${
+                    importStrategy === 'SKIP'
+                      ? 'bg-white border-slate-400 ring-2 ring-slate-400/20 shadow-sm'
+                      : 'bg-white/60 border-slate-200 hover:bg-white'
+                  }`}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <input
+                        type="radio"
+                        name="importStrategy"
+                        value="SKIP"
+                        checked={importStrategy === 'SKIP'}
+                        onChange={() => setImportStrategy('SKIP')}
+                        className="text-slate-600"
+                      />
+                      <span className="font-extrabold text-slate-900 text-xs">Skip Existing</span>
+                    </div>
+                    <span className="text-[11px] text-slate-500 leading-tight">
+                      Leaves existing books unchanged; only adds new books.
+                    </span>
+                  </label>
+                </div>
+              </div>
+            )}
 
             {importAnalysis.errors.length > 0 && (
               <div className="mb-6 rounded-xl border border-rose-200 bg-white">
@@ -2200,6 +3918,198 @@ admin@technoworld.com`
           </div>
         </div>
       )}
+
+      {/* Express Dispatch Modal */}
+      {expressModalOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+            <h3 className="mb-4 text-lg font-bold text-slate-900">Express Local Dispatch</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="mb-1 block text-sm font-semibold text-slate-700">Delivery Partner *</label>
+                <input
+                  type="text"
+                  value={expressPartner}
+                  onChange={(e) => setExpressPartner(e.target.value)}
+                  placeholder="e.g. Porter, Rapido, Borzo"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-purple-500"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-semibold text-slate-700">Agent Phone (Optional)</label>
+                <input
+                  type="text"
+                  value={expressAgentPhone}
+                  onChange={(e) => setExpressAgentPhone(e.target.value)}
+                  placeholder="e.g. 9876543210"
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-purple-500"
+                />
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => setExpressModalOrder(null)}
+                className="rounded-lg px-4 py-2 text-sm font-bold text-slate-500 hover:bg-slate-100"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (!expressPartner.trim()) return toast.error('Delivery Partner is required');
+                  bookIndiaPostShipment(expressModalOrder, expressPartner, expressAgentPhone);
+                  setExpressModalOrder(null);
+                }}
+                className="rounded-lg bg-purple-700 px-4 py-2 text-sm font-bold text-white hover:bg-purple-800"
+              >
+                Confirm Dispatch
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Store Pickup Multi-Slot Scheduling Modal */}
+      {pickupSlotsModalOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl overflow-hidden border border-slate-200">
+            <div className="flex items-center justify-between border-b border-slate-200 bg-emerald-50/80 px-6 py-4">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-700 text-white shadow-sm">
+                  <CalendarCheck className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-slate-900 text-base flex items-center gap-2">
+                    <span>Schedule Store Self-Pickup</span>
+                    <span className="text-xs font-mono font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">
+                      #{pickupSlotsModalOrder.orderNumber}
+                    </span>
+                  </h3>
+                  <p className="text-xs text-slate-600">
+                    Propose 3 or 4 time slots. Customer will select 1 to confirm their appointment.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setPickupSlotsModalOrder(null)}
+                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-200"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              {/* Customer & Location Details Banner */}
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5 space-y-1.5 text-xs">
+                <div className="flex items-center justify-between font-bold text-slate-800">
+                  <span>Collector: {pickupSlotsModalOrder.pickupName || pickupSlotsModalOrder.user?.name || 'Customer'}</span>
+                  <span>📞 {pickupSlotsModalOrder.pickupPhone || pickupSlotsModalOrder.user?.phone || 'N/A'}</span>
+                </div>
+                <div className="text-slate-500 flex items-start gap-1">
+                  <span className="shrink-0">📍</span>
+                  <span><b>Takeaway Desk:</b> Techno World Books, 90/6A MG Rd, opp. Grace Cinema, College Street, Kolkata 700007</span>
+                </div>
+                {pickupSlotsModalOrder.selectedPickupSlot && (
+                  <div className="mt-1 pt-1.5 border-t border-slate-200 text-emerald-800 font-bold flex items-center gap-1">
+                    <span>✅ Customer Currently Selected:</span>
+                    <span className="bg-emerald-100 px-2 py-0.5 rounded font-mono text-emerald-900">
+                      {pickupSlotsModalOrder.selectedPickupSlot}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs font-extrabold text-slate-800 uppercase tracking-wider">
+                    Proposed Pickup Time Slots (3–4 Options)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setPickupSlotInputs([
+                      'Today, 3:30 PM – 5:30 PM',
+                      'Tomorrow, 11:30 AM – 1:30 PM',
+                      'Tomorrow, 4:00 PM – 6:30 PM',
+                      'Day after Tomorrow, 12:00 PM – 3:00 PM',
+                    ])}
+                    className="text-[11px] font-bold text-emerald-700 hover:underline"
+                  >
+                    Reset to Default Slots
+                  </button>
+                </div>
+                <div className="space-y-2.5">
+                  {pickupSlotInputs.map((slot, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <span className="h-6 w-6 rounded-full bg-slate-100 border border-slate-300 text-slate-600 text-xs font-bold flex items-center justify-center shrink-0">
+                        {idx + 1}
+                      </span>
+                      <input
+                        type="text"
+                        value={slot}
+                        onChange={(e) => {
+                          const updated = [...pickupSlotInputs];
+                          updated[idx] = e.target.value;
+                          setPickupSlotInputs(updated);
+                        }}
+                        placeholder={`Slot ${idx + 1} (e.g. Tomorrow, 2:00 PM – 4:00 PM)`}
+                        className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
+                      />
+                      {pickupSlotInputs.length > 2 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = pickupSlotInputs.filter((_, i) => i !== idx);
+                            setPickupSlotInputs(updated);
+                          }}
+                          className="text-slate-400 hover:text-rose-600 p-1"
+                          title="Remove slot"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                {pickupSlotInputs.length < 4 && (
+                  <button
+                    type="button"
+                    onClick={() => setPickupSlotInputs([...pickupSlotInputs, ''])}
+                    className="mt-2 text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1"
+                  >
+                    + Add Another Slot Option
+                  </button>
+                )}
+              </div>
+
+              <div className="rounded-lg bg-amber-50 border border-amber-200 p-2.5 text-[11px] text-amber-900 leading-relaxed">
+                💡 Offering slots sends an immediate notification to the customer with an interactive button to pick their preferred time. Once confirmed, their official tax invoice displays their appointment.
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 border-t border-slate-200 bg-slate-50 px-6 py-4">
+              <button
+                type="button"
+                onClick={() => setPickupSlotsModalOrder(null)}
+                className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isSavingPickupSlots}
+                onClick={handleSetPickupSlotsSubmit}
+                className="flex items-center gap-1.5 rounded-lg bg-emerald-700 px-5 py-2 text-xs font-bold text-white hover:bg-emerald-800 disabled:opacity-50 transition-colors shadow"
+              >
+                {isSavingPickupSlots ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+                Offer Slots to Customer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      `}</style>
     </div>
   );
 }

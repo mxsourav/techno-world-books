@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { useStore } from '@/store/StoreContext';
 import { pricingService } from '@/services/api';
 
-export function useCartTotals(pincode?: string, addressId?: string) {
+export function useCartTotals(pincode?: string, addressId?: string, address?: any, shippingMethod: string = 'NORMAL_POST', paymentMethod: string = 'upi') {
   const { cart, coupon, user } = useStore();
   const [pricing, setPricing] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState<{status: number, message: string} | null>(null);
 
   useEffect(() => {
@@ -18,6 +19,7 @@ export function useCartTotals(pincode?: string, addressId?: string) {
           subtotal: 0,
           mrpTotal: 0,
           shippingCharge: 0,
+          codFee: 0,
           isShippingCalculated: false,
           shippingMessage: 'Enter pincode at address step',
           couponDiscount: 0,
@@ -28,11 +30,16 @@ export function useCartTotals(pincode?: string, addressId?: string) {
           errors: []
         });
         setLoading(false);
+        setIsUpdating(false);
         setError(null);
         return;
       }
       try {
-        setLoading(true);
+        if (!pricing) {
+          setLoading(true);
+        } else {
+          setIsUpdating(true);
+        }
         setError(null);
         
         const validCart = cart.map(i => ({
@@ -42,9 +49,10 @@ export function useCartTotals(pincode?: string, addressId?: string) {
 
         if (validCart?.length === 0) {
           setPricing({
-            items: [], subtotal: 0, mrpTotal: 0, shippingCharge: 0, isShippingCalculated: false, shippingMessage: 'Enter pincode at address step', couponDiscount: 0, totalAmount: 0, totalSavings: 0, couponCode: null, isValid: true, errors: []
+            items: [], subtotal: 0, mrpTotal: 0, shippingCharge: 0, codFee: 0, isShippingCalculated: false, shippingMessage: 'Enter pincode at address step', couponDiscount: 0, totalAmount: 0, totalSavings: 0, couponCode: null, isValid: true, errors: []
           });
           setLoading(false);
+          setIsUpdating(false);
           return;
         }
 
@@ -54,6 +62,9 @@ export function useCartTotals(pincode?: string, addressId?: string) {
           userId: (user as any)?.id,
           pincode: pincode || undefined,
           addressId: addressId || undefined,
+          address: address || undefined,
+          shippingMethod: shippingMethod,
+          paymentMethod: paymentMethod === 'cod' ? 'COD' : (paymentMethod || 'UPI'),
         };
 
         const res = await pricingService.calculate(payload);
@@ -70,16 +81,19 @@ export function useCartTotals(pincode?: string, addressId?: string) {
           });
         }
       } finally {
-        if (active) setLoading(false);
+        if (active) {
+          setLoading(false);
+          setIsUpdating(false);
+        }
       }
     }
 
-    const timeout = setTimeout(loadPricing, 250);
+    const timeout = setTimeout(loadPricing, 400);
     return () => {
       active = false;
       clearTimeout(timeout);
     };
-  }, [cart, coupon, user, pincode, addressId]);
+  }, [cart, coupon, user, pincode, addressId, JSON.stringify(address), shippingMethod, paymentMethod]);
 
   const rawPromoCode = pricing?.promotionCode || pricing?.couponCode || null;
   const promoError = pricing?.promotionError || pricing?.couponError || null;
@@ -90,10 +104,16 @@ export function useCartTotals(pincode?: string, addressId?: string) {
     subtotal: pricing?.subtotal || 0, 
     mrpTotal: pricing?.mrpTotal || 0, 
     shipping: pricing?.shippingCharge || 0, 
+    codFee: Number(pricing?.codFee ?? (paymentMethod === 'cod' ? 20 : 0)),
     isShippingCalculated: Boolean(pricing?.isShippingCalculated),
+    isExpressEligible: Boolean(pricing?.isExpressEligible),
+    deliveryOptions: pricing?.deliveryOptions || [],
+    selectedShippingMethod: pricing?.selectedShippingMethod || shippingMethod,
     shippingZone: pricing?.shippingZone || 'Pending Address',
     shippingMessage: pricing?.shippingMessage || 'Calculated at address step',
     estimatedTransitDays: pricing?.estimatedTransitDays || '3–4 Business Days',
+    isAddonBundle: Boolean(pricing?.isAddonBundle),
+    bundledWithOrderNumber: pricing?.bundledWithOrderNumber || null,
     discount, 
     total: pricing?.totalAmount || 0, 
     coupon: rawPromoCode, 
@@ -102,7 +122,8 @@ export function useCartTotals(pincode?: string, addressId?: string) {
     couponError: promoError,
     isValid: pricing?.isValid !== false,
     errors: pricing?.errors || [],
-    loading, 
+    loading,
+    isUpdating,
     error 
   };
 }
