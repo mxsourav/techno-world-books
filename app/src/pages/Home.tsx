@@ -36,7 +36,7 @@ export default function Home() {
     setError(false);
     bookService.getBooks({ limit: 100 })
       .then((booksRes) => {
-        if (booksRes.success && booksRes.data?.length > 0) {
+        if (booksRes.success && Array.isArray(booksRes.data)) {
           setBooks(booksRes.data);
         } else if (!booksRes.success) {
           setError(true);

@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 
 import { formatINR } from '@/utils/helpers';
-import { bookService, categoryService, shippingService } from '@/services/api';
+import { bookService, categoryService, shippingService, reviewService, questionService } from '@/services/api';
 import { useStore } from '@/store/StoreContext';
 import { BookCover } from '@/components/BookCover';
 import { BookRow } from '@/components/BookCard';
@@ -53,8 +53,103 @@ export default function Product() {
   };
 
   // Q&A state
+  const [liveQuestions, setLiveQuestions] = useState<any[]>([]);
   const [questionInput, setQuestionInput] = useState('');
+  const [askerName, setAskerName] = useState('');
+  const [submittingQuestion, setSubmittingQuestion] = useState(false);
   const [showQuestionModal, setShowQuestionModal] = useState(false);
+
+  // Reviews state
+  const [liveReviews, setLiveReviews] = useState<any[]>([]);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [reviewTitle, setReviewTitle] = useState('');
+  const [reviewComment, setReviewComment] = useState('');
+  const [reviewerName, setReviewerName] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewError, setReviewError] = useState('');
+
+  const handleAskQuestionSubmit = async () => {
+    if (!questionInput.trim() || questionInput.trim().length < 5) {
+      toast.error('Please enter a question of at least 5 characters.');
+      return;
+    }
+    setSubmittingQuestion(true);
+    try {
+      const res = await questionService.askQuestion({
+        bookId: book.id,
+        question: questionInput.trim(),
+        userName: askerName.trim() || undefined,
+      });
+      if (res.success) {
+        toast.success(res.message || 'Question submitted! Our editorial team will review and reply shortly.');
+        setQuestionInput('');
+        setAskerName('');
+        setShowQuestionModal(false);
+      } else {
+        toast.error(res.message || 'Failed to submit question');
+      }
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to submit question');
+    } finally {
+      setSubmittingQuestion(false);
+    }
+  };
+
+  const handleReviewSubmit = async () => {
+    setReviewError('');
+    if (!reviewRating || reviewRating < 1 || reviewRating > 5) {
+      setReviewError('Please select a star rating (1 to 5 stars).');
+      return;
+    }
+    // MANDATORY COMMENT VALIDATION: User must provide comment if star rating is given
+    if (!reviewComment.trim()) {
+      setReviewError('Review comment is mandatory when providing a star rating. Please share your feedback.');
+      toast.error('Review comment is mandatory when giving a star rating');
+      return;
+    }
+
+    setSubmittingReview(true);
+    try {
+      const res = await reviewService.createReview({
+        bookId: book.id,
+        rating: reviewRating,
+        title: reviewTitle.trim() || undefined,
+        content: reviewComment.trim(),
+        userName: reviewerName.trim() || undefined,
+      });
+      if (res.success) {
+        toast.success('Thank you! Your review has been posted successfully.');
+        setLiveReviews(prev => [
+          {
+            id: res.data?.id || String(Date.now()),
+            userName: reviewerName.trim() || 'Verified Reader',
+            user: reviewerName.trim() || 'Verified Reader',
+            rating: reviewRating,
+            title: reviewTitle.trim() || '',
+            content: reviewComment.trim(),
+            body: reviewComment.trim(),
+            date: new Date().toISOString(),
+            createdAt: new Date().toISOString(),
+            verified: true,
+          },
+          ...prev,
+        ]);
+        setReviewComment('');
+        setReviewTitle('');
+        setReviewRating(5);
+        setShowReviewModal(false);
+      } else {
+        setReviewError(res.message || 'Failed to submit review');
+      }
+    } catch (err: any) {
+      setReviewError(err?.message || 'Failed to submit review');
+      toast.error(err?.message || 'Failed to submit review');
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
 
   useEffect(() => {
     if (!slug) return;
@@ -73,6 +168,19 @@ export default function Product() {
           setBook(res.data);
           addRecentlyViewed(res.data.id);
           document.title = `${res.data.title} — ${res.data.author || 'Techno World'} | Techno World Books`;
+
+          // Fetch live reviews and questions
+          reviewService.getReviews({ bookId: res.data.id }).then(revRes => {
+            if (revRes.success && Array.isArray(revRes.data)) {
+              setLiveReviews(revRes.data);
+            }
+          }).catch(console.error);
+
+          questionService.getQuestions({ bookId: res.data.id }).then(qRes => {
+            if (qRes.success && Array.isArray(qRes.data)) {
+              setLiveQuestions(qRes.data);
+            }
+          }).catch(console.error);
           
           const categoryParam = res.data.category || res.data.categoryId;
           if (categoryParam) {
@@ -158,36 +266,66 @@ export default function Product() {
     { type: 'back', title: 'Back Cover', subtitle: 'Features & Syllabus' }
   ];
 
-  // Default reviews fallback
-  const reviewsList = Array.isArray(book.reviews) && book.reviews.length > 0 ? book.reviews : [
-    {
-      id: '1',
-      user: 'Joydip Chakraborty',
-      rating: 5,
-      title: 'Best question bank for this year',
-      body: 'Covers the full syllabus with unit-wise MCQs, detailed explanations, and 2025 solved papers. Highly recommended!',
-      date: '2026-08-12T00:00:00.000Z',
-      verified: true
-    },
-    {
-      id: '2',
-      user: 'Priyanka Sen',
-      rating: 4,
-      title: 'Genuine copy and fast delivery',
-      body: 'Print quality is crisp and clear. Delivery from Techno World was fast within 2 days to Kolkata.',
-      date: '2026-07-28T00:00:00.000Z',
-      verified: true
-    },
-    {
-      id: '3',
-      user: 'Suman Banerjee',
-      rating: 5,
-      title: 'Accurate solutions & high score practice',
-      body: 'Great compilation of high-yield questions. Ideal for scoring top ranks in the examination.',
-      date: '2026-06-19T00:00:00.000Z',
-      verified: true
-    }
-  ];
+  // Dynamic reviews combined with fallback
+  const reviewsList = liveReviews.length > 0 
+    ? liveReviews 
+    : (Array.isArray(book.reviews) && book.reviews.length > 0 
+        ? book.reviews 
+        : [
+            {
+              id: '1',
+              userName: 'Joydip Chakraborty',
+              user: 'Joydip Chakraborty',
+              rating: 5,
+              title: 'Best question bank for this year',
+              body: 'Covers the full syllabus with unit-wise MCQs, detailed explanations, and 2025 solved papers. Highly recommended!',
+              content: 'Covers the full syllabus with unit-wise MCQs, detailed explanations, and 2025 solved papers. Highly recommended!',
+              date: '2026-08-12T00:00:00.000Z',
+              createdAt: '2026-08-12T00:00:00.000Z',
+              verified: true
+            },
+            {
+              id: '2',
+              userName: 'Priyanka Sen',
+              user: 'Priyanka Sen',
+              rating: 4,
+              title: 'Genuine copy and fast delivery',
+              body: 'Print quality is crisp and clear. Delivery from Techno World was fast within 2 days to Kolkata.',
+              content: 'Print quality is crisp and clear. Delivery from Techno World was fast within 2 days to Kolkata.',
+              date: '2026-07-28T00:00:00.000Z',
+              createdAt: '2026-07-28T00:00:00.000Z',
+              verified: true
+            },
+            {
+              id: '3',
+              userName: 'Suman Banerjee',
+              user: 'Suman Banerjee',
+              rating: 5,
+              title: 'Accurate solutions & high score practice',
+              body: 'Great compilation of high-yield questions. Ideal for scoring top ranks in the examination.',
+              content: 'Great compilation of high-yield questions. Ideal for scoring top ranks in the examination.',
+              date: '2026-06-19T00:00:00.000Z',
+              createdAt: '2026-06-19T00:00:00.000Z',
+              verified: true
+            }
+          ]);
+
+  const displayQuestions = liveQuestions.length > 0
+    ? liveQuestions
+    : [
+        {
+          id: 'def1',
+          question: 'Is this the latest 2026 revised edition?',
+          answer: 'Yes, this is the official 2026 revised edition with the updated syllabus and 2025 solved papers.',
+          answeredBy: 'Techno World Direct · Verified Seller'
+        },
+        {
+          id: 'def2',
+          question: 'Does this book contain Bengali and English explanations?',
+          answer: `The theory and MCQs are provided in ${language} with lucid explanations.`,
+          answeredBy: 'Staff Academic Reviewer'
+        }
+      ];
 
   // Default TOC fallback
   const tocList = Array.isArray(book.toc) && book.toc.length > 0
@@ -888,23 +1026,21 @@ export default function Product() {
               {openSections.qa && (
                 <div className="p-5 space-y-4">
                   <div className="space-y-3">
-                    <div className="border-b border-slate-100 pb-3">
-                      <p className="text-xs font-bold text-slate-800">Q: Is this the latest 2026 revised edition?</p>
-                      <p className="text-xs text-slate-600 mt-1">A: Yes, this is the official 2026 revised edition with the updated syllabus and 2025 solved papers.</p>
-                      <span className="text-[10px] text-slate-400 mt-1 block">Techno World Direct · Verified Seller</span>
-                    </div>
-
-                    <div className="border-b border-slate-100 pb-3">
-                      <p className="text-xs font-bold text-slate-800">Q: Does this book contain Bengali and English explanations?</p>
-                      <p className="text-xs text-slate-600 mt-1">A: The theory and MCQs are provided in {language} with lucid explanations.</p>
-                      <span className="text-[10px] text-slate-400 mt-1 block">Staff Academic Reviewer</span>
-                    </div>
+                    {displayQuestions.map((q: any) => (
+                      <div key={q.id} className="border-b border-slate-100 pb-3 last:border-0">
+                        <p className="text-xs font-bold text-slate-800">Q: {q.question}</p>
+                        <p className="text-xs text-slate-600 mt-1">A: {q.answer || 'Pending answer from editorial team'}</p>
+                        <span className="text-[10px] text-slate-400 mt-1 block font-medium">
+                          {q.answeredBy || 'Techno World Direct · Verified Seller'}
+                        </span>
+                      </div>
+                    ))}
                   </div>
 
                   <div className="rounded-xl bg-purple-50/60 p-3.5 border border-purple-100 flex items-center justify-between">
                     <div>
                       <p className="text-xs font-bold text-purple-950">Have a question about this book?</p>
-                      <p className="text-[11px] text-purple-700">Get quick answers from our editorial team and verified buyers.</p>
+                      <p className="text-[11px] text-purple-700">Get quick answers from our editorial team and verified sellers.</p>
                     </div>
                     <button
                       type="button"
@@ -921,19 +1057,26 @@ export default function Product() {
 
             {/* ================= RATINGS & REVIEWS ACCORDION ================= */}
             <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-              <button
-                type="button"
-                onClick={() => toggleSection('reviews')}
-                className="w-full flex items-center justify-between p-5 bg-white hover:bg-slate-50 transition-colors border-b border-slate-100"
-              >
-                <div className="flex items-center gap-2">
+              <div className="w-full flex items-center justify-between p-5 bg-white border-b border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('reviews')}
+                  className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                >
                   <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
                   <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-wide">
                     Ratings & Reviews ({ratingsCount.toLocaleString('en-IN')})
                   </h3>
-                </div>
-                {openSections.reviews ? <ChevronUp className="h-4 w-4 text-slate-400" /> : <ChevronDown className="h-4 w-4 text-slate-400" />}
-              </button>
+                  {openSections.reviews ? <ChevronUp className="h-4 w-4 text-slate-400 ml-1" /> : <ChevronDown className="h-4 w-4 text-slate-400 ml-1" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowReviewModal(true)}
+                  className="rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm shrink-0"
+                >
+                  <Star className="h-3.5 w-3.5 fill-white" /> Rate & Review
+                </button>
+              </div>
 
               {openSections.reviews && (
                 <div className="p-5">
@@ -972,19 +1115,19 @@ export default function Product() {
                               <span>{r.rating}</span>
                               <Star className="h-2.5 w-2.5 fill-white" />
                             </div>
-                            <span className="text-xs font-bold text-slate-900">{r.title}</span>
+                            {r.title && <span className="text-xs font-bold text-slate-900">{r.title}</span>}
                           </div>
                           
-                          <p className="mt-1.5 text-xs text-slate-600 leading-relaxed">{r.body}</p>
+                          <p className="mt-1.5 text-xs text-slate-700 leading-relaxed font-normal">{r.content || r.body}</p>
                           
                           <div className="mt-2 flex items-center gap-2 text-[10px] text-slate-400">
-                            <span className="font-semibold text-slate-700">{r.user}</span>
+                            <span className="font-bold text-slate-800">{r.userName || r.user || 'Verified Buyer'}</span>
                             <span>•</span>
                             <span className="flex items-center gap-0.5 text-emerald-700 font-bold">
                               <Check className="h-3 w-3" /> Certified Buyer
                             </span>
                             <span>•</span>
-                            <span>{new Date(r.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                            <span>{new Date(r.createdAt || r.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                           </div>
                         </div>
                       ))}
@@ -1038,16 +1181,38 @@ export default function Product() {
       {showQuestionModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-            <h3 className="text-base font-extrabold text-slate-900 mb-2">Ask a Question about this Book</h3>
-            <p className="text-xs text-slate-500 mb-4">Your question will be reviewed and answered by our academic editorial staff or verified sellers.</p>
-            <textarea
-              rows={3}
-              value={questionInput}
-              onChange={(e) => setQuestionInput(e.target.value)}
-              placeholder="e.g. Does this edition cover the 2026 syllabus updates?"
-              className="w-full rounded-xl border border-slate-300 p-3 text-xs outline-none focus:border-emerald-500 font-medium"
-            />
-            <div className="mt-4 flex justify-end gap-2">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                <HelpCircle className="h-5 w-5 text-purple-600" /> Ask a Question
+              </h3>
+              <button onClick={() => setShowQuestionModal(false)} className="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+            </div>
+            <p className="text-xs text-slate-500 mb-4">
+              Your question will be reviewed and answered by our academic editorial staff or verified sellers. (Your name is kept private on the store).
+            </p>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 mb-1">Your Name (Private, for our team)</label>
+                <input
+                  type="text"
+                  value={askerName}
+                  onChange={(e) => setAskerName(e.target.value)}
+                  placeholder="e.g. Rahul Sharma"
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-purple-500 font-medium"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 mb-1">Question <span className="text-rose-500">*</span></label>
+                <textarea
+                  rows={3}
+                  value={questionInput}
+                  onChange={(e) => setQuestionInput(e.target.value)}
+                  placeholder="e.g. Does this edition cover the 2026 syllabus updates and model test papers?"
+                  className="w-full rounded-xl border border-slate-300 p-3 text-xs outline-none focus:border-purple-500 font-medium"
+                />
+              </div>
+            </div>
+            <div className="mt-5 flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setShowQuestionModal(false)}
@@ -1057,15 +1222,130 @@ export default function Product() {
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  if (!questionInput.trim()) return toast.error('Please enter your question');
-                  toast.success('Question submitted! You will be notified once answered.');
-                  setQuestionInput('');
-                  setShowQuestionModal(false);
-                }}
-                className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-700"
+                disabled={submittingQuestion}
+                onClick={handleAskQuestionSubmit}
+                className="rounded-lg bg-purple-600 px-4 py-2 text-xs font-bold text-white hover:bg-purple-700 disabled:opacity-50"
               >
-                Submit Question
+                {submittingQuestion ? 'Submitting...' : 'Submit Question'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Write Review Modal */}
+      {showReviewModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                <Star className="h-5 w-5 text-amber-500 fill-amber-500" /> Rate & Review Book
+              </h3>
+              <button onClick={() => setShowReviewModal(false)} className="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+            </div>
+            <p className="text-xs text-slate-500 mb-4">
+              Share your genuine feedback with other readers. Your review will be published under your name.
+            </p>
+
+            <div className="space-y-4">
+              {/* Interactive Star Rating */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Select Rating <span className="text-rose-500">*</span>
+                </label>
+                <div className="flex items-center gap-1.5">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onMouseEnter={() => setHoverRating(s)}
+                      onMouseLeave={() => setHoverRating(0)}
+                      onClick={() => setReviewRating(s)}
+                      className="p-1 transition-transform hover:scale-110"
+                    >
+                      <Star
+                        className={`h-7 w-7 ${
+                          (hoverRating || reviewRating) >= s
+                            ? 'text-amber-400 fill-amber-400'
+                            : 'text-slate-300'
+                        }`}
+                      />
+                    </button>
+                  ))}
+                  <span className="ml-2 text-xs font-extrabold text-slate-700">
+                    {reviewRating === 5 && 'Outstanding ★★★★★'}
+                    {reviewRating === 4 && 'Very Good ★★★★☆'}
+                    {reviewRating === 3 && 'Average ★★★☆☆'}
+                    {reviewRating === 2 && 'Below Average ★★☆☆☆'}
+                    {reviewRating === 1 && 'Poor ★☆☆☆☆'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Reviewer Name */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Your Name <span className="text-rose-500">*</span></label>
+                <input
+                  type="text"
+                  value={reviewerName}
+                  onChange={(e) => setReviewerName(e.target.value)}
+                  placeholder="e.g. Debasis Roy"
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-emerald-500 font-medium"
+                />
+              </div>
+
+              {/* Review Headline */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Review Headline (Optional)</label>
+                <input
+                  type="text"
+                  value={reviewTitle}
+                  onChange={(e) => setReviewTitle(e.target.value)}
+                  placeholder="e.g. Comprehensive guide for semester exam"
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs outline-none focus:border-emerald-500 font-medium"
+                />
+              </div>
+
+              {/* MANDATORY Review Comment */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-bold text-slate-700">
+                    Your Review Comment <span className="text-rose-500 font-bold">* Mandatory</span>
+                  </label>
+                  <span className="text-[10px] text-amber-600 font-bold">Required when star rating is given</span>
+                </div>
+                <textarea
+                  rows={4}
+                  value={reviewComment}
+                  onChange={(e) => setReviewComment(e.target.value)}
+                  placeholder="Describe your reading experience, paper & print quality, relevance to course curriculum..."
+                  className={`w-full rounded-xl border p-3 text-xs outline-none font-medium ${
+                    reviewError ? 'border-rose-500 bg-rose-50/20' : 'border-slate-300 focus:border-emerald-500'
+                  }`}
+                />
+                {reviewError && (
+                  <p className="text-[11px] font-bold text-rose-600 mt-1 flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" /> {reviewError}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setShowReviewModal(false)}
+                className="rounded-lg px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={submittingReview}
+                onClick={handleReviewSubmit}
+                className="rounded-lg bg-emerald-600 px-5 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50 flex items-center gap-1.5 shadow-sm"
+              >
+                {submittingReview ? 'Submitting...' : 'Post Review'}
               </button>
             </div>
           </div>
