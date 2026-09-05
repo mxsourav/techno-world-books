@@ -27,3 +27,17 @@ services:
         value: "*"
     healthCheckPath: /
     autoDeploy: true
+
+  # ── Frontend Storefront (React + Vite) ──
+  - type: web
+    name: techno-world-frontend
+    runtime: static
+    rootDir: app
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    autoDeploy: true
+

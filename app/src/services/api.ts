@@ -281,6 +281,9 @@ export const adminService = {
     senderName?: string;
   }) => api.post<any>('/admin/smtp/test', data),
   getEmailLogs: (params?: { limit?: number }) => api.get<any[]>('/admin/emails', params),
+  getCustomers: (params?: { search?: string; page?: number; limit?: number }) => api.get<any>('/admin/customers', params),
+  getSearchTrends: (params?: { period?: string; startDate?: string; endDate?: string }) =>
+    api.get<any>('/admin/analytics/search-trends', params),
 };
 
 export const searchService = {
@@ -288,8 +291,16 @@ export const searchService = {
 };
 
 export const orderService = {
-  create: (data: { items: { bookId: string; quantity: number }[]; addressId?: string; paymentMethod?: string; couponCode?: string }) =>
-    api.post<any>('/orders', data),
+  create: (data: {
+    items: { bookId: string; quantity: number }[];
+    addressId?: string;
+    paymentMethod?: string;
+    couponCode?: string;
+    shippingMethod?: string;
+    pickupName?: string;
+    pickupPhone?: string;
+    pickupEmail?: string;
+  }) => api.post<any>('/orders', data),
   getUserOrders: () => api.get<any>('/orders/my-orders'),
   getAllOrders: (params?: { status?: string; page?: number; limit?: number }) => api.get<any>('/orders/admin/all', params),
   getNotifications: () => api.get<any>('/orders/admin/notifications'),
@@ -305,6 +316,18 @@ export const orderService = {
       recipientName?: string;
     }
   ) => api.post<any>(`/orders/admin/${id}/email`, data),
+  batchUpdateStatus: (data: { orderIds: string[]; status: string; notes?: string; reason?: string }) =>
+    api.patch<any>('/orders/admin/batch-status', data),
+  batchSendEmail: (data: { orderIds: string[]; subject: string; message: string; templateType?: string }) =>
+    api.post<any>('/orders/admin/batch-email', data),
+  updateBookDimensions: (bookId: string, data: { dimensions?: string; weight?: number }) =>
+    api.patch<any>(`/orders/admin/book/${bookId}/dimensions`, data),
+  setPickupSlots: (orderId: string, slots: string[]) =>
+    api.post<any>(`/orders/admin/${orderId}/pickup-slots`, { slots }),
+  confirmPickupSlot: (orderId: string, selectedSlot: string) =>
+    api.post<any>(`/orders/${orderId}/confirm-pickup-slot`, { selectedSlot }),
+  markOrderCollected: (orderId: string) =>
+    api.post<any>(`/orders/admin/${orderId}/mark-collected`),
 };
 
 export const mediaService = {
@@ -369,6 +392,8 @@ export const profileService = {
     phone: string;
     addressLine1: string;
     addressLine2?: string | null;
+    postOffice?: string | null;
+    landmark?: string | null;
     city: string;
     state: string;
     pincode: string;
