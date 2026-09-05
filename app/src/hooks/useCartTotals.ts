@@ -114,6 +114,8 @@ export function useCartTotals(pincode?: string, addressId?: string, address?: an
     estimatedTransitDays: pricing?.estimatedTransitDays || '3–4 Business Days',
     isAddonBundle: Boolean(pricing?.isAddonBundle),
     bundledWithOrderNumber: pricing?.bundledWithOrderNumber || null,
+    parentShippingMethod: pricing?.parentShippingMethod || null,
+    parentShippingCharge: pricing?.parentShippingCharge || 0,
     discount, 
     total: pricing?.totalAmount || 0, 
     coupon: rawPromoCode, 

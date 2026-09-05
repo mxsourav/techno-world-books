@@ -148,6 +148,8 @@ export default function Checkout() {
     estimatedTransitDays,
     isAddonBundle,
     bundledWithOrderNumber,
+    parentShippingMethod,
+    parentShippingCharge,
     discount,
     total,
     appliedCoupon,
@@ -1145,6 +1147,20 @@ export default function Checkout() {
                 </div>
               ) : (
                 <div className="space-y-4">
+                  {isAddonBundle && (
+                    <div className="rounded-xl border border-emerald-300 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 p-4 text-xs text-emerald-950 flex items-start gap-3 shadow-xs">
+                      <Sparkles className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-extrabold text-sm text-emerald-950 flex items-center gap-1.5">
+                          Active Dispatch Consignment #{bundledWithOrderNumber}
+                        </p>
+                        <p className="text-emerald-800 mt-1 leading-relaxed text-xs">
+                          You already have an order scheduled for today&apos;s 2:00 PM dispatch batch for this delivery address{parentShippingMethod ? ` (currently via ${parentShippingMethod === 'EXPRESS_LOCAL' ? '⚡ Express' : parentShippingMethod === 'SPEED_POST' ? '🚀 Speed Post' : '📦 Standard Post'})` : ''}. You can join your active shipment for <b>FREE (₹0)</b>, or upgrade the entire parcel to a faster delivery service below{parentShippingCharge > 0 ? ` (your previously paid delivery fee of ${formatINR(parentShippingCharge)} is credited)` : ''}!
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="grid gap-3 sm:grid-cols-2">
                     {effectiveDeliveryOptions.map((opt: any) => {
                       const methodId = opt.method || opt.id;
