@@ -49,7 +49,7 @@ function ScrollToTop() {
   return null;
 }
 
-
+// Funciton to keep the server alive by pinging the backend every 14 minutes to prevent Render free-tier sleep
 function KeepAlivePing() {
   useEffect(() => {
     // Ping backend every 14 minutes to prevent Render free-tier sleep

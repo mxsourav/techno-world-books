@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router';
-import { BadgePercent, Sparkles, Gift, Truck, ArrowRight, Trophy, Flame, TrendingUp, Sparkle, Stethoscope, Settings, GraduationCap, Library, BookOpen, Quote, Languages, Globe2, Gem, Heart, Clock, ShieldCheck, Package, MessageCircle, Tag, Users } from 'lucide-react';
+import { Sparkles, ArrowRight, Trophy, Flame, TrendingUp, Sparkle, Stethoscope, Settings, GraduationCap, Library, BookOpen, Quote, Languages, Globe2, Gem, Heart, Clock, ShieldCheck, Package, MessageCircle, Tag, Users } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 import { bookService } from '@/services/api';
@@ -12,6 +12,7 @@ import PublishedByTechnoWorld from '@/components/PublishedByTechnoWorld';
 import StudyGuides from '@/components/StudyGuides';
 import PromoBanners from '@/components/PromoBanners';
 import { useAutoFeaturedBooks } from '@/hooks/useAutoFeaturedBooks';
+import { OFFERS, SEARCH_SUGGESTIONS } from '@/data/constants';
 
 const PUBLISHERS = ['NCERT', 'Arihant Publications', 'McGraw Hill', 'Elsevier', 'Penguin', 'Ananda Publishers', 'MTG Learning Media', 'Dhanpat Rai'];
 
@@ -50,7 +51,7 @@ export default function Home() {
   const newReleases = books.filter((b) => b.newRelease);
   const recent = recentlyViewed.map((id) => books.find((b) => b.id === id)).filter(Boolean) as Book[];
   const recommended = [...books].sort((a, b) => b.rating * b.ratingsCount - a.rating * a.ratingsCount).slice(0, 10);
-  
+
   const byCategory = (slug: string) => books.filter((b) => b.category === slug).slice(0, 10);
 
   // const featuredBook = books.find((b) => b.featured) || books[0];
@@ -58,20 +59,20 @@ export default function Home() {
   return (
     <div className="bg-slate-50 selection:bg-emerald-500/30">
       {/* Hero Section */}
-      <section className="relative w-full min-h-[85vh] overflow-x-clip bg-[#02120b] text-white flex flex-col justify-center py-14 lg:py-18">
+      <section className="relative w-full min-h-[85vh] overflow-x-clip bg-[#02120b] text-white flex flex-col justify-center pt-14 pb-32 lg:pt-16 lg:pb-40">
         {/* Background Image */}
-        <div 
+        <div
           className="absolute inset-0 z-0 bg-no-repeat bg-cover"
-          style={{ 
+          style={{
             backgroundImage: 'url("/hero_mockup.png")',
             backgroundPosition: 'center 45%'
           }}
         />
         {/* Gradient Overlay (Cinematic Dark Mossy Green fade) */}
         <div className="absolute inset-0 z-0 bg-gradient-to-r from-[#03150b] via-[#0a2e16]/95 to-transparent pointer-events-none w-full lg:w-[95%]"></div>
-        
+
         {/* Subtle Geometric Texture Overlay (Fades out early to the right) */}
-        <div 
+        <div
           className="absolute inset-0 z-0 pointer-events-none w-full lg:w-[70%] opacity-80"
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg width='64' height='64' viewBox='0 0 64 64' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M64 0H0v64' fill='none' stroke='%23ffffff' stroke-width='1.5' stroke-opacity='0.12'/%3E%3C/svg%3E")`,
@@ -80,19 +81,19 @@ export default function Home() {
         ></div>
 
         {/* Content Container - Exactly matches Header.tsx alignment */}
-        <div className="relative z-10 w-full max-w-7xl px-3 sm:px-6 mx-auto lg:ml-[11%] lg:mr-auto">
-          
+        <div className="relative z-10 w-full max-w-7xl px-3 sm:px-6 mx-auto lg:ml-[4%] lg:mr-auto">
+
           {/* Left Column (Right is empty because book is in the image) */}
           <div className="flex flex-col w-full lg:w-[60%] max-w-[750px] text-left overflow-visible">
-            
+
             {/* Top Sale Badge */}
             <div className="inline-flex items-center gap-2 rounded-full bg-[#0a2e1f] border border-[#D4A017] px-3.5 py-1 mb-5 shadow-sm">
               <Tag className="h-3.5 w-3.5 text-[#D4A017]" />
               <span className="text-[13px] font-medium text-[#D4A017]">Grand Book Sale — Up to 60% off 10,000+ titles</span>
             </div>
-            
+
             {/* Main Heading */}
-            <h1 
+            <h1
               className="font-bold drop-shadow-md max-w-[800px]"
               style={{
                 fontFamily: "'Playfair Display', Georgia, serif",
@@ -101,9 +102,9 @@ export default function Home() {
                 letterSpacing: "-0.01em"
               }}
             >
-              <span 
+              <span
                 className="block"
-                style={{ 
+                style={{
                   backgroundImage: "linear-gradient(to bottom, #FFFFFF 0%, #B8C4BE 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
@@ -112,9 +113,9 @@ export default function Home() {
               >
                 Every book India reads,
               </span>
-              <span 
+              <span
                 className="block mt-1"
-                style={{ 
+                style={{
                   backgroundImage: "linear-gradient(to bottom, #FFE885 0%, #E6A300 100%)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
@@ -124,9 +125,9 @@ export default function Home() {
                 one search away.
               </span>
             </h1>
-            
+
             {/* Description */}
-            <p 
+            <p
               className="mt-4 font-normal drop-shadow"
               style={{
                 fontFamily: "'Inter', sans-serif",
@@ -141,24 +142,24 @@ export default function Home() {
             </p>
 
             {/* Search Bar */}
-            <SearchBar 
-              className="mt-6 shadow-[0_12px_35px_rgba(0,0,0,0.4)] w-full h-[54px] [&_input]:text-[14px]" 
+            <SearchBar
+              className="mt-6 shadow-[0_12px_35px_rgba(0,0,0,0.4)] w-full h-[54px] [&_input]:text-[14px]"
             />
 
             {/* Category Chips */}
-            <div 
+            <div
               className="mt-[18px] flex flex-wrap gap-[10px] items-center justify-center w-full hero-chip-container"
               style={{ overflow: 'visible', overflowY: 'hidden', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
               <style>{`
                 .hero-chip-container::-webkit-scrollbar { display: none; }
               `}</style>
-              {['NCERT Class 12', 'NEET books', 'Atomic Habits', 'UPSC polity', 'SSC', 'JEE'].map((tag) => (
+              {SEARCH_SUGGESTIONS.map((tag) => (
                 <button
                   key={tag}
                   onClick={() => navigate(`/search?q=${encodeURIComponent(tag)}`)}
                   className="flex items-center gap-1.5 px-[16px] py-[8px] rounded-[999px] text-[#F5F5F5] text-[13px] transition-all duration-250 ease-in-out"
-                  style={{ 
+                  style={{
                     background: 'rgba(15,55,38,0.65)',
                     border: '1px solid rgba(255,255,255,0.12)',
                     backdropFilter: 'blur(8px)'
@@ -206,7 +207,30 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            
+
+          </div>
+        </div>
+        {/* OFFER STRIP */}
+        <div className="lg:absolute lg:bottom-20 left-0 right-0 z-10 w-full mt-10 lg:mt-0">
+          <div className="w-full max-w-7xl px-3 sm:px-6 mx-auto lg:ml-[4%] lg:mr-auto">
+            <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-2">
+              {OFFERS.map((o) => (
+                <div
+                  key={o.t}
+                  className="flex items-center gap-2.5 px-[16px] py-[8px] rounded-[999px] text-[#F5F5F5] transition-all duration-250 ease-in-out shadow-sm"
+                  style={{ 
+                    background: 'rgba(15,55,38,0.65)',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    backdropFilter: 'blur(8px)'
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = '#0E5A3A'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(15,55,38,0.65)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+                >
+                  <o.icon className="h-4 w-4 shrink-0 text-emerald-400" strokeWidth={1.5} />
+                  <p className="text-[13px] font-medium tracking-wide">{o.d}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -215,25 +239,6 @@ export default function Home() {
       <PromoBanners />
 
       <PublishedByTechnoWorld />
-      
-      <StudyGuides />
-
-      {/* OFFER STRIP */}
-      <section className="mx-auto grid max-w-7xl gap-3 px-3 sm:grid-cols-3 sm:px-6 mb-8">
-        {[
-          { icon: BadgePercent, t: 'STUDENT15 — 15% off', d: 'For students on exam & academic books', c: 'from-amber-400 to-orange-400' },
-          { icon: Truck, t: 'Free Delivery', d: 'On all orders above ₹499 across India', c: 'from-emerald-500 to-teal-500' },
-          { icon: Gift, t: 'Techno Rewards', d: 'Earn 5 points per ₹100 spent, redeem anytime', c: 'from-violet-500 to-purple-500' },
-        ].map((o) => (
-          <div key={o.t} className={`flex items-center gap-3 rounded-xl bg-gradient-to-r ${o.c} p-4 text-white shadow-sm`}>
-            <o.icon className="h-8 w-8 shrink-0 opacity-90" />
-            <div>
-              <p className="text-sm font-extrabold">{o.t}</p>
-              <p className="text-xs opacity-90">{o.d}</p>
-            </div>
-          </div>
-        ))}
-      </section>
 
       {error ? (
         <div className="flex flex-col items-center justify-center py-20 text-slate-500">
@@ -250,6 +255,25 @@ export default function Home() {
         </div>
       ) : (
         <>
+          {/* PUBLISHERS */}
+          <section className="mx-auto max-w-7xl px-3 py-6 sm:px-6">
+            <h2 className="mb-3 text-lg font-bold text-slate-900 sm:text-xl">Shop by Publisher</h2>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {PUBLISHERS.map((p) => (
+                <Link
+                  key={p}
+                  to={`/search?q=${encodeURIComponent(p)}`}
+                  className="rounded-xl border border-slate-200 bg-white px-4 py-5 text-center text-sm font-bold text-slate-700 shadow-sm transition hover:border-emerald-300 hover:text-emerald-800"
+                >
+                  {p}
+                </Link>
+              ))}
+            </div>
+          </section>
+
+          <BookRow icon={<Heart className="h-5 w-5 text-rose-500" />} title="Recommended For You" books={recommended} loading={loading} />
+          {(recent.length > 0 || loading) && <BookRow icon={<Clock className="h-5 w-5 text-slate-500" />} title="Recently Viewed" books={recent} loading={loading} />}
+
           <HeroFeaturedBooks />
           <BookRow icon={<Flame className="h-5 w-5 text-orange-500" />} title="Best Sellers" books={bestsellers} viewAllLink="/search?q=bestseller" loading={loading} />
           <BookRow icon={<TrendingUp className="h-5 w-5 text-emerald-500" />} title="Trending Now" books={trending} loading={loading} />
@@ -280,24 +304,7 @@ export default function Home() {
           <BookRow icon={<Globe2 className="h-5 w-5 text-teal-500" />} title="International Books" books={byCategory('international')} viewAllLink="/category/international" loading={loading} />
           <BookRow icon={<Gem className="h-5 w-5 text-amber-500" />} title="Rare & Collector's Editions" books={byCategory('rare')} viewAllLink="/category/rare" loading={loading} />
 
-          {/* PUBLISHERS */}
-          <section className="mx-auto max-w-7xl px-3 py-6 sm:px-6">
-            <h2 className="mb-3 text-lg font-bold text-slate-900 sm:text-xl">Shop by Publisher</h2>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              {PUBLISHERS.map((p) => (
-                <Link
-                  key={p}
-                  to={`/search?q=${encodeURIComponent(p)}`}
-                  className="rounded-xl border border-slate-200 bg-white px-4 py-5 text-center text-sm font-bold text-slate-700 shadow-sm transition hover:border-emerald-300 hover:text-emerald-800"
-                >
-                  {p}
-                </Link>
-              ))}
-            </div>
-          </section>
-
-          <BookRow icon={<Heart className="h-5 w-5 text-rose-500" />} title="Recommended For You" books={recommended} loading={loading} />
-          {(recent.length > 0 || loading) && <BookRow icon={<Clock className="h-5 w-5 text-slate-500" />} title="Recently Viewed" books={recent} loading={loading} />}
+          <StudyGuides />
         </>
       )}
 
