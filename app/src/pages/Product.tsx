@@ -718,7 +718,7 @@ export default function Product() {
                   </span>
                 </div>
                 <p className="mt-1 text-xs text-slate-500">
-                  Inclusive of all taxes · Free delivery on eligible orders above ₹499
+                  Inclusive of all taxes · Free delivery on eligible orders above ₹999
                 </p>
               </div>
 

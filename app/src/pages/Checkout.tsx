@@ -167,13 +167,13 @@ export default function Checkout() {
     }
     const cleanPin = activePincode || form.pincode.replace(/\D/g, '').slice(0, 6);
     const isKolkata = cleanPin && /^700\d{3}$/.test(cleanPin);
-    const standardFee = subtotal >= 499 ? 0 : 49;
+    const standardFee = subtotal >= 999 ? 0 : 69;
     return [
       {
         method: 'NORMAL_POST',
         id: 'NORMAL_POST',
         label: 'Standard Delivery',
-        description: 'Reliable delivery via India Post network',
+        description: subtotal >= 999 ? 'Free nationwide delivery' : 'Reliable delivery via postal network',
         price: standardFee,
         priceLabel: standardFee === 0 ? 'FREE' : `₹${standardFee}`,
         estimatedDays: '5–7 Business Days',
