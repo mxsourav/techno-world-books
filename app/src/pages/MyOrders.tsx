@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
-import { Package, Truck, CheckCircle2, XCircle, Clock, ExternalLink, Store, CalendarCheck, Download, Loader2 } from 'lucide-react';
+import { Package, Truck, CheckCircle2, XCircle, Clock, ExternalLink, Store, CalendarCheck, Download, Loader2, Link2 } from 'lucide-react';
 import { orderService } from '@/services/api';
 import { formatINR } from '@/utils/helpers';
 import { downloadOrderInvoice } from '@/utils/generateInvoice';
@@ -98,8 +98,21 @@ export default function MyOrders() {
             <div key={order.id} className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
               <div className="flex flex-wrap justify-between items-start border-b border-slate-100 pb-4 mb-4 gap-4">
                 <div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <p className="text-xs text-slate-500 font-medium">ORDER ID</p>
+                    {order.isMerged && (
+                      <span className="rounded-full bg-blue-100 text-blue-800 border border-blue-300 px-2.5 py-0.5 text-[10px] font-extrabold flex items-center gap-1 shadow-xs">
+                        <Link2 className="h-3 w-3 text-blue-700" /> Consolidated with #{order.parentOrder?.orderNumber || order.parentOrderId?.slice(0, 8)}
+                        {order.shippingRefunded > 0 && (
+                          <span className="text-emerald-700 font-bold ml-1">· ₹{order.shippingRefunded} refunded to TechnoWallet</span>
+                        )}
+                      </span>
+                    )}
+                    {order.childOrders && order.childOrders.length > 0 && (
+                      <span className="rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 px-2.5 py-0.5 text-[10px] font-extrabold flex items-center gap-1 shadow-xs">
+                        <Package className="h-3 w-3 text-emerald-700" /> Master Consignment ({order.childOrders.length} Add-on{order.childOrders.length > 1 ? 's' : ''} Merged)
+                      </span>
+                    )}
                     {(order.shippingMethod === 'SELF_PICKUP' || order.shippingCarrier === 'STORE_TAKEAWAY') && (
                       <span className="rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 px-2 py-0.5 text-[10px] font-extrabold flex items-center gap-1">
                         <Store className="h-3 w-3 text-emerald-700" /> Store Takeaway

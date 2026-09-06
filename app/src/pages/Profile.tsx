@@ -4,8 +4,9 @@ import {
   User as UserIcon,
   MapPin,
   CreditCard,
-  Gift,
   Coins,
+  Wallet,
+  Link2,
   Edit3,
   Trash2,
   Plus,
@@ -390,6 +391,7 @@ export default function Profile() {
   }
 
   const technoPoints = profileData?.technoPoints || 0;
+  const technoWallet = Number(profileData?.technoWallet ?? pointsData?.technoWallet ?? 0);
   // pending points ready for return period tracking
   // const pendingPoints = profileData?.pendingPoints || 0;
 
@@ -425,27 +427,46 @@ export default function Profile() {
               </div>
             </div>
 
-            {/* Loyalty Techno Points Card */}
-            <div className="flex items-center gap-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 p-4 shadow-lg">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-400 text-slate-900 shadow">
-                <Coins className="h-6 w-6" />
-              </div>
-              <div>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-2xl font-black text-amber-300">{technoPoints}</span>
-                  <span className="text-xs font-bold text-emerald-200 uppercase tracking-wider">Techno Coins</span>
+            {/* Wallet & Loyalty Cards */}
+            <div className="flex flex-wrap items-center gap-3">
+              {/* TechnoWallet Cash Balance Card */}
+              <div className="flex items-center gap-3.5 rounded-2xl bg-emerald-900/50 backdrop-blur-md border border-emerald-400/30 p-3.5 shadow-lg">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-400 text-slate-950 shadow">
+                  <Wallet className="h-5 w-5" />
                 </div>
-                <p className="text-[11px] text-slate-300">
-                  Worth <b>₹{technoPoints}.00</b> on future purchases
-                </p>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xl font-black text-emerald-300">₹{technoWallet.toFixed(2)}</span>
+                    <span className="text-[11px] font-extrabold text-emerald-200 uppercase tracking-wider">TechnoWallet</span>
+                  </div>
+                  <p className="text-[10px] text-slate-300">
+                    Cash Balance &bull; <b className="text-emerald-200">No Expiry</b> &bull; 100% Usable
+                  </p>
+                </div>
               </div>
-              <button
-                onClick={() => setIsTermsModalOpen(true)}
-                className="ml-2 rounded-lg bg-white/15 p-1.5 text-slate-300 hover:text-white hover:bg-white/25"
-                title="View Techno Points Terms & Expiry"
-              >
-                <HelpCircle className="h-4 w-4" />
-              </button>
+
+              {/* Loyalty Techno Points Card */}
+              <div className="flex items-center gap-3.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 p-3.5 shadow-lg">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-400 text-slate-900 shadow">
+                  <Coins className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xl font-black text-amber-300">{technoPoints}</span>
+                    <span className="text-[11px] font-bold text-amber-200 uppercase tracking-wider">Techno Coins</span>
+                  </div>
+                  <p className="text-[10px] text-slate-300">
+                    Worth <b>₹{technoPoints}.00</b> &bull; 1-Yr Expiry
+                  </p>
+                </div>
+                <button
+                  onClick={() => setIsTermsModalOpen(true)}
+                  className="ml-1 rounded-lg bg-white/15 p-1 text-slate-300 hover:text-white hover:bg-white/25"
+                  title="View Techno Points Terms & Expiry"
+                >
+                  <HelpCircle className="h-3.5 w-3.5" />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -456,7 +477,7 @@ export default function Profile() {
               { id: 'notifications', label: `Alerts & Notices (${userNotifs.filter(n => !n.isRead).length > 0 ? `${userNotifs.filter(n => !n.isRead).length} New` : userNotifs.length})`, icon: Bell, badge: userNotifs.filter(n => !n.isRead).length },
               { id: 'profile', label: 'Personal Info', icon: UserIcon },
               { id: 'addresses', label: `Addresses (${addresses.length})`, icon: MapPin },
-              { id: 'points', label: `Techno Coins (${technoPoints})`, icon: Gift },
+              { id: 'points', label: `Wallet & Coins (₹${(technoWallet + technoPoints).toFixed(0)})`, icon: Wallet },
               { id: 'payments', label: 'Saved Payments', icon: CreditCard },
             ].map((tab: any) => (
               <button
@@ -557,6 +578,19 @@ export default function Profile() {
                               <span className={`rounded-full px-3 py-0.5 text-xs font-black border ${statusColor}`}>
                                 {statusLabel}
                               </span>
+                              {ord.isMerged && (
+                                <span className="rounded-full bg-blue-100 border border-blue-300 px-2.5 py-0.5 text-[11px] font-black text-blue-800 inline-flex items-center gap-1 shadow-xs">
+                                  <Link2 className="h-3 w-3 text-blue-700" /> Consolidated into Consignment #{ord.parentOrder?.orderNumber || ord.parentOrderId?.slice(0, 8)}
+                                  {ord.shippingRefunded > 0 && (
+                                    <span className="text-emerald-700 font-extrabold ml-1">· ₹{ord.shippingRefunded} refunded to TechnoWallet</span>
+                                  )}
+                                </span>
+                              )}
+                              {ord.childOrders && ord.childOrders.length > 0 && (
+                                <span className="rounded-full bg-emerald-100 border border-emerald-300 px-2.5 py-0.5 text-[11px] font-black text-emerald-800 inline-flex items-center gap-1 shadow-xs">
+                                  <Package className="h-3 w-3 text-emerald-700" /> Master Consignment ({ord.childOrders.length} Add-on Order{ord.childOrders.length > 1 ? 's' : ''} Merged)
+                                </span>
+                              )}
                               {/* STORE TAKEAWAY BADGE COMMENTED OUT PER CLIENT REQUEST */}
                               {/* {(ord.shippingMethod === 'SELF_PICKUP' || ord.shippingCarrier === 'STORE_TAKEAWAY') && (
                                 <span className="rounded-full px-2.5 py-0.5 text-[11px] font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-300 flex items-center gap-1">
@@ -831,19 +865,32 @@ export default function Profile() {
                             )}
                           </div>
 
-                          {ord.trackingNumber && (
-                            <div className="flex items-center gap-2">
-                              <span className="font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg flex items-center gap-1">
-                                <Truck className="h-3.5 w-3.5 text-emerald-700" /> India Post: {ord.trackingNumber}
-                              </span>
-                              <Link
-                                to={`/track?trackingId=${ord.trackingNumber}`}
-                                className="rounded-lg bg-slate-900 text-white font-bold px-3 py-1 text-xs hover:bg-slate-800 flex items-center gap-1"
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {ord.status !== 'CANCELLED' && (
+                              <button
+                                type="button"
+                                onClick={() => generateAndPrintInvoice(ord)}
+                                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-bold text-slate-700 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-800 transition-colors shadow-xs"
                               >
-                                Track <ExternalLink className="h-3 w-3" />
-                              </Link>
-                            </div>
-                          )}
+                                <Download className="h-3.5 w-3.5 text-emerald-700" />
+                                <span>Tax Invoice (A4)</span>
+                              </button>
+                            )}
+
+                            {ord.trackingNumber && (
+                              <div className="flex items-center gap-2">
+                                <span className="font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg flex items-center gap-1">
+                                  <Truck className="h-3.5 w-3.5 text-emerald-700" /> India Post: {ord.trackingNumber}
+                                </span>
+                                <Link
+                                  to={`/track?trackingId=${ord.trackingNumber}`}
+                                  className="rounded-lg bg-slate-900 text-white font-bold px-3 py-1 text-xs hover:bg-slate-800 flex items-center gap-1"
+                                >
+                                  Track <ExternalLink className="h-3 w-3" />
+                                </Link>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     );
@@ -1147,9 +1194,80 @@ export default function Profile() {
             </div>
           )}
 
-          {/* 4. Techno Points Loyalty History & Terms */}
+          {/* 4. TechnoWallet & Techno Points Loyalty */}
           {activeTab === 'points' && (
             <div className="space-y-6">
+              {/* TechnoWallet Cash Balance Banner */}
+              <div className="rounded-2xl border border-emerald-300 bg-gradient-to-br from-emerald-950 via-slate-900 to-emerald-900 p-6 text-white shadow-md">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div className="flex items-center gap-3.5">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500 text-slate-950 shadow">
+                      <Wallet className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h2 className="text-xl font-black text-white">TechnoWallet Cash Balance</h2>
+                        <span className="rounded-full bg-emerald-400/20 border border-emerald-400/40 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-emerald-300">
+                          Direct Cash
+                        </span>
+                      </div>
+                      <p className="text-xs text-emerald-200/90 mt-0.5">
+                        Consolidated parcel delivery refunds & store credit with zero restrictions.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs text-emerald-300 block font-medium">Available Cash Balance</span>
+                    <span className="text-3xl font-black text-emerald-300">₹{technoWallet.toFixed(2)}</span>
+                  </div>
+                </div>
+
+                <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3 border-t border-emerald-800/60 pt-4 text-xs">
+                  <div className="rounded-xl bg-white/5 p-3 border border-white/10">
+                    <p className="font-extrabold text-emerald-300">⏳ No Expiry Date</p>
+                    <p className="text-[11px] text-slate-300 mt-1">Unlike promotional points, your TechnoWallet balance never expires.</p>
+                  </div>
+                  <div className="rounded-xl bg-white/5 p-3 border border-white/10">
+                    <p className="font-extrabold text-emerald-300">💯 100% Usable</p>
+                    <p className="text-[11px] text-slate-300 mt-1">Pay for any book or entire order. No minimum or maximum percentage limits.</p>
+                  </div>
+                  <div className="rounded-xl bg-white/5 p-3 border border-white/10">
+                    <p className="font-extrabold text-emerald-300">⚡ Stackable</p>
+                    <p className="text-[11px] text-slate-300 mt-1">Combine wallet cash with Techno Points and coupon promo discounts freely.</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* TechnoWallet Activity Ledger */}
+              {pointsData?.walletTransactions && pointsData.walletTransactions.length > 0 && (
+                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <h3 className="text-sm font-extrabold text-slate-900 mb-4 flex items-center gap-2">
+                    <Wallet className="h-4 w-4 text-emerald-700" /> TechnoWallet Cash Transactions
+                  </h3>
+                  <div className="space-y-3">
+                    {pointsData.walletTransactions.map((tx: any) => (
+                      <div key={tx.id} className="flex items-center justify-between border-b border-slate-100 pb-3 text-xs">
+                        <div>
+                          <p className="font-bold text-slate-900">{tx.description}</p>
+                          <p className="text-slate-400 text-[11px] mt-0.5">
+                            {new Date(tx.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <span className={`font-black text-sm ${tx.type === 'CREDIT' ? 'text-emerald-700' : 'text-slate-800'}`}>
+                            {tx.type === 'CREDIT' ? `+₹${Number(tx.amount).toFixed(2)}` : `-₹${Number(tx.amount).toFixed(2)}`}
+                          </span>
+                          <span className="block text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full mt-0.5">
+                            {tx.status}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Techno Points Loyalty Card */}
               <div className="rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-amber-100/50 p-6 shadow-sm flex flex-wrap items-center justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2">
@@ -1157,7 +1275,7 @@ export default function Profile() {
                     <h2 className="text-lg font-black text-amber-950">Techno Points Reward Program</h2>
                   </div>
                   <p className="text-xs text-amber-900/80 mt-1">
-                    Every ₹100 spent earns you 1 Techno Point (worth ₹1.00). Coins are valid for 1 full year from issuance!
+                    Every ₹100 spent earns you 1 Techno Point (worth ₹1.00). Valid for 1 full year from issuance.
                   </p>
                 </div>
                 <button
@@ -1168,7 +1286,7 @@ export default function Profile() {
                 </button>
               </div>
 
-              {/* Transactions Ledger */}
+              {/* Points Transactions Ledger */}
               <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                 <h3 className="text-sm font-extrabold text-slate-900 mb-4">Points Activity Ledger</h3>
                 {(!pointsData?.transactions || pointsData.transactions.length === 0) ? (
