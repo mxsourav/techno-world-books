@@ -408,8 +408,21 @@ export const campaignService = {
 };
 
 export const pricingService = {
-  calculate: (data: { items: { bookId: string; quantity: number }[]; couponCode?: string | null; userId?: string | null }) =>
-    api.post<any>('/pricing/calculate', data),
+  calculate: (data: {
+    items: { bookId: string; quantity: number }[];
+    couponCode?: string | null;
+    userId?: string | null;
+    email?: string;
+    userEmail?: string;
+    phone?: string;
+    pincode?: string;
+    addressId?: string;
+    address?: any;
+    shippingMethod?: string;
+    paymentMethod?: string;
+    pointsUsed?: number;
+    walletUsed?: number;
+  }) => api.post<any>('/pricing/calculate', data),
 };
 
 export const authService = {

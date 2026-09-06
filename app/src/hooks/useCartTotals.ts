@@ -2,7 +2,15 @@ import { useState, useEffect } from 'react';
 import { useStore } from '@/store/StoreContext';
 import { pricingService } from '@/services/api';
 
-export function useCartTotals(pincode?: string, addressId?: string, address?: any, shippingMethod: string = 'NORMAL_POST', paymentMethod: string = 'upi') {
+export function useCartTotals(
+  pincode?: string,
+  addressId?: string,
+  address?: any,
+  shippingMethod: string = 'NORMAL_POST',
+  paymentMethod: string = 'upi',
+  pointsUsed: number = 0,
+  walletUsed: number = 0
+) {
   const { cart, coupon, user } = useStore();
   const [pricing, setPricing] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -25,6 +33,10 @@ export function useCartTotals(pincode?: string, addressId?: string, address?: an
           couponDiscount: 0,
           totalAmount: 0,
           totalSavings: 0,
+          pointsUsed: 0,
+          pointsDiscount: 0,
+          walletUsed: 0,
+          walletDiscount: 0,
           couponCode: null,
           isValid: true,
           errors: []
@@ -49,7 +61,7 @@ export function useCartTotals(pincode?: string, addressId?: string, address?: an
 
         if (validCart?.length === 0) {
           setPricing({
-            items: [], subtotal: 0, mrpTotal: 0, shippingCharge: 0, codFee: 0, isShippingCalculated: false, shippingMessage: 'Enter pincode at address step', couponDiscount: 0, totalAmount: 0, totalSavings: 0, couponCode: null, isValid: true, errors: []
+            items: [], subtotal: 0, mrpTotal: 0, shippingCharge: 0, codFee: 0, isShippingCalculated: false, shippingMessage: 'Enter pincode at address step', couponDiscount: 0, totalAmount: 0, totalSavings: 0, pointsUsed: 0, pointsDiscount: 0, walletUsed: 0, walletDiscount: 0, couponCode: null, isValid: true, errors: []
           });
           setLoading(false);
           setIsUpdating(false);
@@ -83,6 +95,8 @@ export function useCartTotals(pincode?: string, addressId?: string, address?: an
           address: address || undefined,
           shippingMethod: shippingMethod,
           paymentMethod: paymentMethod === 'cod' ? 'COD' : (paymentMethod || 'UPI'),
+          pointsUsed: pointsUsed > 0 ? pointsUsed : undefined,
+          walletUsed: walletUsed > 0 ? walletUsed : undefined,
         };
 
         const res = await pricingService.calculate(payload);
@@ -111,7 +125,7 @@ export function useCartTotals(pincode?: string, addressId?: string, address?: an
       active = false;
       clearTimeout(timeout);
     };
-  }, [cart, coupon, user, pincode, addressId, JSON.stringify(address), shippingMethod, paymentMethod]);
+  }, [cart, coupon, user, pincode, addressId, JSON.stringify(address), shippingMethod, paymentMethod, pointsUsed, walletUsed]);
 
   const rawPromoCode = pricing?.promotionCode || pricing?.couponCode || null;
   const promoError = pricing?.promotionError || pricing?.couponError || null;
@@ -135,6 +149,12 @@ export function useCartTotals(pincode?: string, addressId?: string, address?: an
     parentShippingMethod: pricing?.parentShippingMethod || null,
     parentShippingCharge: pricing?.parentShippingCharge || 0,
     discount, 
+    pointsUsed: Number(pricing?.pointsUsed || 0),
+    pointsDiscount: Number(pricing?.pointsDiscount || 0),
+    walletUsed: Number(pricing?.walletUsed || 0),
+    walletDiscount: Number(pricing?.walletDiscount || 0),
+    userPointsBalance: pricing?.userPointsBalance,
+    userWalletBalance: pricing?.userWalletBalance,
     total: pricing?.totalAmount || 0, 
     coupon: rawPromoCode, 
     appliedCoupon: rawPromoCode,

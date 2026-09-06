@@ -14,7 +14,6 @@ import {
   User,
 } from 'lucide-react';
 import { blogService, analyticsService, getImageUrl } from '@/services/api';
-import { BLOG_POSTS } from '@/data/blog';
 import { BOOKS } from '@/data/books';
 import { BookRow } from '@/components/BookCard';
 import type { Book } from '@/types';
@@ -85,35 +84,17 @@ export function BlogList() {
       })
       .then((res) => {
         if (!isMounted) return;
-        if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
+        if (res?.success && Array.isArray(res.data)) {
+          // Strictly honour live database results - never show fake mock posts if database is empty or deleted
           setPosts(res.data);
-        } else if (res?.success && Array.isArray(res.data) && res.data.length === 0 && (selectedCategory !== 'All' || searchQuery)) {
-          setPosts([]);
         } else {
-          // Fallback to static mock data if API is empty or initial
-          let filtered = [...BLOG_POSTS];
-          if (selectedCategory !== 'All') {
-            filtered = filtered.filter((p) => p.category === selectedCategory);
-          }
-          if (searchQuery.trim()) {
-            const q = searchQuery.toLowerCase();
-            filtered = filtered.filter((p) => p.title.toLowerCase().includes(q) || p.excerpt.toLowerCase().includes(q));
-          }
-          setPosts(filtered);
+          setPosts([]);
         }
       })
       .catch((err) => {
         if (!isMounted) return;
-        console.warn('Live blog API unavailable, falling back to static mock data:', err);
-        let filtered = [...BLOG_POSTS];
-        if (selectedCategory !== 'All') {
-          filtered = filtered.filter((p) => p.category === selectedCategory);
-        }
-        if (searchQuery.trim()) {
-          const q = searchQuery.toLowerCase();
-          filtered = filtered.filter((p) => p.title.toLowerCase().includes(q) || p.excerpt.toLowerCase().includes(q));
-        }
-        setPosts(filtered);
+        console.warn('Live blog API error:', err);
+        setPosts([]);
       })
       .finally(() => {
         if (isMounted) setLoading(false);
@@ -124,11 +105,11 @@ export function BlogList() {
     };
   }, [selectedCategory, searchQuery]);
 
-  // Extract all distinct categories
+  // Extract all distinct categories strictly from actual published posts
   const categories = useMemo(() => {
     const fromApi = posts.map((p) => p.category).filter(Boolean);
-    const fromMock = BLOG_POSTS.map((p) => p.category).filter(Boolean);
-    return ['All', ...Array.from(new Set([...fromApi, ...fromMock]))];
+    if (fromApi.length === 0) return ['All'];
+    return ['All', ...Array.from(new Set(fromApi))];
   }, [posts]);
 
   return (
@@ -204,21 +185,27 @@ export function BlogList() {
           ))}
         </div>
       ) : posts.length === 0 ? (
-        <div className="mt-12 rounded-2xl border border-dashed border-slate-200 p-12 text-center">
+        <div className="mt-12 rounded-2xl border border-dashed border-slate-200 bg-white p-12 text-center shadow-sm">
           <BookOpen className="mx-auto h-12 w-12 text-slate-300" />
-          <h3 className="mt-3 text-base font-bold text-slate-800">No articles found</h3>
-          <p className="mt-1 text-sm text-slate-500">
-            Try adjusting your search query or selecting another category filter.
+          <h3 className="mt-3 text-base font-bold text-slate-800">
+            {selectedCategory !== 'All' || searchQuery ? 'No matching articles found' : 'No blog posts published yet'}
+          </h3>
+          <p className="mt-1 text-sm text-slate-500 max-w-md mx-auto">
+            {selectedCategory !== 'All' || searchQuery
+              ? 'Try adjusting your search keywords or resetting your category filter.'
+              : 'Our editorial desk is preparing new articles and recommendations. Check back soon!'}
           </p>
-          <button
-            onClick={() => {
-              setSelectedCategory('All');
-              setSearchQuery('');
-            }}
-            className="mt-4 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-700"
-          >
-            Reset Filters
-          </button>
+          {(selectedCategory !== 'All' || searchQuery) && (
+            <button
+              onClick={() => {
+                setSelectedCategory('All');
+                setSearchQuery('');
+              }}
+              className="mt-4 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-700 transition-colors"
+            >
+              Reset Filters
+            </button>
+          )}
         </div>
       ) : (
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -324,16 +311,13 @@ export function BlogPost() {
         if (res?.success && res.data) {
           setPost(res.data);
         } else {
-          // Fallback to static mock post
-          const fallback = BLOG_POSTS.find((p) => p.slug === slug);
-          setPost(fallback || null);
+          setPost(null);
         }
       })
       .catch((err) => {
         if (!isMounted) return;
-        console.warn('Failed to load post by slug from API, using fallback:', err);
-        const fallback = BLOG_POSTS.find((p) => p.slug === slug);
-        setPost(fallback || null);
+        console.warn('Failed to load post by slug from API:', err);
+        setPost(null);
       })
       .finally(() => {
         if (isMounted) setLoading(false);

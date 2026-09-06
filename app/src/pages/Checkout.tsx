@@ -51,6 +51,23 @@ export default function Checkout() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [placed, setPlaced] = useState<Order | null>(null);
 
+  // TechnoPoints & TechnoWallet Redemption State
+  const [availablePoints, setAvailablePoints] = useState<number>(0);
+  const [availableWallet, setAvailableWallet] = useState<number>(0);
+  const [usePoints, setUsePoints] = useState<boolean>(false);
+  const [customPoints, setCustomPoints] = useState<string>('');
+  const [useWallet, setUseWallet] = useState<boolean>(false);
+  const [customWallet, setCustomWallet] = useState<string>('');
+
+  useEffect(() => {
+    profileService.getPoints().then((res: any) => {
+      if (res.success && res.data) {
+        setAvailablePoints(res.data.technoPoints ?? 0);
+        setAvailableWallet(res.data.technoWallet ?? 0);
+      }
+    }).catch(() => {});
+  }, []);
+
   useEffect(() => {
     profileService.getAddresses().then((res: any) => {
       if (res.success && Array.isArray(res.data)) {
@@ -136,6 +153,12 @@ export default function Checkout() {
     };
   }, [fulfillmentMode, pickupForm, user, selectedAddressObj, form]);
 
+  const parsedPointsInput = customPoints.trim() === '' ? (usePoints ? availablePoints : 0) : Math.max(0, parseInt(customPoints, 10) || 0);
+  const effectivePointsUsed = usePoints ? Math.min(parsedPointsInput, availablePoints) : 0;
+
+  const parsedWalletInput = customWallet.trim() === '' ? (useWallet ? availableWallet : 0) : Math.max(0, parseFloat(customWallet) || 0);
+  const effectiveWalletUsed = useWallet ? Math.min(parsedWalletInput, availableWallet) : 0;
+
   const {
     items,
     subtotal,
@@ -151,6 +174,11 @@ export default function Checkout() {
     parentShippingMethod,
     parentShippingCharge,
     discount,
+    pointsUsed,
+    pointsDiscount,
+    walletDiscount,
+    userPointsBalance,
+    userWalletBalance,
     total,
     appliedCoupon,
     couponError,
@@ -158,7 +186,24 @@ export default function Checkout() {
     errors,
     loading,
     error,
-  } = useCartTotals(activePincode, selectedAddressObj?.id, effectivePricingAddress, effectiveShippingMethod, payment);
+  } = useCartTotals(
+    activePincode,
+    selectedAddressObj?.id,
+    effectivePricingAddress,
+    effectiveShippingMethod,
+    payment,
+    effectivePointsUsed,
+    effectiveWalletUsed
+  );
+
+  useEffect(() => {
+    if (userPointsBalance !== undefined && userPointsBalance > availablePoints) {
+      setAvailablePoints(userPointsBalance);
+    }
+    if (userWalletBalance !== undefined && userWalletBalance > availableWallet) {
+      setAvailableWallet(userWalletBalance);
+    }
+  }, [userPointsBalance, userWalletBalance, availablePoints, availableWallet]);
 
   const effectiveDeliveryOptions = useMemo(() => {
     if (deliveryOptions && Array.isArray(deliveryOptions) && deliveryOptions.length > 0) {
@@ -474,14 +519,16 @@ export default function Checkout() {
       if (!collectorPhone || collectorPhone.length < 10) {
         return toast.error("Please enter a valid 10-digit mobile phone number for pickup notifications");
       }
-      if (payment === 'cod') {
-        return toast.error("Cash on Delivery is not available for Store Takeaway. Please pay online via UPI, Card, or Net Banking.");
-      }
-      if (payment === 'upi' && !/^[\w.\-]+@[a-zA-Z]+$/.test(upiId)) {
-        return toast.error('Enter your UPI ID (e.g. name@upi)');
-      }
-      if (payment === 'card' && (card.number.replace(/\s/g, '').length < 16 || !card.expiry || card.cvv.length < 3)) {
-        return toast.error('Enter valid card details');
+      if (total > 0) {
+        if (payment === 'cod') {
+          return toast.error("Cash on Delivery is not available for Store Takeaway. Please pay online via UPI, Card, or Net Banking.");
+        }
+        if (payment === 'upi' && !/^[\w.\-]+@[a-zA-Z]+$/.test(upiId)) {
+          return toast.error('Enter your UPI ID (e.g. name@upi)');
+        }
+        if (payment === 'card' && (card.number.replace(/\s/g, '').length < 16 || !card.expiry || card.cvv.length < 3)) {
+          return toast.error('Enter valid card details');
+        }
       }
 
       setIsSubmitting(true);
@@ -502,8 +549,10 @@ export default function Checkout() {
             state: 'West Bengal',
             pincode: '700007',
           },
-          paymentMethod: PAYMENTS.find(p => p.id === payment)?.name || 'UPI',
+          paymentMethod: total === 0 ? 'REWARDS_AND_WALLET' : (PAYMENTS.find(p => p.id === payment)?.name || 'UPI'),
           couponCode: appliedCoupon ? appliedCoupon : undefined,
+          pointsUsed: effectivePointsUsed > 0 ? effectivePointsUsed : undefined,
+          walletUsed: effectiveWalletUsed > 0 ? effectiveWalletUsed : undefined,
         };
 
         const res = await orderService.create(orderPayload);
@@ -610,11 +659,13 @@ export default function Checkout() {
       address = { id: 'addr_' + Date.now(), ...form, email: userEmail };
       addAddress(address);
     }
-    if (payment === 'upi' && !/^[\w.\-]+@[a-zA-Z]+$/.test(upiId)) {
-      return toast.error('Enter your UPI ID (e.g. name@upi)');
-    }
-    if (payment === 'card' && (card.number.replace(/\s/g, '').length < 16 || !card.expiry || card.cvv.length < 3)) {
-      return toast.error('Enter valid card details');
+    if (total > 0) {
+      if (payment === 'upi' && !/^[\w.\-]+@[a-zA-Z]+$/.test(upiId)) {
+        return toast.error('Enter your UPI ID (e.g. name@upi)');
+      }
+      if (payment === 'card' && (card.number.replace(/\s/g, '').length < 16 || !card.expiry || card.cvv.length < 3)) {
+        return toast.error('Enter valid card details');
+      }
     }
 
     setIsSubmitting(true);
@@ -635,9 +686,11 @@ export default function Checkout() {
           state: address.state || form.state || 'West Bengal',
           pincode: address.pincode || form.pincode || '700001',
         },
-        paymentMethod: payment === 'cod' ? 'COD' : (PAYMENTS.find(p => p.id === payment)?.name || 'UPI'),
+        paymentMethod: total === 0 ? 'REWARDS_AND_WALLET' : (payment === 'cod' ? 'COD' : (PAYMENTS.find(p => p.id === payment)?.name || 'UPI')),
         couponCode: appliedCoupon ? appliedCoupon : undefined,
         shippingMethod,
+        pointsUsed: effectivePointsUsed > 0 ? effectivePointsUsed : undefined,
+        walletUsed: effectiveWalletUsed > 0 ? effectiveWalletUsed : undefined,
       };
 
       const res = await orderService.create(orderPayload);
@@ -665,7 +718,7 @@ export default function Checkout() {
         window.scrollTo(0, 0);
       };
 
-      if (payment !== 'cod' && serverOrder.razorpayOrderId) {
+      if (total > 0 && payment !== 'cod' && serverOrder.razorpayOrderId) {
         const { loadRazorpay } = await import('@/utils/loadRazorpay');
         const loaded = await loadRazorpay();
         if (!loaded) {
@@ -1279,10 +1332,164 @@ export default function Checkout() {
               <div className="mb-4 flex items-center justify-between">
                 <p className="flex items-center gap-2 text-sm font-extrabold uppercase tracking-wide text-slate-800">
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-700 text-xs text-white">3</span>
-                  <CreditCard className="h-4 w-4 text-emerald-700" /> Payment Method
+                  <CreditCard className="h-4 w-4 text-emerald-700" /> Payment Method & Rewards
                 </p>
                 <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-bold text-emerald-800">Active Step</span>
               </div>
+
+              {/* TechnoRewards & TechnoWallet Redemption Box */}
+              <div className="mb-5 rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50/60 via-white to-emerald-50/40 p-4 shadow-sm">
+                <div className="flex items-center justify-between border-b border-amber-100/80 pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-400 text-slate-950 font-black text-xs shadow-sm">
+                      <Sparkles className="h-4 w-4" />
+                    </span>
+                    <div>
+                      <h4 className="text-xs font-extrabold text-slate-900 uppercase tracking-wide">Redeem Loyalty Coins & Wallet Cash</h4>
+                      <p className="text-[11px] text-slate-500">Apply your balance directly towards this order subtotal & delivery</p>
+                    </div>
+                  </div>
+                  <span className="rounded-full bg-emerald-100 border border-emerald-300 px-2 py-0.5 text-[10px] font-black text-emerald-800">
+                    100% STACKABLE
+                  </span>
+                </div>
+
+                <div className="mt-3.5 grid gap-3 sm:grid-cols-2">
+                  {/* Option 1: TechnoPoints Coins */}
+                  <div className={`rounded-xl border p-3 transition-all ${usePoints ? 'border-amber-400 bg-amber-50/90 shadow-sm' : 'border-slate-200 bg-white'}`}>
+                    <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={usePoints}
+                        disabled={availablePoints <= 0}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setUsePoints(checked);
+                          if (checked && !customPoints) {
+                            setCustomPoints(String(availablePoints));
+                          }
+                        }}
+                        className="mt-0.5 h-4 w-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="text-xs font-bold text-slate-900 flex items-center gap-1">
+                            🪙 TechnoPoints
+                          </span>
+                          <span className="rounded bg-amber-200 px-1.5 py-0.2 text-[10px] font-black text-amber-900">
+                            {availablePoints} pts
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 mt-0.5">1 Point = ₹1.00 instant discount</p>
+                      </div>
+                    </label>
+
+                    {usePoints && (
+                      <div className="mt-2.5 pt-2 border-t border-amber-200/80">
+                        <div className="flex items-center gap-1.5">
+                          <div className="relative flex-1">
+                            <input
+                              type="number"
+                              min="0"
+                              max={availablePoints}
+                              value={customPoints}
+                              onChange={(e) => setCustomPoints(e.target.value)}
+                              placeholder={`Max ${availablePoints}`}
+                              className="w-full rounded-lg border border-amber-300 bg-white px-2.5 py-1 text-xs font-bold text-slate-900 outline-none focus:ring-2 focus:ring-amber-500/20"
+                            />
+                            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-slate-400">pts</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setCustomPoints(String(availablePoints))}
+                            className="rounded-lg bg-amber-200 px-2 py-1 text-[11px] font-extrabold text-amber-950 hover:bg-amber-300 transition-colors shrink-0"
+                          >
+                            Max
+                          </button>
+                        </div>
+                        {effectivePointsUsed > 0 && (
+                          <p className="mt-1 text-[11px] font-bold text-emerald-700">
+                            ✓ Saving ₹{effectivePointsUsed}.00 with coins
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Option 2: TechnoWallet Cash */}
+                  <div className={`rounded-xl border p-3 transition-all ${useWallet ? 'border-emerald-400 bg-emerald-50/90 shadow-sm' : 'border-slate-200 bg-white'}`}>
+                    <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={useWallet}
+                        disabled={availableWallet <= 0}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setUseWallet(checked);
+                          if (checked && !customWallet) {
+                            setCustomWallet(String(availableWallet));
+                          }
+                        }}
+                        className="mt-0.5 h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="text-xs font-bold text-slate-900 flex items-center gap-1">
+                            💳 TechnoWallet
+                          </span>
+                          <span className="rounded bg-emerald-200 px-1.5 py-0.2 text-[10px] font-black text-emerald-900">
+                            ₹{availableWallet.toFixed(2)}
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 mt-0.5">₹1 Cash = ₹1.00 instant deduction</p>
+                      </div>
+                    </label>
+
+                    {useWallet && (
+                      <div className="mt-2.5 pt-2 border-t border-emerald-200/80">
+                        <div className="flex items-center gap-1.5">
+                          <div className="relative flex-1">
+                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">₹</span>
+                            <input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              max={availableWallet}
+                              value={customWallet}
+                              onChange={(e) => setCustomWallet(e.target.value)}
+                              placeholder={`Max ${availableWallet.toFixed(2)}`}
+                              className="w-full rounded-lg border border-emerald-300 bg-white pl-5 pr-2.5 py-1 text-xs font-bold text-slate-900 outline-none focus:ring-2 focus:ring-emerald-500/20"
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setCustomWallet(String(availableWallet))}
+                            className="rounded-lg bg-emerald-200 px-2 py-1 text-[11px] font-extrabold text-emerald-950 hover:bg-emerald-300 transition-colors shrink-0"
+                          >
+                            Max
+                          </button>
+                        </div>
+                        {effectiveWalletUsed > 0 && (
+                          <p className="mt-1 text-[11px] font-bold text-emerald-700">
+                            ✓ Using ₹{effectiveWalletUsed.toFixed(2)} wallet cash
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* If order is completely paid with Rewards & Wallet */}
+              {total === 0 ? (
+                <div className="my-3 rounded-xl border border-emerald-300 bg-emerald-50/90 p-4 text-center">
+                  <CheckCircle2 className="mx-auto h-8 w-8 text-emerald-600 mb-1" />
+                  <p className="text-sm font-extrabold text-emerald-950">🎉 Order 100% Covered by TechnoRewards & Wallet!</p>
+                  <p className="text-xs text-emerald-800 mt-1">
+                    Zero out-of-pocket payable (₹0.00). No UPI or credit card required.
+                  </p>
+                </div>
+              ) : null}
               <div className="space-y-2">
                 {PAYMENTS.map((p) => {
                   const isCod = p.id === 'cod';
@@ -1348,6 +1555,8 @@ export default function Checkout() {
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" /> Processing Order...
                     </>
+                  ) : total === 0 ? (
+                    'Confirm Free Order with Rewards (₹0.00)'
                   ) : payment === 'cod' ? (
                     `Place Order · ${formatINR(total)}`
                   ) : (
@@ -1386,6 +1595,19 @@ export default function Checkout() {
               </div>
             ))}
           </div>
+
+          {/* Quick Rewards balance reminder */}
+          {(availablePoints > 0 || availableWallet > 0) && (
+            <div className="mb-3 rounded-lg bg-gradient-to-r from-amber-50 to-emerald-50 border border-amber-200/70 p-2 text-xs flex items-center justify-between">
+              <span className="flex items-center gap-1 text-[11px] font-bold text-slate-700">
+                <Sparkles className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+                <span>Rewards available:</span>
+              </span>
+              <span className="font-extrabold text-[11px] text-slate-800">
+                🪙 {availablePoints} pts · 💳 ₹{availableWallet.toFixed(0)}
+              </span>
+            </div>
+          )}
 
           {/* Coupon Code Section in Checkout */}
           <div className="my-3 border-b border-dashed border-slate-200 pb-3">
@@ -1431,6 +1653,22 @@ export default function Checkout() {
               <div className="flex justify-between">
                 <dt className="text-slate-500">Coupon discount</dt>
                 <dd className="font-bold text-emerald-700">− {formatINR(discount)}</dd>
+              </div>
+            )}
+            {pointsDiscount > 0 && (
+              <div className="flex justify-between items-center text-amber-800">
+                <dt className="flex items-center gap-1 font-semibold text-xs">
+                  🪙 TechnoPoints ({pointsUsed} pts)
+                </dt>
+                <dd className="font-bold text-amber-900">− {formatINR(pointsDiscount)}</dd>
+              </div>
+            )}
+            {walletDiscount > 0 && (
+              <div className="flex justify-between items-center text-emerald-700">
+                <dt className="flex items-center gap-1 font-semibold text-xs">
+                  💳 TechnoWallet Cash
+                </dt>
+                <dd className="font-bold text-emerald-800">− {formatINR(walletDiscount)}</dd>
               </div>
             )}
             <div className="flex justify-between items-center">
