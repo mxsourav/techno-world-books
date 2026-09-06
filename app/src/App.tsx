@@ -75,6 +75,8 @@ function KeepAlivePing() {
   return null;
 }
 
+
+// This is the customer layout that wraps around the customer-facing pages, including the header, footer, and a floating WhatsApp support button.
 function CustomerLayout() {
   return (
     <>
