@@ -139,18 +139,20 @@ export default function Product() {
       });
       if (res.success) {
         toast.success('Thank you! Your review has been posted successfully.');
+        const isVerified = Boolean(res.data?.isVerified);
         setLiveReviews(prev => [
           {
             id: res.data?.id || String(Date.now()),
-            userName: reviewerName.trim() || 'Verified Reader',
-            user: reviewerName.trim() || 'Verified Reader',
+            userName: reviewerName.trim() || 'Reader',
+            user: reviewerName.trim() || 'Reader',
             rating: reviewRating,
             title: reviewTitle.trim() || '',
             content: reviewComment.trim(),
             body: reviewComment.trim(),
             date: new Date().toISOString(),
             createdAt: new Date().toISOString(),
-            verified: true,
+            verified: isVerified,
+            isVerified: isVerified,
           },
           ...prev,
         ]);
@@ -167,15 +169,16 @@ export default function Product() {
         setLiveReviews(prev => [
           {
             id: String(Date.now()),
-            userName: reviewerName.trim() || 'Verified Reader',
-            user: reviewerName.trim() || 'Verified Reader',
+            userName: reviewerName.trim() || 'Reader',
+            user: reviewerName.trim() || 'Reader',
             rating: reviewRating,
             title: reviewTitle.trim() || '',
             content: reviewComment.trim(),
             body: reviewComment.trim(),
             date: new Date().toISOString(),
             createdAt: new Date().toISOString(),
-            verified: true,
+            verified: false,
+            isVerified: false,
           },
           ...prev,
         ]);
@@ -184,7 +187,7 @@ export default function Product() {
         setReviewRating(5);
         setShowReviewModal(false);
       } else {
-        setReviewError(err?.message || 'Failed to submit review');
+        setReviewError(err?.message || 'Error submitting review. Please try again.');
         toast.error(err?.message || 'Failed to submit review');
       }
     } finally {
@@ -307,49 +310,12 @@ export default function Product() {
     { type: 'back', title: 'Back Cover', subtitle: 'Features & Syllabus' }
   ];
 
-  // Dynamic reviews combined with fallback
+  // Real reviews from database
   const reviewsList = liveReviews.length > 0 
     ? liveReviews 
     : (Array.isArray(book.reviews) && book.reviews.length > 0 
         ? book.reviews 
-        : [
-            {
-              id: '1',
-              userName: 'Joydip Chakraborty',
-              user: 'Joydip Chakraborty',
-              rating: 5,
-              title: 'Best question bank for this year',
-              body: 'Covers the full syllabus with unit-wise MCQs, detailed explanations, and 2025 solved papers. Highly recommended!',
-              content: 'Covers the full syllabus with unit-wise MCQs, detailed explanations, and 2025 solved papers. Highly recommended!',
-              date: '2026-08-12T00:00:00.000Z',
-              createdAt: '2026-08-12T00:00:00.000Z',
-              verified: true
-            },
-            {
-              id: '2',
-              userName: 'Priyanka Sen',
-              user: 'Priyanka Sen',
-              rating: 4,
-              title: 'Genuine copy and fast delivery',
-              body: 'Print quality is crisp and clear. Delivery from Techno World was fast within 2 days to Kolkata.',
-              content: 'Print quality is crisp and clear. Delivery from Techno World was fast within 2 days to Kolkata.',
-              date: '2026-07-28T00:00:00.000Z',
-              createdAt: '2026-07-28T00:00:00.000Z',
-              verified: true
-            },
-            {
-              id: '3',
-              userName: 'Suman Banerjee',
-              user: 'Suman Banerjee',
-              rating: 5,
-              title: 'Accurate solutions & high score practice',
-              body: 'Great compilation of high-yield questions. Ideal for scoring top ranks in the examination.',
-              content: 'Great compilation of high-yield questions. Ideal for scoring top ranks in the examination.',
-              date: '2026-06-19T00:00:00.000Z',
-              createdAt: '2026-06-19T00:00:00.000Z',
-              verified: true
-            }
-          ]);
+        : []);
 
   const displayQuestions = liveQuestions.length > 0
     ? liveQuestions
@@ -1149,29 +1115,51 @@ export default function Product() {
                     </div>
 
                     <div className="space-y-4">
-                      {reviewsList.map((r: any) => (
-                        <div key={r.id} className="border-b border-slate-100 pb-3 last:border-0">
-                          <div className="flex items-center gap-2">
-                            <div className="flex items-center gap-1 rounded bg-emerald-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
-                              <span>{r.rating}</span>
-                              <Star className="h-2.5 w-2.5 fill-white" />
-                            </div>
-                            {r.title && <span className="text-xs font-bold text-slate-900">{r.title}</span>}
-                          </div>
-                          
-                          <p className="mt-1.5 text-xs text-slate-700 leading-relaxed font-normal">{r.content || r.body}</p>
-                          
-                          <div className="mt-2 flex items-center gap-2 text-[10px] text-slate-400">
-                            <span className="font-bold text-slate-800">{r.userName || r.user || 'Verified Buyer'}</span>
-                            <span>•</span>
-                            <span className="flex items-center gap-0.5 text-emerald-700 font-bold">
-                              <Check className="h-3 w-3" /> Certified Buyer
-                            </span>
-                            <span>•</span>
-                            <span>{new Date(r.createdAt || r.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                          </div>
+                      {reviewsList.length === 0 ? (
+                        <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/50 p-6 text-center">
+                          <p className="text-sm font-semibold text-slate-700">No reviews yet for this book</p>
+                          <p className="mt-1 text-xs text-slate-500">Have you read this book? Share your thoughts and help fellow students!</p>
+                          <button
+                            type="button"
+                            onClick={() => setShowReviewModal(true)}
+                            className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition-colors"
+                          >
+                            <Star className="h-3.5 w-3.5 fill-white" />
+                            Write a Review
+                          </button>
                         </div>
-                      ))}
+                      ) : (
+                        reviewsList.map((r: any) => {
+                          const isVerifiedBuyer = Boolean(r.isVerified || r.verified);
+                          return (
+                            <div key={r.id} className="border-b border-slate-100 pb-3 last:border-0">
+                              <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1 rounded bg-emerald-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                                  <span>{r.rating}</span>
+                                  <Star className="h-2.5 w-2.5 fill-white" />
+                                </div>
+                                {r.title && <span className="text-xs font-bold text-slate-900">{r.title}</span>}
+                              </div>
+                              
+                              <p className="mt-1.5 text-xs text-slate-700 leading-relaxed font-normal">{r.content || r.body}</p>
+                              
+                              <div className="mt-2 flex items-center gap-2 text-[10px] text-slate-400">
+                                <span className="font-bold text-slate-800">{r.userName || r.user || 'Reader'}</span>
+                                {isVerifiedBuyer && (
+                                  <>
+                                    <span>•</span>
+                                    <span className="inline-flex items-center gap-0.5 text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200/60 text-[10px]">
+                                      <Check className="h-3 w-3 text-emerald-600 stroke-[3]" /> Verified Buyer
+                                    </span>
+                                  </>
+                                )}
+                                <span>•</span>
+                                <span>{new Date(r.createdAt || r.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
                     </div>
                   </div>
                 </div>
