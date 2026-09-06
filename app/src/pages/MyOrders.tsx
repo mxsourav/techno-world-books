@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
-import { Package, Truck, CheckCircle2, XCircle, Clock, ExternalLink, Store, CalendarCheck, Download, Loader2, FileText } from 'lucide-react';
+import { Package, Truck, CheckCircle2, XCircle, Clock, ExternalLink, Store, CalendarCheck, Download, Loader2 } from 'lucide-react';
 import { orderService } from '@/services/api';
 import { formatINR } from '@/utils/helpers';
 import { downloadOrderInvoice } from '@/utils/generateInvoice';
