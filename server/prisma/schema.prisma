@@ -19,6 +19,7 @@ model User {
   phone               String?
   technoPoints        Int                  @default(0)
   pendingPoints       Int                  @default(0)
+  technoWallet        Float                @default(0)
   tokenVersion        Int                  @default(1)
   failedLogins        Int                  @default(0)
   lockedUntil         DateTime?
@@ -31,7 +32,9 @@ model User {
   notifications       Notification[]
   orders              Order[]
   pointTransactions   PointTransaction[]
+  walletTransactions  WalletTransaction[]
   reviews             Review[]
+  questions           BookQuestion[]
   savedPaymentMethods SavedPaymentMethod[]
   sessions            Session[]
   wishlistItems       WishlistItem[]
@@ -115,6 +118,7 @@ model Book {
   inventoryHistory InventoryHistory[]
   orderItems       OrderItem[]
   reviews          Review[]
+  questions        BookQuestion[]
   wishlistItems    WishlistItem[]
   authors          Author[]           @relation("AuthorToBook")
   subjects         Subject[]          @relation("BookToSubject")
@@ -248,17 +252,34 @@ model Order {
   promotionId     String?
   trackingNumber  String?
   shippingCarrier String?
+  shippingMethod  String?
+  customerEmail   String?
+  pickupName      String?
+  pickupPhone     String?
+  pickupEmail     String?
+  pickupSlots     String?       @db.Text
+  selectedPickupSlot String?
+  pickupStatus    String?       @default("NONE")
   notes           String?       @db.Text
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  address         Address?      @relation(fields: [addressId], references: [id])
-  promotion       Promotion?    @relation(fields: [promotionId], references: [id])
-  user            User          @relation(fields: [userId], references: [id])
-  items           OrderItem[]
+  invoiceNumber      String?   @unique
+  invoiceGeneratedAt DateTime?
+  parentOrderId      String?
+  isMerged           Boolean       @default(false)
+  mergedAt           DateTime?
+  shippingRefunded   Float         @default(0)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  address            Address?      @relation(fields: [addressId], references: [id])
+  promotion          Promotion?    @relation(fields: [promotionId], references: [id])
+  user               User          @relation(fields: [userId], references: [id])
+  parentOrder        Order?        @relation("OrderHierarchy", fields: [parentOrderId], references: [id])
+  childOrders        Order[]       @relation("OrderHierarchy")
+  items              OrderItem[]
 
   @@index([userId])
   @@index([status])
   @@index([orderNumber])
+  @@index([parentOrderId])
   @@index([addressId], map: "Order_addressId_fkey")
   @@index([promotionId], map: "Order_promotionId_fkey")
 }
@@ -270,7 +291,7 @@ model OrderItem {
   quantity        Int
   priceAtPurchase Float
   createdAt       DateTime @default(now())
-  book            Book     @relation(fields: [bookId], references: [id])
+  book            Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
   order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([orderId])
@@ -279,19 +300,43 @@ model OrderItem {
 
 model Review {
   id         String   @id @default(uuid())
-  userId     String
+  userId     String?
   bookId     String
+  userName   String?
+  userEmail  String?
   rating     Int
   title      String?
-  content    String?  @db.Text
-  isApproved Boolean  @default(false)
+  content    String   @db.Text
+  isVerified Boolean  @default(false)
+  isApproved Boolean  @default(true)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   book       Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, bookId])
   @@index([bookId])
+  @@index([userId])
+}
+
+model BookQuestion {
+  id         String    @id @default(uuid())
+  bookId     String
+  userId     String?
+  userName   String?
+  userEmail  String?
+  question   String    @db.Text
+  answer     String?   @db.Text
+  answeredBy String?
+  answeredAt DateTime?
+  status     String    @default("PENDING")
+  isApproved Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  book       Book      @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  user       User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([bookId])
+  @@index([status])
 }
 
 model WishlistItem {
@@ -497,6 +542,21 @@ model PointTransaction {
   @@index([userId])
 }
 
+model WalletTransaction {
+  id          String   @id @default(uuid())
+  userId      String
+  orderId     String?
+  amount      Float
+  type        String   // "CREDIT" | "DEBIT"
+  status      String   @default("COMPLETED")
+  description String?  @db.Text
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([orderId])
+}
+
 model SystemSetting {
   id        String   @id @default(uuid())
   key       String   @unique
@@ -569,6 +629,19 @@ enum ActivityAction {
   IMPORT
   EXPORT
   SETTINGS_CHANGE
+}
+
+model SearchLog {
+  id             String   @id @default(uuid())
+  query          String
+  userId         String?
+  resultsCount   Int      @default(0)
+  source         String?  @default("instant")
+  matchedBookIds String?  @db.Text
+  createdAt      DateTime @default(now())
+
+  @@index([query])
+  @@index([createdAt])
 }
 
 

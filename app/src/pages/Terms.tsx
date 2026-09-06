@@ -130,7 +130,7 @@ export default function Terms() {
         <section className="space-y-3">
           <h2 className="text-lg font-bold text-slate-900">5. Pricing, Shipping Charges & COD Handling Fee</h2>
           <ul className="list-disc pl-5 space-y-1.5 text-slate-600">
-            <li><b>Standard Delivery:</b> Flat ₹69 for domestic orders below ₹799. Orders of ₹799 and above qualify for <b>FREE Standard Delivery</b> nationwide.</li>
+            <li><b>Standard Delivery:</b> Flat ₹69 for domestic orders below ₹999. Orders of ₹999 and above qualify for <b>FREE Standard Delivery</b> nationwide.</li>
             <li><b>Speed Post:</b> Flat ₹199 premium express rate nationwide via India Post.</li>
             <li><b>Express Delivery:</b> Flat ₹149 same-day on-demand delivery for eligible Kolkata and Howrah pincodes.</li>
             <li><b>Cash on Delivery (COD):</b> An additional handling fee of <b>₹20</b> is applicable to all COD orders to cover courier cash processing.</li>

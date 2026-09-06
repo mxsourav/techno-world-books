@@ -10,15 +10,13 @@ services:
     region: singapore
     plan: free
     rootDir: server
-    buildCommand: npm install --include=dev && npx prisma generate && npx prisma db push && npx tsx prisma/seed.ts && npm run build
+    buildCommand: npm install --include=dev && npx prisma generate && npm run build
     startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: "5000"
-      - key: DATABASE_URL
-        value: file:./dev.db
       - key: JWT_ACCESS_SECRET
         generateValue: true
       - key: JWT_REFRESH_SECRET

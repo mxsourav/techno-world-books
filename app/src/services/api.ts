@@ -1,4 +1,22 @@
-const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://techno-world-api-qw4j.onrender.com/api/v1' : 'http://localhost:5000/api/v1');
+const getApiUrl = (): string => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  // If loaded in browser over HTTPS, never use insecure http:// (blocked by browser as Mixed Content)
+  if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
+    if (envUrl && envUrl.startsWith('https://')) {
+      return envUrl;
+    }
+    return 'https://techno-world-api-qw4j.onrender.com/api/v1';
+  }
+  if (import.meta.env.PROD) {
+    if (envUrl && envUrl.startsWith('https://')) {
+      return envUrl;
+    }
+    return 'https://techno-world-api-qw4j.onrender.com/api/v1';
+  }
+  return envUrl || 'http://localhost:5000/api/v1';
+};
+
+const API_URL = getApiUrl();
 
 export const getImageUrl = (path?: string) => {
   if (!path) return '';
@@ -80,6 +98,7 @@ async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Re
   }
 
   const mergedOptions: RequestInit = {
+    cache: 'no-store',
     ...options,
     headers,
     credentials: 'include',
@@ -328,6 +347,10 @@ export const orderService = {
     api.post<any>(`/orders/${orderId}/confirm-pickup-slot`, { selectedSlot }),
   markOrderCollected: (orderId: string) =>
     api.post<any>(`/orders/admin/${orderId}/mark-collected`),
+  getMergeCandidates: (orderId: string) =>
+    api.get<any>(`/orders/admin/${orderId}/merge-candidates`),
+  mergeChildOrder: (data: { childOrderId: string; parentOrderId: string }) =>
+    api.post<any>('/orders/admin/merge-child-order', data),
 };
 
 export const mediaService = {
@@ -436,4 +459,138 @@ export const shippingService = {
   getShippingLabel: (orderId: string) => api.get<any>(`/shipping/label/${orderId}`),
 };
 
+export const reviewService = {
+  getReviews: (params?: { bookId?: string; limit?: number; page?: number }) =>
+    api.get<any[]>('/reviews', params as any),
+  createReview: (data: {
+    bookId: string;
+    rating: number;
+    title?: string;
+    content: string;
+    userName?: string;
+    userEmail?: string;
+  }) => api.post<any>('/reviews', data),
+  getAdminReviews: (params?: { search?: string; rating?: number; status?: string }) =>
+    api.get<any[]>('/reviews/admin', params as any),
+  adminCreateReview: (data: {
+    bookId: string;
+    rating: number;
+    title?: string;
+    content: string;
+    userName?: string;
+    userEmail?: string;
+    isVerified?: boolean;
+    createdAt?: string;
+  }) => api.post<any>('/reviews/admin', data),
+  updateReviewStatus: (id: string, isApproved: boolean) =>
+    api.patch<any>(`/reviews/admin/${id}/status`, { isApproved }),
+  toggleReviewVerified: (id: string, isVerified?: boolean) =>
+    api.patch<any>(`/reviews/admin/${id}/verify`, { isVerified }),
+  deleteReview: (id: string) =>
+    api.delete<any>(`/reviews/admin/${id}`),
+  clearOldReviews: (hours = 24) =>
+    api.post<any>('/reviews/admin/clear-old', { hours }),
+};
+
+export const questionService = {
+  getQuestions: (params?: { bookId?: string; limit?: number; page?: number }) =>
+    api.get<any[]>('/questions', params as any),
+  askQuestion: (data: {
+    bookId: string;
+    question: string;
+    userName?: string;
+    userEmail?: string;
+  }) => api.post<any>('/questions', data),
+  getAdminQuestions: (params?: { status?: string; search?: string }) =>
+    api.get<any[]>('/questions/admin', params as any),
+  answerQuestion: (id: string, data: { answer: string; answeredBy?: string }) =>
+    api.patch<any>(`/questions/admin/${id}/answer`, data),
+  deleteQuestion: (id: string) =>
+    api.delete<any>(`/questions/admin/${id}`),
+  clearOldQuestions: (hours = 24) =>
+    api.post<any>('/questions/admin/clear-old', { hours }),
+};
+
+export const paymentService = {
+  getOverview: () => api.get<any>('/payments/overview'),
+  getTransactions: (params?: { status?: string; method?: string; search?: string; page?: number; limit?: number }) =>
+    api.get<any[]>('/payments/transactions', params as any),
+  updatePaymentStatus: (orderId: string, data: {
+    paymentStatus: 'PAID' | 'PENDING' | 'FAILED' | 'REFUNDED';
+    paymentId?: string;
+    paymentMethod?: string;
+    refundAmount?: number;
+    refundReason?: string;
+    notes?: string;
+  }) => api.patch<any>(`/payments/${orderId}/status`, data),
+};
+
+export const invoiceService = {
+  // Customer download invoice PDF
+  downloadInvoice: async (orderId: string, filename?: string): Promise<void> => {
+    const res = await fetchWithAuth(`${API_URL}/invoices/${orderId}/download`);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || 'Failed to download invoice');
+    }
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename || `Invoice-${orderId}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  },
+
+  // Admin download single order invoice PDF
+  adminDownloadInvoice: async (orderId: string, filename?: string): Promise<void> => {
+    const res = await fetchWithAuth(`${API_URL}/invoices/admin/${orderId}/download`);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || 'Failed to download invoice');
+    }
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename || `Invoice-${orderId}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  },
+
+  // Admin manually generate invoice for an order
+  adminGenerateInvoice: (orderId: string) =>
+    api.post<any>(`/invoices/admin/${orderId}/generate`),
+
+  // Admin batch generate invoices
+  adminBatchGenerate: () =>
+    api.post<{ generated: number; errors: string[] }>('/invoices/admin/batch-generate'),
+
+  // Admin batch download merged PDF
+  adminBatchDownload: async (orderIds: string[], filename?: string): Promise<void> => {
+    const res = await fetchWithAuth(`${API_URL}/invoices/admin/batch-download`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderIds }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || 'Failed to download batch invoices');
+    }
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const dateStr = new Date().toISOString().slice(0, 10);
+    a.download = filename || `Invoices-Batch-${dateStr}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  },
+};
 

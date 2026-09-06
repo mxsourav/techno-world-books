@@ -22,7 +22,7 @@ export default function ShippingPolicy() {
             <Package className="h-4 w-4 text-emerald-600" />
             <span>Standard Delivery</span>
           </div>
-          <p className="text-base font-extrabold text-emerald-700">₹69 <span className="text-[11px] font-normal text-slate-500">(FREE ₹799+)</span></p>
+          <p className="text-base font-extrabold text-emerald-700">₹69 <span className="text-[11px] font-normal text-slate-500">(FREE ₹999+)</span></p>
           <p className="text-[11px] text-slate-600 leading-relaxed">
             Reliable delivery across all Indian states. Estimated transit: 5–7 business days.
           </p>

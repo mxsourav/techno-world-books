@@ -1,14 +1,17 @@
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { Package, Heart, MapPin, Gift, Bell, RotateCcw, User, LogOut, Download, RefreshCw } from 'lucide-react';
+import { Package, Heart, MapPin, Gift, Bell, RotateCcw, User, LogOut, Download, RefreshCw, Loader2 } from 'lucide-react';
 import { BOOKS } from '@/data/books';
 import { formatINR } from '@/utils/helpers';
 import { useStore } from '@/store/StoreContext';
 import { BookCover } from '@/components/BookCover';
+import { downloadOrderInvoice } from '@/utils/generateInvoice';
 import { toast } from 'sonner';
 
 export default function Account() {
   const { user, logout, orders, wishlist, addresses } = useStore();
   const navigate = useNavigate();
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   if (!user) {
     return (
@@ -81,8 +84,23 @@ export default function Account() {
                 </div>
                 <div className="flex gap-2">
                   <Link to={`/track?id=${o.id}`} className="rounded-lg border border-emerald-600 px-3 py-1.5 text-xs font-bold text-emerald-700 hover:bg-emerald-50">Track</Link>
-                  <button onClick={() => toast.success('Invoice downloaded (PDF)')} className="flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-50">
-                    <Download className="h-3 w-3" /> Invoice
+                  <button
+                    disabled={downloadingId === o.id}
+                    onClick={async () => {
+                      try {
+                        setDownloadingId(o.id);
+                        await downloadOrderInvoice(o);
+                        toast.success('Invoice downloaded successfully');
+                      } catch (err: any) {
+                        toast.error(err.message || 'Failed to download invoice');
+                      } finally {
+                        setDownloadingId(null);
+                      }
+                    }}
+                    className="flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50"
+                  >
+                    {downloadingId === o.id ? <Loader2 className="h-3 w-3 animate-spin text-emerald-700" /> : <Download className="h-3 w-3" />}
+                    Invoice
                   </button>
                   <a
                     href="https://docs.google.com/forms/d/e/1FAIpQLSdP7BBi2SNX67XU0xoBDzqiXSaL4nyBBIwDfVacG8M9kVR1RQ/viewform?usp=publish-editor"

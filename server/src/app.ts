@@ -41,8 +41,11 @@ app.use(
       const isAllowed =
         allowedOrigins.includes(origin) ||
         origin.startsWith('http://localhost:') ||
-        origin.endsWith('.vercel.app') ||
-        origin.endsWith('.onrender.com');
+        origin.startsWith('https://localhost:') ||
+        origin.includes('vercel.app') ||
+        origin.includes('onrender.com') ||
+        origin.includes('technoworld') ||
+        origin.includes('techno-world');
 
       if (isAllowed) {
         return callback(null, true);
@@ -52,7 +55,7 @@ app.use(
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-Id', 'Cookie'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-Id', 'Cookie', 'Cache-Control', 'Pragma', 'Expires'],
     exposedHeaders: ['Set-Cookie'],
   })
 );
@@ -70,6 +73,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(requestIdMiddleware);
 app.use(generalLimiter);
+
+// Anti-caching headers for API responses to guarantee immediate frontend reflection
+app.use('/api', (req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  next();
+});
 
 import path from 'path';
 

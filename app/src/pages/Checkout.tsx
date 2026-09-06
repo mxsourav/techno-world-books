@@ -21,6 +21,7 @@ const INDIAN_STATES = ['West Bengal', 'Maharashtra', 'Delhi', 'Karnataka', 'Tami
 export default function Checkout() {
   const { user, addresses: storeAddresses, addAddress, clearCart, applyCoupon, clearCoupon } = useStore();
   const [fulfillmentMode, setFulfillmentMode] = useState<'DELIVERY' | 'PICKUP'>('DELIVERY');
+  void setFulfillmentMode; // Retained for future re-enabling of store pickup
   const [dbAddresses, setDbAddresses] = useState<any[]>([]);
   const [selectedAddr, setSelectedAddr] = useState<string>('new');
   const [shippingMethod, setShippingMethod] = useState<string>('NORMAL_POST');
@@ -147,6 +148,8 @@ export default function Checkout() {
     estimatedTransitDays,
     isAddonBundle,
     bundledWithOrderNumber,
+    parentShippingMethod,
+    parentShippingCharge,
     discount,
     total,
     appliedCoupon,
@@ -164,13 +167,13 @@ export default function Checkout() {
     }
     const cleanPin = activePincode || form.pincode.replace(/\D/g, '').slice(0, 6);
     const isKolkata = cleanPin && /^700\d{3}$/.test(cleanPin);
-    const standardFee = subtotal >= 499 ? 0 : 49;
+    const standardFee = subtotal >= 999 ? 0 : 69;
     return [
       {
         method: 'NORMAL_POST',
         id: 'NORMAL_POST',
         label: 'Standard Delivery',
-        description: 'Reliable delivery via India Post network',
+        description: subtotal >= 999 ? 'Free nationwide delivery' : 'Reliable delivery via postal network',
         price: standardFee,
         priceLabel: standardFee === 0 ? 'FREE' : `₹${standardFee}`,
         estimatedDays: '5–7 Business Days',
@@ -713,7 +716,8 @@ export default function Checkout() {
       <h1 className="mb-5 text-2xl font-extrabold text-slate-900">Checkout</h1>
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
         <div className="space-y-5">
-          {/* Fulfillment Mode Selector */}
+          {/* STORE PICKUP OPTION COMMENTED OUT PER CLIENT REQUEST - RETAINED FOR FUTURE RE-ENABLING */}
+          {/*
           <div className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm">
             <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2.5">
               Select How You Want to Receive Your Order
@@ -772,6 +776,7 @@ export default function Checkout() {
               </button>
             </div>
           </div>
+          */}
 
           {/* STEP 1: ADDRESS / PICKUP DETAILS */}
           {activeStep === 1 ? (
@@ -1142,6 +1147,20 @@ export default function Checkout() {
                 </div>
               ) : (
                 <div className="space-y-4">
+                  {isAddonBundle && (
+                    <div className="rounded-xl border border-emerald-300 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 p-4 text-xs text-emerald-950 flex items-start gap-3 shadow-xs">
+                      <Sparkles className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-extrabold text-sm text-emerald-950 flex items-center gap-1.5">
+                          Active Dispatch Consignment #{bundledWithOrderNumber}
+                        </p>
+                        <p className="text-emerald-800 mt-1 leading-relaxed text-xs">
+                          You already have an order scheduled for today&apos;s 2:00 PM dispatch batch for this delivery address{parentShippingMethod ? ` (currently via ${parentShippingMethod === 'EXPRESS_LOCAL' ? '⚡ Express' : parentShippingMethod === 'SPEED_POST' ? '🚀 Speed Post' : '📦 Standard Post'})` : ''}. You can join your active shipment for <b>FREE (₹0)</b>, or upgrade the entire parcel to a faster delivery service below{parentShippingCharge > 0 ? ` (your previously paid delivery fee of ${formatINR(parentShippingCharge)} is credited)` : ''}!
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="grid gap-3 sm:grid-cols-2">
                     {effectiveDeliveryOptions.map((opt: any) => {
                       const methodId = opt.method || opt.id;

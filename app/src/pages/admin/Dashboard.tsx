@@ -5,15 +5,18 @@ import {
   Pause, Play, Trash2, Edit3, Truck, Printer, ShieldCheck, X, Loader2, Mail,
   CheckCircle2, XCircle, Send, ChevronDown, ChevronUp,
   Settings, ArrowRight, Bell, RotateCcw, Box, Star, ExternalLink,
-  SlidersHorizontal, Clock, Package, Zap, Store, CalendarCheck
+  SlidersHorizontal, Clock, Package, Zap, Store, CalendarCheck,
+  MessageSquare, HelpCircle, CornerDownRight, Check, FileText, Link2
 } from 'lucide-react';
 import { formatINR, formatClientSku, formatClientFsn } from '@/utils/helpers';
 import type { Book } from '@/types/index';
-import { adminService, bookService, categoryService, orderService, mediaService, cmsService, promotionService, shippingService } from '@/services/api';
+import { adminService, bookService, categoryService, orderService, mediaService, cmsService, promotionService, shippingService, reviewService, questionService, invoiceService } from '@/services/api';
+import { generateAndPrintInvoice } from '@/utils/generateInvoice';
 import { toast } from 'sonner';
 import PromotionEditModal from '@/components/admin/PromotionEditModal';
 import ProductsWorkspace from '@/components/admin/catalog/ProductsWorkspace';
 import SearchAnalyticsWorkspace from '@/components/admin/analytics/SearchAnalyticsWorkspace';
+import PaymentsWorkspace from '@/components/admin/payments/PaymentsWorkspace';
 export default function Dashboard() {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -51,7 +54,6 @@ export default function Dashboard() {
   }, [urlStage]);
 
   const [orderSearchQuery, setOrderSearchQuery] = useState('');
-  const [selectedChannelFilter, setSelectedChannelFilter] = useState('ALL');
   const [selectedLogisticsFilter, setSelectedLogisticsFilter] = useState('ALL');
   const [selectedGroupKeys, setSelectedGroupKeys] = useState<Set<string>>(new Set());
   const [selectedOrderIds, setSelectedOrderIds] = useState<Set<string>>(new Set());
@@ -86,6 +88,32 @@ export default function Dashboard() {
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(false);
   const [selectedCustomerDetail, setSelectedCustomerDetail] = useState<any | null>(null);
 
+  // Reviews & Q&A Moderation State
+  const [reviewSubTab, setReviewSubTab] = useState<'reviews' | 'questions'>('reviews');
+  const [adminReviews, setAdminReviews] = useState<any[]>([]);
+  const [adminQuestions, setAdminQuestions] = useState<any[]>([]);
+  const [loadingReviewsData, setLoadingReviewsData] = useState(false);
+  const [reviewSearchQuery, setReviewSearchQuery] = useState('');
+  const [reviewRatingFilter, setReviewRatingFilter] = useState<string>('ALL');
+  const [questionStatusFilter, setQuestionStatusFilter] = useState<string>('ALL');
+  const [replyingQuestionId, setReplyingQuestionId] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState('');
+  const [replySignature, setReplySignature] = useState('Techno World Direct · Verified Seller');
+  const [showClear24hModal, setShowClear24hModal] = useState(false);
+  const [clearing24h, setClearing24h] = useState(false);
+  const [showAddReviewModal, setShowAddReviewModal] = useState(false);
+  const [submittingCuratedReview, setSubmittingCuratedReview] = useState(false);
+  const [availableBooks, setAvailableBooks] = useState<any[]>([]);
+  const [curatedReviewForm, setCuratedReviewForm] = useState({
+    bookId: '',
+    userName: '',
+    rating: 5,
+    title: '',
+    content: '',
+    isVerified: true,
+    date: new Date().toISOString().split('T')[0],
+  });
+
 
   const [emailModalOrder, setEmailModalOrder] = useState<any | null>(null);
   const [emailTemplate, setEmailTemplate] = useState<string>('DELAY_NOTICE');
@@ -100,8 +128,14 @@ export default function Dashboard() {
   const [rejecting, setRejecting] = useState(false);
 
   const [expressModalOrder, setExpressModalOrder] = useState<string | null>(null);
+  const [expressBundledOrderIds, setExpressBundledOrderIds] = useState<string[]>([]);
   const [expressPartner, setExpressPartner] = useState('');
   const [expressAgentPhone, setExpressAgentPhone] = useState('');
+  const [bundlePrompt, setBundlePrompt] = useState<{
+    targetOrder: any;
+    group: any;
+    highestMethod: 'EXPRESS_LOCAL' | 'SPEED_POST' | 'NORMAL_POST' | 'SELF_PICKUP';
+  } | null>(null);
 
   const [pickupSlotsModalOrder, setPickupSlotsModalOrder] = useState<any | null>(null);
   const [pickupSlotInputs, setPickupSlotInputs] = useState<string[]>([
@@ -112,6 +146,85 @@ export default function Dashboard() {
   ]);
   const [isSavingPickupSlots, setIsSavingPickupSlots] = useState(false);
   const [isCollectingOrder, setIsCollectingOrder] = useState<string | null>(null);
+  const [isDownloadingInvoices, setIsDownloadingInvoices] = useState(false);
+  const [isBatchGeneratingInvoices, setIsBatchGeneratingInvoices] = useState(false);
+
+  // Manual Child Order Merge State
+  const [mergeModalOrder, setMergeModalOrder] = useState<any | null>(null);
+  const [mergeCandidates, setMergeCandidates] = useState<any[]>([]);
+  const [selectedParentOrderId, setSelectedParentOrderId] = useState<string>('');
+  const [isLoadingCandidates, setIsLoadingCandidates] = useState(false);
+  const [isMergingOrder, setIsMergingOrder] = useState(false);
+
+  const handleOpenMergeModal = async (order: any) => {
+    setMergeModalOrder(order);
+    setSelectedParentOrderId('');
+    setIsLoadingCandidates(true);
+    try {
+      const res = await orderService.getMergeCandidates(order.id);
+      const candidates = res.data || [];
+      setMergeCandidates(candidates);
+      if (candidates.length > 0) {
+        setSelectedParentOrderId(candidates[0].id);
+      }
+    } catch (err: any) {
+      console.error('Failed to load merge candidates:', err);
+      toast.error('Failed to find merge candidates');
+    } finally {
+      setIsLoadingCandidates(false);
+    }
+  };
+
+  const handleConfirmMerge = async () => {
+    if (!mergeModalOrder || !selectedParentOrderId) return;
+    setIsMergingOrder(true);
+    try {
+      const res = await orderService.mergeChildOrder({
+        childOrderId: mergeModalOrder.id,
+        parentOrderId: selectedParentOrderId,
+      });
+      toast.success(res.message || 'Order merged successfully!');
+      setMergeModalOrder(null);
+      fetchOrders();
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to merge order');
+    } finally {
+      setIsMergingOrder(false);
+    }
+  };
+
+  const handleDownloadSingleInvoice = async (orderId: string, orderNumber: string, fullOrder?: any) => {
+    try {
+      await invoiceService.adminDownloadInvoice(orderId, `Invoice-${orderNumber}.pdf`);
+      toast.success(`Invoice for #${orderNumber} downloaded`);
+    } catch (err: any) {
+      console.warn('[INVOICE] Server download failed, attempting browser print preview:', err);
+      if (fullOrder) {
+        toast.info('Opening invoice in print view...');
+        generateAndPrintInvoice(fullOrder);
+      } else {
+        toast.error(err.message || 'Failed to download invoice');
+      }
+    }
+  };
+
+
+  const handleBatchGenerateInvoices = async () => {
+    try {
+      setIsBatchGeneratingInvoices(true);
+      const res = await invoiceService.adminBatchGenerate();
+      if (res.data?.generated) {
+        toast.success(`Generated ${res.data.generated} invoice(s) successfully!`);
+        fetchOrders();
+      } else {
+        toast.info('All orders already have invoices generated.');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to batch generate invoices');
+    } finally {
+      setIsBatchGeneratingInvoices(false);
+    }
+  };
 
   const handleSetPickupSlotsSubmit = async () => {
     if (!pickupSlotsModalOrder) return;
@@ -186,7 +299,176 @@ export default function Dashboard() {
     if (tab === 'customers') {
       fetchCustomers();
     }
+    if (tab === 'reviews' || tab === 'dashboard') {
+      fetchReviewsAndQuestions();
+    }
   }, [tab]);
+
+  const loadAvailableBooks = () => {
+    if (availableBooks.length === 0) {
+      bookService.getBooks({ limit: 200 }).then((res: any) => {
+        if (res.success && Array.isArray(res.data)) {
+          setAvailableBooks(res.data);
+        }
+      }).catch(console.error);
+    }
+  };
+
+  const fetchReviewsAndQuestions = async () => {
+    setLoadingReviewsData(true);
+    try {
+      const [revRes, qRes] = await Promise.all([
+        reviewService.getAdminReviews(),
+        questionService.getAdminQuestions(),
+      ]);
+      if (revRes.success && Array.isArray(revRes.data)) {
+        setAdminReviews(revRes.data);
+      }
+      if (qRes.success && Array.isArray(qRes.data)) {
+        setAdminQuestions(qRes.data);
+      }
+    } catch (err) {
+      console.error('Failed to load reviews or questions', err);
+    } finally {
+      setLoadingReviewsData(false);
+    }
+  };
+
+  const handleToggleApproveReview = async (id: string, currentStatus: boolean) => {
+    try {
+      const res = await reviewService.updateReviewStatus(id, !currentStatus);
+      if (res.success) {
+        toast.success(res.message || 'Review status updated');
+        setAdminReviews(prev => prev.map(r => r.id === id ? { ...r, isApproved: !currentStatus } : r));
+      }
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to update review status');
+    }
+  };
+
+  const handleToggleVerifiedReview = async (id: string, currentVerified: boolean) => {
+    try {
+      const res = await reviewService.toggleReviewVerified(id, !currentVerified);
+      if (res.success) {
+        toast.success(res.message || 'Review badge updated');
+        setAdminReviews(prev => prev.map(r => r.id === id ? { ...r, isVerified: !currentVerified } : r));
+      } else {
+        toast.error(res.message || 'Failed to update verification status');
+      }
+    } catch (err: any) {
+      toast.error(err?.message || 'Error updating verification status');
+    }
+  };
+
+  const handleCreateCuratedReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!curatedReviewForm.bookId) {
+      toast.error('Please select a book for this review');
+      return;
+    }
+    if (!curatedReviewForm.content.trim()) {
+      toast.error('Review comment is required');
+      return;
+    }
+
+    setSubmittingCuratedReview(true);
+    try {
+      const res = await reviewService.adminCreateReview({
+        bookId: curatedReviewForm.bookId,
+        userName: curatedReviewForm.userName.trim() || undefined,
+        rating: curatedReviewForm.rating,
+        title: curatedReviewForm.title.trim() || undefined,
+        content: curatedReviewForm.content.trim(),
+        isVerified: Boolean(curatedReviewForm.isVerified),
+        createdAt: curatedReviewForm.date ? new Date(curatedReviewForm.date).toISOString() : undefined,
+      });
+
+      if (res.success) {
+        toast.success('Curated review published successfully!');
+        setShowAddReviewModal(false);
+        fetchReviewsAndQuestions();
+      } else {
+        toast.error(res.message || 'Failed to add review');
+      }
+    } catch (err: any) {
+      toast.error(err?.message || 'Error adding review');
+    } finally {
+      setSubmittingCuratedReview(false);
+    }
+  };
+
+  const handleDeleteReview = async (id: string) => {
+    if (!window.confirm('Are you sure you want to permanently delete this review?')) return;
+    try {
+      const res = await reviewService.deleteReview(id);
+      if (res.success) {
+        toast.success('Review deleted successfully');
+        setAdminReviews(prev => prev.filter(r => r.id !== id));
+      }
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to delete review');
+    }
+  };
+
+  const handlePublishAnswer = async (id: string) => {
+    if (!replyText.trim()) {
+      toast.error('Please enter an answer to publish');
+      return;
+    }
+    try {
+      const res = await questionService.answerQuestion(id, {
+        answer: replyText.trim(),
+        answeredBy: replySignature,
+      });
+      if (res.success) {
+        toast.success('Answer published live to book page');
+        setAdminQuestions(prev => prev.map(q => q.id === id ? {
+          ...q,
+          answer: replyText.trim(),
+          answeredBy: replySignature,
+          answeredAt: new Date().toISOString(),
+          status: 'ANSWERED'
+        } : q));
+        setReplyingQuestionId(null);
+        setReplyText('');
+      }
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to publish answer');
+    }
+  };
+
+  const handleDeleteQuestion = async (id: string) => {
+    if (!window.confirm('Are you sure you want to permanently delete this customer question?')) return;
+    try {
+      const res = await questionService.deleteQuestion(id);
+      if (res.success) {
+        toast.success('Question deleted successfully');
+        setAdminQuestions(prev => prev.filter(q => q.id !== id));
+      }
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to delete question');
+    }
+  };
+
+  const handleClear24hLogs = async () => {
+    setClearing24h(true);
+    try {
+      const [revClear, qClear] = await Promise.all([
+        reviewService.clearOldReviews(24),
+        questionService.clearOldQuestions(24),
+      ]);
+      const totalRemoved =
+        ((revClear as any)?.count || (revClear as any)?.data?.count || 0) +
+        ((qClear as any)?.count || (qClear as any)?.data?.count || 0);
+      toast.success(`Cleared records older than 24 hours (${totalRemoved} items cleaned)`);
+      setShowClear24hModal(false);
+      fetchReviewsAndQuestions();
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to clear old logs');
+    } finally {
+      setClearing24h(false);
+    }
+  };
 
   const fetchCustomers = (search?: string) => {
     setIsLoadingCustomers(true);
@@ -244,7 +526,15 @@ export default function Dashboard() {
       const phone = (ord.pickupPhone || ord.address?.phone || ord.user?.phone || ord.userId || 'guest').trim();
       const pin = (ord.address?.pincode || '700001').trim();
       const line1 = (ord.address?.addressLine1 || ord.address?.line1 || '').trim().toLowerCase();
-      const batchKey = getOrderBatchKey(ord.createdAt);
+      let batchKey = getOrderBatchKey(ord.createdAt);
+
+      // If order was manually merged into a parent order, associate with parent consignment's batchKey
+      if (ord.parentOrderId) {
+        const parent = filteredOrdersList.find((o: any) => o.id === ord.parentOrderId || o.orderNumber === ord.parentOrderId);
+        if (parent) {
+          batchKey = getOrderBatchKey(parent.createdAt);
+        }
+      }
 
       // Store Pickup orders get distinct keys so they don't combine with courier dispatch
       const groupKey = isSelfPickup ? `pickup_${ord.id}` : `${phone}_${pin}_${line1}_${batchKey}`;
@@ -289,8 +579,21 @@ export default function Dashboard() {
       const dimensions = `${Math.min(24 + (totalBookCount - 1) * 2, 40)}-22-${Math.min(2 + totalBookCount, 15)}cm`;
       const isMultiOrder = grp.orders.length > 1;
 
+      // Determine highest shipping method paid across the bundle
+      let highestMethod: 'EXPRESS_LOCAL' | 'SPEED_POST' | 'NORMAL_POST' | 'SELF_PICKUP' = 'NORMAL_POST';
+      if (grp.orders.some((o: any) => o.shippingMethod === 'EXPRESS_LOCAL')) {
+        highestMethod = 'EXPRESS_LOCAL';
+      } else if (grp.orders.some((o: any) => o.shippingMethod === 'SPEED_POST')) {
+        highestMethod = 'SPEED_POST';
+      } else if (grp.orders.some((o: any) => o.shippingMethod === 'NORMAL_POST')) {
+        highestMethod = 'NORMAL_POST';
+      } else if (grp.isSelfPickup || grp.orders.every((o: any) => o.shippingMethod === 'SELF_PICKUP')) {
+        highestMethod = 'SELF_PICKUP';
+      }
+
       return {
         ...grp,
+        highestMethod,
         totalBookCount,
         isMultiOrder,
         orderCount: grp.orders.length,
@@ -346,6 +649,61 @@ export default function Dashboard() {
       toast.error(err.message || 'Failed to batch accept orders');
     } finally {
       setIsBatchAccepting(false);
+    }
+  };
+
+  const handleDownloadBatchInvoices = async (orderIdsToDownload?: string[]) => {
+    try {
+      setIsDownloadingInvoices(true);
+      let targetIds = orderIdsToDownload;
+      if (!targetIds || targetIds.length === 0) {
+        if (selectedOrderIds.size > 0) {
+          targetIds = Array.from(selectedOrderIds);
+        } else if (selectedGroupKeys.size > 0) {
+          const stageOrders = orders.filter((o: any) => {
+            if (forwardStage === 'to_accept') return o.status === 'PENDING';
+            if (forwardStage === 'to_pack') return o.status === 'CONFIRMED';
+            if (forwardStage === 'to_dispatch') return o.status === 'PROCESSING';
+            if (forwardStage === 'in_transit') return o.status === 'SHIPPED';
+            if (forwardStage === 'completed') return o.status === 'DELIVERED';
+            return true;
+          });
+          const activeGroups = getSmartGroups(stageOrders);
+          const collectedIds: string[] = [];
+          selectedGroupKeys.forEach((k: string) => {
+            const found = activeGroups.find((g: any) => g.key === k);
+            if (found && Array.isArray(found.orders)) {
+              collectedIds.push(...found.orders.map((ordItem: any) => ordItem.id));
+            } else if (found && (found as any).order) {
+              collectedIds.push((found as any).order.id);
+            }
+          });
+          targetIds = Array.from(new Set(collectedIds));
+        } else {
+          const stageOrders = orders.filter((o: any) => {
+            if (forwardStage === 'to_accept') return o.status === 'PENDING';
+            if (forwardStage === 'to_pack') return o.status === 'CONFIRMED';
+            if (forwardStage === 'to_dispatch') return o.status === 'PROCESSING';
+            if (forwardStage === 'in_transit') return o.status === 'SHIPPED';
+            if (forwardStage === 'completed') return o.status === 'DELIVERED';
+            return true;
+          });
+          targetIds = stageOrders.map((o: any) => o.id);
+        }
+      }
+
+      if (!targetIds || targetIds.length === 0) {
+        toast.error('No orders available to download invoices');
+        return;
+      }
+
+      toast.info(`Generating merged PDF for ${targetIds.length} invoice(s)...`);
+      await invoiceService.adminBatchDownload(targetIds);
+      toast.success(`Batch invoices downloaded (${targetIds.length} orders)`);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to download batch invoices');
+    } finally {
+      setIsDownloadingInvoices(false);
     }
   };
 
@@ -618,12 +976,20 @@ admin@technoworld.com`
     }
   };
 
-  const bookIndiaPostShipment = async (orderId: string, deliveryPartner?: string, agentPhone?: string) => {
+  const bookIndiaPostShipment = async (
+    orderId: string,
+    deliveryPartner?: string,
+    agentPhone?: string,
+    bundledOrderIds?: string[],
+    serviceType?: string
+  ) => {
     setShippingLoading(orderId);
     try {
       const payload: any = {};
       if (deliveryPartner) payload.deliveryPartner = deliveryPartner;
       if (agentPhone) payload.agentPhone = agentPhone;
+      if (bundledOrderIds && bundledOrderIds.length > 0) payload.bundledOrderIds = bundledOrderIds;
+      if (serviceType) payload.serviceType = serviceType;
       
       const res = await shippingService.bookShipment(orderId, payload);
       if (res.success && res.data) {
@@ -632,13 +998,15 @@ admin@technoworld.com`
         } else {
           toast.success(`Consignment booked via ${res.data.carrier || 'India Post'}! Barcode: ${res.data.barcode || 'N/A'}`);
         }
+        const affectedIds = new Set([orderId, ...(bundledOrderIds || [])]);
         setOrders((prev) =>
           prev.map((o) =>
-            o.id === orderId || o.orderNumber === orderId
+            affectedIds.has(o.id) || affectedIds.has(o.orderNumber)
               ? {
                   ...o,
                   trackingNumber: res.data.barcode || o.trackingNumber,
                   shippingCarrier: res.data.carrier,
+                  shippingMethod: res.data.method || o.shippingMethod,
                   status: res.data.method === 'EXPRESS_LOCAL' ? 'SHIPPED' : (o.status === 'PENDING' ? 'PROCESSING' : o.status),
                 }
               : o
@@ -649,6 +1017,28 @@ admin@technoworld.com`
       toast.error(err.message || 'Failed to book consignment with India Post');
     } finally {
       setShippingLoading(null);
+    }
+  };
+
+  const handleOrderRowDispatchClick = (entry: any) => {
+    const ord = entry.order;
+    if (entry.isBundled && entry.group && Array.isArray(entry.group.orders) && entry.group.orders.length > 1) {
+      setBundlePrompt({
+        targetOrder: ord,
+        group: entry.group,
+        highestMethod: entry.group.highestMethod || 'NORMAL_POST',
+      });
+    } else {
+      if (ord.shippingMethod === 'SPEED_POST') {
+        bookIndiaPostShipment(ord.id, undefined, undefined, [], 'SPEED_POST');
+      } else if (ord.shippingMethod === 'EXPRESS_LOCAL') {
+        setExpressPartner('');
+        setExpressAgentPhone('');
+        setExpressModalOrder(ord.id);
+        setExpressBundledOrderIds([]);
+      } else {
+        bookIndiaPostShipment(ord.id, undefined, undefined, [], 'NORMAL_POST');
+      }
     }
   };
 
@@ -953,22 +1343,40 @@ admin@technoworld.com`
                 </div>
                 
                 <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-                  <p className="mb-4 text-sm font-bold text-slate-800">Latest Reviews</p>
+                  <div className="flex items-center justify-between mb-4">
+                    <p className="text-sm font-bold text-slate-800">Latest Reviews</p>
+                    <button
+                      type="button"
+                      onClick={() => navigate('/admin/dashboard?tab=reviews')}
+                      className="text-xs font-bold text-emerald-600 hover:text-emerald-700 hover:underline"
+                    >
+                      View All
+                    </button>
+                  </div>
                   <div className="space-y-4">
-                    <div className="border-b border-slate-100 pb-3">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-bold text-sm text-slate-800">Great Quality</span>
-                        <span className="text-amber-500 text-xs tracking-wider">★★★★★</span>
-                      </div>
-                      <p className="text-xs text-slate-500 line-clamp-2">"The book arrived in perfect condition and the content is exactly what I needed for my exams."</p>
-                    </div>
-                    <div className="border-b border-slate-100 pb-3">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-bold text-sm text-slate-800">Fast Delivery</span>
-                        <span className="text-amber-500 text-xs tracking-wider">★★★★☆</span>
-                      </div>
-                      <p className="text-xs text-slate-500 line-clamp-2">"Delivered within 2 days. The packaging could be slightly better but overall good."</p>
-                    </div>
+                    {adminReviews.length === 0 ? (
+                      <p className="text-xs text-slate-400 py-4 text-center">No customer reviews yet.</p>
+                    ) : (
+                      adminReviews.slice(0, 3).map((r: any) => (
+                        <div key={r.id} className="border-b border-slate-100 pb-3 last:border-0 last:pb-0">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="font-bold text-sm text-slate-800 truncate max-w-[170px]" title={r.title || r.bookTitle}>
+                              {r.title || r.bookTitle || 'Review'}
+                            </span>
+                            <span className="text-amber-500 text-xs tracking-wider">
+                              {'★'.repeat(Math.max(1, Math.min(5, r.rating)))}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-500 line-clamp-2">"{r.content}"</p>
+                          <div className="mt-1 flex items-center gap-1.5 text-[10px] text-slate-400">
+                            <span className="font-semibold text-slate-600">{r.userName || 'Reader'}</span>
+                            {r.isVerified && (
+                              <span className="text-emerald-700 font-bold">✓ Verified</span>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
               </div>
@@ -1059,6 +1467,7 @@ admin@technoworld.com`
                 quantity: 1,
                 price: grp.order.totalAmount,
                 isBundled: grp.isMultiOrder,
+                group: grp,
               }];
             }
             return grp.items.map((it: any, idx: number) => {
@@ -1074,6 +1483,7 @@ admin@technoworld.com`
                 quantity: it.quantity || 1,
                 price: it.priceAtPurchase || (it.quantity ? itemOrder.totalAmount / it.quantity : itemOrder.totalAmount),
                 isBundled: grp.isMultiOrder,
+                group: grp,
               };
             });
           });
@@ -1195,16 +1605,6 @@ admin@technoworld.com`
                     </div>
 
                     <select
-                      value={selectedChannelFilter}
-                      onChange={(e) => setSelectedChannelFilter(e.target.value)}
-                      className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 outline-none"
-                    >
-                      <option value="ALL">Channel: All / Direct</option>
-                      <option value="DIRECT">Techno World Direct</option>
-                      <option value="MARKETPLACE">Marketplace / Affiliates</option>
-                    </select>
-
-                    <select
                       value={selectedLogisticsFilter}
                       onChange={(e) => setSelectedLogisticsFilter(e.target.value)}
                       className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 outline-none"
@@ -1248,6 +1648,21 @@ admin@technoworld.com`
                       </button>
                     </div>
 
+                    {/* Quick Invoices Download Action */}
+                    <button
+                      onClick={() => handleDownloadBatchInvoices()}
+                      disabled={isDownloadingInvoices || activeStageOrders.length === 0}
+                      className="flex items-center gap-1.5 rounded-xl border border-emerald-300 bg-emerald-50 px-3.5 py-1.5 text-xs font-bold text-emerald-800 hover:bg-emerald-100 shadow-sm transition-all disabled:opacity-50"
+                      title={selectedOrderIds.size > 0 ? `Download merged PDF for ${selectedOrderIds.size} selected order(s)` : `Download merged PDF for all ${activeStageOrders.length} order(s) in this stage`}
+                    >
+                      {isDownloadingInvoices ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin text-emerald-700" />
+                      ) : (
+                        <FileText className="h-3.5 w-3.5 text-emerald-700" />
+                      )}
+                      <span>{selectedOrderIds.size > 0 ? `Invoices (${selectedOrderIds.size})` : 'Download Invoices'}</span>
+                    </button>
+
                     {/* Other Actions Dropdown */}
                     <div className="relative" ref={otherActionsRef}>
                       <button
@@ -1259,7 +1674,7 @@ admin@technoworld.com`
                       </button>
 
                       {isOtherActionsOpen && (
-                        <div className="absolute right-0 mt-2 w-48 rounded-xl border border-slate-200 bg-white shadow-xl z-30 py-1 text-xs font-semibold text-slate-700">
+                        <div className="absolute right-0 mt-2 w-56 rounded-xl border border-slate-200 bg-white shadow-xl z-30 py-1 text-xs font-semibold text-slate-700">
                           <button
                             onClick={() => {
                               const csvRows = ['OrderNumber,Customer,Phone,TotalAmount,Status,Date'];
@@ -1281,9 +1696,33 @@ admin@technoworld.com`
                           <button
                             onClick={() => {
                               setIsOtherActionsOpen(false);
+                              handleDownloadBatchInvoices();
+                            }}
+                            className="w-full text-left px-4 py-2 hover:bg-slate-50 flex items-center gap-2 text-emerald-800 font-bold"
+                          >
+                            <FileText className="h-3.5 w-3.5 text-emerald-700" /> Download Invoices (Merged PDF)
+                          </button>
+                          <button
+                            disabled={isBatchGeneratingInvoices}
+                            onClick={() => {
+                              setIsOtherActionsOpen(false);
+                              handleBatchGenerateInvoices();
+                            }}
+                            className="w-full text-left px-4 py-2 hover:bg-slate-50 flex items-center gap-2 text-blue-700 font-bold disabled:opacity-50"
+                          >
+                            {isBatchGeneratingInvoices ? (
+                              <Loader2 className="h-3.5 w-3.5 animate-spin text-blue-600" />
+                            ) : (
+                              <Zap className="h-3.5 w-3.5 text-blue-600" />
+                            )}
+                            <span>{isBatchGeneratingInvoices ? 'Generating Invoices...' : 'Generate Batch Invoices (Now)'}</span>
+                          </button>
+                          <button
+                            onClick={() => {
+                              setIsOtherActionsOpen(false);
                               handleBatchAcceptSelected();
                             }}
-                            className="w-full text-left px-4 py-2 hover:bg-slate-50 flex items-center gap-2 text-emerald-700 font-bold"
+                            className="w-full text-left px-4 py-2 hover:bg-slate-50 flex items-center gap-2 text-emerald-700 font-bold border-t border-slate-100 mt-1 pt-1"
                           >
                             <CheckCircle2 className="h-3.5 w-3.5" /> Accept All Selected
                           </button>
@@ -1335,7 +1774,7 @@ admin@technoworld.com`
                                 className="rounded border-slate-300"
                               />
                             </th>
-                            <th className="px-4 py-3 min-w-[140px]">Customer & Order</th>
+                            <th className="px-4 py-3 min-w-[160px]">Customer & Order / SKU ID</th>
                             <th className="px-4 py-3 min-w-[360px]">All Books in this User's Consignment</th>
                             <th className="px-4 py-3 min-w-[200px]">Postal Destination & SLA</th>
                             <th className="px-4 py-3 text-right min-w-[160px]">Actions</th>
@@ -1386,6 +1825,10 @@ admin@technoworld.com`
                                         );
                                       })}
                                     </div>
+                                    <span className="text-[11px] text-slate-500 font-medium flex items-center gap-1 font-mono">
+                                      <Clock className="h-3 w-3 text-slate-400 shrink-0" />
+                                      {new Date(grp.createdAt || ord.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}, {new Date(grp.createdAt || ord.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                                    </span>
                                     {grp.isMultiOrder && (
                                       <span className="inline-flex items-center gap-1 rounded bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 text-[10px] font-extrabold text-emerald-800">
                                         📦 {grp.orderCount} Orders Bundled
@@ -1550,7 +1993,8 @@ admin@technoworld.com`
                                           <Package className="h-3 w-3" /> Pack Parcel
                                         </button>
                                       )}
-                                      {ord.shippingMethod === 'SELF_PICKUP' ? (
+                                      {/* STORE PICKUP ACTIONS DISABLED PER CLIENT REQUEST - RETAINED FOR FUTURE RE-ENABLING */}
+                                      {false && ord.shippingMethod === 'SELF_PICKUP' ? (
                                         <>
                                           {ord.pickupStatus === 'PENDING_SLOTS' || !ord.pickupSlots || ord.pickupStatus === 'NONE' ? (
                                             <button
@@ -1603,44 +2047,53 @@ admin@technoworld.com`
                                           )}
                                         </>
                                       ) : (
-                                        ord.status === 'PROCESSING' && !ord.trackingNumber && (
-                                          ord.shippingMethod === 'SPEED_POST' ? (
-                                            <button
-                                              onClick={() => bookIndiaPostShipment(ord.id)}
-                                              className="relative h-7 px-2.5 rounded-lg text-white text-xs font-bold inline-flex items-center justify-center gap-1 overflow-hidden shadow-sm"
-                                            >
-                                              <span
-                                                className="absolute -inset-[150%] m-auto aspect-square pointer-events-none animate-spin"
-                                                style={{
-                                                  background: 'conic-gradient(from 0deg, transparent 0deg, transparent 340deg, #fb923c 360deg)',
+                                        ord.status === 'PROCESSING' && !ord.trackingNumber && (() => {
+                                          const groupEffectiveMethod = grp.highestMethod || ord.shippingMethod || 'NORMAL_POST';
+                                          const allBundleIds = Array.isArray(grp.orders) ? grp.orders.map((o: any) => o.id) : [ord.id];
+                                          if (groupEffectiveMethod === 'SPEED_POST') {
+                                            return (
+                                              <button
+                                                onClick={() => bookIndiaPostShipment(ord.id, undefined, undefined, allBundleIds, 'SPEED_POST')}
+                                                className="relative h-7 px-2.5 rounded-lg text-white text-xs font-bold inline-flex items-center justify-center gap-1 overflow-hidden shadow-sm"
+                                              >
+                                                <span
+                                                  className="absolute -inset-[150%] m-auto aspect-square pointer-events-none animate-spin"
+                                                  style={{
+                                                    background: 'conic-gradient(from 0deg, transparent 0deg, transparent 340deg, #fb923c 360deg)',
+                                                  }}
+                                                />
+                                                <span
+                                                  className="absolute inset-[1.5px] rounded-[6.5px] bg-[#ea580c]"
+                                                />
+                                                <span className="relative z-10 flex items-center gap-1"><Truck className="h-3 w-3" /> Speed Post</span>
+                                              </button>
+                                            );
+                                          }
+                                          if (groupEffectiveMethod === 'EXPRESS_LOCAL') {
+                                            return (
+                                              <button
+                                                onClick={() => {
+                                                  setExpressPartner('');
+                                                  setExpressAgentPhone('');
+                                                  setExpressModalOrder(ord.id);
+                                                  setExpressBundledOrderIds(allBundleIds);
                                                 }}
-                                              />
-                                              <span
-                                                className="absolute inset-[1.5px] rounded-[6.5px] bg-[#ea580c]"
-                                              />
-                                              <span className="relative z-10 flex items-center gap-1"><Truck className="h-3 w-3" /> Speed Post</span>
-                                            </button>
-                                          ) : ord.shippingMethod === 'EXPRESS_LOCAL' ? (
+                                                className="h-7 px-2.5 rounded-lg text-white hover:brightness-110 text-xs font-bold inline-flex items-center gap-1 shadow-sm transition-all"
+                                                style={{ background: 'linear-gradient(135deg, #3b0764, #581c87)' }}
+                                              >
+                                                <Zap className="h-3 w-3" /> Express
+                                              </button>
+                                            );
+                                          }
+                                          return (
                                             <button
-                                              onClick={() => {
-                                                setExpressPartner('');
-                                                setExpressAgentPhone('');
-                                                setExpressModalOrder(ord.id);
-                                              }}
-                                              className="h-7 px-2.5 rounded-lg text-white hover:brightness-110 text-xs font-bold inline-flex items-center gap-1 shadow-sm transition-all"
-                                              style={{ background: 'linear-gradient(135deg, #3b0764, #581c87)' }}
-                                            >
-                                              <Zap className="h-3 w-3" /> Express
-                                            </button>
-                                          ) : (
-                                            <button
-                                              onClick={() => bookIndiaPostShipment(ord.id)}
+                                              onClick={() => bookIndiaPostShipment(ord.id, undefined, undefined, allBundleIds, 'NORMAL_POST')}
                                               className="h-7 px-2.5 rounded-lg bg-red-700 text-white hover:bg-red-800 text-xs font-bold inline-flex items-center justify-center gap-1 shadow-sm transition-all whitespace-nowrap"
                                             >
                                               <Package className="h-3 w-3" /> Book Post
                                             </button>
-                                          )
-                                        )
+                                          );
+                                        })()
                                       )}
                                       {ord.trackingNumber && (
                                         <>
@@ -1658,8 +2111,34 @@ admin@technoworld.com`
                                           </button>
                                         </>
                                       )}
-                                      <button
+                                      {grp.orders && grp.orders.length > 1 ? (
+                                        <button
+                                          title="Download Invoices for all orders in this consignment group (PDF)"
+                                          onClick={() => handleDownloadBatchInvoices(grp.orders.map((o: any) => o.id))}
+                                          className="h-7 px-2.5 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 text-xs font-bold inline-flex items-center justify-center gap-1 shadow-sm transition-all"
+                                        >
+                                          <FileText className="h-3 w-3 text-emerald-700" /> Invoices
+                                        </button>
+                                      ) : (
+                                        <button
+                                          title="Download Official Tax Invoice (PDF)"
+                                          onClick={() => handleDownloadSingleInvoice(ord.id, ord.orderNumber, ord)}
+                                          className="h-7 px-2.5 rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 text-xs font-bold inline-flex items-center justify-center gap-1 shadow-sm transition-all"
+                                        >
+                                          <FileText className="h-3 w-3 text-emerald-700" /> Invoice
+                                        </button>
+                                      )}
+                                       {(!ord.trackingNumber && ['PENDING', 'CONFIRMED', 'PROCESSING'].includes(ord.status) && !ord.parentOrderId) && (
+                                         <button
+                                           title="Manually merge this child order into an existing un-dispatched parent parcel"
+                                           onClick={() => handleOpenMergeModal(ord)}
+                                           className="h-7 px-2 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-xs font-bold inline-flex items-center justify-center gap-1 transition-all"
+                                         >
+                                           <Link2 className="h-3 w-3" /> Merge
+                                         </button>
+                                       )}
                                         onClick={() => openEmailModal(ord, 'DELAY_NOTICE')}
+                                      <button
                                         className="h-7 px-2.5 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-bold inline-flex items-center justify-center gap-1 transition-all"
                                       >
                                         <Mail className="h-3 w-3" /> Delay
@@ -1777,7 +2256,7 @@ admin@technoworld.com`
                                 className="rounded border-slate-300"
                               />
                             </th>
-                            <th className="px-4 py-3 min-w-[130px]">Order ID</th>
+                            <th className="px-4 py-3 min-w-[150px]">Order ID / SKU ID</th>
                             <th className="px-4 py-3 min-w-[320px]">Individual Book Details</th>
                             <th className="px-4 py-3 min-w-[120px] text-center">Quantity & Price</th>
                             <th className="px-4 py-3 min-w-[200px]">Recipient & Post Office</th>
@@ -1806,7 +2285,7 @@ admin@technoworld.com`
                                   />
                                 </td>
 
-                                <td className="px-4 py-4 align-top space-y-0.5">
+                                <td className="px-4 py-4 align-top space-y-1">
                                   <button
                                     onClick={() => setPreviewOrder(ord)}
                                     className="font-extrabold text-blue-600 block hover:underline hover:text-blue-800 cursor-pointer text-left font-mono"
@@ -1814,10 +2293,16 @@ admin@technoworld.com`
                                   >
                                     {ord.orderNumber}
                                   </button>
+                                  <div className="inline-flex items-center gap-1 rounded bg-slate-100 border border-slate-200 px-1.5 py-0.5 text-[10px] font-mono font-bold text-slate-800">
+                                    <span className="text-slate-400 font-medium">SKU:</span>
+                                    <span className="text-blue-700">{getDisplaySku(book)}</span>
+                                  </div>
                                   {entry.isBundled && (
-                                    <span className="inline-flex items-center gap-1 rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-700 border border-amber-200">
-                                      📦 Bundled Package
-                                    </span>
+                                    <div>
+                                      <span className="inline-flex items-center gap-1 rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-700 border border-amber-200">
+                                        📦 Bundled Package
+                                      </span>
+                                    </div>
                                   )}
                                   <span className="text-[10px] text-slate-400 block font-mono">
                                     {new Date(ord.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
@@ -1921,7 +2406,7 @@ admin@technoworld.com`
                                         <Package className="h-3 w-3" /> Pack Order
                                       </button>
                                     )}
-                                    {ord.shippingMethod === 'SELF_PICKUP' ? (
+                                    {false && ord.shippingMethod === 'SELF_PICKUP' ? (
                                       <>
                                         {ord.pickupStatus === 'PENDING_SLOTS' || !ord.pickupSlots || ord.pickupStatus === 'NONE' ? (
                                           <button
@@ -1976,58 +2461,123 @@ admin@technoworld.com`
                                     ) : (
                                       <>
                                         {ord.status === 'PROCESSING' && !ord.trackingNumber && (
-                                          ord.shippingMethod === 'SPEED_POST' ? (
-                                            <button
-                                              onClick={() => bookIndiaPostShipment(ord.id)}
-                                              className="relative h-7 px-2.5 rounded-lg text-white text-xs font-bold inline-flex items-center gap-1 overflow-hidden"
-                                              style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)' }}
-                                            >
-                                              <span className="absolute inset-0 rounded-lg" style={{
-                                                background: 'conic-gradient(from 0deg, transparent 0%, rgba(255,200,100,0.8) 10%, transparent 20%)',
-                                                animation: 'spin 2s linear infinite',
-                                              }} />
-                                              <span className="absolute inset-[2px] rounded-md" style={{
-                                                background: 'linear-gradient(135deg, #f97316, #ea580c)',
-                                              }} />
-                                              <span className="relative z-10 flex items-center gap-1"><Truck className="h-3 w-3" /> Speed Post</span>
-                                            </button>
-                                          ) : ord.shippingMethod === 'EXPRESS_LOCAL' ? (
-                                            <button
-                                              onClick={() => {
-                                                setExpressPartner('');
-                                                setExpressAgentPhone('');
-                                                setExpressModalOrder(ord.id);
-                                              }}
-                                              className="h-7 px-2.5 rounded-lg text-white text-xs font-bold inline-flex items-center gap-1 shadow-sm"
-                                              style={{ background: 'linear-gradient(135deg, #581c87, #7e22ce)' }}
-                                            >
-                                              <Zap className="h-3 w-3" /> Express
-                                            </button>
-                                          ) : (
-                                            <button
-                                              onClick={() => bookIndiaPostShipment(ord.id)}
-                                              className="h-7 px-2.5 rounded-lg bg-red-700 text-white hover:bg-red-800 text-xs font-bold inline-flex items-center justify-center gap-1 shadow-sm transition-all whitespace-nowrap"
-                                            >
-                                              <Package className="h-3 w-3" /> Book Post
-                                            </button>
-                                          )
-                                        )}
-                                        {ord.trackingNumber && (
-                                          <>
-                                            <button
-                                              onClick={() => openShippingLabel(ord.id)}
-                                              className="h-7 px-2.5 rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 text-xs font-bold inline-flex items-center justify-center gap-1 shadow-sm transition-all"
-                                            >
-                                              <Printer className="h-3 w-3" /> Label
-                                            </button>
-                                            <button
-                                              onClick={() => openTrackingModal(ord.trackingNumber || ord.orderNumber)}
-                                              className="h-7 px-2.5 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 text-xs font-bold inline-flex items-center justify-center gap-1 shadow-sm transition-all"
-                                            >
-                                              <Truck className="h-3 w-3" /> Track
-                                            </button>
-                                          </>
-                                        )}
+                                           entry.isBundled && entry.group?.orders?.length > 1 ? (
+                                             <button
+                                               onClick={() => handleOrderRowDispatchClick(entry)}
+                                               className="h-7 px-2.5 rounded-lg text-white text-xs font-bold inline-flex items-center justify-center gap-1.5 shadow-sm transition-all whitespace-nowrap"
+                                               style={{
+                                                 background: entry.group.highestMethod === 'EXPRESS_LOCAL'
+                                                   ? 'linear-gradient(135deg, #581c87, #7e22ce)'
+                                                   : entry.group.highestMethod === 'SPEED_POST'
+                                                     ? 'linear-gradient(135deg, #ea580c, #f97316)'
+                                                     : 'linear-gradient(135deg, #b91c1c, #dc2626)',
+                                               }}
+                                               title={`Part of bundle with ${entry.group.orders.length} orders. Click to choose fulfillment option.`}
+                                             >
+                                               {entry.group.highestMethod === 'EXPRESS_LOCAL' ? (
+                                                 <Zap className="h-3 w-3" />
+                                               ) : entry.group.highestMethod === 'SPEED_POST' ? (
+                                                 <Truck className="h-3 w-3" />
+                                               ) : (
+                                                 <Package className="h-3 w-3" />
+                                               )}
+                                               <span>
+                                                 {entry.group.highestMethod === 'EXPRESS_LOCAL'
+                                                   ? '⚡ Express'
+                                                   : entry.group.highestMethod === 'SPEED_POST'
+                                                     ? '🚀 Speed Post'
+                                                     : '📦 Book Post'}
+                                               </span>
+                                               <span className="ml-0.5 rounded-full bg-white/20 px-1 py-0.2 text-[9px] font-black uppercase tracking-tight">
+                                                 Bundle ({entry.group.orders.length})
+                                               </span>
+                                             </button>
+                                           ) : ord.shippingMethod === 'SPEED_POST' ? (
+                                             <button
+                                               onClick={() => handleOrderRowDispatchClick(entry)}
+                                               className="relative h-7 px-2.5 rounded-lg text-white text-xs font-bold inline-flex items-center gap-1 overflow-hidden"
+                                               style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)' }}
+                                             >
+                                               <span className="absolute inset-0 rounded-lg" style={{
+                                                 background: 'conic-gradient(from 0deg, transparent 0%, rgba(255,200,100,0.8) 10%, transparent 20%)',
+                                                 animation: 'spin 2s linear infinite',
+                                               }} />
+                                               <span className="absolute inset-[2px] rounded-md" style={{
+                                                 background: 'linear-gradient(135deg, #f97316, #ea580c)',
+                                               }} />
+                                               <span className="relative z-10 flex items-center gap-1"><Truck className="h-3 w-3" /> Speed Post</span>
+                                             </button>
+                                           ) : ord.shippingMethod === 'EXPRESS_LOCAL' ? (
+                                             <button
+                                               onClick={() => handleOrderRowDispatchClick(entry)}
+                                               className="h-7 px-2.5 rounded-lg text-white text-xs font-bold inline-flex items-center gap-1 shadow-sm"
+                                               style={{ background: 'linear-gradient(135deg, #581c87, #7e22ce)' }}
+                                             >
+                                               <Zap className="h-3 w-3" /> Express
+                                             </button>
+                                           ) : (
+                                             <button
+                                               onClick={() => handleOrderRowDispatchClick(entry)}
+                                               className="h-7 px-2.5 rounded-lg bg-red-700 text-white hover:bg-red-800 text-xs font-bold inline-flex items-center justify-center gap-1 shadow-sm transition-all whitespace-nowrap"
+                                             >
+                                               <Package className="h-3 w-3" /> Book Post
+                                             </button>
+                                            )
+                                         )}
+                                       {ord.trackingNumber && (
+                                         <>
+                                           <button
+                                             onClick={() => openShippingLabel(ord.id)}
+                                             className="h-7 px-2.5 rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 text-xs font-bold inline-flex items-center justify-center gap-1 shadow-sm transition-all"
+                                           >
+                                             <Printer className="h-3 w-3" /> Label
+                                           </button>
+                                           <button
+                                             onClick={() => openTrackingModal(ord.trackingNumber || ord.orderNumber)}
+                                             className="h-7 px-2.5 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 text-xs font-bold inline-flex items-center justify-center gap-1 shadow-sm transition-all"
+                                           >
+                                             <Truck className="h-3 w-3" /> Track
+                                           </button>
+                                         </>
+                                       )}
+                                       {entry.isBundled && entry.group?.orders && entry.group.orders.length > 1 ? (
+                                         <button
+                                           title="Download Invoices for all orders in this bundle (PDF)"
+                                           onClick={() => handleDownloadBatchInvoices(entry.group.orders.map((o: any) => o.id))}
+                                           className="h-7 px-2.5 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 text-xs font-bold inline-flex items-center justify-center gap-1 shadow-sm transition-all"
+                                         >
+                                           <FileText className="h-3 w-3 text-emerald-700" /> Invoices
+                                         </button>
+                                       ) : (
+                                         <button
+                                           title="Download Official Tax Invoice (PDF)"
+                                           onClick={() => handleDownloadSingleInvoice(ord.id, ord.orderNumber, ord)}
+                                           className="h-7 px-2.5 rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 text-xs font-bold inline-flex items-center justify-center gap-1 shadow-sm transition-all"
+                                         >
+                                           <FileText className="h-3 w-3 text-emerald-700" /> Invoice
+                                         </button>
+                                       )}
+                                       {(!ord.trackingNumber && ['PENDING', 'CONFIRMED', 'PROCESSING'].includes(ord.status) && !ord.parentOrderId) && (
+                                         <button
+                                           title="Manually merge this child order into an existing un-dispatched parent parcel"
+                                           onClick={() => handleOpenMergeModal(ord)}
+                                           className="h-7 px-2 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-xs font-bold inline-flex items-center justify-center gap-1 transition-all"
+                                         >
+                                           <Link2 className="h-3 w-3" /> Merge
+                                         </button>
+                                       )}
+                                       <button
+                                         onClick={() => openEmailModal(ord, 'DELAY_NOTICE')}
+                                         className="h-7 px-2.5 rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-bold inline-flex items-center justify-center gap-1 transition-all"
+                                       >
+                                         <Mail className="h-3 w-3" /> Delay
+                                       </button>
+                                       <button
+                                         onClick={() => setRejectModalOrder(ord)}
+                                         className="h-7 px-2.5 rounded-lg border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 text-xs font-bold inline-flex items-center justify-center gap-1 transition-all"
+                                       >
+                                         <XCircle className="h-3 w-3" /> Reject
+                                       </button>
                                       </>
                                     )}
                                   </div>
@@ -2350,11 +2900,154 @@ admin@technoworld.com`
                   </div>
                 </div>
               )}
+
+              {/* Manual Child Order Merge Modal */}
+              {mergeModalOrder && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in">
+                  <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-lg w-full overflow-hidden">
+                    {/* Header */}
+                    <div className="bg-gradient-to-r from-blue-900 to-indigo-900 p-5 text-white flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="p-2 rounded-xl bg-white/10">
+                          <Link2 className="h-5 w-5 text-blue-300" />
+                        </div>
+                        <div>
+                          <h3 className="text-base font-extrabold">Consolidate Order Consignment</h3>
+                          <p className="text-xs text-blue-200">Merge child order #{mergeModalOrder.orderNumber} into active parcel</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setMergeModalOrder(null)}
+                        className="text-white/70 hover:text-white text-xl font-bold p-1 rounded-lg hover:bg-white/10 transition-colors"
+                      >
+                        &times;
+                      </button>
+                    </div>
+
+                    <div className="p-6 space-y-4">
+                      {/* Child Order Details */}
+                      <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2 text-xs">
+                        <div className="flex justify-between font-bold text-slate-800">
+                          <span>Child Order: #{mergeModalOrder.orderNumber}</span>
+                          <span>{formatINR(mergeModalOrder.totalAmount)}</span>
+                        </div>
+                        <div className="text-slate-600 flex justify-between">
+                          <span>Customer: {mergeModalOrder.pickupName || mergeModalOrder.address?.fullName || mergeModalOrder.user?.name || 'Customer'}</span>
+                          <span>{mergeModalOrder.items?.length || 0} Book(s)</span>
+                        </div>
+                        <div className="text-slate-600 flex justify-between">
+                          <span>Delivery Method: {mergeModalOrder.shippingMethod === 'SPEED_POST' ? '🚀 Speed Post' : mergeModalOrder.shippingMethod === 'EXPRESS_LOCAL' ? '⚡ Express Local' : '📦 Standard Delivery'}</span>
+                          <span className="font-bold text-blue-700">Shipping Paid: {formatINR(mergeModalOrder.shippingCharge || 0)}</span>
+                        </div>
+                      </div>
+
+                      {/* Wallet Refund Notice */}
+                      {mergeModalOrder.shippingCharge > 0 ? (
+                        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 text-xs text-emerald-900">
+                          <div className="font-extrabold flex items-center gap-1.5 text-emerald-800 mb-1">
+                            <span>💰</span> TechnoWallet Refund: {formatINR(mergeModalOrder.shippingCharge)}
+                          </div>
+                          <p className="text-[11px] leading-relaxed text-emerald-700">
+                            The {formatINR(mergeModalOrder.shippingCharge)} delivery fee will be refunded directly to the customer's <b>TechnoWallet</b> balance upon merging.
+                            Wallet credits have <b>no expiry date</b>, <b>no maximum usage limits</b>, and can be used on any future book purchase.
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-800">
+                          ℹ️ This child order had ₹0 delivery fee. Items will be bundled into the parent parcel at no additional charge.
+                        </div>
+                      )}
+
+                      {/* Candidate Parent Orders */}
+                      <div>
+                        <label className="block text-xs font-extrabold text-slate-700 mb-1.5 uppercase tracking-wide">
+                          Select Active Consignment Package to Merge Into:
+                        </label>
+                        {isLoadingCandidates ? (
+                          <div className="p-6 text-center text-slate-500 text-xs flex items-center justify-center gap-2">
+                            <Loader2 className="h-4 w-4 animate-spin text-blue-600" /> Searching un-dispatched orders for this customer...
+                          </div>
+                        ) : mergeCandidates.length === 0 ? (
+                          <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
+                            ⚠️ No eligible active parent orders found for this customer awaiting dispatch.
+                          </div>
+                        ) : (
+                          <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                            {mergeCandidates.map((cand: any) => (
+                              <label
+                                key={cand.id}
+                                className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                                  selectedParentOrderId === cand.id
+                                    ? 'border-blue-600 bg-blue-50/50 shadow-sm'
+                                    : 'border-slate-200 hover:border-slate-300 bg-white'
+                                }`}
+                              >
+                                <input
+                                  type="radio"
+                                  name="parentOrderChoice"
+                                  checked={selectedParentOrderId === cand.id}
+                                  onChange={() => setSelectedParentOrderId(cand.id)}
+                                  className="mt-1 text-blue-600 focus:ring-blue-500"
+                                />
+                                <div className="flex-1 min-w-0 text-xs">
+                                  <div className="flex justify-between items-center font-bold text-slate-900">
+                                    <span>Order #{cand.orderNumber}</span>
+                                    <span className="text-emerald-700 font-extrabold">{formatINR(cand.totalAmount)}</span>
+                                  </div>
+                                  <div className="text-[11px] text-slate-500 mt-0.5">
+                                    Placed: {new Date(cand.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}, {new Date(cand.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                                    {' · '}{cand.shippingMethod === 'SPEED_POST' ? '🚀 Speed Post' : cand.shippingMethod === 'EXPRESS_LOCAL' ? '⚡ Express' : '📦 Standard'}
+                                  </div>
+                                  <div className="text-[11px] text-slate-600 mt-1 truncate">
+                                    {cand.items?.map((it: any) => it.book?.title || 'Book').join(', ')}
+                                  </div>
+                                </div>
+                              </label>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Notification Promise */}
+                      <div className="text-[11px] text-slate-500 flex items-center gap-1.5 bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                        <Mail className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                        <span>Customer will receive an automated consolidation email explaining the merged package and wallet refund.</span>
+                      </div>
+
+                      {/* Footer Actions */}
+                      <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100">
+                        <button
+                          type="button"
+                          onClick={() => setMergeModalOrder(null)}
+                          className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold transition-colors"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          disabled={!selectedParentOrderId || isMergingOrder}
+                          onClick={handleConfirmMerge}
+                          className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-extrabold shadow-md inline-flex items-center gap-1.5 transition-all"
+                        >
+                          {isMergingOrder ? (
+                            <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Merging Consignment...</>
+                          ) : (
+                            <><Link2 className="h-3.5 w-3.5" /> Confirm & Merge Orders</>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           );
         })()}
 
-        
+        {tab === 'payments' && (
+          <PaymentsWorkspace onPreviewOrder={(order) => setPreviewOrder(order)} />
+        )}
+
         {tab === 'customers' && (
           <div className="space-y-6">
             <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -2414,6 +3107,7 @@ admin@technoworld.com`
                         <th className="px-4 py-3">Total Orders</th>
                         <th className="px-4 py-3">Lifetime Spend</th>
                         <th className="px-4 py-3">TechnoPoints</th>
+                        <th className="px-4 py-3">TechnoWallet</th>
                         <th className="px-4 py-3">Primary Address</th>
                         <th className="px-4 py-3 text-right">Actions</th>
                       </tr>
@@ -2452,6 +3146,12 @@ admin@technoworld.com`
                             <td className="px-4 py-3.5">
                               <span className="rounded-full bg-amber-50 border border-amber-200 px-2.5 py-0.5 font-bold text-amber-800 text-xs">
                                 ⭐ {c.technoPoints || 0} pts
+                              </span>
+                            </td>
+
+                            <td className="px-4 py-3.5">
+                              <span className="rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 font-extrabold text-emerald-800 text-xs">
+                                💳 {formatINR(c.technoWallet || 0)}
                               </span>
                             </td>
 
@@ -2550,26 +3250,643 @@ admin@technoworld.com`
 
 
         {tab === 'reviews' && (
-          <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="mb-6 text-sm font-bold text-slate-800">Review Moderation</p>
-            <div className="space-y-4">
-              {[{ id: 1, title: 'Great read', book: 'Atomic Habits', rating: 5, body: 'Very helpful.' }, { id: 2, title: 'Too lengthy', book: 'UPSC Polity', rating: 3, body: 'Very informative but too long.' }].map((r) => (
-                <div key={r.id} className="rounded-xl border border-slate-200 p-5 shadow-sm">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-base font-bold text-slate-900">{r.title}</p>
-                      <p className="text-sm text-slate-500 mt-0.5">on <span className="font-medium text-slate-700">{r.book}</span></p>
-                    </div>
-                    <span className="text-sm font-bold text-amber-500 tracking-widest">{'★'.repeat(r.rating)}</span>
+          <div className="space-y-6">
+            {/* Review & Q&A Header */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                  <h2 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                    <MessageSquare className="h-5 w-5 text-emerald-600" />
+                    Customer Reviews & Q&A Moderation
+                  </h2>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Moderate customer ratings and review comments, and reply to book questions asked on the product pages.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2.5">
+                  {/* Add Curated Review Button */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      loadAvailableBooks();
+                      setCuratedReviewForm({
+                        bookId: '',
+                        userName: '',
+                        rating: 5,
+                        title: '',
+                        content: '',
+                        isVerified: true,
+                        date: new Date().toISOString().split('T')[0],
+                      });
+                      setShowAddReviewModal(true);
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-3.5 py-2 text-xs font-bold text-white hover:bg-emerald-700 transition-colors shadow-sm"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    Add Curated Review
+                  </button>
+
+                  {/* Clear Logs Older Than 24h Button */}
+                  <button
+                    type="button"
+                    onClick={() => setShowClear24hModal(true)}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2 text-xs font-bold text-rose-700 hover:bg-rose-100 transition-colors shadow-sm"
+                    title="Auto-delete or clear review/Q&A logs older than 24 hours"
+                  >
+                    <Trash2 className="h-3.5 w-3.5 text-rose-600" />
+                    Clear Logs (Older than 24h)
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={fetchReviewsAndQuestions}
+                    disabled={loadingReviewsData}
+                    className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors"
+                  >
+                    <RotateCcw className={`h-3.5 w-3.5 ${loadingReviewsData ? 'animate-spin text-emerald-600' : ''}`} />
+                    Refresh
+                  </button>
+                </div>
+              </div>
+
+              {/* Sub-Tab Navigation: Reviews vs Questions */}
+              <div className="mt-6 flex items-center gap-2 border-b border-slate-100 pb-4">
+                <button
+                  type="button"
+                  onClick={() => setReviewSubTab('reviews')}
+                  className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
+                    reviewSubTab === 'reviews'
+                      ? 'bg-emerald-600 text-white shadow-sm'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  <Star className="h-3.5 w-3.5 fill-current" />
+                  <span>Customer Reviews</span>
+                  <span className={`ml-1 rounded-full px-2 py-0.5 text-[10px] font-black ${
+                    reviewSubTab === 'reviews' ? 'bg-white/20 text-white' : 'bg-white text-slate-700'
+                  }`}>
+                    {adminReviews.length}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setReviewSubTab('questions')}
+                  className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
+                    reviewSubTab === 'questions'
+                      ? 'bg-purple-600 text-white shadow-sm'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  <HelpCircle className="h-3.5 w-3.5" />
+                  <span>Questions & Answers (Q&A)</span>
+                  {adminQuestions.filter(q => q.status === 'PENDING').length > 0 && (
+                    <span className="ml-1 rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-black text-slate-950">
+                      {adminQuestions.filter(q => q.status === 'PENDING').length} Pending
+                    </span>
+                  )}
+                </button>
+              </div>
+
+              {/* Filter Toolbar */}
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                <div className="relative flex-1 min-w-[240px] max-w-md">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+                  <input
+                    type="text"
+                    value={reviewSearchQuery}
+                    onChange={(e) => setReviewSearchQuery(e.target.value)}
+                    placeholder={reviewSubTab === 'reviews' ? 'Search by book title, reviewer name, or comment...' : 'Search by question, book, or answer...'}
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 py-2 text-xs font-medium outline-none focus:border-emerald-500"
+                  />
+                </div>
+
+                {reviewSubTab === 'reviews' ? (
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={reviewRatingFilter}
+                      onChange={(e) => setReviewRatingFilter(e.target.value)}
+                      className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-700 outline-none"
+                    >
+                      <option value="ALL">All Ratings (1–5 Stars)</option>
+                      <option value="5">5 Stars ★★★★★</option>
+                      <option value="4">4 Stars ★★★★☆</option>
+                      <option value="3">3 Stars ★★★☆☆</option>
+                      <option value="2">2 Stars ★★☆☆☆</option>
+                      <option value="1">1 Star ★☆☆☆☆</option>
+                    </select>
                   </div>
-                  <p className="mt-3 text-sm text-slate-600 leading-relaxed">{r.body}</p>
-                  <div className="mt-4 flex gap-3">
-                    <button className="rounded-lg bg-emerald-50 px-4 py-1.5 text-sm font-bold text-emerald-700">Approve</button>
-                    <button className="rounded-lg bg-rose-50 px-4 py-1.5 text-sm font-bold text-rose-700">Flag</button>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={questionStatusFilter}
+                      onChange={(e) => setQuestionStatusFilter(e.target.value)}
+                      className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-700 outline-none"
+                    >
+                      <option value="ALL">All Questions</option>
+                      <option value="PENDING">Pending Reply</option>
+                      <option value="ANSWERED">Answered & Published</option>
+                    </select>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* SUB-TAB 1: CUSTOMER REVIEWS */}
+            {reviewSubTab === 'reviews' && (
+              <div className="space-y-4">
+                {adminReviews
+                  .filter((r: any) => {
+                    if (reviewRatingFilter !== 'ALL' && r.rating !== Number(reviewRatingFilter)) return false;
+                    if (reviewSearchQuery.trim()) {
+                      const q = reviewSearchQuery.toLowerCase();
+                      const matchBook = (r.bookTitle || '').toLowerCase().includes(q);
+                      const matchUser = (r.userName || '').toLowerCase().includes(q);
+                      const matchText = (r.content || r.title || '').toLowerCase().includes(q);
+                      return matchBook || matchUser || matchText;
+                    }
+                    return true;
+                  })
+                  .map((r: any) => (
+                    <div key={r.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:border-slate-300">
+                      <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                        <div className="flex items-start gap-3.5">
+                          {/* Book Thumbnail */}
+                          <div className="h-14 w-10 rounded-lg border border-slate-200 bg-slate-50 overflow-hidden shrink-0">
+                            {r.bookCover ? (
+                              <img src={r.bookCover} alt={r.bookTitle} className="h-full w-full object-cover" />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center text-slate-300">📖</div>
+                            )}
+                          </div>
+
+                          <div className="space-y-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="inline-flex items-center gap-1 rounded bg-amber-50 border border-amber-200 px-2 py-0.5 text-xs font-black text-amber-700">
+                                {r.rating} ★
+                              </span>
+                              {r.title && <h4 className="text-sm font-extrabold text-slate-900">{r.title}</h4>}
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold ${
+                                r.isApproved ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-500'
+                              }`}>
+                                {r.isApproved ? 'Published on Store' : 'Hidden'}
+                              </span>
+                              {r.isVerified ? (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                  <Check className="h-3 w-3 stroke-[3]" /> Verified Buyer
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200">
+                                  Standard Reviewer
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Book Title */}
+                            <p className="text-xs text-slate-500 font-medium">
+                              on book: <span className="font-bold text-slate-800">{r.bookTitle}</span>
+                            </p>
+
+                            {/* Review Body */}
+                            <p className="text-xs text-slate-700 leading-relaxed pt-1 bg-slate-50/80 rounded-xl p-3 border border-slate-100 font-normal">
+                              "{r.content}"
+                            </p>
+
+                            {/* Reviewer Info */}
+                            <div className="flex flex-wrap items-center gap-3 pt-1 text-[11px] text-slate-400">
+                              <span className="font-bold text-slate-700 flex items-center gap-1">
+                                👤 {r.userName}
+                              </span>
+                              {r.userEmail && <span>✉️ {r.userEmail}</span>}
+                              <span>•</span>
+                              <span>🕒 {new Date(r.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex flex-wrap items-center gap-2 shrink-0 self-end md:self-start">
+                          <button
+                            type="button"
+                            onClick={() => handleToggleVerifiedReview(r.id, r.isVerified)}
+                            className={`rounded-xl px-2.5 py-1.5 text-xs font-bold transition-colors shadow-sm flex items-center gap-1 ${
+                              r.isVerified
+                                ? 'bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100'
+                                : 'bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100'
+                            }`}
+                            title={r.isVerified ? 'Click to remove Verified Buyer badge' : 'Click to grant Verified Buyer badge'}
+                          >
+                            <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+                            {r.isVerified ? 'Verified' : 'Make Verified'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleToggleApproveReview(r.id, r.isApproved)}
+                            className={`rounded-xl px-3 py-1.5 text-xs font-bold transition-colors shadow-sm ${
+                              r.isApproved
+                                ? 'bg-amber-50 border border-amber-200 text-amber-700 hover:bg-amber-100'
+                                : 'bg-emerald-600 text-white hover:bg-emerald-700'
+                            }`}
+                          >
+                            {r.isApproved ? 'Hide Review' : 'Approve Review'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteReview(r.id)}
+                            className="rounded-xl border border-rose-200 bg-white p-1.5 text-rose-600 hover:bg-rose-50 transition-colors"
+                            title="Delete review"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                {adminReviews.length === 0 && !loadingReviewsData && (
+                  <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center text-slate-400">
+                    <Star className="mx-auto h-10 w-10 text-slate-300 mb-2" />
+                    <p className="font-bold text-slate-700">No customer reviews found</p>
+                    <p className="text-xs text-slate-400 mt-1">Customer reviews submitted on book pages will show up here for moderation.</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* SUB-TAB 2: QUESTIONS & ANSWERS (Q&A) */}
+            {reviewSubTab === 'questions' && (
+              <div className="space-y-4">
+                {adminQuestions
+                  .filter((q: any) => {
+                    if (questionStatusFilter !== 'ALL' && q.status !== questionStatusFilter) return false;
+                    if (reviewSearchQuery.trim()) {
+                      const query = reviewSearchQuery.toLowerCase();
+                      const matchBook = (q.bookTitle || '').toLowerCase().includes(query);
+                      const matchUser = (q.userName || '').toLowerCase().includes(query);
+                      const matchQ = (q.question || '').toLowerCase().includes(query);
+                      const matchA = (q.answer || '').toLowerCase().includes(query);
+                      return matchBook || matchUser || matchQ || matchA;
+                    }
+                    return true;
+                  })
+                  .map((q: any) => (
+                    <div key={q.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:border-slate-300">
+                      <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                        <div className="flex items-start gap-3.5 flex-1 min-w-0">
+                          {/* Book Thumbnail */}
+                          <div className="h-14 w-10 rounded-lg border border-slate-200 bg-slate-50 overflow-hidden shrink-0">
+                            {q.bookCover ? (
+                              <img src={q.bookCover} alt={q.bookTitle} className="h-full w-full object-cover" />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center text-slate-300">📖</div>
+                            )}
+                          </div>
+
+                          <div className="space-y-2 flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] font-extrabold ${
+                                q.status === 'ANSWERED'
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                  : 'bg-amber-50 text-amber-800 border border-amber-200'
+                              }`}>
+                                {q.status === 'ANSWERED' ? <CheckCircle2 className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
+                                {q.status === 'ANSWERED' ? 'Answered & Published' : 'Pending Response'}
+                              </span>
+                              <span className="text-xs text-slate-400">•</span>
+                              <p className="text-xs text-slate-500 font-medium line-clamp-1">
+                                Book: <span className="font-bold text-slate-800">{q.bookTitle}</span>
+                              </p>
+                            </div>
+
+                            {/* Customer Question */}
+                            <div className="rounded-xl bg-purple-50/50 p-3 border border-purple-100">
+                              <p className="text-xs font-bold text-purple-950">
+                                Q: {q.question}
+                              </p>
+                              <div className="flex items-center gap-3 mt-1.5 text-[10px] text-purple-700 font-medium">
+                                <span>Asked by: <b>{q.userName}</b> ({q.userEmail || 'Guest'})</span>
+                                <span>•</span>
+                                <span>{new Date(q.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                              </div>
+                            </div>
+
+                            {/* Existing Answer if present */}
+                            {q.answer && (
+                              <div className="rounded-xl bg-slate-50 p-3 border border-slate-200/80">
+                                <div className="flex items-center gap-1 text-[11px] font-bold text-emerald-800 mb-1">
+                                  <CornerDownRight className="h-3.5 w-3.5" /> Published Answer:
+                                </div>
+                                <p className="text-xs text-slate-700 leading-relaxed font-normal">
+                                  {q.answer}
+                                </p>
+                                <span className="text-[10px] text-slate-400 mt-1 block font-medium">
+                                  Signed as: <b>{q.answeredBy}</b> {q.answeredAt && `(${new Date(q.answeredAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })})`}
+                                </span>
+                              </div>
+                            )}
+
+                            {/* Inline Reply Form */}
+                            {replyingQuestionId === q.id && (
+                              <div className="rounded-xl border border-purple-200 bg-white p-4 shadow-md space-y-3 mt-2">
+                                <h4 className="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
+                                  <Send className="h-3.5 w-3.5 text-purple-600" /> Write Answer for Product Page
+                                </h4>
+                                <textarea
+                                  rows={3}
+                                  value={replyText}
+                                  onChange={(e) => setReplyText(e.target.value)}
+                                  placeholder="Type verified answer here (e.g. Yes, this is the official 2026 revised syllabus edition with 2025 solved papers)..."
+                                  className="w-full rounded-xl border border-slate-300 p-2.5 text-xs outline-none focus:border-purple-600 font-medium"
+                                />
+                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                  <div className="flex items-center gap-2">
+                                    <label className="text-[11px] font-bold text-slate-600">Answer Signature:</label>
+                                    <select
+                                      value={replySignature}
+                                      onChange={(e) => setReplySignature(e.target.value)}
+                                      className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-bold text-slate-700 outline-none"
+                                    >
+                                      <option value="Techno World Direct · Verified Seller">Techno World Direct · Verified Seller</option>
+                                      <option value="Staff Academic Reviewer">Staff Academic Reviewer</option>
+                                      <option value="Senior Subject Editor">Senior Subject Editor</option>
+                                    </select>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setReplyingQuestionId(null);
+                                        setReplyText('');
+                                      }}
+                                      className="rounded-lg px-3 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-100"
+                                    >
+                                      Cancel
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handlePublishAnswer(q.id)}
+                                      className="rounded-lg bg-purple-600 px-4 py-1.5 text-xs font-bold text-white hover:bg-purple-700 shadow-sm"
+                                    >
+                                      Publish Answer
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Question Actions */}
+                        <div className="flex items-center gap-2 shrink-0 self-end md:self-start">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setReplyingQuestionId(q.id);
+                              setReplyText(q.answer || '');
+                            }}
+                            className="rounded-xl border border-purple-200 bg-purple-50 px-3.5 py-1.5 text-xs font-bold text-purple-700 hover:bg-purple-100 transition-colors shadow-sm"
+                          >
+                            {q.status === 'ANSWERED' ? 'Edit Answer' : 'Reply & Publish'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteQuestion(q.id)}
+                            className="rounded-xl border border-rose-200 bg-white p-1.5 text-rose-600 hover:bg-rose-50 transition-colors"
+                            title="Delete question"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                {adminQuestions.length === 0 && !loadingReviewsData && (
+                  <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center text-slate-400">
+                    <HelpCircle className="mx-auto h-10 w-10 text-slate-300 mb-2" />
+                    <p className="font-bold text-slate-700">No customer questions submitted</p>
+                    <p className="text-xs text-slate-400 mt-1">Questions asked by visitors on any book page will appear here for you to reply.</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Clear Logs Older Than 24h Modal */}
+            {showClear24hModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+                <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+                  <div className="flex items-center gap-3 text-rose-600 mb-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-50">
+                      <Trash2 className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-extrabold text-slate-900">Clear Logs Older Than 24h</h3>
+                      <p className="text-xs text-slate-500">Auto-clean review and question records</p>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-200/80 mb-4">
+                    This will clean up and purge question & review entries created more than <b>24 hours ago</b> from the system log.
+                  </p>
+
+                  <div className="flex justify-end gap-2">
+                    <button
+                      type="button"
+                      disabled={clearing24h}
+                      onClick={() => setShowClear24hModal(false)}
+                      className="rounded-lg px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      disabled={clearing24h}
+                      onClick={handleClear24hLogs}
+                      className="rounded-lg bg-rose-600 px-4 py-2 text-xs font-bold text-white hover:bg-rose-700 disabled:opacity-50"
+                    >
+                      {clearing24h ? 'Clearing Records...' : 'Confirm Clear (Older than 24h)'}
+                    </button>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
+
+            {/* Add Curated Review Modal */}
+            {showAddReviewModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+                <div className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl overflow-y-auto max-h-[90vh]">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                    <div>
+                      <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                        <Star className="h-5 w-5 text-amber-500 fill-amber-500" /> Add Curated Review
+                      </h3>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        Publish a promotional or editorial review for any book in your catalog.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowAddReviewModal(false)}
+                      className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+
+                  <form onSubmit={handleCreateCuratedReview} className="space-y-4">
+                    {/* Select Book */}
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        Select Book <span className="text-rose-500">*</span>
+                      </label>
+                      <select
+                        value={curatedReviewForm.bookId}
+                        onChange={(e) => setCuratedReviewForm(prev => ({ ...prev, bookId: e.target.value }))}
+                        className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-800 outline-none focus:border-emerald-500"
+                        required
+                      >
+                        <option value="">-- Choose a book from catalog --</option>
+                        {availableBooks.map((b: any) => (
+                          <option key={b.id} value={b.id}>
+                            {b.title} {b.isbn13 ? `(ISBN: ${b.isbn13})` : ''}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Reviewer Name & Star Rating */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                          Reviewer Name
+                        </label>
+                        <input
+                          type="text"
+                          value={curatedReviewForm.userName}
+                          onChange={(e) => setCuratedReviewForm(prev => ({ ...prev, userName: e.target.value }))}
+                          placeholder="e.g. Suman Sengupta / Verified Reader"
+                          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-emerald-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                          Rating (Stars)
+                        </label>
+                        <div className="flex items-center gap-1 mt-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <button
+                              key={star}
+                              type="button"
+                              onClick={() => setCuratedReviewForm(prev => ({ ...prev, rating: star }))}
+                              className="p-1 hover:scale-110 transition-transform"
+                            >
+                              <Star
+                                className={`h-5 w-5 ${
+                                  star <= curatedReviewForm.rating
+                                    ? 'text-amber-500 fill-amber-500'
+                                    : 'text-slate-300'
+                                }`}
+                              />
+                            </button>
+                          ))}
+                          <span className="ml-2 text-xs font-bold text-slate-600">
+                            {curatedReviewForm.rating} of 5
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Review Headline / Title */}
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        Review Headline (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={curatedReviewForm.title}
+                        onChange={(e) => setCuratedReviewForm(prev => ({ ...prev, title: e.target.value }))}
+                        placeholder="e.g. Must-have book for final semester exams"
+                        className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-emerald-500"
+                      />
+                    </div>
+
+                    {/* Review Content */}
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        Review Content / Feedback <span className="text-rose-500">*</span>
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={curatedReviewForm.content}
+                        onChange={(e) => setCuratedReviewForm(prev => ({ ...prev, content: e.target.value }))}
+                        placeholder="Write the review text here. Detailed answers and feedback look genuine to readers..."
+                        className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-medium text-slate-800 outline-none focus:border-emerald-500"
+                        required
+                      />
+                    </div>
+
+                    {/* Verified Buyer Badge Toggle */}
+                    <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-3.5 flex items-center justify-between">
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                          <span className="text-xs font-extrabold text-slate-800">
+                            Display "Verified Buyer" Badge
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-500 mt-0.5">
+                          When enabled, renders the green <b>✓ Verified Buyer</b> badge on the book page.
+                        </p>
+                      </div>
+
+                      <label className="relative inline-flex cursor-pointer items-center">
+                        <input
+                          type="checkbox"
+                          checked={curatedReviewForm.isVerified}
+                          onChange={(e) => setCuratedReviewForm(prev => ({ ...prev, isVerified: e.target.checked }))}
+                          className="peer sr-only"
+                        />
+                        <div className="h-5 w-9 rounded-full bg-slate-200 after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-emerald-600 peer-checked:after:translate-x-full peer-focus:outline-none" />
+                      </label>
+                    </div>
+
+                    {/* Date */}
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        Review Date
+                      </label>
+                      <input
+                        type="date"
+                        value={curatedReviewForm.date}
+                        onChange={(e) => setCuratedReviewForm(prev => ({ ...prev, date: e.target.value }))}
+                        className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-emerald-500"
+                      />
+                    </div>
+
+                    {/* Submit Buttons */}
+                    <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                      <button
+                        type="button"
+                        onClick={() => setShowAddReviewModal(false)}
+                        className="rounded-xl px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={submittingCuratedReview}
+                        className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition-colors disabled:opacity-50"
+                      >
+                        {submittingCuratedReview ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                        Publish Review
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
           </div>
         )}
         {tab === 'media' && (
@@ -3919,6 +5236,266 @@ admin@technoworld.com`
         </div>
       )}
 
+      {/* Bundle Prompt Modal */}
+      {bundlePrompt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-xl rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50/90 px-6 py-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm">
+                  <Box className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-extrabold text-slate-900">Multi-Order Consignment Dispatch</h3>
+                  <p className="text-xs text-slate-500">
+                    Customer: <span className="font-bold text-slate-800">{bundlePrompt.group.customerName}</span> (📞 {bundlePrompt.group.customerPhone})
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setBundlePrompt(null)}
+                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Destination & Consignment Context */}
+            <div className="p-6 space-y-4">
+              <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-3.5">
+                <div className="flex items-start gap-3">
+                  <span className="text-lg">📍</span>
+                  <div className="text-xs text-slate-700">
+                    <p className="font-bold text-slate-900">
+                      Destination: {bundlePrompt.group.postOffice}, {bundlePrompt.group.city} — {bundlePrompt.group.pincode}
+                    </p>
+                    <p className="text-[11px] text-slate-600 mt-0.5">
+                      This customer placed <b className="text-blue-700">{bundlePrompt.group.orders.length} separate orders</b> scheduled for the same 2 PM dispatch batch.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Highest Method Highlight Badge */}
+              <div className="rounded-xl border border-purple-200 bg-gradient-to-r from-purple-50 to-indigo-50 p-3.5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-purple-700 block">
+                      Highest Service Tier Paid By Customer
+                    </span>
+                    <p className="text-sm font-black text-purple-950 flex items-center gap-1.5 mt-0.5">
+                      {bundlePrompt.highestMethod === 'EXPRESS_LOCAL' ? (
+                        <>
+                          <Zap className="h-4 w-4 text-purple-600" />
+                          <span>⚡ Express Local Courier (Priority Trip)</span>
+                        </>
+                      ) : bundlePrompt.highestMethod === 'SPEED_POST' ? (
+                        <>
+                          <Truck className="h-4 w-4 text-orange-600" />
+                          <span>🚀 India Post Speed Post (Priority Transit)</span>
+                        </>
+                      ) : (
+                        <>
+                          <Package className="h-4 w-4 text-red-600" />
+                          <span>📦 Standard Book Post</span>
+                        </>
+                      )}
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-purple-200/60 px-2.5 py-1 text-xs font-bold text-purple-900">
+                    {bundlePrompt.highestMethod === 'EXPRESS_LOCAL' ? 'Full Paid Courier' : bundlePrompt.highestMethod === 'SPEED_POST' ? 'Priority Post' : 'Standard Post'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Order Breakdown in this Bundle with SKU ID display */}
+              <div>
+                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2 block">
+                  Orders & Book SKU IDs in this Consignment ({bundlePrompt.group.orders.length})
+                </label>
+                <div className="max-h-56 overflow-y-auto space-y-2 rounded-xl border border-slate-200 p-2 bg-slate-50/50">
+                  {bundlePrompt.group.orders.map((ord: any) => {
+                    const isCurrentTarget = ord.id === bundlePrompt.targetOrder.id;
+                    const ordMethod = ord.shippingMethod || 'NORMAL_POST';
+                    return (
+                      <div
+                        key={ord.id}
+                        className={`p-2.5 rounded-xl transition-colors ${
+                          isCurrentTarget ? 'bg-blue-50/90 border-2 border-blue-400 shadow-sm' : 'bg-white border border-slate-200/80 shadow-xs'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between pb-1.5 border-b border-slate-100">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-mono text-xs font-black text-slate-900">
+                              #{ord.orderNumber || ord.id.slice(-8)}
+                            </span>
+                            {isCurrentTarget && (
+                              <span className="rounded bg-blue-600 text-white text-[9px] font-black px-1.5 py-0.2 uppercase tracking-wide">
+                                Clicked Order
+                              </span>
+                            )}
+                            <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded border ${
+                              ordMethod === 'EXPRESS_LOCAL'
+                                ? 'bg-purple-50 text-purple-700 border-purple-200'
+                                : ordMethod === 'SPEED_POST'
+                                  ? 'bg-orange-50 text-orange-700 border-orange-200'
+                                  : 'bg-slate-100 text-slate-700 border-slate-200'
+                            }`}>
+                              {ordMethod === 'EXPRESS_LOCAL' ? '⚡ Express' : ordMethod === 'SPEED_POST' ? '🚀 Speed Post' : '📦 Book Post'}
+                            </span>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-xs font-mono font-black text-slate-900">
+                              ₹{ord.totalAmount}
+                            </span>
+                            <span className="text-[10px] text-slate-400 ml-1">
+                              ({ord.items?.length || 1} {ord.items?.length === 1 ? 'item' : 'items'})
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Detailed Items & SKU IDs */}
+                        <div className="mt-2 space-y-1.5">
+                          {Array.isArray(ord.items) && ord.items.length > 0 ? (
+                            ord.items.map((it: any, iIdx: number) => {
+                              const bk = it.book || {};
+                              const sku = formatClientSku(bk) || bk.sku || 'N/A';
+                              return (
+                                <div key={it.id || iIdx} className="flex items-center justify-between gap-2 rounded-lg bg-slate-50 border border-slate-200/60 px-2 py-1 text-xs">
+                                  <div className="min-w-0 flex-1">
+                                    <p className="font-bold text-slate-800 line-clamp-1">
+                                      {bk.title || 'Book Title'}
+                                      {it.quantity > 1 && <span className="text-slate-500 font-normal ml-1">× {it.quantity}</span>}
+                                    </p>
+                                    <div className="flex items-center gap-2 mt-0.5">
+                                      <span className="inline-flex items-center gap-1 font-mono text-[10px] font-extrabold text-blue-700 bg-blue-50 px-1.5 py-0.2 rounded border border-blue-200/60">
+                                        SKU ID: {sku}
+                                      </span>
+                                      {bk.isbn13 && (
+                                        <span className="text-[10px] font-mono text-slate-400">
+                                          ISBN: {bk.isbn13}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <span className="font-mono text-xs font-bold text-slate-700 shrink-0">
+                                    {formatINR(it.priceAtPurchase || bk.price || 0)}
+                                  </span>
+                                </div>
+                              );
+                            })
+                          ) : (
+                            <p className="text-xs text-slate-500">Books</p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Action Choices */}
+              <div className="space-y-3 pt-2">
+                {/* Option 1: Ship Whole Bundle */}
+                <button
+                  onClick={() => {
+                    const allBundleIds = bundlePrompt.group.orders.map((o: any) => o.id);
+                    const primaryId = bundlePrompt.group.order.id;
+                    const chosenMethod = bundlePrompt.highestMethod;
+                    setBundlePrompt(null);
+
+                    if (chosenMethod === 'EXPRESS_LOCAL') {
+                      setExpressPartner('');
+                      setExpressAgentPhone('');
+                      setExpressModalOrder(primaryId);
+                      setExpressBundledOrderIds(allBundleIds);
+                    } else {
+                      bookIndiaPostShipment(primaryId, undefined, undefined, allBundleIds, chosenMethod);
+                    }
+                  }}
+                  className="w-full flex items-center justify-between p-3.5 rounded-xl text-left border border-emerald-600 bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-all group"
+                >
+                  <div>
+                    <span className="text-xs font-black uppercase tracking-wider block text-emerald-100">
+                      Recommended Fulfillment
+                    </span>
+                    <p className="text-sm font-extrabold flex items-center gap-1.5 mt-0.5">
+                      📦 Ship Whole Bundle (All {bundlePrompt.group.orders.length} Orders via {bundlePrompt.highestMethod === 'EXPRESS_LOCAL' ? '⚡ Express' : bundlePrompt.highestMethod === 'SPEED_POST' ? '🚀 Speed Post' : '📦 Book Post'})
+                    </p>
+                    <p className="text-[11px] text-emerald-100/90 mt-0.5">
+                      Fulfills all orders in one parcel with shared tracking number at the customer's highest chosen tier.
+                    </p>
+                  </div>
+                  <span className="shrink-0 rounded-lg bg-emerald-800/60 px-2.5 py-1 text-xs font-bold group-hover:bg-emerald-800">
+                    Ship Bundle →
+                  </span>
+                </button>
+
+                {/* Option 2: Ship Only This Order */}
+                {(() => {
+                  const targetItems = bundlePrompt.targetOrder?.items || [];
+                  const targetSkus = targetItems
+                    .map((i: any) => formatClientSku(i.book || {}) || i.book?.sku)
+                    .filter(Boolean)
+                    .join(', ');
+
+                  return (
+                    <button
+                      onClick={() => {
+                        const singleOrder = bundlePrompt.targetOrder;
+                        const singleMethod = singleOrder.shippingMethod || 'NORMAL_POST';
+                        setBundlePrompt(null);
+
+                        if (singleMethod === 'EXPRESS_LOCAL') {
+                          setExpressPartner('');
+                          setExpressAgentPhone('');
+                          setExpressModalOrder(singleOrder.id);
+                          setExpressBundledOrderIds([]);
+                        } else {
+                          bookIndiaPostShipment(singleOrder.id, undefined, undefined, [], singleMethod);
+                        }
+                      }}
+                      className="w-full flex items-center justify-between p-3.5 rounded-xl text-left border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 transition-all group"
+                    >
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
+                          Partial Fulfillment
+                        </span>
+                        <p className="text-xs font-bold text-slate-900 mt-0.5 flex items-center gap-1.5 flex-wrap">
+                          <span>📄 Ship Only Order #{bundlePrompt.targetOrder.orderNumber || bundlePrompt.targetOrder.id.slice(-6)}</span>
+                          {targetSkus && (
+                            <span className="font-mono text-[10px] font-bold text-blue-700 bg-blue-50 px-1.5 py-0.2 rounded border border-blue-200">
+                              SKU: {targetSkus}
+                            </span>
+                          )}
+                        </p>
+                        <p className="text-[11px] text-slate-500 mt-0.5">
+                          Dispatches only this single order via its own method ({bundlePrompt.targetOrder.shippingMethod || 'Standard'}). Other orders remain pending.
+                        </p>
+                      </div>
+                      <span className="shrink-0 rounded-lg border border-slate-200 bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700 group-hover:bg-slate-200">
+                        Ship Only This
+                      </span>
+                    </button>
+                  );
+                })()}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="border-t border-slate-200 bg-slate-50 px-6 py-3 flex justify-end">
+              <button
+                onClick={() => setBundlePrompt(null)}
+                className="rounded-lg px-4 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-200 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Express Dispatch Modal */}
       {expressModalOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
@@ -3956,8 +5533,9 @@ admin@technoworld.com`
               <button
                 onClick={() => {
                   if (!expressPartner.trim()) return toast.error('Delivery Partner is required');
-                  bookIndiaPostShipment(expressModalOrder, expressPartner, expressAgentPhone);
+                  bookIndiaPostShipment(expressModalOrder, expressPartner, expressAgentPhone, expressBundledOrderIds, 'EXPRESS_LOCAL');
                   setExpressModalOrder(null);
+                  setExpressBundledOrderIds([]);
                 }}
                 className="rounded-lg bg-purple-700 px-4 py-2 text-sm font-bold text-white hover:bg-purple-800"
               >
