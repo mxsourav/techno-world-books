@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
-import { Package, Truck, CheckCircle2, XCircle, Clock, ExternalLink, Store, CalendarCheck, Download, Loader2 } from 'lucide-react';
+import { Package, Truck, CheckCircle2, XCircle, Clock, ExternalLink, Store, CalendarCheck, Download, Loader2, FileText } from 'lucide-react';
 import { orderService } from '@/services/api';
 import { formatINR } from '@/utils/helpers';
-import { generateAndPrintInvoice } from '@/utils/generateInvoice';
+import { downloadOrderInvoice } from '@/utils/generateInvoice';
 import { toast } from 'sonner';
 
 const getStatusBadge = (status: string) => {
@@ -30,6 +30,7 @@ export default function MyOrders() {
   const [loading, setLoading] = useState(true);
   const [selectedSlotsByOrder, setSelectedSlotsByOrder] = useState<{ [orderId: string]: string }>({});
   const [isConfirmingSlot, setIsConfirmingSlot] = useState<string | null>(null);
+  const [downloadingInvoiceId, setDownloadingInvoiceId] = useState<string | null>(null);
 
   const loadOrders = async () => {
     try {
@@ -108,10 +109,35 @@ export default function MyOrders() {
                   <p className="font-bold text-slate-900">{order.orderNumber}</p>
                   <p className="text-xs text-slate-400 mt-1">{new Date(order.createdAt).toLocaleDateString()} at {new Date(order.createdAt).toLocaleTimeString()}</p>
                 </div>
-                <div className="text-right">
+                <div className="text-right flex flex-col items-end">
                   <p className="text-xs text-slate-500 font-medium mb-1">TOTAL AMOUNT</p>
                   <p className="font-bold text-slate-900">{formatINR(order.totalAmount)}</p>
                   <div className="mt-1">{getStatusBadge(order.status)}</div>
+                  {order.status !== 'CANCELLED' && order.status !== 'REFUNDED' && (
+                    <button
+                      type="button"
+                      disabled={downloadingInvoiceId === order.id}
+                      onClick={async () => {
+                        try {
+                          setDownloadingInvoiceId(order.id);
+                          await downloadOrderInvoice(order);
+                          toast.success('Invoice downloaded');
+                        } catch (err: any) {
+                          toast.error(err.message || 'Failed to download invoice');
+                        } finally {
+                          setDownloadingInvoiceId(null);
+                        }
+                      }}
+                      className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-800 transition-colors shadow-xs disabled:opacity-50"
+                    >
+                      {downloadingInvoiceId === order.id ? (
+                        <Loader2 className="h-3 w-3 animate-spin text-emerald-700" />
+                      ) : (
+                        <Download className="h-3 w-3 text-emerald-700" />
+                      )}
+                      <span>Tax Invoice</span>
+                    </button>
+                  )}
                 </div>
               </div>
               
@@ -144,10 +170,26 @@ export default function MyOrders() {
                     </p>
                     <button
                       type="button"
-                      onClick={() => generateAndPrintInvoice(order)}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-800 shadow-sm transition-colors"
+                      disabled={downloadingInvoiceId === order.id}
+                      onClick={async () => {
+                        try {
+                          setDownloadingInvoiceId(order.id);
+                          await downloadOrderInvoice(order);
+                          toast.success('Invoice downloaded');
+                        } catch (err: any) {
+                          toast.error(err.message || 'Failed to download invoice');
+                        } finally {
+                          setDownloadingInvoiceId(null);
+                        }
+                      }}
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-800 shadow-sm transition-colors disabled:opacity-50"
                     >
-                      <Download className="h-3.5 w-3.5" /> Download Tax Invoice
+                      {downloadingInvoiceId === order.id ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin text-white" />
+                      ) : (
+                        <Download className="h-3.5 w-3.5" />
+                      )}
+                      <span>Download Tax Invoice</span>
                     </button>
                   </div>
 
