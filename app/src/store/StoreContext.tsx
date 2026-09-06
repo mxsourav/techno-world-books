@@ -64,7 +64,23 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [savedForLater, setSavedForLater] = useState<CartItem[]>(() => { const raw = loadArray<any>('twb_saved'); return raw.map(i => ({ bookId: i.bookId || i.id, qty: i.qty || i.quantity || 1 })).filter(i => i.bookId && typeof i.bookId === 'string' && i.bookId.startsWith('c')); });
   const [wishlist, setWishlist] = useState<string[]>(() => { const raw = loadArray<any>('twb_wishlist'); return raw.map(i => typeof i === 'string' ? i : i.id || i.bookId).filter(id => typeof id === 'string' && id.startsWith('c')); });
   const [orders, setOrders] = useState<Order[]>(() => loadArray('twb_orders'));
-  const [user, setUser] = useState<User | null>(() => load('twb_user', null));
+  const [user, setUser] = useState<User | null>(() => {
+    const u = load<User | null>('twb_user', null);
+    if (u && !u.id) {
+      try {
+        const token = localStorage.getItem('tw_admin_token');
+        if (token && token.includes('.')) {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          if (payload?.userId) {
+            u.id = payload.userId;
+          }
+        }
+      } catch {
+        // silent
+      }
+    }
+    return u;
+  });
   const [addresses, setAddresses] = useState<Address[]>(() => loadArray('twb_addresses'));
   const [searchHistory, setSearchHistory] = useState<string[]>(() => loadArray('twb_history'));
   const [recentlyViewed, setRecentlyViewed] = useState<string[]>(() => { const raw = loadArray<any>('twb_recent'); return raw.map(i => typeof i === 'string' ? i : i.id || i.bookId).filter(id => typeof id === 'string' && id.startsWith('c')); });
@@ -140,7 +156,22 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     setOrders((o) => o.filter((ord) => ord.id !== orderId));
   }, []);
 
-  const login = useCallback((u: User) => setUser(u), []);
+  const login = useCallback((u: User) => {
+    if (!u.id) {
+      try {
+        const token = localStorage.getItem('tw_admin_token');
+        if (token && token.includes('.')) {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          if (payload?.userId) {
+            u.id = payload.userId;
+          }
+        }
+      } catch {
+        // silent
+      }
+    }
+    setUser(u);
+  }, []);
   const logout = useCallback(() => setUser(null), []);
 
   const addAddress = useCallback((a: Address) => setAddresses((arr) => [...arr, a]), []);
