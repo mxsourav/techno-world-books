@@ -75,6 +75,39 @@ function KeepAlivePing() {
   return null;
 }
 
+// Real-time visitor pulse tracker for live analytics
+function VisitorPulseTracker() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    let sessionId = sessionStorage.getItem('tw_vis_sid');
+    if (!sessionId) {
+      sessionId = `vis_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+      sessionStorage.setItem('tw_vis_sid', sessionId);
+    }
+
+    const sendPulse = () => {
+      const baseUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://techno-world-api-qw4j.onrender.com/api/v1' : 'http://localhost:5000/api/v1');
+      fetch(`${baseUrl}/analytics/pulse`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId,
+          path: pathname,
+          pageTitle: document.title || 'Techno World Books',
+          referrer: document.referrer || undefined,
+        }),
+      }).catch(() => {});
+    };
+
+    sendPulse();
+    const interval = setInterval(sendPulse, 25000); // 25-second active pulse
+    return () => clearInterval(interval);
+  }, [pathname]);
+
+  return null;
+}
+
 
 // This is the customer layout that wraps around the customer-facing pages, including the header, footer, and a floating WhatsApp support button.
 function CustomerLayout() {
@@ -207,6 +240,7 @@ export default function App() {
       <AuthProvider>
         <ScrollToTop />
         <KeepAlivePing />
+        <VisitorPulseTracker />
         <Toaster position="top-center" richColors />
         <ErrorBoundary>
           {isAdminDomain ? <AdminPortal /> : <CustomerStorefront />}

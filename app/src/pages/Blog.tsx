@@ -13,7 +13,7 @@ import {
   Eye,
   User,
 } from 'lucide-react';
-import { blogService, getImageUrl } from '@/services/api';
+import { blogService, analyticsService, getImageUrl } from '@/services/api';
 import { BLOG_POSTS } from '@/data/blog';
 import { BOOKS } from '@/data/books';
 import { BookRow } from '@/components/BookCard';
@@ -344,6 +344,22 @@ export function BlogPost() {
     };
   }, [slug]);
 
+  // Track article reading engagement time
+  useEffect(() => {
+    if (!slug) return;
+    const interval = setInterval(() => {
+      analyticsService
+        .trackBlogEvent({
+          blogSlug: slug,
+          eventType: 'READ_TIME',
+          durationSeconds: 15,
+        })
+        .catch(() => {});
+    }, 15000);
+
+    return () => clearInterval(interval);
+  }, [slug]);
+
   const handleShare = () => {
     if (navigator.clipboard) {
       navigator.clipboard.writeText(window.location.href);
@@ -537,7 +553,20 @@ export function BlogPost() {
       </article>
 
       {/* Attached / Recommended Books Section */}
-      <div className="mt-12 rounded-2xl border border-slate-200/70 bg-gradient-to-b from-slate-50/70 to-white p-4 sm:p-6 shadow-sm">
+      <div
+        className="mt-12 rounded-2xl border border-slate-200/70 bg-gradient-to-b from-slate-50/70 to-white p-4 sm:p-6 shadow-sm"
+        onClick={(e) => {
+          const target = (e.target as HTMLElement).closest('a, button');
+          if (target && slug) {
+            analyticsService
+              .trackBlogEvent({
+                blogSlug: slug,
+                eventType: 'BOOK_CLICK',
+              })
+              .catch(() => {});
+          }
+        }}
+      >
         <div className="mb-2 flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-emerald-600" />
           <h2 className="text-lg font-extrabold text-slate-900 sm:text-xl">
