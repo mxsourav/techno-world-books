@@ -61,6 +61,7 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
       if (res.success && res.data) {
         authLogin(res.data.accessToken, res.data.user);
         login({
+          id: res.data.user.id,
           name: res.data.user.name,
           email: res.data.user.email,
           phone: res.data.user.phone || '',

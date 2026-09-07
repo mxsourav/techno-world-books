@@ -56,10 +56,28 @@ export function useCartTotals(pincode?: string, addressId?: string, address?: an
           return;
         }
 
+        let effectiveUserId = (user as any)?.id || (user as any)?.userId;
+        if (!effectiveUserId) {
+          try {
+            const token = localStorage.getItem('tw_admin_token');
+            if (token && token.includes('.')) {
+              const decoded = JSON.parse(atob(token.split('.')[1]));
+              if (decoded?.userId) {
+                effectiveUserId = decoded.userId;
+              }
+            }
+          } catch {
+            // ignore
+          }
+        }
+
         const payload: any = {
           items: validCart,
           couponCode: coupon,
-          userId: (user as any)?.id,
+          userId: effectiveUserId || undefined,
+          email: user?.email || undefined,
+          userEmail: user?.email || undefined,
+          phone: user?.phone || undefined,
           pincode: pincode || undefined,
           addressId: addressId || undefined,
           address: address || undefined,
