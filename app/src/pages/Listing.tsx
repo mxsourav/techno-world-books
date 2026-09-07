@@ -10,6 +10,7 @@ import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import SEOHead from '@/components/SEOHead';
 
 type SortKey = 'relevance' | 'price-low' | 'price-high' | 'rating' | 'discount' | 'newest';
 
@@ -185,8 +186,38 @@ export default function Listing() {
     );
   }
 
+  const pageTitle = catObj
+    ? `Buy ${catObj.name} Books Online — Best Prices | Techno World Books`
+    : publisherQuery
+    ? `Books by ${publisherQuery} — Buy Online | Techno World Books`
+    : query
+    ? `Search Results for "${query}" | Techno World Books`
+    : 'Browse Books — School, College, Exam & General | Techno World Books';
+
+  const pageDescription = catObj
+    ? `Explore best-selling ${catObj.name} books online at Techno World Books. Huge discounts, fast delivery across India, COD available.`
+    : publisherQuery
+    ? `Browse all books published by ${publisherQuery}. Genuine academic, competitive exam and literature books with fast delivery.`
+    : query
+    ? `Find books matching "${query}" on Techno World Books India. Best discounts, easy replacement and verified reviews.`
+    : 'Browse our complete catalog of school textbooks, competitive exams, engineering, medical, and literature books.';
+
+  const canonicalUrl = category
+    ? `/category/${category}`
+    : publisherQuery
+    ? `/search?publisher=${encodeURIComponent(publisherQuery)}`
+    : query
+    ? `/search?q=${encodeURIComponent(query)}`
+    : '/category/all';
+
   return (
     <div className="mx-auto max-w-7xl px-3 py-4 sm:px-6">
+      <SEOHead
+        title={pageTitle}
+        description={pageDescription}
+        canonicalUrl={canonicalUrl}
+        ogType="website"
+      />
       {/* breadcrumbs */}
       <nav className="mb-3 flex items-center gap-1 text-xs text-slate-500">
         <Link to="/" className="hover:text-emerald-700">Home</Link>

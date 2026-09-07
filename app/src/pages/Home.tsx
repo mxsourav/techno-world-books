@@ -13,6 +13,7 @@ import StudyGuides from '@/components/StudyGuides';
 import PromoBanners from '@/components/PromoBanners';
 import { useAutoFeaturedBooks } from '@/hooks/useAutoFeaturedBooks';
 import { OFFERS, SEARCH_SUGGESTIONS } from '@/data/constants';
+import SEOHead, { buildWebsiteJsonLd } from '@/components/SEOHead';
 
 const PUBLISHERS = ['NCERT', 'Arihant Publications', 'McGraw Hill', 'Elsevier', 'Penguin', 'Ananda Publishers', 'MTG Learning Media', 'Dhanpat Rai'];
 
@@ -58,6 +59,14 @@ export default function Home() {
 
   return (
     <div className="bg-slate-50 selection:bg-emerald-500/30">
+      <SEOHead
+        title="Techno World Books — Buy Books Online in India | College Street, Kolkata"
+        description="India's trusted online bookstore from College Street, Kolkata. Buy NCERT, JEE, NEET, UPSC, Medical, Engineering, Academic & Literature books online. Fast delivery across 27,000+ pincodes, free shipping above ₹999."
+        canonicalUrl="/"
+        ogType="website"
+        ogImage="https://technoworldbooks.in/hero_mockup.png"
+        structuredData={buildWebsiteJsonLd()}
+      />
       {/* Hero Section */}
       <section className="relative w-full min-h-[85vh] overflow-x-clip bg-[#02120b] text-white flex flex-col justify-center pt-14 pb-32 lg:pt-16 lg:pb-40">
         {/* Background Image */}
