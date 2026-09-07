@@ -8,10 +8,11 @@ import {
 } from 'lucide-react';
 
 import { formatINR } from '@/utils/helpers';
-import { bookService, categoryService, shippingService, reviewService, questionService } from '@/services/api';
+import { bookService, categoryService, shippingService, reviewService, questionService, getImageUrl } from '@/services/api';
 import { useStore } from '@/store/StoreContext';
 import { BookCover } from '@/components/BookCover';
 import { BookRow } from '@/components/BookCard';
+import SEOHead, { buildBookJsonLd } from '@/components/SEOHead';
 import { toast } from 'sonner';
 
 export default function Product() {
@@ -474,8 +475,41 @@ export default function Product() {
     }
   };
 
+  const seoImageUrl = getImageUrl(book.coverUrl || book.coverImage);
+  const seoDescription = (book.description && book.description.trim())
+    ? book.description.slice(0, 160).trim()
+    : `Buy ${book.title} by ${author} (${publisher}) online at best price in India on Techno World Books. Fast delivery across 27,000+ pincodes.`;
+
+  const bookJsonLd = buildBookJsonLd({
+    title: book.title,
+    author,
+    isbn,
+    publisher,
+    price,
+    mrp,
+    stock: book.stock ?? 10,
+    rating,
+    reviewCount: reviewsCount,
+    thumbnail: seoImageUrl || undefined,
+    slug: book.slug || slug || '',
+    description: seoDescription,
+    language,
+    edition,
+    pages,
+    pubDate: book.publicationDate || (pubYear ? `${pubYear}-01-01` : undefined),
+  });
+
   return (
     <div className="bg-slate-50/60 min-h-screen pb-16">
+      <SEOHead
+        title={`${book.title} — ${author} | Techno World Books`}
+        description={seoDescription}
+        canonicalUrl={`/book/${book.slug || slug}`}
+        ogType="book"
+        ogImage={seoImageUrl || undefined}
+        ogImageAlt={`Cover of ${book.title}`}
+        structuredData={bookJsonLd}
+      />
       {/* Breadcrumb Header */}
       <div className="border-b border-slate-200/80 bg-white">
         <div className="mx-auto max-w-7xl px-4 py-2.5 sm:px-6">

@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /checkout
+Disallow: /my-orders
+Disallow: /profile
+Disallow: /account
+Disallow: /order-success
+
+Sitemap: https://technoworldbooks.in/sitemap.xml

@@ -13,6 +13,7 @@ import StudyGuides from '@/components/StudyGuides';
 import PromoBanners from '@/components/PromoBanners';
 import { useAutoFeaturedBooks } from '@/hooks/useAutoFeaturedBooks';
 import { OFFERS, SEARCH_SUGGESTIONS } from '@/data/constants';
+import SEOHead, { buildWebsiteJsonLd } from '@/components/SEOHead';
 
 const PUBLISHERS = ['NCERT', 'Arihant Publications', 'McGraw Hill', 'Elsevier', 'Penguin', 'Ananda Publishers', 'MTG Learning Media', 'Dhanpat Rai'];
 
@@ -176,8 +177,8 @@ export default function Home() {
               <div className="flex items-center gap-3 px-3">
                 <Package className="h-6 w-6 text-slate-800" strokeWidth={1.5} />
                 <div>
-                  <div className="font-bold text-slate-900 text-[13px]">Easy Returns</div>
-                  <div className="text-slate-500 text-[11px]">Hassle-free returns</div>
+                  <div className="font-bold text-slate-900 text-[13px]">Easy Replacement</div>
+                  <div className="text-slate-500 text-[11px]">Hassle-free replacement</div>
                 </div>
               </div>
               <div className="w-px h-7 bg-slate-200"></div>

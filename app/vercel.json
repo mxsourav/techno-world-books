@@ -1,9 +1,9 @@
 {
-  "outputDirectory": "dist",
-  "rewrites": [
+  "redirects": [
     {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "https://linen-hippopotamus-972833.hostingersite.com/$1",
+      "permanent": true
     }
   ]
 }

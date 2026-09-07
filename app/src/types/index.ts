@@ -87,4 +87,6 @@ export interface User {
   email: string;
   phone: string;
   rewardPoints: number;
+  technoPoints?: number;
+  technoWallet?: number;
 }
