@@ -34,7 +34,7 @@ export default function Home() {
       const cached = localStorage.getItem(CACHED_COVER_KEY);
       if (cached) return cached;
     } catch {}
-    return '/uploads/hero/hero-book-cover-1788810895589.webp';
+    return '/uploads/hero/hero-book-cover-1788824544793.webp';
   });
 
   const [activePresetId, setActivePresetId] = useState<BookPresetId>(() => {
