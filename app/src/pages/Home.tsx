@@ -1,8 +1,8 @@
 import { Link, useNavigate } from 'react-router';
 import { BadgePercent, Truck, Gift, Sparkles, ArrowRight, Trophy, Flame, TrendingUp, Sparkle, Stethoscope, Settings, GraduationCap, Library, BookOpen, Quote, Languages, Globe2, Gem, Heart, Clock, Tag } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
-import { bookService } from '@/services/api';
+import { bookService, heroService, getImageUrl } from '@/services/api';
 import type { Book } from '@/types';
 import { useStore } from '@/store/StoreContext';
 import { BookRow } from '@/components/BookCard';
@@ -12,13 +12,8 @@ import PublishedByTechnoWorld from '@/components/PublishedByTechnoWorld';
 import StudyGuides from '@/components/StudyGuides';
 import PromoBanners from '@/components/PromoBanners';
 import { useAutoFeaturedBooks } from '@/hooks/useAutoFeaturedBooks';
-<<<<<<< HEAD
-import { OFFERS, SEARCH_SUGGESTIONS } from '@/data/constants';
-// import SEOHead, { buildWebsiteJsonLd } from '@/components/SEOHead';
-=======
 import { SEARCH_SUGGESTIONS } from '@/data/constants';
 import SEOHead, { buildWebsiteJsonLd } from '@/components/SEOHead';
->>>>>>> d7addb8 (fix: enable mobile menu drawer scrolling and update hero offer cards)
 
 const PUBLISHERS = ['NCERT', 'Arihant Publications', 'McGraw Hill', 'Elsevier', 'Penguin', 'Ananda Publishers', 'MTG Learning Media', 'Dhanpat Rai'];
 
@@ -27,6 +22,40 @@ export default function Home() {
   const navigate = useNavigate();
 
   const [books, setBooks] = useState<Book[]>([]);
+
+  const [heroCoverUrl, setHeroCoverUrl] = useState<string | null>(null);
+  const [isCoverLoaded, setIsCoverLoaded] = useState(false);
+  const heroCanvasRef = useRef<HTMLDivElement>(null);
+  const [bookScale, setBookScale] = useState(1);
+
+  useEffect(() => {
+    heroService.getHeroConfig()
+      .then((res) => {
+        if (res.success && res.data?.hero_book_cover_url) {
+          const timestamp = res.data.hero_book_cover_updated_at ? `?v=${new Date(res.data.hero_book_cover_updated_at).getTime()}` : '';
+          setHeroCoverUrl(`${getImageUrl(res.data.hero_book_cover_url)}${timestamp}`);
+        } else {
+          setHeroCoverUrl(null);
+        }
+      })
+      .catch(() => {
+        setHeroCoverUrl(null);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (!heroCanvasRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const width = entry.contentRect.width;
+        if (width > 0) {
+          setBookScale(width / 1672);
+        }
+      }
+    });
+    observer.observe(heroCanvasRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -64,16 +93,101 @@ export default function Home() {
 
   return (
     <div className="w-full min-w-0 max-w-full overflow-x-hidden bg-slate-50 selection:bg-emerald-500/30">
+      <SEOHead
+        title="Techno World Books — Buy Academic, School & College Books Online"
+        description="Every book India reads, one search away. Fast delivery across India on genuine textbooks, reference materials, and publications."
+        canonicalUrl="https://technoworldbooks.in/"
+        structuredData={buildWebsiteJsonLd()}
+      />
       {/* Hero Section */}
       <section className="relative flex min-h-[620px] w-full max-w-full min-w-0 flex-col justify-center overflow-x-hidden bg-[#02120b] pb-24 pt-7 text-white sm:min-h-[85vh] sm:pb-32 sm:pt-14 lg:pt-16 lg:pb-40">
-        {/* Background Image */}
-        <div
-          className="absolute inset-0 z-0 bg-no-repeat bg-cover"
-          style={{
-            backgroundImage: 'url("/hero_mockup.png")',
-            backgroundPosition: 'center 45%'
-          }}
-        />
+        {/* Synchronized Hero Canvas with Pure CSS 3D Perspective Book Cover & Paperback Texture */}
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+          <div
+            ref={heroCanvasRef}
+            className="absolute left-1/2 top-[45%] -translate-x-1/2 -translate-y-[45%]"
+            style={{
+              aspectRatio: '1672 / 941',
+              minWidth: '100%',
+              minHeight: '100%',
+              width: 'auto',
+              height: 'auto',
+            }}
+          >
+            {/* Base Hero Mockup Image */}
+            <img
+              src="/hero_mockup.png"
+              alt="Techno World Books Hero Mockup"
+              className="absolute inset-0 h-full w-full object-fill pointer-events-none select-none"
+              loading="eager"
+              decoding="async"
+            />
+
+            {/* Dynamic 3D Book Cover Overlay */}
+            {heroCoverUrl && (
+              <div
+                className="absolute hidden lg:block transition-opacity duration-700 ease-out"
+                style={{
+                  left: '64.00%',
+                  top: '19.98%',
+                  width: '16.45%',
+                  height: '51.12%', // spine height 481px / 941px
+                  opacity: isCoverLoaded ? 1 : 0,
+                  transformOrigin: '0% 0%',
+                  transform: `matrix3d(0.874545, -0.094545, 0, ${-0.000456198 / bookScale}, 0, 1, 0, 0, 0, 0, 1, 0, 0, ${26 * bookScale}, 0, 1)`,
+                  transformStyle: 'preserve-3d',
+                  backfaceVisibility: 'hidden',
+                  willChange: 'transform',
+                }}
+              >
+                {/* Book Cover Image */}
+                <img
+                  src={heroCoverUrl}
+                  alt="Featured Book Cover"
+                  className="h-full w-full object-cover rounded-r-[1.5px] rounded-l-[0.5px] shadow-sm"
+                  onLoad={() => setIsCoverLoaded(true)}
+                  loading="eager"
+                  decoding="async"
+                />
+
+                {/* Paperback Texture Overlay (Fine Paper Grain / Fiber Noise) */}
+                <div
+                  className="absolute inset-0 pointer-events-none opacity-40 mix-blend-overlay rounded-r-[1.5px] rounded-l-[0.5px]"
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.35'/%3E%3C/svg%3E")`,
+                  }}
+                />
+
+                {/* Shading Layer 1: Spine Fold Shadow & Page Swell */}
+                <div
+                  className="absolute inset-0 pointer-events-none rounded-r-[1.5px] rounded-l-[0.5px]"
+                  style={{
+                    background: 'linear-gradient(90deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.22) 4%, rgba(0,0,0,0.02) 12%, rgba(255,255,255,0.12) 32%, rgba(255,255,255,0.04) 55%, transparent 75%, rgba(0,0,0,0.08) 95%, rgba(0,0,0,0.28) 100%)',
+                    mixBlendMode: 'multiply',
+                  }}
+                />
+
+                {/* Shading Layer 2: Gloss & Specular Sheen */}
+                <div
+                  className="absolute inset-0 pointer-events-none rounded-r-[1.5px] rounded-l-[0.5px]"
+                  style={{
+                    background: 'linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.25) 35%, rgba(255,255,255,0.08) 45%, transparent 60%)',
+                    mixBlendMode: 'screen',
+                  }}
+                />
+
+                {/* Shading Layer 3: Vertical Ambient Falloff */}
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background: 'linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 25%, transparent 70%, rgba(0,0,0,0.22) 100%)',
+                    mixBlendMode: 'multiply',
+                  }}
+                />
+              </div>
+            )}
+          </div>
+        </div>
         {/* Gradient Overlay (Cinematic Dark Mossy Green fade) */}
         <div className="absolute inset-0 z-0 bg-gradient-to-b sm:bg-gradient-to-r from-[#03150b] via-[#0a2e16]/95 to-[#03150b]/80 sm:to-transparent pointer-events-none w-full lg:w-[95%]"></div>
 

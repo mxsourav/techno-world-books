@@ -88,6 +88,10 @@ function VisitorPulseTracker() {
 
     const sendPulse = () => {
       const baseUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://techno-world-api-qw4j.onrender.com/api/v1' : 'http://localhost:5000/api/v1');
+      const isMobile = window.innerWidth < 768 || /Mobi|Android|iPhone|iPod/i.test(navigator.userAgent);
+      const isTablet = !isMobile && (window.innerWidth < 1024 || /iPad|Tablet/i.test(navigator.userAgent));
+      const detectedDevice = isMobile ? 'mobile' : isTablet ? 'tablet' : 'desktop';
+
       fetch(`${baseUrl}/analytics/pulse`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -96,6 +100,8 @@ function VisitorPulseTracker() {
           path: pathname,
           pageTitle: document.title || 'Techno World Books',
           referrer: document.referrer || undefined,
+          deviceType: detectedDevice,
+          screenWidth: window.innerWidth,
         }),
       }).catch(() => {});
     };
