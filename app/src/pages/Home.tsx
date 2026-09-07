@@ -17,6 +17,151 @@ import SEOHead, { buildWebsiteJsonLd } from '@/components/SEOHead';
 
 const PUBLISHERS = ['NCERT', 'Arihant Publications', 'McGraw Hill', 'Elsevier', 'Penguin', 'Ananda Publishers', 'MTG Learning Media', 'Dhanpat Rai'];
 
+export type BookPresetId = 'academic' | 'novel' | 'reference';
+
+export interface BookPresetConfig {
+  id: BookPresetId;
+  name: string;
+  imageSrc: string;
+  container: {
+    left: string;
+    top: string;
+    width: string;
+    height: string;
+  };
+  overlay: {
+    left: string;
+    top: string;
+    width: string;
+    height: string;
+    matrix: (bookScale: number) => string;
+  };
+  shadow: {
+    contact: {
+      left: string;
+      top: string;
+      width: string;
+      height: string;
+      angle: string;
+    };
+    diffuse: {
+      left: string;
+      top: string;
+      width: string;
+      height: string;
+      angle: string;
+    };
+  };
+}
+
+export const BOOK_PRESETS: Record<BookPresetId, BookPresetConfig> = {
+  academic: {
+    id: 'academic',
+    name: 'Academic / College Textbook',
+    imageSrc: '/books mockup/Academic-College-Textbook.png',
+    container: {
+      left: '59.96%',
+      top: '14.03%',
+      width: '26.93%',
+      height: '69.39%',
+    },
+    overlay: {
+      left: '17.00%',
+      top: '9.66%',
+      width: '61.19%',
+      height: '82.66%',
+      matrix: (s: number) =>
+        `matrix3d(0.907126, -0.076923, 0, ${-0.0003373 / s}, 0, 0.907126, 0, 0, 0, 0, 1, 0, 0, ${21.18 * s}, 0, 1)`,
+    },
+    shadow: {
+      contact: {
+        left: '63.2%',
+        top: '74.8%',
+        width: '20.8%',
+        height: '1.6%',
+        angle: '4.9deg',
+      },
+      diffuse: {
+        left: '61.5%',
+        top: '74.0%',
+        width: '24.5%',
+        height: '4.8%',
+        angle: '4.9deg',
+      },
+    },
+  },
+  novel: {
+    id: 'novel',
+    name: 'Standard Paperback / Novel',
+    imageSrc: '/books mockup/Standard-Paperback-Novel.png',
+    container: {
+      left: '60.44%',
+      top: '14.56%',
+      width: '27.05%',
+      height: '69.93%',
+    },
+    overlay: {
+      left: '15.29%',
+      top: '8.79%',
+      width: '67.88%',
+      height: '82.09%',
+      matrix: (s: number) =>
+        `matrix3d(0.902576, -0.073654, 0, ${-0.0003174 / s}, 0, 0.902576, 0, 0, 0, 0, 1, 0, 0, ${22.61 * s}, 0, 1)`,
+    },
+    shadow: {
+      contact: {
+        left: '63.0%',
+        top: '74.8%',
+        width: '21.5%',
+        height: '1.6%',
+        angle: '4.8deg',
+      },
+      diffuse: {
+        left: '61.2%',
+        top: '74.1%',
+        width: '25.0%',
+        height: '4.8%',
+        angle: '4.8deg',
+      },
+    },
+  },
+  reference: {
+    id: 'reference',
+    name: 'Thick Reference / Handbook',
+    imageSrc: '/books mockup/Thick Reference-Handbook.png',
+    container: {
+      left: '59.72%',
+      top: '15.30%',
+      width: '24.24%',
+      height: '68.76%',
+    },
+    overlay: {
+      left: '19.15%',
+      top: '7.94%',
+      width: '57.96%',
+      height: '83.42%',
+      matrix: (s: number) =>
+        `matrix3d(0.906274, -0.100870, 0, ${-0.0003993 / s}, 0, 0.906274, 0, 0, 0, 0, 1, 0, 0, ${23.68 * s}, 0, 1)`,
+    },
+    shadow: {
+      contact: {
+        left: '63.5%',
+        top: '75.0%',
+        width: '18.5%',
+        height: '1.6%',
+        angle: '5.1deg',
+      },
+      diffuse: {
+        left: '61.8%',
+        top: '74.3%',
+        width: '22.0%',
+        height: '4.5%',
+        angle: '5.1deg',
+      },
+    },
+  },
+};
+
 export default function Home() {
   const { recentlyViewed } = useStore();
   const navigate = useNavigate();
@@ -24,9 +169,12 @@ export default function Home() {
   const [books, setBooks] = useState<Book[]>([]);
 
   const [heroCoverUrl, setHeroCoverUrl] = useState<string | null>(null);
+  const [activePresetId, setActivePresetId] = useState<BookPresetId>('academic');
   const [isCoverLoaded, setIsCoverLoaded] = useState(false);
   const heroCanvasRef = useRef<HTMLDivElement>(null);
   const [bookScale, setBookScale] = useState(1);
+
+  const activePreset = BOOK_PRESETS[activePresetId] || BOOK_PRESETS.academic;
 
   useEffect(() => {
     heroService.getHeroConfig()
@@ -34,6 +182,9 @@ export default function Home() {
         if (res.success && res.data?.hero_book_cover_url) {
           const timestamp = res.data.hero_book_cover_updated_at ? `?v=${new Date(res.data.hero_book_cover_updated_at).getTime()}` : '';
           setHeroCoverUrl(`${getImageUrl(res.data.hero_book_cover_url)}${timestamp}`);
+          if (res.data.hero_book_model && (res.data.hero_book_model in BOOK_PRESETS)) {
+            setActivePresetId(res.data.hero_book_model as BookPresetId);
+          }
         } else {
           setHeroCoverUrl(null);
         }
@@ -123,69 +274,122 @@ export default function Home() {
               decoding="async"
             />
 
-            {/* Dynamic 3D Book Cover Overlay */}
-            {heroCoverUrl && (
-              <div
-                className="absolute hidden lg:block transition-opacity duration-700 ease-out"
-                style={{
-                  left: '64.00%',
-                  top: '19.98%',
-                  width: '16.45%',
-                  height: '51.12%', // spine height 481px / 941px
-                  opacity: isCoverLoaded ? 1 : 0,
-                  transformOrigin: '0% 0%',
-                  transform: `matrix3d(0.874545, -0.094545, 0, ${-0.000456198 / bookScale}, 0, 1, 0, 0, 0, 0, 1, 0, 0, ${26 * bookScale}, 0, 1)`,
-                  transformStyle: 'preserve-3d',
-                  backfaceVisibility: 'hidden',
-                  willChange: 'transform',
-                }}
-              >
-                {/* Book Cover Image */}
-                <img
-                  src={heroCoverUrl}
-                  alt="Featured Book Cover"
-                  className="h-full w-full object-cover rounded-r-[1.5px] rounded-l-[0.5px] shadow-sm"
-                  onLoad={() => setIsCoverLoaded(true)}
-                  loading="eager"
-                  decoding="async"
-                />
+            {/* Realistic Physical Dual-Shadow on Wooden Riser */}
+            <div
+              className="absolute hidden lg:block pointer-events-none transition-all duration-700"
+              style={{
+                left: activePreset.shadow.diffuse.left,
+                top: activePreset.shadow.diffuse.top,
+                width: activePreset.shadow.diffuse.width,
+                height: activePreset.shadow.diffuse.height,
+                transform: `rotate(${activePreset.shadow.diffuse.angle})`,
+                background: 'radial-gradient(ellipse at 45% 50%, rgba(15,8,4,0.7) 0%, rgba(10,5,2,0.35) 45%, transparent 75%)',
+                filter: 'blur(6px)',
+              }}
+            />
+            <div
+              className="absolute hidden lg:block pointer-events-none transition-all duration-700"
+              style={{
+                left: activePreset.shadow.contact.left,
+                top: activePreset.shadow.contact.top,
+                width: activePreset.shadow.contact.width,
+                height: activePreset.shadow.contact.height,
+                transform: `rotate(${activePreset.shadow.contact.angle})`,
+                background: 'linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.95) 40%, rgba(0,0,0,0.5) 85%, transparent 100%)',
+                filter: 'blur(2px)',
+              }}
+            />
 
-                {/* Paperback Texture Overlay (Fine Paper Grain / Fiber Noise) */}
-                <div
-                  className="absolute inset-0 pointer-events-none opacity-40 mix-blend-overlay rounded-r-[1.5px] rounded-l-[0.5px]"
-                  style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.35'/%3E%3C/svg%3E")`,
-                  }}
-                />
+            {/* Dynamic 3D Book on Wooden Pedestal */}
+            <div
+              className="absolute hidden lg:block transition-all duration-700 ease-out"
+              style={{
+                left: activePreset.container.left,
+                top: activePreset.container.top,
+                width: activePreset.container.width,
+                height: activePreset.container.height,
+                opacity: heroCoverUrl ? (isCoverLoaded ? 1 : 0) : 1,
+              }}
+            >
+              {/* Base Transparent 3D Book Model (Spine & Page Block) */}
+              <img
+                src={activePreset.imageSrc}
+                alt={activePreset.name}
+                className="absolute inset-0 h-full w-full object-contain pointer-events-none select-none"
+                loading="eager"
+                decoding="async"
+              />
 
-                {/* Shading Layer 1: Spine Fold Shadow & Page Swell */}
+              {/* Dynamic Book Cover Overlay */}
+              {heroCoverUrl && (
                 <div
-                  className="absolute inset-0 pointer-events-none rounded-r-[1.5px] rounded-l-[0.5px]"
+                  className="absolute pointer-events-none select-none"
                   style={{
-                    background: 'linear-gradient(90deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.22) 4%, rgba(0,0,0,0.02) 12%, rgba(255,255,255,0.12) 32%, rgba(255,255,255,0.04) 55%, transparent 75%, rgba(0,0,0,0.08) 95%, rgba(0,0,0,0.28) 100%)',
-                    mixBlendMode: 'multiply',
+                    left: activePreset.overlay.left,
+                    top: activePreset.overlay.top,
+                    width: activePreset.overlay.width,
+                    height: activePreset.overlay.height,
+                    transformOrigin: '0% 0%',
+                    transform: activePreset.overlay.matrix(bookScale),
+                    transformStyle: 'preserve-3d',
+                    backfaceVisibility: 'hidden',
                   }}
-                />
+                >
+                  {/* Book Cover Image */}
+                  <img
+                    src={heroCoverUrl}
+                    alt="Featured Book Cover"
+                    className="h-full w-full object-cover"
+                    style={{
+                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), inset -1px 0 0 rgba(255,255,255,0.12), inset 0 -1px 0 rgba(0,0,0,0.25)',
+                    }}
+                    onLoad={(e) => {
+                      setIsCoverLoaded(true);
+                      const img = e.currentTarget;
+                      if (img.naturalWidth > 0 && img.naturalHeight > 0) {
+                        const ratio = img.naturalHeight / img.naturalWidth;
+                        if (ratio < 1.42) {
+                          setActivePresetId('novel');
+                        } else if (ratio > 1.58) {
+                          setActivePresetId('reference');
+                        } else {
+                          setActivePresetId('academic');
+                        }
+                      }
+                    }}
+                    loading="eager"
+                    decoding="async"
+                  />
 
-                {/* Shading Layer 2: Gloss & Specular Sheen */}
-                <div
-                  className="absolute inset-0 pointer-events-none rounded-r-[1.5px] rounded-l-[0.5px]"
-                  style={{
-                    background: 'linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.25) 35%, rgba(255,255,255,0.08) 45%, transparent 60%)',
-                    mixBlendMode: 'screen',
-                  }}
-                />
+                  {/* Shading Layer 1: Hinge Groove Crease Shadow */}
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      background: 'linear-gradient(90deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.20) 2.5%, rgba(0,0,0,0.04) 5%, transparent 8%)',
+                      mixBlendMode: 'multiply',
+                    }}
+                  />
 
-                {/* Shading Layer 3: Vertical Ambient Falloff */}
-                <div
-                  className="absolute inset-0 pointer-events-none"
-                  style={{
-                    background: 'linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 25%, transparent 70%, rgba(0,0,0,0.22) 100%)',
-                    mixBlendMode: 'multiply',
-                  }}
-                />
-              </div>
-            )}
+                  {/* Shading Layer 2: Natural Satin Specular Sheen */}
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      background: 'linear-gradient(115deg, transparent 15%, rgba(255,255,255,0.18) 40%, rgba(255,255,255,0.08) 55%, transparent 75%)',
+                      mixBlendMode: 'soft-light',
+                    }}
+                  />
+
+                  {/* Shading Layer 3: Top-to-Bottom Ambient Warmth */}
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      background: 'linear-gradient(180deg, rgba(255,248,235,0.08) 0%, transparent 40%, rgba(0,0,0,0.16) 100%)',
+                      mixBlendMode: 'multiply',
+                    }}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
         {/* Gradient Overlay (Cinematic Dark Mossy Green fade) */}
