@@ -368,7 +368,7 @@ export default function Header() {
       </div>
 
       <div className="mx-auto flex w-full max-w-7xl min-w-0 items-center px-3 py-3 sm:px-6">
-        {/* Left Section (Fixed width to anchor search and balance centering) */}
+        {/* Mobile header: menu on the left; profile access stays on the right. */}
         <div className="flex w-auto md:w-[220px] lg:w-[280px] shrink-0 items-center justify-start gap-3 sm:gap-5">
           {/* mobile menu */}
           <Sheet>
@@ -406,11 +406,6 @@ export default function Header() {
           <SearchBar className="w-full rounded-full shadow-[0_12px_35px_rgba(0,0,0,0.6)] border-none ring-0" />
         </div>
         
-        {/* Sticky Search Bar (Mobile Flex) */}
-        <div className={`flex-1 md:hidden transition-all duration-300 ease-in-out ml-3`}>
-          <SearchBar className="w-full rounded-full shadow-md shadow-black/40 border-none ring-0" />
-        </div>
-
         {/* Right Section (Fixed width matches Left, ml-auto pushes it to right edge) */}
         <div className="flex w-auto md:w-[220px] lg:w-[280px] shrink-0 items-center justify-end ml-auto">
           <nav className="flex shrink-0 items-center gap-1 sm:gap-4">
@@ -437,13 +432,13 @@ export default function Header() {
                 <LogOut className="h-5 w-5" />
               </button>
             )}
-            <Link to="/wishlist" className="relative rounded-lg p-1.5 sm:p-2 hover:bg-emerald-800" aria-label="Wishlist">
+            <Link to="/wishlist" className="relative hidden rounded-lg p-1.5 hover:bg-emerald-800 md:block md:p-2" aria-label="Wishlist">
               <Heart className="h-5 w-5 sm:h-7 sm:w-7" />
               {wishlist?.length > 0 && (
                 <span className="absolute right-0 top-0 flex h-3.5 w-3.5 sm:h-4 sm:w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] sm:text-[10px] font-bold">{wishlist?.length}</span>
               )}
             </Link>
-            <Link to="/cart" className="relative rounded-lg p-1.5 sm:p-2 hover:bg-emerald-800" aria-label="Cart">
+            <Link to="/cart" className="relative hidden rounded-lg p-1.5 hover:bg-emerald-800 md:block md:p-2" aria-label="Cart">
               <ShoppingCart className="h-5 w-5 sm:h-7 sm:w-7" />
               {cartCount > 0 && (
                 <span className="absolute right-0 top-0 flex h-3.5 w-3.5 sm:h-4 sm:w-4 items-center justify-center rounded-full bg-amber-400 text-[9px] sm:text-[10px] font-bold text-slate-900">{cartCount}</span>

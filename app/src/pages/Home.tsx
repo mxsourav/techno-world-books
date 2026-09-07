@@ -149,17 +149,13 @@ export default function Home() {
             {/* Category Chips */}
             <div className="relative mt-[18px] w-full min-w-0">
               <div
-                className="hero-chip-container flex w-full min-w-0 flex-nowrap items-center justify-start gap-2 overflow-x-auto snap-x snap-mandatory md:flex-wrap md:justify-center md:overflow-visible md:snap-none"
-                style={{ overflowY: 'hidden', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                className="hero-chip-container flex w-full min-w-0 flex-wrap items-center justify-start gap-2 overflow-visible"
               >
-                <style>{`
-                  .hero-chip-container::-webkit-scrollbar { display: none; }
-                `}</style>
                 {SEARCH_SUGGESTIONS.map((tag) => (
                   <button
                     key={tag}
                     onClick={() => navigate(`/search?q=${encodeURIComponent(tag)}`)}
-                    className="snap-start flex items-center gap-1.5 px-[16px] py-[8px] rounded-[999px] text-[#F5F5F5] text-[12px] sm:text-[13px] transition-all duration-250 ease-in-out whitespace-nowrap shrink-0"
+                    className="flex max-w-full items-center gap-1.5 rounded-[999px] px-[16px] py-[8px] text-[12px] text-[#F5F5F5] transition-all duration-250 ease-in-out whitespace-normal sm:text-[13px]"
                     style={{
                       background: 'rgba(15,55,38,0.65)',
                       border: '1px solid rgba(255,255,255,0.12)',
@@ -172,11 +168,7 @@ export default function Home() {
                     {tag}
                   </button>
                 ))}
-                {/* Trailing spacer so the last chip clears the viewport edge */}
-                <div className="shrink-0 w-1 md:hidden" aria-hidden="true" />
               </div>
-              {/* Right-edge fade hints there's more to scroll (mobile only) */}
-              <div className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-[#02120b] to-transparent md:hidden" aria-hidden="true" />
             </div>
 
             {/* Feature Icons (Flows naturally 40px below left content) */}
@@ -219,11 +211,11 @@ export default function Home() {
         {/* OFFER STRIP */}
         <div className="relative z-10 mt-10 w-full min-w-0 lg:absolute lg:bottom-20 lg:left-0 lg:right-0 lg:mt-0">
           <div className="relative mx-auto w-full min-w-0 max-w-7xl px-4 sm:px-6 lg:ml-[4%] lg:mr-auto">
-            <div className="hero-chip-container flex w-full min-w-0 flex-nowrap items-center gap-2 overflow-x-auto snap-x snap-mandatory pb-2 sm:flex-wrap sm:overflow-visible sm:pb-0 sm:snap-none" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            <div className="hero-chip-container flex w-full min-w-0 flex-wrap items-center gap-2 overflow-visible pb-0">
               {OFFERS.map((o) => (
                 <div
                   key={o.t}
-                  className="snap-start flex items-center gap-2.5 px-[16px] py-[8px] rounded-[999px] text-[#F5F5F5] transition-all duration-250 ease-in-out shadow-sm shrink-0 whitespace-nowrap"
+                  className="flex max-w-full items-center gap-2.5 rounded-[999px] px-[16px] py-[8px] text-[#F5F5F5] shadow-sm transition-all duration-250 ease-in-out whitespace-normal"
                   style={{ 
                     background: 'rgba(15,55,38,0.65)',
                     border: '1px solid rgba(255,255,255,0.12)',
@@ -236,11 +228,7 @@ export default function Home() {
                   <p className="text-[12px] sm:text-[13px] font-medium tracking-wide">{o.d}</p>
                 </div>
               ))}
-              {/* Trailing spacer so the last offer chip clears the viewport edge */}
-              <div className="shrink-0 w-1 sm:hidden" aria-hidden="true" />
             </div>
-            {/* Right-edge fade hints there's more to scroll (mobile only) */}
-            <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-[#02120b] via-[#02120b]/70 to-transparent sm:hidden" aria-hidden="true" />
           </div>
         </div>
       </section>
