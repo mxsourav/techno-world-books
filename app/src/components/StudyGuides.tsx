@@ -30,13 +30,13 @@ const GUIDES = [
 
 export default function StudyGuides() {
   return (
-    <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:py-16">
+    <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:py-16">
       
-      <div className="mb-10 sm:mb-12">
-        <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+      <div className="mb-6 sm:mb-10">
+        <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
           Book Lists & Study Guides
         </h2>
-        <p className="mt-4 text-lg text-slate-600">
+        <p className="mt-2 sm:mt-4 text-sm sm:text-lg text-slate-600">
           Editorial recommendations from Techno World Books.
         </p>
       </div>

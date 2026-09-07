@@ -43,7 +43,7 @@ export default function Footer() {
 
   return (
     <footer className="mt-8 bg-gradient-to-b from-slate-950 to-black text-slate-300">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-6 py-6 md:grid-cols-12 md:gap-8">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-3 sm:px-6 py-6 md:grid-cols-12 md:gap-8">
         
         {/* Col 1: Address (Takes more space) */}
         <div className="space-y-3 md:col-span-5 lg:col-span-4">
@@ -126,7 +126,7 @@ export default function Footer() {
 
       {/* Developer Strip with Live Counter */}
       <div className="border-t border-white/5">
-        <div className="mx-auto max-w-7xl px-6 py-3 text-[11px] font-bold tracking-widest text-slate-500 uppercase flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="mx-auto max-w-7xl px-3 sm:px-6 py-3 text-[11px] font-bold tracking-widest text-slate-500 uppercase flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex flex-col gap-2">
             <p>
               <a href="https://github.com/mxsourav" target="_blank" rel="noreferrer" className="text-amber-400 hover:text-amber-300 transition-colors">mx_sourav</a>

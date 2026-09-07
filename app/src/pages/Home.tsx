@@ -57,9 +57,9 @@ export default function Home() {
   // const featuredBook = books.find((b) => b.featured) || books[0];
 
   return (
-    <div className="bg-slate-50 selection:bg-emerald-500/30">
+    <div className="bg-slate-50 selection:bg-emerald-500/30 overflow-x-hidden">
       {/* Hero Section */}
-      <section className="relative w-full min-h-[85vh] overflow-x-clip bg-[#02120b] text-white flex flex-col justify-center pt-14 pb-32 lg:pt-16 lg:pb-40">
+      <section className="relative w-full min-h-[auto] sm:min-h-[85vh] overflow-x-clip bg-[#02120b] text-white flex flex-col justify-center pt-8 pb-20 sm:pt-14 sm:pb-32 lg:pt-16 lg:pb-40">
         {/* Background Image */}
         <div
           className="absolute inset-0 z-0 bg-no-repeat bg-cover"
@@ -69,7 +69,7 @@ export default function Home() {
           }}
         />
         {/* Gradient Overlay (Cinematic Dark Mossy Green fade) */}
-        <div className="absolute inset-0 z-0 bg-gradient-to-r from-[#03150b] via-[#0a2e16]/95 to-transparent pointer-events-none w-full lg:w-[95%]"></div>
+        <div className="absolute inset-0 z-0 bg-gradient-to-b sm:bg-gradient-to-r from-[#03150b] via-[#0a2e16]/95 to-[#03150b]/80 sm:to-transparent pointer-events-none w-full lg:w-[95%]"></div>
 
         {/* Subtle Geometric Texture Overlay (Fades out early to the right) */}
         <div
@@ -87,9 +87,9 @@ export default function Home() {
           <div className="flex flex-col w-full lg:w-[60%] max-w-[750px] text-left overflow-visible">
 
             {/* Top Sale Badge */}
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#0a2e1f] border border-[#D4A017] px-3.5 py-1 mb-5 shadow-sm">
-              <Tag className="h-3.5 w-3.5 text-[#D4A017]" />
-              <span className="text-[13px] font-medium text-[#D4A017]">Grand Book Sale — Up to 60% off 10,000+ titles</span>
+            <div className="inline-flex items-center gap-2 rounded-full bg-[#0a2e1f] border border-[#D4A017] px-3.5 py-1.5 mb-5 shadow-sm max-w-full">
+              <Tag className="h-3.5 w-3.5 text-[#D4A017] shrink-0" />
+              <span className="text-[11px] sm:text-[13px] font-medium text-[#D4A017] truncate sm:whitespace-normal">Grand Book Sale — Up to 60% off 10,000+ titles</span>
             </div>
 
             {/* Main Heading */}
@@ -97,7 +97,7 @@ export default function Home() {
               className="font-bold drop-shadow-md max-w-[800px]"
               style={{
                 fontFamily: "'Playfair Display', Georgia, serif",
-                fontSize: "clamp(2.2rem, 3.5vw, 3.75rem)",
+                fontSize: "clamp(1.8rem, 5vw, 3.75rem)",
                 lineHeight: "1.15",
                 letterSpacing: "-0.01em"
               }}
@@ -131,11 +131,11 @@ export default function Home() {
               className="mt-4 font-normal drop-shadow"
               style={{
                 fontFamily: "'Inter', sans-serif",
-                fontSize: "1.05rem",
+                fontSize: "clamp(0.95rem, 2.5vw, 1.05rem)",
                 lineHeight: "1.55",
                 color: "rgba(255, 255, 255, 0.85)",
                 maxWidth: "520px",
-                textAlign: "justify"
+                textAlign: "left"
               }}
             >
               From academic textbooks to bestselling fiction, get genuine books delivered straight to your doorstep with guaranteed lowest prices.
@@ -143,13 +143,13 @@ export default function Home() {
 
             {/* Search Bar */}
             <SearchBar
-              className="mt-6 shadow-[0_12px_35px_rgba(0,0,0,0.4)] w-full h-[54px] [&_input]:text-[14px]"
+              className="mt-6 shadow-[0_12px_35px_rgba(0,0,0,0.4)] w-full h-[46px] sm:h-[54px] [&_input]:text-[13px] sm:[&_input]:text-[14px]"
             />
 
             {/* Category Chips */}
             <div
-              className="mt-[18px] flex flex-wrap gap-[10px] items-center justify-center w-full hero-chip-container"
-              style={{ overflow: 'visible', overflowY: 'hidden', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              className="mt-[18px] flex flex-nowrap md:flex-wrap gap-[10px] items-center justify-start md:justify-center w-full hero-chip-container overflow-x-auto md:overflow-visible"
+              style={{ overflowY: 'hidden', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
               <style>{`
                 .hero-chip-container::-webkit-scrollbar { display: none; }
@@ -158,7 +158,7 @@ export default function Home() {
                 <button
                   key={tag}
                   onClick={() => navigate(`/search?q=${encodeURIComponent(tag)}`)}
-                  className="flex items-center gap-1.5 px-[16px] py-[8px] rounded-[999px] text-[#F5F5F5] text-[13px] transition-all duration-250 ease-in-out"
+                  className="flex items-center gap-1.5 px-[16px] py-[8px] rounded-[999px] text-[#F5F5F5] text-[12px] sm:text-[13px] transition-all duration-250 ease-in-out whitespace-nowrap shrink-0"
                   style={{
                     background: 'rgba(15,55,38,0.65)',
                     border: '1px solid rgba(255,255,255,0.12)',
@@ -213,11 +213,11 @@ export default function Home() {
         {/* OFFER STRIP */}
         <div className="lg:absolute lg:bottom-20 left-0 right-0 z-10 w-full mt-10 lg:mt-0">
           <div className="w-full max-w-7xl px-3 sm:px-6 mx-auto lg:ml-[4%] lg:mr-auto">
-            <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-2">
+            <div className="flex flex-nowrap sm:flex-wrap items-center gap-2 overflow-x-auto sm:overflow-visible hero-chip-container pb-2 sm:pb-0" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
               {OFFERS.map((o) => (
                 <div
                   key={o.t}
-                  className="flex items-center gap-2.5 px-[16px] py-[8px] rounded-[999px] text-[#F5F5F5] transition-all duration-250 ease-in-out shadow-sm"
+                  className="flex items-center gap-2.5 px-[16px] py-[8px] rounded-[999px] text-[#F5F5F5] transition-all duration-250 ease-in-out shadow-sm shrink-0 whitespace-nowrap"
                   style={{ 
                     background: 'rgba(15,55,38,0.65)',
                     border: '1px solid rgba(255,255,255,0.12)',
@@ -227,7 +227,7 @@ export default function Home() {
                   onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(15,55,38,0.65)'; e.currentTarget.style.transform = 'translateY(0)'; }}
                 >
                   <o.icon className="h-4 w-4 shrink-0 text-emerald-400" strokeWidth={1.5} />
-                  <p className="text-[13px] font-medium tracking-wide">{o.d}</p>
+                  <p className="text-[12px] sm:text-[13px] font-medium tracking-wide">{o.d}</p>
                 </div>
               ))}
             </div>
@@ -241,14 +241,14 @@ export default function Home() {
       <PublishedByTechnoWorld />
 
       {error ? (
-        <div className="flex flex-col items-center justify-center py-20 text-slate-500">
+        <div className="flex flex-col items-center justify-center py-20 px-4 text-slate-500 text-center">
           <span className="text-4xl mb-4">⚠️</span>
           <h2 className="text-lg font-bold text-slate-700">Failed to load books</h2>
-          <p className="text-sm">We couldn't reach the server. Please try again later.</p>
+          <p className="text-sm max-w-xs">We couldn't reach the server. Please try again later.</p>
           <button onClick={() => window.location.reload()} className="mt-4 rounded-lg bg-emerald-600 px-6 py-2 font-bold text-white">Retry</button>
         </div>
       ) : !loading && books.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-slate-500">
+        <div className="flex flex-col items-center justify-center py-20 px-4 text-slate-500 text-center">
           <span className="text-4xl mb-4">📚</span>
           <h2 className="text-lg font-bold text-slate-700">No books available</h2>
           <p className="text-sm">Check back later for new arrivals.</p>
@@ -281,13 +281,13 @@ export default function Home() {
 
           {/* EXAM ZONE BANNER */}
           <section className="mx-auto max-w-7xl px-3 py-5 sm:px-6">
-            <div className="flex flex-col items-start justify-between gap-4 rounded-2xl bg-gradient-to-r from-indigo-900 to-violet-800 p-6 text-white sm:flex-row sm:items-center sm:p-8">
-              <div>
+            <div className="flex flex-col items-start justify-between gap-4 rounded-2xl bg-gradient-to-r from-indigo-900 to-violet-800 p-5 text-white sm:flex-row sm:items-center sm:p-8">
+              <div className="min-w-0">
                 <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-violet-300"><Trophy className="h-4 w-4" /> Exam Zone</p>
-                <h3 className="mt-1 text-xl font-extrabold sm:text-2xl">NEET · JEE · UPSC · GATE · SSC — all prep books in one place</h3>
-                <p className="mt-1 text-sm text-violet-200">Previous year papers, toppers' booklists and combo packs at the best prices.</p>
+                <h3 className="mt-1 text-lg font-extrabold sm:text-2xl leading-snug">NEET · JEE · UPSC · GATE · SSC — all prep books in one place</h3>
+                <p className="mt-1 text-xs sm:text-sm text-violet-200">Previous year papers, toppers' booklists and combo packs at the best prices.</p>
               </div>
-              <Link to="/category/competitive-exams" className="flex shrink-0 items-center gap-2 rounded-xl bg-amber-400 px-5 py-3 text-sm font-extrabold text-slate-900 hover:bg-amber-300">
+              <Link to="/category/competitive-exams" className="flex shrink-0 items-center gap-2 rounded-xl bg-amber-400 px-5 py-3 text-sm font-extrabold text-slate-900 hover:bg-amber-300 w-full sm:w-auto justify-center sm:justify-start">
                 Shop Exam Books <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
@@ -310,14 +310,14 @@ export default function Home() {
 
       {/* LOYALTY CTA */}
       <section className="mx-auto max-w-7xl px-3 py-6 sm:px-6">
-        <div className="rounded-2xl bg-gradient-to-r from-amber-400 to-orange-400 p-6 text-slate-900 sm:p-8">
+        <div className="rounded-2xl bg-gradient-to-r from-amber-400 to-orange-400 p-5 text-slate-900 sm:p-8">
           <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-            <div>
+            <div className="min-w-0">
               <p className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-widest"><Sparkles className="h-4 w-4" /> Techno Rewards</p>
-              <h3 className="mt-1 text-xl font-extrabold sm:text-2xl">Earn points on every order. Redeem on your next.</h3>
-              <p className="mt-1 text-sm font-medium opacity-80">Refer a friend and both of you get ₹100 in points.</p>
+              <h3 className="mt-1 text-lg font-extrabold sm:text-2xl leading-snug">Earn points on every order. Redeem on your next.</h3>
+              <p className="mt-1 text-xs sm:text-sm font-medium opacity-80">Refer a friend and both of you get ₹100 in points.</p>
             </div>
-            <Link to="/account" className="shrink-0 rounded-xl bg-slate-900 px-5 py-3 text-sm font-extrabold text-white hover:bg-slate-800">
+            <Link to="/account" className="shrink-0 rounded-xl bg-slate-900 px-5 py-3 text-sm font-extrabold text-white hover:bg-slate-800 w-full sm:w-auto text-center">
               Check My Rewards
             </Link>
           </div>

@@ -368,7 +368,7 @@ export default function Header() {
 
       <div className="mx-auto flex max-w-7xl items-center px-3 py-3 sm:px-6">
         {/* Left Section (Fixed width to anchor search and balance centering) */}
-        <div className="flex w-[220px] lg:w-[280px] shrink-0 items-center justify-start gap-3 sm:gap-5">
+        <div className="flex w-auto md:w-[220px] lg:w-[280px] shrink-0 items-center justify-start gap-3 sm:gap-5">
           {/* mobile menu */}
           <Sheet>
             <SheetTrigger className="md:hidden" aria-label="Menu"><Menu className="h-6 w-6" /></SheetTrigger>
@@ -396,7 +396,7 @@ export default function Header() {
           </Sheet>
 
           <Link to="/" className="flex shrink-0 items-center gap-2">
-            <img src="/techno_world.png" alt="Techno World Books Logo" className="h-10 w-auto sm:h-[56px] object-contain brightness-0 invert" />
+            <img src="/techno_world.png" alt="Techno World Books Logo" className="h-8 sm:h-[56px] w-auto object-contain brightness-0 invert" />
           </Link>
         </div>
 
@@ -411,8 +411,8 @@ export default function Header() {
         </div>
 
         {/* Right Section (Fixed width matches Left, ml-auto pushes it to right edge) */}
-        <div className="flex w-[220px] lg:w-[280px] shrink-0 items-center justify-end ml-auto">
-          <nav className="flex shrink-0 items-center gap-2 sm:gap-4">
+        <div className="flex w-auto md:w-[220px] lg:w-[280px] shrink-0 items-center justify-end ml-auto">
+          <nav className="flex shrink-0 items-center gap-1 sm:gap-4">
             {user ? (
               <Link to="/profile" className="flex items-center gap-2 rounded-xl px-2.5 py-1.5 hover:bg-emerald-800 transition-all border border-emerald-700/50">
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-400 text-xs font-black text-slate-900 shadow-sm">
@@ -426,8 +426,8 @@ export default function Header() {
                 </div>
               </Link>
             ) : (
-              <button onClick={() => setLoginOpen(true)} className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-emerald-800">
-                <User className="h-6 w-6 sm:h-7 sm:w-7" />
+              <button onClick={() => setLoginOpen(true)} className="flex items-center gap-1 rounded-lg px-2 py-1.5 hover:bg-emerald-800">
+                <User className="h-5 w-5 sm:h-7 sm:w-7" />
                 <span className="hidden text-sm font-bold md:block">Login</span>
               </button>
             )}
@@ -436,16 +436,16 @@ export default function Header() {
                 <LogOut className="h-5 w-5" />
               </button>
             )}
-            <Link to="/wishlist" className="relative rounded-lg p-2 hover:bg-emerald-800" aria-label="Wishlist">
-              <Heart className="h-6 w-6 sm:h-7 sm:w-7" />
+            <Link to="/wishlist" className="relative rounded-lg p-1.5 sm:p-2 hover:bg-emerald-800" aria-label="Wishlist">
+              <Heart className="h-5 w-5 sm:h-7 sm:w-7" />
               {wishlist?.length > 0 && (
-                <span className="absolute right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold">{wishlist?.length}</span>
+                <span className="absolute right-0 top-0 flex h-3.5 w-3.5 sm:h-4 sm:w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] sm:text-[10px] font-bold">{wishlist?.length}</span>
               )}
             </Link>
-            <Link to="/cart" className="relative rounded-lg p-2 hover:bg-emerald-800" aria-label="Cart">
-              <ShoppingCart className="h-6 w-6 sm:h-7 sm:w-7" />
+            <Link to="/cart" className="relative rounded-lg p-1.5 sm:p-2 hover:bg-emerald-800" aria-label="Cart">
+              <ShoppingCart className="h-5 w-5 sm:h-7 sm:w-7" />
               {cartCount > 0 && (
-                <span className="absolute right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-400 text-[10px] font-bold text-slate-900">{cartCount}</span>
+                <span className="absolute right-0 top-0 flex h-3.5 w-3.5 sm:h-4 sm:w-4 items-center justify-center rounded-full bg-amber-400 text-[9px] sm:text-[10px] font-bold text-slate-900">{cartCount}</span>
               )}
             </Link>
           </nav>

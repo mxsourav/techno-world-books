@@ -12,18 +12,18 @@ export default function PublishedByTechnoWorld() {
       <div className="mx-auto max-w-7xl">
         
         <div className="mb-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end sm:mb-8">
-          <div>
+          <div className="min-w-0 max-w-full">
             <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-emerald-500/20 px-3 py-1 text-sm font-semibold text-emerald-400">
               <Building2 className="h-4 w-4" /> In-House Publications
             </div>
-            <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
+            <h2 className="text-xl font-extrabold tracking-tight sm:text-3xl">
               Published by Techno World
             </h2>
-            <p className="mt-2 max-w-2xl text-sm text-slate-400">
+            <p className="mt-2 max-w-2xl text-xs sm:text-sm text-slate-400">
               Explore our exclusive in-house publications carefully prepared for students, educators, and competitive exam aspirants.
             </p>
           </div>
-          <Link to="/search?publisher=Techno%20World%20Publications" className="group flex items-center gap-2 text-sm font-bold text-emerald-400 hover:text-emerald-300">
+          <Link to="/search?publisher=Techno%20World%20Publications" className="group flex items-center gap-2 text-sm font-bold text-emerald-400 hover:text-emerald-300 shrink-0">
             View All <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
