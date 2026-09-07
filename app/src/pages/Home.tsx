@@ -170,6 +170,7 @@ export default function Home() {
 
   const [heroCoverUrl, setHeroCoverUrl] = useState<string | null>(null);
   const [activePresetId, setActivePresetId] = useState<BookPresetId>('academic');
+  const [isManualModelChosen, setIsManualModelChosen] = useState(false);
   const [isCoverLoaded, setIsCoverLoaded] = useState(false);
   const heroCanvasRef = useRef<HTMLDivElement>(null);
   const [bookScale, setBookScale] = useState(1);
@@ -184,6 +185,7 @@ export default function Home() {
           setHeroCoverUrl(`${getImageUrl(res.data.hero_book_cover_url)}${timestamp}`);
           if (res.data.hero_book_model && (res.data.hero_book_model in BOOK_PRESETS)) {
             setActivePresetId(res.data.hero_book_model as BookPresetId);
+            setIsManualModelChosen(true);
           }
         } else {
           setHeroCoverUrl(null);
@@ -283,7 +285,7 @@ export default function Home() {
                 width: activePreset.shadow.diffuse.width,
                 height: activePreset.shadow.diffuse.height,
                 transform: `rotate(${activePreset.shadow.diffuse.angle})`,
-                background: 'radial-gradient(ellipse at 45% 50%, rgba(15,8,4,0.7) 0%, rgba(10,5,2,0.35) 45%, transparent 75%)',
+                background: 'radial-gradient(ellipse at 48% 50%, rgba(10,5,2,0.85) 0%, rgba(15,8,3,0.40) 50%, transparent 75%)',
                 filter: 'blur(6px)',
               }}
             />
@@ -295,7 +297,7 @@ export default function Home() {
                 width: activePreset.shadow.contact.width,
                 height: activePreset.shadow.contact.height,
                 transform: `rotate(${activePreset.shadow.contact.angle})`,
-                background: 'linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.95) 40%, rgba(0,0,0,0.5) 85%, transparent 100%)',
+                background: 'linear-gradient(90deg, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.98) 35%, rgba(0,0,0,0.95) 82%, rgba(0,0,0,0.60) 95%, transparent 100%)',
                 filter: 'blur(2px)',
               }}
             />
@@ -311,7 +313,7 @@ export default function Home() {
                 opacity: heroCoverUrl ? (isCoverLoaded ? 1 : 0) : 1,
               }}
             >
-              {/* Base Transparent 3D Book Model (Spine & Page Block) */}
+              {/* Base Transparent 3D Book Model (Spine & Page Block with Realistic Shading) */}
               <img
                 src={activePreset.imageSrc}
                 alt={activePreset.name}
@@ -323,7 +325,7 @@ export default function Home() {
               {/* Dynamic Book Cover Overlay */}
               {heroCoverUrl && (
                 <div
-                  className="absolute pointer-events-none select-none"
+                  className="absolute pointer-events-none select-none overflow-hidden"
                   style={{
                     left: activePreset.overlay.left,
                     top: activePreset.overlay.top,
@@ -335,25 +337,27 @@ export default function Home() {
                     backfaceVisibility: 'hidden',
                   }}
                 >
-                  {/* Book Cover Image */}
+                  {/* Book Cover Image: mapped 100% across the perspective plane with ZERO cropping */}
                   <img
                     src={heroCoverUrl}
                     alt="Featured Book Cover"
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-fill block select-none"
                     style={{
-                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), inset -1px 0 0 rgba(255,255,255,0.12), inset 0 -1px 0 rgba(0,0,0,0.25)',
+                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.20), inset -1px 0 0 rgba(255,255,255,0.12), inset 0 -1px 0 rgba(0,0,0,0.30)',
                     }}
                     onLoad={(e) => {
                       setIsCoverLoaded(true);
-                      const img = e.currentTarget;
-                      if (img.naturalWidth > 0 && img.naturalHeight > 0) {
-                        const ratio = img.naturalHeight / img.naturalWidth;
-                        if (ratio < 1.42) {
-                          setActivePresetId('novel');
-                        } else if (ratio > 1.58) {
-                          setActivePresetId('reference');
-                        } else {
-                          setActivePresetId('academic');
+                      if (!isManualModelChosen) {
+                        const img = e.currentTarget;
+                        if (img.naturalWidth > 0 && img.naturalHeight > 0) {
+                          const ratio = img.naturalHeight / img.naturalWidth;
+                          if (ratio < 1.42) {
+                            setActivePresetId('novel');
+                          } else if (ratio > 1.58) {
+                            setActivePresetId('reference');
+                          } else {
+                            setActivePresetId('academic');
+                          }
                         }
                       }
                     }}
@@ -365,8 +369,17 @@ export default function Home() {
                   <div
                     className="absolute inset-0 pointer-events-none"
                     style={{
-                      background: 'linear-gradient(90deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.20) 2.5%, rgba(0,0,0,0.04) 5%, transparent 8%)',
+                      background: 'linear-gradient(90deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.25) 2.5%, rgba(0,0,0,0.05) 5%, transparent 8%)',
                       mixBlendMode: 'multiply',
+                    }}
+                  />
+
+                  {/* Shading Layer 1b: Hinge Specular Highlight Ridge */}
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      background: 'linear-gradient(90deg, transparent 2.5%, rgba(255,255,255,0.25) 3.5%, transparent 5%)',
+                      mixBlendMode: 'screen',
                     }}
                   />
 
@@ -379,11 +392,20 @@ export default function Home() {
                     }}
                   />
 
-                  {/* Shading Layer 3: Top-to-Bottom Ambient Warmth */}
+                  {/* Shading Layer 3: Warm Ambient Lamp Light Overlay */}
                   <div
                     className="absolute inset-0 pointer-events-none"
                     style={{
-                      background: 'linear-gradient(180deg, rgba(255,248,235,0.08) 0%, transparent 40%, rgba(0,0,0,0.16) 100%)',
+                      background: 'radial-gradient(circle at 90% 10%, rgba(255,215,140,0.16) 0%, rgba(255,230,180,0.06) 35%, transparent 70%)',
+                      mixBlendMode: 'screen',
+                    }}
+                  />
+
+                  {/* Shading Layer 4: Top-to-Bottom Ambient Warmth & Base Occlusion */}
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      background: 'linear-gradient(180deg, rgba(255,248,235,0.06) 0%, transparent 40%, rgba(10,5,2,0.28) 100%)',
                       mixBlendMode: 'multiply',
                     }}
                   />
