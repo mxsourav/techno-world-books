@@ -17,150 +17,7 @@ import SEOHead, { buildWebsiteJsonLd } from '@/components/SEOHead';
 
 const PUBLISHERS = ['NCERT', 'Arihant Publications', 'McGraw Hill', 'Elsevier', 'Penguin', 'Ananda Publishers', 'MTG Learning Media', 'Dhanpat Rai'];
 
-export type BookPresetId = 'academic' | 'novel' | 'reference';
-
-export interface BookPresetConfig {
-  id: BookPresetId;
-  name: string;
-  imageSrc: string;
-  container: {
-    left: string;
-    top: string;
-    width: string;
-    height: string;
-  };
-  overlay: {
-    left: string;
-    top: string;
-    width: string;
-    height: string;
-    matrix: (bookScale: number) => string;
-  };
-  shadow: {
-    contact: {
-      left: string;
-      top: string;
-      width: string;
-      height: string;
-      angle: string;
-    };
-    diffuse: {
-      left: string;
-      top: string;
-      width: string;
-      height: string;
-      angle: string;
-    };
-  };
-}
-
-export const BOOK_PRESETS: Record<BookPresetId, BookPresetConfig> = {
-  academic: {
-    id: 'academic',
-    name: 'Academic / College Textbook',
-    imageSrc: '/books mockup/Academic-College-Textbook.png',
-    container: {
-      left: '59.96%',
-      top: '14.03%',
-      width: '26.93%',
-      height: '69.39%',
-    },
-    overlay: {
-      left: '17.00%',
-      top: '9.66%',
-      width: '61.19%',
-      height: '82.66%',
-      matrix: (s: number) =>
-        `matrix3d(0.907126, -0.076923, 0, ${-0.0003373 / s}, 0, 0.907126, 0, 0, 0, 0, 1, 0, 0, ${21.18 * s}, 0, 1)`,
-    },
-    shadow: {
-      contact: {
-        left: '63.2%',
-        top: '74.8%',
-        width: '20.8%',
-        height: '1.6%',
-        angle: '4.9deg',
-      },
-      diffuse: {
-        left: '61.5%',
-        top: '74.0%',
-        width: '24.5%',
-        height: '4.8%',
-        angle: '4.9deg',
-      },
-    },
-  },
-  novel: {
-    id: 'novel',
-    name: 'Standard Paperback / Novel',
-    imageSrc: '/books mockup/Standard-Paperback-Novel.png',
-    container: {
-      left: '60.44%',
-      top: '14.56%',
-      width: '27.05%',
-      height: '69.93%',
-    },
-    overlay: {
-      left: '15.29%',
-      top: '8.79%',
-      width: '67.88%',
-      height: '82.09%',
-      matrix: (s: number) =>
-        `matrix3d(0.902576, -0.073654, 0, ${-0.0003174 / s}, 0, 0.902576, 0, 0, 0, 0, 1, 0, 0, ${22.61 * s}, 0, 1)`,
-    },
-    shadow: {
-      contact: {
-        left: '63.0%',
-        top: '74.8%',
-        width: '21.5%',
-        height: '1.6%',
-        angle: '4.8deg',
-      },
-      diffuse: {
-        left: '61.2%',
-        top: '74.1%',
-        width: '25.0%',
-        height: '4.8%',
-        angle: '4.8deg',
-      },
-    },
-  },
-  reference: {
-    id: 'reference',
-    name: 'Thick Reference / Handbook',
-    imageSrc: '/books mockup/Thick Reference-Handbook.png',
-    container: {
-      left: '59.72%',
-      top: '15.30%',
-      width: '24.24%',
-      height: '68.76%',
-    },
-    overlay: {
-      left: '19.15%',
-      top: '7.94%',
-      width: '57.96%',
-      height: '83.42%',
-      matrix: (s: number) =>
-        `matrix3d(0.906274, -0.100870, 0, ${-0.0003993 / s}, 0, 0.906274, 0, 0, 0, 0, 1, 0, 0, ${23.68 * s}, 0, 1)`,
-    },
-    shadow: {
-      contact: {
-        left: '63.5%',
-        top: '75.0%',
-        width: '18.5%',
-        height: '1.6%',
-        angle: '5.1deg',
-      },
-      diffuse: {
-        left: '61.8%',
-        top: '74.3%',
-        width: '22.0%',
-        height: '4.5%',
-        angle: '5.1deg',
-      },
-    },
-  },
-};
+import { BOOK_PRESETS, type BookPresetId } from '@/types/hero';
 
 export default function Home() {
   const { recentlyViewed } = useStore();
@@ -168,9 +25,27 @@ export default function Home() {
 
   const [books, setBooks] = useState<Book[]>([]);
 
-  const [heroCoverUrl, setHeroCoverUrl] = useState<string | null>(null);
-  const [activePresetId, setActivePresetId] = useState<BookPresetId>('reference');
-  const [isManualModelChosen, setIsManualModelChosen] = useState(false);
+  const CACHED_COVER_KEY = 'tw_hero_cover_url';
+  const CACHED_MODEL_KEY = 'tw_hero_book_model';
+
+  // Synchronously initialize from localStorage so the image renders on millisecond 0 with zero delay
+  const [heroCoverUrl, setHeroCoverUrl] = useState<string | null>(() => {
+    try {
+      const cached = localStorage.getItem(CACHED_COVER_KEY);
+      if (cached) return cached;
+    } catch {}
+    return '/uploads/hero/hero-book-cover-1788810895589.webp';
+  });
+
+  const [activePresetId, setActivePresetId] = useState<BookPresetId>(() => {
+    try {
+      const cached = localStorage.getItem(CACHED_MODEL_KEY);
+      if (cached && (cached in BOOK_PRESETS)) return cached as BookPresetId;
+    } catch {}
+    return 'reference';
+  });
+
+  const [isManualModelChosen, setIsManualModelChosen] = useState(true);
   const heroCanvasRef = useRef<HTMLDivElement>(null);
   const [bookScale, setBookScale] = useState(1);
 
@@ -181,17 +56,26 @@ export default function Home() {
       .then((res) => {
         if (res.success && res.data?.hero_book_cover_url) {
           const timestamp = res.data.hero_book_cover_updated_at ? `?v=${new Date(res.data.hero_book_cover_updated_at).getTime()}` : '';
-          setHeroCoverUrl(`${getImageUrl(res.data.hero_book_cover_url)}${timestamp}`);
+          const fullUrl = `${getImageUrl(res.data.hero_book_cover_url)}${timestamp}`;
+          setHeroCoverUrl(fullUrl);
+          try {
+            localStorage.setItem(CACHED_COVER_KEY, fullUrl);
+          } catch {}
+
           if (res.data.hero_book_model && (res.data.hero_book_model in BOOK_PRESETS)) {
-            setActivePresetId(res.data.hero_book_model as BookPresetId);
+            const modelId = res.data.hero_book_model as BookPresetId;
+            setActivePresetId(modelId);
             setIsManualModelChosen(true);
+            try {
+              localStorage.setItem(CACHED_MODEL_KEY, modelId);
+            } catch {}
           }
         } else {
           setHeroCoverUrl(null);
         }
       })
       .catch(() => {
-        setHeroCoverUrl(null);
+        // Keep cached cover on error
       });
   }, []);
 
@@ -320,6 +204,40 @@ export default function Home() {
                 decoding="async"
               />
 
+              {/* Dynamic Spine Wrap: Blurred & Darkened Primary Tone Blend */}
+              {heroCoverUrl && activePreset.spine && (
+                <div
+                  className="absolute pointer-events-none select-none overflow-hidden"
+                  style={{
+                    left: activePreset.spine.left,
+                    top: activePreset.spine.top,
+                    width: activePreset.spine.width,
+                    height: activePreset.spine.height,
+                    transformOrigin: '0% 0%',
+                    transform: activePreset.spine.matrix(bookScale),
+                    transformStyle: 'preserve-3d',
+                    backfaceVisibility: 'hidden',
+                  }}
+                >
+                  <img
+                    src={heroCoverUrl}
+                    alt=""
+                    aria-hidden="true"
+                    className="h-full w-full object-cover scale-125 filter blur-[3px] brightness-65 contrast-125"
+                    loading="eager"
+                    decoding="async"
+                  />
+                  {/* 3D Spine Cylindrical Shading Gradient */}
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      background: 'linear-gradient(90deg, rgba(0,0,0,0.75) 0%, rgba(255,255,255,0.10) 40%, rgba(0,0,0,0.65) 100%)',
+                      mixBlendMode: 'multiply',
+                    }}
+                  />
+                </div>
+              )}
+
               {/* Dynamic Book Cover Overlay */}
               {heroCoverUrl && (
                 <div
@@ -335,11 +253,21 @@ export default function Home() {
                     backfaceVisibility: 'hidden',
                   }}
                 >
+                  {/* Darkened & Blurred Underlayer for edge bleed so background color blends seamlessly */}
+                  <img
+                    src={heroCoverUrl}
+                    alt=""
+                    aria-hidden="true"
+                    className="absolute inset-0 h-full w-full object-cover scale-110 filter blur-md brightness-60 contrast-125 pointer-events-none select-none"
+                    loading="eager"
+                    decoding="async"
+                  />
+
                   {/* Book Cover Image: mapped 100% across the perspective plane with ZERO cropping, pure rich contrast */}
                   <img
                     src={heroCoverUrl}
                     alt="Featured Book Cover"
-                    className="h-full w-full object-fill block select-none"
+                    className="relative z-10 h-full w-full object-fill block select-none"
                     style={{
                       boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.15), inset -1px 0 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.35)',
                     }}
@@ -364,9 +292,9 @@ export default function Home() {
 
                   {/* Clean Hinge Groove Shadow: subtle dark multiply line along the binding seam, no washed-out veil */}
                   <div
-                    className="absolute inset-0 pointer-events-none"
+                    className="absolute inset-0 z-20 pointer-events-none"
                     style={{
-                      background: 'linear-gradient(90deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.18) 2%, transparent 4%)',
+                      background: 'linear-gradient(90deg, rgba(0,0,0,0.60) 0%, rgba(0,0,0,0.18) 2%, transparent 4%)',
                       mixBlendMode: 'multiply',
                     }}
                   />
