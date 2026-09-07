@@ -13,7 +13,7 @@ import StudyGuides from '@/components/StudyGuides';
 import PromoBanners from '@/components/PromoBanners';
 import { useAutoFeaturedBooks } from '@/hooks/useAutoFeaturedBooks';
 import { OFFERS, SEARCH_SUGGESTIONS } from '@/data/constants';
-import SEOHead, { buildWebsiteJsonLd } from '@/components/SEOHead';
+// import SEOHead, { buildWebsiteJsonLd } from '@/components/SEOHead';
 
 const PUBLISHERS = ['NCERT', 'Arihant Publications', 'McGraw Hill', 'Elsevier', 'Penguin', 'Ananda Publishers', 'MTG Learning Media', 'Dhanpat Rai'];
 
