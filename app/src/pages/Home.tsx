@@ -169,13 +169,12 @@ export default function Home() {
   const [books, setBooks] = useState<Book[]>([]);
 
   const [heroCoverUrl, setHeroCoverUrl] = useState<string | null>(null);
-  const [activePresetId, setActivePresetId] = useState<BookPresetId>('academic');
+  const [activePresetId, setActivePresetId] = useState<BookPresetId>('reference');
   const [isManualModelChosen, setIsManualModelChosen] = useState(false);
-  const [isCoverLoaded, setIsCoverLoaded] = useState(false);
   const heroCanvasRef = useRef<HTMLDivElement>(null);
   const [bookScale, setBookScale] = useState(1);
 
-  const activePreset = BOOK_PRESETS[activePresetId] || BOOK_PRESETS.academic;
+  const activePreset = BOOK_PRESETS[activePresetId] || BOOK_PRESETS.reference;
 
   useEffect(() => {
     heroService.getHeroConfig()
@@ -278,7 +277,7 @@ export default function Home() {
 
             {/* Realistic Physical Dual-Shadow on Wooden Riser */}
             <div
-              className="absolute hidden lg:block pointer-events-none transition-all duration-700"
+              className="absolute hidden lg:block pointer-events-none"
               style={{
                 left: activePreset.shadow.diffuse.left,
                 top: activePreset.shadow.diffuse.top,
@@ -290,7 +289,7 @@ export default function Home() {
               }}
             />
             <div
-              className="absolute hidden lg:block pointer-events-none transition-all duration-700"
+              className="absolute hidden lg:block pointer-events-none"
               style={{
                 left: activePreset.shadow.contact.left,
                 top: activePreset.shadow.contact.top,
@@ -304,13 +303,12 @@ export default function Home() {
 
             {/* Dynamic 3D Book on Wooden Pedestal */}
             <div
-              className="absolute hidden lg:block transition-all duration-700 ease-out"
+              className="absolute hidden lg:block"
               style={{
                 left: activePreset.container.left,
                 top: activePreset.container.top,
                 width: activePreset.container.width,
                 height: activePreset.container.height,
-                opacity: heroCoverUrl ? (isCoverLoaded ? 1 : 0) : 1,
               }}
             >
               {/* Base Transparent 3D Book Model (Spine & Page Block with Realistic Shading) */}
@@ -337,16 +335,15 @@ export default function Home() {
                     backfaceVisibility: 'hidden',
                   }}
                 >
-                  {/* Book Cover Image: mapped 100% across the perspective plane with ZERO cropping */}
+                  {/* Book Cover Image: mapped 100% across the perspective plane with ZERO cropping, pure rich contrast */}
                   <img
                     src={heroCoverUrl}
                     alt="Featured Book Cover"
                     className="h-full w-full object-fill block select-none"
                     style={{
-                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.20), inset -1px 0 0 rgba(255,255,255,0.12), inset 0 -1px 0 rgba(0,0,0,0.30)',
+                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.15), inset -1px 0 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.35)',
                     }}
                     onLoad={(e) => {
-                      setIsCoverLoaded(true);
                       if (!isManualModelChosen) {
                         const img = e.currentTarget;
                         if (img.naturalWidth > 0 && img.naturalHeight > 0) {
@@ -365,47 +362,11 @@ export default function Home() {
                     decoding="async"
                   />
 
-                  {/* Shading Layer 1: Hinge Groove Crease Shadow */}
+                  {/* Clean Hinge Groove Shadow: subtle dark multiply line along the binding seam, no washed-out veil */}
                   <div
                     className="absolute inset-0 pointer-events-none"
                     style={{
-                      background: 'linear-gradient(90deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.25) 2.5%, rgba(0,0,0,0.05) 5%, transparent 8%)',
-                      mixBlendMode: 'multiply',
-                    }}
-                  />
-
-                  {/* Shading Layer 1b: Hinge Specular Highlight Ridge */}
-                  <div
-                    className="absolute inset-0 pointer-events-none"
-                    style={{
-                      background: 'linear-gradient(90deg, transparent 2.5%, rgba(255,255,255,0.25) 3.5%, transparent 5%)',
-                      mixBlendMode: 'screen',
-                    }}
-                  />
-
-                  {/* Shading Layer 2: Natural Satin Specular Sheen */}
-                  <div
-                    className="absolute inset-0 pointer-events-none"
-                    style={{
-                      background: 'linear-gradient(115deg, transparent 15%, rgba(255,255,255,0.18) 40%, rgba(255,255,255,0.08) 55%, transparent 75%)',
-                      mixBlendMode: 'soft-light',
-                    }}
-                  />
-
-                  {/* Shading Layer 3: Warm Ambient Lamp Light Overlay */}
-                  <div
-                    className="absolute inset-0 pointer-events-none"
-                    style={{
-                      background: 'radial-gradient(circle at 90% 10%, rgba(255,215,140,0.16) 0%, rgba(255,230,180,0.06) 35%, transparent 70%)',
-                      mixBlendMode: 'screen',
-                    }}
-                  />
-
-                  {/* Shading Layer 4: Top-to-Bottom Ambient Warmth & Base Occlusion */}
-                  <div
-                    className="absolute inset-0 pointer-events-none"
-                    style={{
-                      background: 'linear-gradient(180deg, rgba(255,248,235,0.06) 0%, transparent 40%, rgba(10,5,2,0.28) 100%)',
+                      background: 'linear-gradient(90deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.18) 2%, transparent 4%)',
                       mixBlendMode: 'multiply',
                     }}
                   />
