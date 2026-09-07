@@ -353,9 +353,9 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-40 bg-[#0a2e1f] text-white shadow-md transition-colors duration-300">
+    <header className="sticky top-0 z-40 w-full max-w-full overflow-x-hidden bg-[#0a2e1f] text-white shadow-md transition-colors duration-300">
       {/* top strip */}
-      <div className="hidden items-center justify-between bg-[#061d13] px-6 py-1.5 text-[11px] text-emerald-200 md:flex">
+      <div className="hidden w-full items-center justify-between gap-4 bg-[#061d13] px-6 py-1.5 text-[11px] text-emerald-200 md:flex">
         <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> Delivering across India — 27,000+ pincodes</span>
         <div className="flex items-center gap-4">
           <Link to="/track" className="hover:text-white">Track Order</Link>
@@ -367,7 +367,7 @@ export default function Header() {
         </div>
       </div>
 
-      <div className="mx-auto flex max-w-7xl items-center px-3 py-3 sm:px-6">
+      <div className="mx-auto flex w-full max-w-7xl min-w-0 items-center px-3 py-3 sm:px-6">
         {/* Left Section (Fixed width to anchor search and balance centering) */}
         <div className="flex w-auto md:w-[220px] lg:w-[280px] shrink-0 items-center justify-start gap-3 sm:gap-5">
           {/* mobile menu */}

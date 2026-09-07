@@ -57,9 +57,9 @@ export default function Home() {
   // const featuredBook = books.find((b) => b.featured) || books[0];
 
   return (
-    <div className="bg-slate-50 selection:bg-emerald-500/30 overflow-x-hidden">
+    <div className="w-full min-w-0 max-w-full overflow-x-hidden bg-slate-50 selection:bg-emerald-500/30">
       {/* Hero Section */}
-      <section className="relative w-full min-h-[auto] sm:min-h-[85vh] overflow-x-clip bg-[#02120b] text-white flex flex-col justify-center pt-8 pb-20 sm:pt-14 sm:pb-32 lg:pt-16 lg:pb-40">
+      <section className="relative flex min-h-[620px] w-full max-w-full min-w-0 flex-col justify-center overflow-x-hidden bg-[#02120b] pb-24 pt-7 text-white sm:min-h-[85vh] sm:pb-32 sm:pt-14 lg:pt-16 lg:pb-40">
         {/* Background Image */}
         <div
           className="absolute inset-0 z-0 bg-no-repeat bg-cover"
@@ -81,10 +81,10 @@ export default function Home() {
         ></div>
 
         {/* Content Container - Exactly matches Header.tsx alignment */}
-        <div className="relative z-10 w-full max-w-7xl px-3 sm:px-6 mx-auto lg:ml-[4%] lg:mr-auto">
+        <div className="relative z-10 mx-auto w-full min-w-0 max-w-7xl px-4 sm:px-6 lg:ml-[4%] lg:mr-auto">
 
           {/* Left Column (Right is empty because book is in the image) */}
-          <div className="flex flex-col w-full lg:w-[60%] max-w-[750px] text-left overflow-visible">
+          <div className="flex w-full min-w-0 max-w-[750px] flex-col overflow-visible text-left lg:w-[60%]">
 
             {/* Top Sale Badge */}
             <div className="inline-flex items-center gap-2 rounded-full bg-[#0a2e1f] border border-[#D4A017] px-3.5 py-1.5 mb-5 shadow-sm max-w-full">
@@ -143,34 +143,40 @@ export default function Home() {
 
             {/* Search Bar */}
             <SearchBar
-              className="mt-6 shadow-[0_12px_35px_rgba(0,0,0,0.4)] w-full h-[46px] sm:h-[54px] [&_input]:text-[13px] sm:[&_input]:text-[14px]"
+              className="mt-6 h-[48px] w-full min-w-0 shadow-[0_12px_35px_rgba(0,0,0,0.4)] sm:h-[54px] [&_button]:px-4 [&_input]:min-w-0 [&_input]:text-[12px] sm:[&_button]:px-8 sm:[&_input]:text-[14px]"
             />
 
             {/* Category Chips */}
-            <div
-              className="mt-[18px] flex flex-nowrap md:flex-wrap gap-[10px] items-center justify-start md:justify-center w-full hero-chip-container overflow-x-auto md:overflow-visible"
-              style={{ overflowY: 'hidden', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            >
-              <style>{`
-                .hero-chip-container::-webkit-scrollbar { display: none; }
-              `}</style>
-              {SEARCH_SUGGESTIONS.map((tag) => (
-                <button
-                  key={tag}
-                  onClick={() => navigate(`/search?q=${encodeURIComponent(tag)}`)}
-                  className="flex items-center gap-1.5 px-[16px] py-[8px] rounded-[999px] text-[#F5F5F5] text-[12px] sm:text-[13px] transition-all duration-250 ease-in-out whitespace-nowrap shrink-0"
-                  style={{
-                    background: 'rgba(15,55,38,0.65)',
-                    border: '1px solid rgba(255,255,255,0.12)',
-                    backdropFilter: 'blur(8px)'
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = '#0E5A3A'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(15,55,38,0.65)'; e.currentTarget.style.transform = 'translateY(0)'; }}
-                >
-                  <TrendingUp className="h-3.5 w-3.5 text-emerald-300" />
-                  {tag}
-                </button>
-              ))}
+            <div className="relative mt-[18px] w-full min-w-0">
+              <div
+                className="hero-chip-container flex w-full min-w-0 flex-nowrap items-center justify-start gap-2 overflow-x-auto snap-x snap-mandatory md:flex-wrap md:justify-center md:overflow-visible md:snap-none"
+                style={{ overflowY: 'hidden', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              >
+                <style>{`
+                  .hero-chip-container::-webkit-scrollbar { display: none; }
+                `}</style>
+                {SEARCH_SUGGESTIONS.map((tag) => (
+                  <button
+                    key={tag}
+                    onClick={() => navigate(`/search?q=${encodeURIComponent(tag)}`)}
+                    className="snap-start flex items-center gap-1.5 px-[16px] py-[8px] rounded-[999px] text-[#F5F5F5] text-[12px] sm:text-[13px] transition-all duration-250 ease-in-out whitespace-nowrap shrink-0"
+                    style={{
+                      background: 'rgba(15,55,38,0.65)',
+                      border: '1px solid rgba(255,255,255,0.12)',
+                      backdropFilter: 'blur(8px)'
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = '#0E5A3A'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(15,55,38,0.65)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+                  >
+                    <TrendingUp className="h-3.5 w-3.5 text-emerald-300" />
+                    {tag}
+                  </button>
+                ))}
+                {/* Trailing spacer so the last chip clears the viewport edge */}
+                <div className="shrink-0 w-1 md:hidden" aria-hidden="true" />
+              </div>
+              {/* Right-edge fade hints there's more to scroll (mobile only) */}
+              <div className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-[#02120b] to-transparent md:hidden" aria-hidden="true" />
             </div>
 
             {/* Feature Icons (Flows naturally 40px below left content) */}
@@ -211,13 +217,13 @@ export default function Home() {
           </div>
         </div>
         {/* OFFER STRIP */}
-        <div className="lg:absolute lg:bottom-20 left-0 right-0 z-10 w-full mt-10 lg:mt-0">
-          <div className="w-full max-w-7xl px-3 sm:px-6 mx-auto lg:ml-[4%] lg:mr-auto">
-            <div className="flex flex-nowrap sm:flex-wrap items-center gap-2 overflow-x-auto sm:overflow-visible hero-chip-container pb-2 sm:pb-0" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        <div className="relative z-10 mt-10 w-full min-w-0 lg:absolute lg:bottom-20 lg:left-0 lg:right-0 lg:mt-0">
+          <div className="relative mx-auto w-full min-w-0 max-w-7xl px-4 sm:px-6 lg:ml-[4%] lg:mr-auto">
+            <div className="hero-chip-container flex w-full min-w-0 flex-nowrap items-center gap-2 overflow-x-auto snap-x snap-mandatory pb-2 sm:flex-wrap sm:overflow-visible sm:pb-0 sm:snap-none" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
               {OFFERS.map((o) => (
                 <div
                   key={o.t}
-                  className="flex items-center gap-2.5 px-[16px] py-[8px] rounded-[999px] text-[#F5F5F5] transition-all duration-250 ease-in-out shadow-sm shrink-0 whitespace-nowrap"
+                  className="snap-start flex items-center gap-2.5 px-[16px] py-[8px] rounded-[999px] text-[#F5F5F5] transition-all duration-250 ease-in-out shadow-sm shrink-0 whitespace-nowrap"
                   style={{ 
                     background: 'rgba(15,55,38,0.65)',
                     border: '1px solid rgba(255,255,255,0.12)',
@@ -230,7 +236,11 @@ export default function Home() {
                   <p className="text-[12px] sm:text-[13px] font-medium tracking-wide">{o.d}</p>
                 </div>
               ))}
+              {/* Trailing spacer so the last offer chip clears the viewport edge */}
+              <div className="shrink-0 w-1 sm:hidden" aria-hidden="true" />
             </div>
+            {/* Right-edge fade hints there's more to scroll (mobile only) */}
+            <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-[#02120b] via-[#02120b]/70 to-transparent sm:hidden" aria-hidden="true" />
           </div>
         </div>
       </section>
