@@ -7,7 +7,7 @@ const FAQS = [
   { q: 'How long does delivery take?', a: 'Metro cities: 1–3 days. Rest of India: 3–7 days. Remote pincodes via India Post may take up to 7–10 days. Enter your pincode on any product page for an exact estimate.' },
   { q: 'What is your replacement and cancellation policy?', a: 'We provide replacements only — monetary return refunds are not provided once delivered. If your book arrives damaged, defective, or misprinted, you can request a free replacement within 7 days of delivery by filling out our official Google Replacement Form. Order cancellation with full refund is available exclusively before dispatch. Once dispatched, orders cannot be cancelled, and doorstep delivery refusal (RTO) is strictly non-refundable.' },
   { q: 'Are all books genuine and new?', a: 'Yes. Every title is sourced directly from publishers or authorised distributors. We have a zero-tolerance policy on pirated books.' },
-  { q: 'How do Techno Rewards points work?', a: 'Earn 1 point for every ₹100 spent. Points are credited upon delivery and can be redeemed on future orders.' },
+  { q: 'How do Techno Rewards points work?', a: 'Earn 1 Techno Coin for every ₹100 spent (excluding delivery charges). Coins are credited upon delivery and can be redeemed on future orders.' },
   { q: 'Can I pay cash on delivery?', a: 'Yes, COD is available across serviceable Indian pincodes with a flat ₹20 courier handling fee. UPI, cards, and net banking are also supported.' },
   { q: 'Do you deliver old/rare books safely?', a: 'Rare and collector\'s editions ship in archival wrapping with rigid corner protection and tamper-proof packaging, fully insured.' },
 ];

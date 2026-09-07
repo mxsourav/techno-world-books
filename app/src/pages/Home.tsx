@@ -86,10 +86,44 @@ export default function Home() {
           {/* Left Column (Right is empty because book is in the image) */}
           <div className="flex flex-col w-full lg:w-[60%] max-w-[750px] text-left overflow-visible">
 
-            {/* Top Sale Badge */}
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#0a2e1f] border border-[#D4A017] px-3.5 py-1 mb-5 shadow-sm">
-              <Tag className="h-3.5 w-3.5 text-[#D4A017]" />
-              <span className="text-[13px] font-medium text-[#D4A017]">Grand Book Sale — Up to 60% off 10,000+ titles</span>
+            {/* Top Sale Marquee Ticker */}
+            <div className="relative mb-5 flex h-9 max-w-[640px] items-center overflow-hidden rounded-full border border-[#D4A017]/40 bg-[#0a2e1f]/90 px-3 shadow-md backdrop-blur-xs">
+              <div className="z-10 flex shrink-0 items-center gap-1.5 rounded-full bg-[#D4A017] px-2.5 py-0.5 text-[11px] font-black text-slate-950 uppercase tracking-wide mr-2 shadow-xs">
+                <Tag className="h-3 w-3" />
+                <span>Updates</span>
+              </div>
+              <div className="relative w-full overflow-hidden whitespace-nowrap">
+                <div className="inline-flex animate-hero-marquee gap-8 text-[12.5px] font-semibold text-[#FFE885]">
+                  <span>⚡ Grand Book Sale — Up to 60% off 10,000+ titles</span>
+                  <span>•</span>
+                  <span>🚚 Free Delivery on all orders above ₹999 across India</span>
+                  <span>•</span>
+                  <span>🪙 Earn 1 Techno Coin per ₹100 spent (excl. delivery)</span>
+                  <span>•</span>
+                  <span>🔄 Easy 7-Day Replacement Guarantee on every book</span>
+                  <span>•</span>
+                  <span>⚡ Grand Book Sale — Up to 60% off 10,000+ titles</span>
+                  <span>•</span>
+                  <span>🚚 Free Delivery on all orders above ₹999 across India</span>
+                  <span>•</span>
+                  <span>🪙 Earn 1 Techno Coin per ₹100 spent (excl. delivery)</span>
+                  <span>•</span>
+                  <span>🔄 Easy 7-Day Replacement Guarantee on every book</span>
+                </div>
+              </div>
+              <style>{`
+                @keyframes heroMarquee {
+                  0% { transform: translateX(0%); }
+                  100% { transform: translateX(-50%); }
+                }
+                .animate-hero-marquee {
+                  display: inline-flex;
+                  animation: heroMarquee 25s linear infinite;
+                }
+                .animate-hero-marquee:hover {
+                  animation-play-state: paused;
+                }
+              `}</style>
             </div>
 
             {/* Main Heading */}
@@ -178,8 +212,8 @@ export default function Home() {
               <div className="flex items-center gap-3 px-3">
                 <Package className="h-6 w-6 text-slate-800" strokeWidth={1.5} />
                 <div>
-                  <div className="font-bold text-slate-900 text-[13px]">Easy Returns</div>
-                  <div className="text-slate-500 text-[11px]">Hassle-free returns</div>
+                  <div className="font-bold text-slate-900 text-[13px]">Easy Replacement</div>
+                  <div className="text-slate-500 text-[11px]">Hassle-free replacement</div>
                 </div>
               </div>
               <div className="w-px h-7 bg-slate-200"></div>
@@ -314,8 +348,8 @@ export default function Home() {
           <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <div>
               <p className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-widest"><Sparkles className="h-4 w-4" /> Techno Rewards</p>
-              <h3 className="mt-1 text-xl font-extrabold sm:text-2xl">Earn points on every order. Redeem on your next.</h3>
-              <p className="mt-1 text-sm font-medium opacity-80">Refer a friend and both of you get ₹100 in points.</p>
+              <h3 className="mt-1 text-xl font-extrabold sm:text-2xl">Earn 1 Techno Coin for every ₹100 spent.</h3>
+              <p className="mt-1 text-sm font-medium opacity-80">Earn points on every order (excluding delivery charges). Redeem anytime on your next book purchase.</p>
             </div>
             <Link to="/account" className="shrink-0 rounded-xl bg-slate-900 px-5 py-3 text-sm font-extrabold text-white hover:bg-slate-800">
               Check My Rewards

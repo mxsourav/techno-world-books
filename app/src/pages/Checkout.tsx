@@ -910,17 +910,14 @@ export default function Checkout() {
                   </div>
                 </div>
 
-                {/* Strict Independence Disclaimer */}
+                {/* College Street Desk Pickup Note */}
                 <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4 text-xs text-slate-600">
                   <div className="flex items-start gap-2.5">
-                    <Info className="h-4 w-4 text-slate-500 shrink-0 mt-0.5" />
-                    <div className="space-y-1.5">
-                      <p className="font-bold text-slate-800">Enterprise Division &amp; Offline Retail Notice</p>
+                    <Info className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <div className="space-y-1">
+                      <p className="font-bold text-slate-800">College Street Desk Pickup Information</p>
                       <p className="leading-relaxed">
-                        Techno World Books Online and the College Street offline retail bookstore operate under the same parent brand trademark, but run as completely separate corporate divisions with independent inventory and accounting systems.
-                      </p>
-                      <p className="leading-relaxed">
-                        Offline retail counter exchanges, returns, or over-the-counter replacements are strictly not possible. You can place your order online, receive your official invoice in your account / email upon acceptance, and present that invoice at our College Street dispatch desk at your selected appointment time to collect your books.
+                        For self-pickup orders, you can place your order online and present your order confirmation or official digital tax invoice at our College Street dispatch desk during your appointed time to collect your books.
                       </p>
                     </div>
                   </div>
