@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router';
-import { Sparkles, ArrowRight, Trophy, Flame, TrendingUp, Sparkle, Stethoscope, Settings, GraduationCap, Library, BookOpen, Quote, Languages, Globe2, Gem, Heart, Clock, ShieldCheck, Package, MessageCircle, Tag, Users } from 'lucide-react';
+import { BadgePercent, Truck, Gift, Sparkles, ArrowRight, Trophy, Flame, TrendingUp, Sparkle, Stethoscope, Settings, GraduationCap, Library, BookOpen, Quote, Languages, Globe2, Gem, Heart, Clock, Tag } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 import { bookService } from '@/services/api';
@@ -12,8 +12,13 @@ import PublishedByTechnoWorld from '@/components/PublishedByTechnoWorld';
 import StudyGuides from '@/components/StudyGuides';
 import PromoBanners from '@/components/PromoBanners';
 import { useAutoFeaturedBooks } from '@/hooks/useAutoFeaturedBooks';
+<<<<<<< HEAD
 import { OFFERS, SEARCH_SUGGESTIONS } from '@/data/constants';
 // import SEOHead, { buildWebsiteJsonLd } from '@/components/SEOHead';
+=======
+import { SEARCH_SUGGESTIONS } from '@/data/constants';
+import SEOHead, { buildWebsiteJsonLd } from '@/components/SEOHead';
+>>>>>>> d7addb8 (fix: enable mobile menu drawer scrolling and update hero offer cards)
 
 const PUBLISHERS = ['NCERT', 'Arihant Publications', 'McGraw Hill', 'Elsevier', 'Penguin', 'Ananda Publishers', 'MTG Learning Media', 'Dhanpat Rai'];
 
@@ -172,64 +177,45 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Feature Icons (Flows naturally 40px below left content) */}
-            <div className="mt-[30px] w-full rounded-[20px] bg-[#f8f5ef] py-2.5 px-5 shadow-[0_15px_40px_-15px_rgba(0,0,0,0.5)] hidden lg:flex items-center justify-around border border-[#e5e0d8]">
-              <div className="flex items-center gap-3 px-3">
-                <Package className="h-6 w-6 text-slate-800" strokeWidth={1.5} />
+            {/* Offer Highlights Bar (White Card Look) */}
+            <div className="mt-[28px] w-full rounded-[20px] bg-[#f8f5ef] py-3 px-4 sm:px-6 shadow-[0_15px_40px_-15px_rgba(0,0,0,0.5)] flex flex-col md:flex-row items-stretch md:items-center justify-around border border-[#e5e0d8] gap-3.5 md:gap-0">
+              <div className="flex items-center gap-3 px-2 sm:px-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-800 shadow-xs">
+                  <BadgePercent className="h-5 w-5" strokeWidth={2} />
+                </div>
                 <div>
-                  <div className="font-bold text-slate-900 text-[13px]">Easy Replacement</div>
-                  <div className="text-slate-500 text-[11px]">Hassle-free replacement</div>
+                  <div className="font-bold text-slate-900 text-[13px] leading-tight">STUDENT15 — 15% off</div>
+                  <div className="text-slate-600 text-[11px] leading-tight mt-0.5 font-medium">For students on exam & academic books</div>
                 </div>
               </div>
-              <div className="w-px h-7 bg-slate-200"></div>
-              <div className="flex items-center gap-3 px-3">
-                <ShieldCheck className="h-6 w-6 text-slate-800" strokeWidth={1.5} />
+
+              <div className="hidden md:block w-px h-8 bg-slate-200"></div>
+              <div className="block md:hidden h-px w-full bg-slate-200/80"></div>
+
+              <div className="flex items-center gap-3 px-2 sm:px-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800 shadow-xs">
+                  <Truck className="h-5 w-5" strokeWidth={2} />
+                </div>
                 <div>
-                  <div className="font-bold text-slate-900 text-[13px]">Secure Payments</div>
-                  <div className="text-slate-500 text-[11px]">100% protected</div>
+                  <div className="font-bold text-slate-900 text-[13px] leading-tight">Free Delivery</div>
+                  <div className="text-slate-600 text-[11px] leading-tight mt-0.5 font-medium">On all orders above ₹999 across India</div>
                 </div>
               </div>
-              <div className="w-px h-7 bg-slate-200"></div>
-              <div className="flex items-center gap-3 px-3">
-                <Users className="h-6 w-6 text-slate-800" strokeWidth={1.5} />
-                <div>
-                  <div className="font-bold text-slate-900 text-[13px]">Trusted by Students</div>
-                  <div className="text-slate-500 text-[11px]">Across India</div>
+
+              <div className="hidden md:block w-px h-8 bg-slate-200"></div>
+              <div className="block md:hidden h-px w-full bg-slate-200/80"></div>
+
+              <div className="flex items-center gap-3 px-2 sm:px-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-800 shadow-xs">
+                  <Gift className="h-5 w-5" strokeWidth={2} />
                 </div>
-              </div>
-              <div className="w-px h-7 bg-slate-200"></div>
-              <div className="flex items-center gap-3 px-3">
-                <MessageCircle className="h-6 w-6 text-slate-800" strokeWidth={1.5} />
                 <div>
-                  <div className="font-bold text-slate-900 text-[13px]">24/7 Support</div>
-                  <div className="text-slate-500 text-[11px]">We're here to help</div>
+                  <div className="font-bold text-slate-900 text-[13px] leading-tight">Techno Rewards</div>
+                  <div className="text-slate-600 text-[11px] leading-tight mt-0.5 font-medium">Earn 1 Techno Coin per ₹100 spent (excl. delivery)</div>
                 </div>
               </div>
             </div>
 
-          </div>
-        </div>
-        {/* OFFER STRIP */}
-        <div className="relative z-10 mt-10 w-full min-w-0 lg:absolute lg:bottom-20 lg:left-0 lg:right-0 lg:mt-0">
-          <div className="relative mx-auto w-full min-w-0 max-w-7xl px-4 sm:px-6 lg:ml-[4%] lg:mr-auto">
-            <div className="hero-chip-container flex w-full min-w-0 flex-wrap items-center gap-2 overflow-visible pb-0">
-              {OFFERS.map((o) => (
-                <div
-                  key={o.t}
-                  className="flex max-w-full items-center gap-2.5 rounded-[999px] px-[16px] py-[8px] text-[#F5F5F5] shadow-sm transition-all duration-250 ease-in-out whitespace-normal"
-                  style={{ 
-                    background: 'rgba(15,55,38,0.65)',
-                    border: '1px solid rgba(255,255,255,0.12)',
-                    backdropFilter: 'blur(8px)'
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = '#0E5A3A'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(15,55,38,0.65)'; e.currentTarget.style.transform = 'translateY(0)'; }}
-                >
-                  <o.icon className="h-4 w-4 shrink-0 text-emerald-400" strokeWidth={1.5} />
-                  <p className="text-[12px] sm:text-[13px] font-medium tracking-wide">{o.d}</p>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </section>
