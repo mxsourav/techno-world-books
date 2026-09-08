@@ -27,7 +27,8 @@ Under the official **Department of Posts (DoP) CEPT Customer Integration Specifi
 | **Manifest / Box** | Weight in grams, Package Dimensions, Value in INR, Payment Mode (`PREPAID` or `C.O.D.`). | **Assigned Order ID & Barcode**, **Book SKU IDs & Titles**, Dispatch notes (`FRAGILE`, `EDUCATIONAL BOOKS`). |
 
 ### Approved Sticker Sizing:
-- **A7 (74 mm × 105 mm)**: Authorized for standard 3-inch thermal label rolls (TVS, TSC, Rollo, Citizen).
+- **75 mm × 125 mm (3" × 5")**: Default standard thermal label roll format for book parcels & Courier dispatch.
+- **A7 (74 mm × 105 mm)**: Authorized for standard 3-inch pocket thermal label rolls (TVS, TSC, Rollo, Citizen).
 - **A6 (105 mm × 148 mm / 4" × 6")**: The universal e-commerce standard shipping label format.
 - **A5 (148 mm × 210 mm / Half A4)**: Ideal for laser printers (2 stickers per A4 page) or document pouches.
 
