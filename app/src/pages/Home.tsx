@@ -159,7 +159,7 @@ export default function Home() {
               decoding="async"
             />
 
-            {/* Realistic Physical Dual-Shadow on Wooden Riser */}
+            {/* Realistic Physical Multi-Vector Shadow on Wooden Riser */}
             <div
               className="absolute hidden lg:block pointer-events-none"
               style={{
@@ -172,6 +172,7 @@ export default function Home() {
                 filter: 'blur(6px)',
               }}
             />
+            {/* Front Cover Bottom Contact Shadow */}
             <div
               className="absolute hidden lg:block pointer-events-none"
               style={{
@@ -179,11 +180,28 @@ export default function Home() {
                 top: activePreset.shadow.contact.top,
                 width: activePreset.shadow.contact.width,
                 height: activePreset.shadow.contact.height,
+                transformOrigin: '0% 50%',
                 transform: `rotate(${activePreset.shadow.contact.angle})`,
                 background: 'linear-gradient(90deg, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.98) 35%, rgba(0,0,0,0.95) 82%, rgba(0,0,0,0.60) 95%, transparent 100%)',
                 filter: 'blur(2px)',
               }}
             />
+            {/* Page Block Bottom Contact Shadow */}
+            {activePreset.shadow.pageBlock && (
+              <div
+                className="absolute hidden lg:block pointer-events-none"
+                style={{
+                  left: activePreset.shadow.pageBlock.left,
+                  top: activePreset.shadow.pageBlock.top,
+                  width: activePreset.shadow.pageBlock.width,
+                  height: activePreset.shadow.pageBlock.height,
+                  transformOrigin: '0% 50%',
+                  transform: `rotate(${activePreset.shadow.pageBlock.angle})`,
+                  background: 'linear-gradient(90deg, rgba(0,0,0,0.96) 0%, rgba(0,0,0,0.70) 60%, transparent 100%)',
+                  filter: 'blur(1.5px)',
+                }}
+              />
+            )}
 
             {/* Dynamic 3D Book on Wooden Pedestal */}
             <div
@@ -262,11 +280,11 @@ export default function Home() {
                     decoding="async"
                   />
 
-                  {/* Book Cover Image: mapped 100% across the perspective plane with ZERO cropping, pure rich contrast */}
+                  {/* Book Cover Image: mapped 100% across the perspective plane with ZERO cropping, pure rich natural colors */}
                   <img
                     src={heroCoverUrl}
                     alt="Featured Book Cover"
-                    className="relative z-10 h-full w-full object-fill block select-none contrast-[1.08] brightness-[1.04] saturate-[1.12]"
+                    className="relative z-10 h-full w-full object-fill block select-none"
                     style={{
                       boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.20), inset -1px 0 0 rgba(255,255,255,0.10), inset 0 -1px 0 rgba(0,0,0,0.30)',
                     }}
