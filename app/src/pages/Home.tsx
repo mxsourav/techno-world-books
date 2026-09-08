@@ -223,7 +223,7 @@ export default function Home() {
                     src={heroCoverUrl}
                     alt=""
                     aria-hidden="true"
-                    className="h-full w-full object-cover scale-125 filter blur-[3px] brightness-65 contrast-125"
+                    className="h-full w-full object-cover scale-125 filter blur-[2px] brightness-75 contrast-120 saturate-110"
                     loading="eager"
                     decoding="async"
                   />
@@ -231,8 +231,7 @@ export default function Home() {
                   <div
                     className="absolute inset-0 pointer-events-none"
                     style={{
-                      background: 'linear-gradient(90deg, rgba(0,0,0,0.75) 0%, rgba(255,255,255,0.10) 40%, rgba(0,0,0,0.65) 100%)',
-                      mixBlendMode: 'multiply',
+                      background: 'linear-gradient(90deg, rgba(0,0,0,0.65) 0%, rgba(255,255,255,0.15) 35%, rgba(0,0,0,0.50) 100%)',
                     }}
                   />
                 </div>
@@ -267,9 +266,9 @@ export default function Home() {
                   <img
                     src={heroCoverUrl}
                     alt="Featured Book Cover"
-                    className="relative z-10 h-full w-full object-fill block select-none"
+                    className="relative z-10 h-full w-full object-fill block select-none contrast-[1.08] brightness-[1.04] saturate-[1.12]"
                     style={{
-                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.15), inset -1px 0 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.35)',
+                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.20), inset -1px 0 0 rgba(255,255,255,0.10), inset 0 -1px 0 rgba(0,0,0,0.30)',
                     }}
                     onLoad={(e) => {
                       if (!isManualModelChosen) {
@@ -290,12 +289,11 @@ export default function Home() {
                     decoding="async"
                   />
 
-                  {/* Clean Hinge Groove Shadow: subtle dark multiply line along the binding seam, no washed-out veil */}
+                  {/* Clean Hinge Groove Shadow: subtle dark seam along left edge */}
                   <div
-                    className="absolute inset-0 z-20 pointer-events-none"
+                    className="absolute left-0 top-0 bottom-0 w-[4%] z-20 pointer-events-none"
                     style={{
-                      background: 'linear-gradient(90deg, rgba(0,0,0,0.60) 0%, rgba(0,0,0,0.18) 2%, transparent 4%)',
-                      mixBlendMode: 'multiply',
+                      background: 'linear-gradient(90deg, rgba(0,0,0,0.55) 0%, transparent 100%)',
                     }}
                   />
                 </div>
@@ -303,12 +301,12 @@ export default function Home() {
             </div>
           </div>
         </div>
-        {/* Gradient Overlay (Cinematic Dark Mossy Green fade) */}
-        <div className="absolute inset-0 z-0 bg-gradient-to-b sm:bg-gradient-to-r from-[#03150b] via-[#0a2e16]/95 to-[#03150b]/80 sm:to-transparent pointer-events-none w-full lg:w-[95%]"></div>
+        {/* Gradient Overlay: constrained to left text column so the 3D book on the right remains 100% crisp, vibrant, and un-tinted */}
+        <div className="absolute inset-0 z-0 bg-gradient-to-b sm:bg-gradient-to-r from-[#03150b] via-[#0a2e16]/95 to-transparent pointer-events-none w-full lg:w-[50%]"></div>
 
-        {/* Subtle Geometric Texture Overlay (Fades out early to the right) */}
+        {/* Subtle Geometric Texture Overlay (Fades out early on left text column) */}
         <div
-          className="absolute inset-0 z-0 pointer-events-none w-full lg:w-[70%] opacity-80"
+          className="absolute inset-0 z-0 pointer-events-none w-full lg:w-[50%] opacity-80"
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg width='64' height='64' viewBox='0 0 64 64' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M64 0H0v64' fill='none' stroke='%23ffffff' stroke-width='1.5' stroke-opacity='0.12'/%3E%3C/svg%3E")`,
             WebkitMaskImage: 'linear-gradient(to right, black, transparent 75%)'
