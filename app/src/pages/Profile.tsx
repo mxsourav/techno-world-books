@@ -330,11 +330,19 @@ export default function Profile() {
           {/* TODO: [OAUTH_REAL_KEYS_INJECTED] Remove developer bypass button once Google Client ID is configured */}
           <button
             onClick={async () => {
+              const promptEmail = window.prompt('Please enter your Google Email address for order invoices & tracking:', '')?.trim();
+              if (!promptEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(promptEmail)) {
+                if (promptEmail) {
+                  toast.error('Please enter a valid email address');
+                }
+                return;
+              }
+              const promptName = promptEmail.split('@')[0];
               try {
-                const res = await authService.devGoogleBypass();
+                const res = await authService.devGoogleBypass({ email: promptEmail, name: promptName });
                 if (res.success && res.data) {
                   authLogin(res.data.accessToken, res.data.user);
-                  toast.success('Signed in via Developer Google OAuth Bypass');
+                  toast.success(`Welcome, ${res.data.user.name}! Signed in successfully.`);
                   fetchFullProfile();
                 }
               } catch (e: any) {

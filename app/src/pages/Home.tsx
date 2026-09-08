@@ -34,7 +34,7 @@ export default function Home() {
       const cached = localStorage.getItem(CACHED_COVER_KEY);
       if (cached) return cached;
     } catch {}
-    return '/uploads/hero/hero-book-cover-1788824544793.webp';
+    return getImageUrl('/uploads/hero/hero-book-cover-1788824544793.webp');
   });
 
   const [activePresetId, setActivePresetId] = useState<BookPresetId>(() => {
@@ -42,24 +42,30 @@ export default function Home() {
       const cached = localStorage.getItem(CACHED_MODEL_KEY);
       if (cached && (cached in BOOK_PRESETS)) return cached as BookPresetId;
     } catch {}
-    return 'reference';
+    return 'academic';
   });
 
   const [isManualModelChosen, setIsManualModelChosen] = useState(true);
   const heroCanvasRef = useRef<HTMLDivElement>(null);
   const [bookScale, setBookScale] = useState(1);
 
-  const activePreset = BOOK_PRESETS[activePresetId] || BOOK_PRESETS.reference;
+  const activePreset = BOOK_PRESETS[activePresetId] || BOOK_PRESETS.academic;
 
   useEffect(() => {
     heroService.getHeroConfig()
       .then((res) => {
         if (res.success && res.data?.hero_book_cover_url) {
-          const timestamp = res.data.hero_book_cover_updated_at ? `?v=${new Date(res.data.hero_book_cover_updated_at).getTime()}` : '';
-          const fullUrl = `${getImageUrl(res.data.hero_book_cover_url)}${timestamp}`;
-          setHeroCoverUrl(fullUrl);
+          const baseUrl = getImageUrl(res.data.hero_book_cover_url);
+          const fullUrl = res.data.hero_book_cover_updated_at 
+            ? `${baseUrl}?v=${new Date(res.data.hero_book_cover_updated_at).getTime()}` 
+            : baseUrl;
+          
+          setHeroCoverUrl((prev) => {
+            if (prev && (prev === fullUrl || prev === baseUrl)) return prev;
+            return fullUrl;
+          });
           try {
-            localStorage.setItem(CACHED_COVER_KEY, fullUrl);
+            localStorage.setItem(CACHED_COVER_KEY, baseUrl);
           } catch {}
 
           if (res.data.hero_book_model && (res.data.hero_book_model in BOOK_PRESETS)) {
@@ -168,7 +174,7 @@ export default function Home() {
                 width: activePreset.shadow.diffuse.width,
                 height: activePreset.shadow.diffuse.height,
                 transform: `rotate(${activePreset.shadow.diffuse.angle})`,
-                background: 'radial-gradient(ellipse at 48% 50%, rgba(10,5,2,0.85) 0%, rgba(15,8,3,0.40) 50%, transparent 75%)',
+                background: 'radial-gradient(ellipse at 50% 50%, rgba(5,2,1,0.88) 0%, rgba(15,8,3,0.50) 55%, transparent 75%)',
                 filter: 'blur(6px)',
               }}
             />
@@ -182,7 +188,7 @@ export default function Home() {
                 height: activePreset.shadow.contact.height,
                 transformOrigin: '0% 50%',
                 transform: `rotate(${activePreset.shadow.contact.angle})`,
-                background: 'linear-gradient(90deg, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.98) 35%, rgba(0,0,0,0.95) 82%, rgba(0,0,0,0.60) 95%, transparent 100%)',
+                background: 'linear-gradient(90deg, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.98) 40%, rgba(0,0,0,0.90) 85%, rgba(0,0,0,0.60) 100%)',
                 filter: 'blur(2px)',
               }}
             />
@@ -197,8 +203,8 @@ export default function Home() {
                   height: activePreset.shadow.pageBlock.height,
                   transformOrigin: '0% 50%',
                   transform: `rotate(${activePreset.shadow.pageBlock.angle})`,
-                  background: 'linear-gradient(90deg, rgba(0,0,0,0.96) 0%, rgba(0,0,0,0.70) 60%, transparent 100%)',
-                  filter: 'blur(1.5px)',
+                  background: 'linear-gradient(90deg, rgba(0,0,0,0.95) 0%, rgba(10,5,2,0.80) 50%, rgba(20,10,5,0.40) 85%, transparent 100%)',
+                  filter: 'blur(2.5px)',
                 }}
               />
             )}
@@ -241,7 +247,7 @@ export default function Home() {
                     src={heroCoverUrl}
                     alt=""
                     aria-hidden="true"
-                    className="h-full w-full object-cover scale-125 filter blur-[2px] brightness-75 contrast-120 saturate-110"
+                    className="h-full w-full object-cover scale-125 filter blur-[3px] brightness-70 contrast-110 saturate-105"
                     loading="eager"
                     decoding="async"
                   />
@@ -249,7 +255,7 @@ export default function Home() {
                   <div
                     className="absolute inset-0 pointer-events-none"
                     style={{
-                      background: 'linear-gradient(90deg, rgba(0,0,0,0.65) 0%, rgba(255,255,255,0.15) 35%, rgba(0,0,0,0.50) 100%)',
+                      background: 'linear-gradient(90deg, rgba(0,0,0,0.70) 0%, rgba(255,220,150,0.12) 30%, rgba(0,0,0,0.40) 85%, rgba(0,0,0,0.80) 100%)',
                     }}
                   />
                 </div>
@@ -275,18 +281,18 @@ export default function Home() {
                     src={heroCoverUrl}
                     alt=""
                     aria-hidden="true"
-                    className="absolute inset-0 h-full w-full object-cover scale-110 filter blur-md brightness-60 contrast-125 pointer-events-none select-none"
+                    className="absolute inset-0 h-full w-full object-cover scale-110 filter blur-sm brightness-60 pointer-events-none select-none"
                     loading="eager"
                     decoding="async"
                   />
 
-                  {/* Book Cover Image: mapped 100% across the perspective plane with ZERO cropping, pure rich natural colors */}
+                  {/* Book Cover Image: mapped 100% across the perspective plane with ZERO cropping, matte paper grading */}
                   <img
                     src={heroCoverUrl}
                     alt="Featured Book Cover"
                     className="relative z-10 h-full w-full object-fill block select-none"
                     style={{
-                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.20), inset -1px 0 0 rgba(255,255,255,0.10), inset 0 -1px 0 rgba(0,0,0,0.30)',
+                      filter: 'brightness(0.96) saturate(0.95) contrast(0.98)',
                     }}
                     onLoad={(e) => {
                       if (!isManualModelChosen) {
@@ -307,11 +313,20 @@ export default function Home() {
                     decoding="async"
                   />
 
-                  {/* Clean Hinge Groove Shadow: subtle dark seam along left edge */}
+                  {/* Ambient Warm Incandescent Room Lighting Overlay */}
                   <div
-                    className="absolute left-0 top-0 bottom-0 w-[4%] z-20 pointer-events-none"
+                    className="absolute inset-0 z-20 pointer-events-none"
                     style={{
-                      background: 'linear-gradient(90deg, rgba(0,0,0,0.55) 0%, transparent 100%)',
+                      background: 'linear-gradient(145deg, rgba(255, 215, 125, 0.15) 0%, rgba(200, 140, 50, 0.07) 45%, rgba(15, 8, 3, 0.28) 100%)',
+                      mixBlendMode: 'soft-light',
+                    }}
+                  />
+
+                  {/* Physical Spine Crease & Page Seam Ambient Occlusion */}
+                  <div
+                    className="absolute inset-0 z-20 pointer-events-none"
+                    style={{
+                      background: 'linear-gradient(90deg, rgba(0,0,0,0.50) 0%, rgba(0,0,0,0.12) 3%, transparent 8%, transparent 92%, rgba(0,0,0,0.22) 100%)',
                     }}
                   />
                 </div>
