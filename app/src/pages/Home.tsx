@@ -201,10 +201,27 @@ export default function Home() {
                   top: activePreset.shadow.pageBlock.top,
                   width: activePreset.shadow.pageBlock.width,
                   height: activePreset.shadow.pageBlock.height,
-                  transformOrigin: '0% 50%',
+                  transformOrigin: '0% 0%',
                   transform: `rotate(${activePreset.shadow.pageBlock.angle})`,
-                  background: 'linear-gradient(90deg, rgba(0,0,0,0.95) 0%, rgba(10,5,2,0.80) 50%, rgba(20,10,5,0.40) 85%, transparent 100%)',
-                  filter: 'blur(2.5px)',
+                  background: 'linear-gradient(90deg, rgba(0,0,0,0.98) 0%, rgba(10,5,2,0.92) 40%, rgba(20,10,5,0.75) 80%, rgba(0,0,0,0.40) 100%)',
+                  filter: 'blur(1.5px)',
+                }}
+              />
+            )}
+
+            {/* Page Block Soft Cast Shadow on Wooden Table */}
+            {activePreset.shadow.pageBlockCast && (
+              <div
+                className="absolute hidden lg:block pointer-events-none"
+                style={{
+                  left: activePreset.shadow.pageBlockCast.left,
+                  top: activePreset.shadow.pageBlockCast.top,
+                  width: activePreset.shadow.pageBlockCast.width,
+                  height: activePreset.shadow.pageBlockCast.height,
+                  transformOrigin: '0% 50%',
+                  transform: activePreset.shadow.pageBlockCast.angle ? `rotate(${activePreset.shadow.pageBlockCast.angle})` : undefined,
+                  background: 'radial-gradient(ellipse at 40% 50%, rgba(0,0,0,0.85) 0%, rgba(10,5,2,0.50) 60%, transparent 85%)',
+                  filter: 'blur(4px)',
                 }}
               />
             )}
