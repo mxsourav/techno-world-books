@@ -56,7 +56,10 @@ export const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
   const [loading, setLoading] = useState(false);
   const [gisReady, setGisReady] = useState(false);
 
-  const clientId = (import.meta.env.VITE_GOOGLE_CLIENT_ID || '').trim();
+  const clientId = (
+    import.meta.env.VITE_GOOGLE_CLIENT_ID ||
+    '285337463761-2ag5qau6mv0ilqac6n8upplrdus4o6l4.apps.googleusercontent.com'
+  ).trim();
 
   useEffect(() => {
     if (!clientId) return;
