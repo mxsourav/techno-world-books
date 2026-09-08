@@ -105,8 +105,8 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) { onClose(); setStep('phone'); setOtp(''); } }}>
       <DialogContent className="sm:max-w-[425px] p-0 overflow-hidden bg-white border-0 shadow-2xl rounded-2xl">
-        {/* Decorative Header with SVG elements */}
-        <div className="relative bg-gradient-to-br from-emerald-800 to-emerald-950 px-6 py-10 text-center overflow-hidden">
+        {/* Decorative Header with Brand Logo */}
+        <div className="relative bg-gradient-to-br from-emerald-800 to-emerald-950 px-6 py-8 text-center overflow-hidden flex flex-col items-center justify-center">
           <svg className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
             <path d="M0,100 C30,60 70,60 100,100 L100,0 L0,0 Z" fill="currentColor" className="text-white" />
             <circle cx="80" cy="20" r="15" fill="currentColor" className="text-white" />
@@ -114,19 +114,25 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
           </svg>
           
           <div className="relative z-10 flex flex-col items-center">
-            <div className="h-16 w-16 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-xl shadow-black/20 ring-4 ring-white/10">
-              <User className="h-8 w-8 text-emerald-700" />
-            </div>
-            <DialogTitle className="text-2xl font-extrabold text-white tracking-tight">
-              Welcome to Techno World
-            </DialogTitle>
-            <p className="text-emerald-100 text-sm mt-2 max-w-[280px] mx-auto font-medium">
-              Login to earn Techno Points, access saved addresses, and track your orders.
-            </p>
+            <DialogTitle className="sr-only">Sign In to Techno World Books</DialogTitle>
+            <img
+              src="/techno_world.png"
+              alt="Techno World Books Logo"
+              className="h-12 sm:h-14 w-auto object-contain brightness-0 invert drop-shadow-md"
+            />
           </div>
         </div>
 
-        <div className="px-8 py-7">
+        <div className="px-8 py-6">
+          {/* Primary Google Sign-In */}
+          <div className="flex flex-col items-center justify-center mb-3">
+            <GoogleSignInButton onSuccess={onClose} width={300} />
+          </div>
+
+          <div className="relative text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest before:absolute before:left-0 before:top-1/2 before:h-px before:w-[30%] before:bg-slate-200 after:absolute after:right-0 after:top-1/2 after:h-px after:w-[30%] after:bg-slate-200 my-4">
+            OR SIGN IN WITH
+          </div>
+
           {/* Method Tabs */}
           <div className="flex rounded-xl bg-slate-100 p-1 mb-5">
             <button
@@ -176,12 +182,6 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
               >
                 <Mail className="h-4 w-4" /> {loading ? 'Signing in...' : 'Sign In with Email'}
               </button>
-
-              <div className="relative text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest before:absolute before:left-0 before:top-1/2 before:h-px before:w-[30%] before:bg-slate-200 after:absolute after:right-0 after:top-1/2 after:h-px after:w-[30%] after:bg-slate-200 my-4">
-                OR CONTINUE WITH GOOGLE
-              </div>
-
-              <GoogleSignInButton onSuccess={onClose} width={280} />
             </div>
           ) : step === 'phone' ? (
             <div className="space-y-5">
