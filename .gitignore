@@ -47,3 +47,5 @@ psd/
 *.local
 Backend.odt
 graphify-out/
+client_secret*.json
+docs/client_secret*.json

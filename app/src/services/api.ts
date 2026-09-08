@@ -429,6 +429,7 @@ export const authService = {
   login: (data: { email: string; password: string }) => api.post<any>('/auth/login', data),
   logout: () => api.post<any>('/auth/logout'),
   me: () => api.get<any>('/auth/me'),
+  googleAuth: (data: { credential: string }) => api.post<any>('/auth/google', data),
   devGoogleBypass: (data?: { email?: string; name?: string; googleId?: string; avatarUrl?: string }) =>
     api.post<any>('/auth/google/dev-bypass', data || {}),
 };
