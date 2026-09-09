@@ -10,22 +10,26 @@ export default function HomePopupAd() {
     <aside
       role="dialog"
       aria-label="Special offer preview"
-      className="fixed bottom-4 left-1/2 z-50 w-[min(92vw,420px)] -translate-x-1/2 sm:left-auto sm:right-5 sm:translate-x-0"
+      className="fixed bottom-4 left-4 right-4 z-50 sm:left-auto sm:right-5 sm:w-[340px]"
     >
-      <div className="relative h-20 overflow-hidden rounded-2xl border border-white/15 bg-[#0a2e1f] shadow-xl shadow-slate-950/35 sm:h-24">
+      <div className="relative flex h-[76px] items-center overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_16px_40px_rgba(15,23,42,0.18)]">
         <img
           src="/home-popup-preview.png"
           alt="Book sale offer"
-          className="absolute inset-0 h-full w-full object-cover object-[center_36%]"
+          className="h-full w-16 shrink-0 rounded-xl object-cover object-[center_42%]"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#02120b]/30 via-transparent to-[#02120b]/50" />
+        <div className="min-w-0 px-3 pr-8">
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-700">Special offer</p>
+          <p className="mt-0.5 truncate text-sm font-bold text-slate-900">Book sale · Up to 60% off</p>
+          <p className="mt-0.5 truncate text-xs text-slate-500">Find your next favourite read.</p>
+        </div>
         <button
           type="button"
           onClick={() => setIsOpen(false)}
           aria-label="Close advertisement"
-          className="absolute right-2 top-1/2 grid h-6 w-6 -translate-y-1/2 place-items-center rounded-full bg-black/45 text-white backdrop-blur-sm transition hover:bg-black/70 focus:outline-none focus:ring-2 focus:ring-white"
+          className="absolute right-2.5 top-2.5 grid h-5 w-5 place-items-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-600"
         >
-          <X className="h-3.5 w-3.5" />
+          <X className="h-3 w-3" />
         </button>
       </div>
     </aside>

@@ -31,6 +31,7 @@ import { AuthProvider, useAuthStore } from '@/store/AuthStore';
 import OrderSuccess from '@/pages/OrderSuccess';
 import MyOrders from '@/pages/MyOrders';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import HomePopupAd from './components/HomePopupAd';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -124,6 +125,7 @@ function CustomerLayout() {
         <Outlet />
       </main>
       <Footer />
+      <HomePopupAd />
       {/* floating WhatsApp support */}
       <a
         href="https://wa.me/919876543210?text=Hi%20Techno%20World%20Books!%20I%20need%20help%20with%20my%20order."
