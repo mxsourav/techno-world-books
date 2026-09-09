@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import {
   BookOpen, ShoppingCart, Heart, User, Menu, Search, Mic, MessageCircle,
   History, TrendingUp, ChevronDown, LogOut, MapPin, Tag, Mail
@@ -250,7 +250,7 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
   );
 }
 
-export function SearchBar({ autoFocus = false, className = '' }: { autoFocus?: boolean; className?: string }) {
+export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus?: boolean; className?: string; id?: string }) {
   const [q, setQ] = useState('');
   const [open, setOpen] = useState(false);
   const [suggestions, setSuggestions] = useState<any[]>([]);
@@ -304,7 +304,7 @@ export function SearchBar({ autoFocus = false, className = '' }: { autoFocus?: b
   };
 
   return (
-    <div ref={ref} className={`relative ${className}`}>
+    <div ref={ref} id={id} className={`relative ${className}`}>
       <div className="flex items-stretch rounded-full bg-white border-[4px] border-white shadow-sm h-full w-full min-h-[48px]">
         <div className="flex-1 flex items-center bg-transparent pl-4">
           <Search className="h-5 w-5 shrink-0 text-slate-400" />
@@ -400,17 +400,32 @@ export function SearchBar({ autoFocus = false, className = '' }: { autoFocus?: b
 
 export default function Header() {
   const { cart, wishlist, user, logout } = useStore();
+  const { pathname } = useLocation();
   const [loginOpen, setLoginOpen] = useState(false);
   const [categories, setCategories] = useState<any[]>(WEBSITE_CATEGORIES);
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setIsScrolled(window.scrollY > 450);
-    window.addEventListener('scroll', onScroll);
-    onScroll(); 
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+    if (pathname !== '/') {
+      setIsScrolled(true);
+      return;
+    }
+
+    const hero = document.getElementById('home-hero');
+    const heroSearch = document.getElementById('home-hero-search');
+    const observedElement = heroSearch || hero;
+    if (!observedElement) {
+      setIsScrolled(window.scrollY > 200);
+      return;
+    }
+
+    const observer = new IntersectionObserver(([entry]) => {
+      setIsScrolled(!entry.isIntersecting);
+    });
+    observer.observe(observedElement);
+    return () => observer.disconnect();
+  }, [pathname]);
 
   useEffect(() => {
     categoryService.getCategories().then((res: any) => setCategories(res.data)).catch(() => {});
@@ -468,13 +483,13 @@ export default function Header() {
             </SheetContent>
           </Sheet>
 
-          <Link to="/" className="flex shrink-0 items-center gap-2">
+          <Link to="/" className="hidden shrink-0 items-center gap-2 md:flex">
             <img src="/techno_world.png" alt="Techno World Books Logo" className="h-8 sm:h-[56px] w-auto object-contain brightness-0 invert" />
           </Link>
         </div>
 
         {/* Sticky Search Bar (Expands Left-to-Right because Right side has ml-auto) */}
-        <div className={`hidden md:block transition-all duration-500 ease-in-out overflow-hidden mx-4 ${isScrolled ? 'flex-1 max-w-2xl opacity-100' : 'flex-none max-w-0 opacity-0'}`}>
+        <div className={`block transition-all duration-500 ease-in-out overflow-hidden mx-2 sm:mx-4 ${isScrolled ? 'flex-1 max-w-2xl opacity-100' : 'flex-none max-w-0 opacity-0'}`}>
           <SearchBar className="w-full rounded-full shadow-[0_12px_35px_rgba(0,0,0,0.6)] border-none ring-0" />
         </div>
         
@@ -510,7 +525,7 @@ export default function Header() {
                 <span className="absolute right-0 top-0 flex h-3.5 w-3.5 sm:h-4 sm:w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] sm:text-[10px] font-bold">{wishlist?.length}</span>
               )}
             </Link>
-            <Link to="/cart" className="relative hidden rounded-lg p-1.5 hover:bg-emerald-800 md:block md:p-2" aria-label="Cart">
+            <Link to="/cart" className="relative rounded-lg p-1.5 hover:bg-emerald-800 md:p-2" aria-label="Cart">
               <ShoppingCart className="h-5 w-5 sm:h-7 sm:w-7" />
               {cartCount > 0 && (
                 <span className="absolute right-0 top-0 flex h-3.5 w-3.5 sm:h-4 sm:w-4 items-center justify-center rounded-full bg-amber-400 text-[9px] sm:text-[10px] font-bold text-slate-900">{cartCount}</span>

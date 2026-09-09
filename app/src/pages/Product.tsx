@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import {
   ChevronRight, Heart, Share2, Truck, ShieldCheck, RotateCcw, MapPin, Zap,
@@ -28,6 +28,33 @@ export default function Product() {
   
   // Gallery state
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [gallerySwipeDirection, setGallerySwipeDirection] = useState<'next' | 'previous'>('next');
+  const galleryTouchStartX = useRef<number | null>(null);
+
+  const moveGallery = (step: number) => {
+    setGallerySwipeDirection(step > 0 ? 'next' : 'previous');
+    setActiveImageIndex((currentIndex) => Math.max(0, Math.min(4, currentIndex + step)));
+  };
+
+  const selectGalleryImage = (index: number) => {
+    setGallerySwipeDirection(index >= activeImageIndex ? 'next' : 'previous');
+    setActiveImageIndex(index);
+  };
+
+  const handleGalleryTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    galleryTouchStartX.current = event.touches[0]?.clientX ?? null;
+  };
+
+  const handleGalleryTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    const startX = galleryTouchStartX.current;
+    const endX = event.changedTouches[0]?.clientX;
+    galleryTouchStartX.current = null;
+    if (startX === null || endX === undefined) return;
+
+    const distance = endX - startX;
+    if (Math.abs(distance) < 40) return;
+    moveGallery(distance < 0 ? 1 : -1);
+  };
   
   // Delivery pincode state
   const [pincode, setPincode] = useState('700006');
@@ -543,16 +570,16 @@ export default function Product() {
             
             {/* Gallery Container */}
             <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-              <div className="grid grid-cols-[80px_1fr] gap-4">
+              <div className="flex flex-col gap-3 sm:grid sm:grid-cols-[80px_1fr] sm:gap-4">
                 
                 {/* Vertical Thumbnail Strip */}
-                <div className="flex flex-col gap-2.5 max-h-[460px] overflow-y-auto pr-1">
+                <div className="order-2 flex w-full flex-row gap-2.5 overflow-x-auto overscroll-x-contain touch-pan-x pb-1 pr-1 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:order-1 sm:max-h-[460px] sm:flex-col sm:overflow-y-auto sm:overflow-x-hidden sm:pb-0">
                   {galleryItems.map((item, idx) => (
                     <button
                       key={idx}
                       type="button"
-                      onClick={() => setActiveImageIndex(idx)}
-                      className={`relative rounded-xl border-2 p-1 text-left transition-all overflow-hidden ${
+                      onClick={() => selectGalleryImage(idx)}
+                      className={`relative w-16 shrink-0 snap-start rounded-xl border-2 p-1 text-left transition-all overflow-hidden sm:w-auto ${
                         activeImageIndex === idx
                           ? 'border-emerald-600 ring-2 ring-emerald-500/20 bg-emerald-50/40 shadow-sm'
                           : 'border-slate-200 hover:border-slate-300 bg-white'
@@ -577,7 +604,11 @@ export default function Product() {
                 </div>
 
                 {/* Main Active Preview Canvas */}
-                <div className="relative flex items-center justify-center rounded-xl bg-slate-50/80 p-4 border border-slate-100 min-h-[440px]">
+                <div
+                  className="order-1 relative flex items-center justify-center rounded-xl bg-slate-50/80 p-4 border border-slate-100 min-h-[440px] touch-pan-y select-none sm:order-2"
+                  onTouchStart={handleGalleryTouchStart}
+                  onTouchEnd={handleGalleryTouchEnd}
+                >
                   
                   {/* Floating Action Buttons: Wishlist & Share */}
                   <div className="absolute right-3 top-3 z-10 flex flex-col gap-2">
@@ -602,6 +633,10 @@ export default function Product() {
                   </div>
 
                   {/* Active Preview Rendering */}
+                  <div
+                    key={activeImageIndex}
+                    className={gallerySwipeDirection === 'next' ? 'animate-gallery-next' : 'animate-gallery-previous'}
+                  >
                   {activeImageIndex === 0 ? (
                     <div className="w-full max-w-[260px] drop-shadow-xl transition-all duration-300">
                       <BookCover book={book} className="text-xl" />
@@ -659,6 +694,7 @@ export default function Product() {
                       </div>
                     </div>
                   )}
+                  </div>
 
                 </div>
 

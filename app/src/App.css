@@ -2,3 +2,21 @@
   min-height: 100vh;
   width: 100%;
 }
+
+@keyframes gallery-slide-next {
+  from { opacity: 0; transform: translateX(18px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes gallery-slide-previous {
+  from { opacity: 0; transform: translateX(-18px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.animate-gallery-next {
+  animation: gallery-slide-next 220ms ease-out;
+}
+
+.animate-gallery-previous {
+  animation: gallery-slide-previous 220ms ease-out;
+}

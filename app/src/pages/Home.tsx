@@ -142,7 +142,7 @@ export default function Home() {
         structuredData={buildWebsiteJsonLd()}
       />
       {/* Hero Section */}
-      <section className="relative flex min-h-[620px] w-full max-w-full min-w-0 flex-col justify-center overflow-x-hidden bg-[#02120b] pb-24 pt-7 text-white sm:min-h-[85vh] sm:pb-32 sm:pt-14 lg:pt-16 lg:pb-40">
+      <section id="home-hero" className="relative flex min-h-[620px] w-full max-w-full min-w-0 flex-col justify-center overflow-x-hidden bg-[#02120b] pb-24 pt-7 text-white sm:min-h-[85vh] sm:pb-32 sm:pt-14 lg:pt-16 lg:pb-40">
         {/* Synchronized Hero Canvas with Pure CSS 3D Perspective Book Cover & Paperback Texture */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           <div
@@ -426,6 +426,7 @@ export default function Home() {
 
             {/* Search Bar */}
             <SearchBar
+              id="home-hero-search"
               className="mt-6 h-[48px] w-full min-w-0 shadow-[0_12px_35px_rgba(0,0,0,0.4)] sm:h-[54px] [&_button]:px-4 [&_input]:min-w-0 [&_input]:text-[12px] sm:[&_button]:px-8 sm:[&_input]:text-[14px]"
             />
 
