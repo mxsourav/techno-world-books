@@ -101,7 +101,24 @@ async function refreshAccessToken(): Promise<string | null> {
 
 async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Response> {
   const headers = new Headers(options.headers || {});
-  const token = localStorage.getItem('tw_admin_token');
+  const isAdminRoute = url.includes('/admin') || url.includes('/orders/admin') || url.includes('/promotions/');
+  
+  let token: string | null = null;
+  if (isAdminRoute) {
+    token = localStorage.getItem('tw_admin_token');
+    // Guard against customer tokens accidentally placed in tw_admin_token
+    if (token && token.includes('.')) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.role !== 'ADMIN' && payload.role !== 'SUPER_ADMIN') {
+          token = null;
+        }
+      } catch {}
+    }
+  } else {
+    token = localStorage.getItem('tw_customer_token') || localStorage.getItem('tw_admin_token');
+  }
+
   if (token && token !== 'undefined' && token !== 'null' && !headers.has('Authorization')) {
     headers.set('Authorization', `Bearer ${token}`);
   }
@@ -114,6 +131,13 @@ async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Re
   };
 
   let response = await fetch(url, mergedOptions);
+
+  if (response.status === 403 && isAdminRoute) {
+    if (typeof window !== 'undefined' && window.location.pathname.startsWith('/admin') && !window.location.pathname.includes('/admin/login')) {
+      localStorage.removeItem('tw_admin_token');
+      window.location.href = '/admin/login';
+    }
+  }
 
   if (response.status === 401) {
     if (!isRefreshing) {
@@ -429,6 +453,7 @@ export const authService = {
   login: (data: { email: string; password: string }) => api.post<any>('/auth/login', data),
   logout: () => api.post<any>('/auth/logout'),
   me: () => api.get<any>('/auth/me'),
+  googleAuth: (data: { credential: string }) => api.post<any>('/auth/google', data),
   devGoogleBypass: (data?: { email?: string; name?: string; googleId?: string; avatarUrl?: string }) =>
     api.post<any>('/auth/google/dev-bypass', data || {}),
 };
@@ -676,11 +701,16 @@ export const bookRequestService = {
 
 export const heroService = {
   getHeroConfig: () =>
-    api.get<{ id: string; hero_book_cover_url: string | null; hero_book_cover_updated_at: string | null }>('/hero'),
-  uploadCover: (file: File) => {
+    api.get<{ id: string; hero_book_cover_url: string | null; hero_book_cover_updated_at: string | null; hero_book_model?: string | null }>('/hero'),
+  updateModel: (heroBookModel: string) =>
+    api.put<{ id: string; hero_book_model: string }>('/hero/admin/model', { hero_book_model: heroBookModel }),
+  uploadCover: (file: File, heroBookModel?: string) => {
     const formData = new FormData();
     formData.append('cover_image', file);
-    return api.upload<{ id: string; hero_book_cover_url: string; hero_book_cover_updated_at: string }>('/hero/admin/cover', formData);
+    if (heroBookModel) {
+      formData.append('hero_book_model', heroBookModel);
+    }
+    return api.upload<{ id: string; hero_book_cover_url: string; hero_book_cover_updated_at: string; hero_book_model?: string | null }>('/hero/admin/cover', formData);
   },
   deleteCover: () =>
     api.delete<{ id: string; hero_book_cover_url: null; hero_book_cover_updated_at: string }>('/hero/admin/cover'),
