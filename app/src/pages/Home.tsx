@@ -14,6 +14,7 @@ import PromoBanners from '@/components/PromoBanners';
 import { useAutoFeaturedBooks } from '@/hooks/useAutoFeaturedBooks';
 import { SEARCH_SUGGESTIONS } from '@/data/constants';
 import SEOHead, { buildWebsiteJsonLd } from '@/components/SEOHead';
+import { CmsText } from '@/components/common/CmsText';
 
 const PUBLISHERS = ['NCERT', 'Arihant Publications', 'McGraw Hill', 'Elsevier', 'Penguin', 'Ananda Publishers', 'MTG Learning Media', 'Dhanpat Rai'];
 
@@ -372,7 +373,9 @@ export default function Home() {
             {/* Top Sale Badge */}
             <div className="inline-flex items-center gap-2 rounded-full bg-[#0a2e1f] border border-[#D4A017] px-3.5 py-1.5 mb-5 shadow-sm max-w-full">
               <Tag className="h-3.5 w-3.5 text-[#D4A017] shrink-0" />
-              <span className="text-[11px] sm:text-[13px] font-medium text-[#D4A017] truncate sm:whitespace-normal">Grand Book Sale — Up to 60% off 10,000+ titles</span>
+              <span className="text-[11px] sm:text-[13px] font-medium text-[#D4A017] truncate sm:whitespace-normal">
+                <CmsText contentKey="home.hero_badge" defaultText="Grand Book Sale — Up to 60% off 10,000+ titles" label="Hero Sale Badge" />
+              </span>
             </div>
 
             {/* Main Heading */}
@@ -394,7 +397,7 @@ export default function Home() {
                   filter: "drop-shadow(0px 4px 8px rgba(0,0,0,0.8))"
                 }}
               >
-                Every book India reads,
+                <CmsText contentKey="home.hero_title_1" defaultText="Every book India reads," label="Hero Heading Line 1" />
               </span>
               <span
                 className="block mt-1"
@@ -405,7 +408,7 @@ export default function Home() {
                   filter: "drop-shadow(0px 5px 10px rgba(0,0,0,0.9))"
                 }}
               >
-                one search away.
+                <CmsText contentKey="home.hero_title_2" defaultText="one search away." label="Hero Heading Line 2" />
               </span>
             </h1>
 
@@ -421,7 +424,12 @@ export default function Home() {
                 textAlign: "left"
               }}
             >
-              From academic textbooks to bestselling fiction, get genuine books delivered straight to your doorstep with guaranteed lowest prices.
+              <CmsText
+                contentKey="home.hero_desc"
+                defaultText="From academic textbooks to bestselling fiction, get genuine books delivered straight to your doorstep with guaranteed lowest prices."
+                label="Hero Subtitle Description"
+                multiline
+              />
             </p>
 
             {/* Search Bar */}
@@ -462,8 +470,12 @@ export default function Home() {
                   <BadgePercent className="h-5 w-5" strokeWidth={2} />
                 </div>
                 <div>
-                  <div className="font-bold text-slate-900 text-[13px] leading-tight">STUDENT15 — 15% off</div>
-                  <div className="text-slate-600 text-[11px] leading-tight mt-0.5 font-medium">For students on exam & academic books</div>
+                  <div className="font-bold text-slate-900 text-[13px] leading-tight">
+                    <CmsText contentKey="home.offer_1_title" defaultText="STUDENT15 — 15% off" label="Offer 1 Title" />
+                  </div>
+                  <div className="text-slate-600 text-[11px] leading-tight mt-0.5 font-medium">
+                    <CmsText contentKey="home.offer_1_desc" defaultText="For students on exam & academic books" label="Offer 1 Subtitle" />
+                  </div>
                 </div>
               </div>
 
@@ -475,8 +487,12 @@ export default function Home() {
                   <Truck className="h-5 w-5" strokeWidth={2} />
                 </div>
                 <div>
-                  <div className="font-bold text-slate-900 text-[13px] leading-tight">Free Delivery</div>
-                  <div className="text-slate-600 text-[11px] leading-tight mt-0.5 font-medium">On all orders above ₹999 across India</div>
+                  <div className="font-bold text-slate-900 text-[13px] leading-tight">
+                    <CmsText contentKey="home.offer_2_title" defaultText="Free Delivery" label="Offer 2 Title" />
+                  </div>
+                  <div className="text-slate-600 text-[11px] leading-tight mt-0.5 font-medium">
+                    <CmsText contentKey="home.offer_2_desc" defaultText="On all orders above ₹999 across India" label="Offer 2 Subtitle" />
+                  </div>
                 </div>
               </div>
 
@@ -488,8 +504,12 @@ export default function Home() {
                   <Gift className="h-5 w-5" strokeWidth={2} />
                 </div>
                 <div>
-                  <div className="font-bold text-slate-900 text-[13px] leading-tight">Techno Rewards</div>
-                  <div className="text-slate-600 text-[11px] leading-tight mt-0.5 font-medium">Earn 1 Techno Coin per ₹100 spent (excl. delivery)</div>
+                  <div className="font-bold text-slate-900 text-[13px] leading-tight">
+                    <CmsText contentKey="home.offer_3_title" defaultText="Techno Rewards" label="Offer 3 Title" />
+                  </div>
+                  <div className="text-slate-600 text-[11px] leading-tight mt-0.5 font-medium">
+                    <CmsText contentKey="home.offer_3_desc" defaultText="Earn 1 Techno Coin per ₹100 spent (excl. delivery)" label="Offer 3 Subtitle" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -547,8 +567,20 @@ export default function Home() {
             <div className="flex flex-col items-start justify-between gap-4 rounded-2xl bg-gradient-to-r from-indigo-900 to-violet-800 p-5 text-white sm:flex-row sm:items-center sm:p-8">
               <div className="min-w-0">
                 <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-violet-300"><Trophy className="h-4 w-4" /> Exam Zone</p>
-                <h3 className="mt-1 text-lg font-extrabold sm:text-2xl leading-snug">NEET · JEE · UPSC · GATE · SSC — all prep books in one place</h3>
-                <p className="mt-1 text-xs sm:text-sm text-violet-200">Previous year papers, toppers' booklists and combo packs at the best prices.</p>
+                <h3 className="mt-1 text-lg font-extrabold sm:text-2xl leading-snug">
+                  <CmsText
+                    contentKey="home.exam_zone_title"
+                    defaultText="NEET · JEE · UPSC · GATE · SSC — all prep books in one place"
+                    label="Exam Zone Heading"
+                  />
+                </h3>
+                <p className="mt-1 text-xs sm:text-sm text-violet-200">
+                  <CmsText
+                    contentKey="home.exam_zone_desc"
+                    defaultText="Previous year papers, toppers' booklists and combo packs at the best prices."
+                    label="Exam Zone Subtitle"
+                  />
+                </p>
               </div>
               <Link to="/category/competitive-exams" className="flex shrink-0 items-center gap-2 rounded-xl bg-amber-400 px-5 py-3 text-sm font-extrabold text-slate-900 hover:bg-amber-300 w-full sm:w-auto justify-center sm:justify-start">
                 Shop Exam Books <ArrowRight className="h-4 w-4" />

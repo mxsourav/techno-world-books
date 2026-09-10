@@ -4,6 +4,7 @@ import { MapPin, Phone, Globe, Camera } from 'lucide-react';
 import { useStore } from '@/store/StoreContext';
 import { useAuthStore } from '@/store/AuthStore';
 import { toast } from 'sonner';
+import { CmsText } from '@/components/common/CmsText';
 
 export default function Footer() {
   const { user, logout: storeLogout } = useStore();
@@ -50,12 +51,12 @@ export default function Footer() {
           <div className="flex items-start gap-2 text-sm leading-relaxed">
             <MapPin className="mt-1 h-4 w-4 shrink-0 text-slate-400" />
             <p>
-              Address: 90/6A, Mahatma Gandhi Rd, opp. Grace Cinema, Calcutta University, College Street, Kolkata, West Bengal 700007
+              Address: <CmsText contentKey="footer.address" defaultText="90/6A, Mahatma Gandhi Rd, opp. Grace Cinema, Calcutta University, College Street, Kolkata, West Bengal 700007" label="Footer Address" />
             </p>
           </div>
           <div className="flex items-center gap-2 text-sm font-semibold mt-2">
             <Phone className="h-4 w-4 shrink-0 text-slate-400" />
-            <p>Call Us : 033 2219 6115</p>
+            <p>Call Us : <CmsText contentKey="footer.phone" defaultText="033 2219 6115" label="Footer Phone" /></p>
           </div>
           
           {/* Payment Icons */}

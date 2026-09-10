@@ -341,6 +341,8 @@ export const adminService = {
   getCustomers: (params?: { search?: string; page?: number; limit?: number }) => api.get<any>('/admin/customers', params),
   getSearchTrends: (params?: { period?: string; startDate?: string; endDate?: string }) =>
     api.get<any>('/admin/analytics/search-trends', params),
+  getAutoAcceptSetting: () => api.get<{ enabled: boolean }>('/admin/settings/auto-accept'),
+  updateAutoAcceptSetting: (enabled: boolean) => api.post<{ enabled: boolean }>('/admin/settings/auto-accept', { enabled }),
 };
 
 export const searchService = {
@@ -413,6 +415,8 @@ export const cmsService = {
   getSections: () => api.get<any[]>('/cms/sections'),
   updateSection: (key: string, data: any) => api.put<any>(`/cms/sections/${key}`, data),
   toggleSection: (key: string) => api.patch<any>(`/cms/sections/${key}/toggle`),
+  getUiContent: () => api.get<Record<string, string>>('/cms/ui-content'),
+  publishUiContent: (content: Record<string, string>) => api.put<Record<string, string>>('/cms/ui-content', { content }),
 };
 
 export const promotionService = {

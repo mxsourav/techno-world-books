@@ -28,6 +28,7 @@ import AdminProtectedRoute from '@/components/admin/AdminProtectedRoute';
 import AdminLogin from '@/pages/admin/AdminLogin';
 import Dashboard from '@/pages/admin/Dashboard';
 import { AuthProvider, useAuthStore } from '@/store/AuthStore';
+import { CmsProvider } from '@/context/CmsContext';
 import OrderSuccess from '@/pages/OrderSuccess';
 import MyOrders from '@/pages/MyOrders';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -235,7 +236,9 @@ function CustomerStorefront() {
 }
 
 export default function App() {
-  const isAdminDomain = typeof window !== 'undefined' && (
+  const isCmsPreview = typeof window !== 'undefined' && window.location.search.includes('cms_edit=true');
+
+  const isAdminDomain = !isCmsPreview && typeof window !== 'undefined' && (
     window.location.hostname.includes('admin') ||
     window.location.hostname.startsWith('admin.') ||
     window.location.search.includes('mode=admin') ||
@@ -246,13 +249,15 @@ export default function App() {
   return (
     <StoreProvider>
       <AuthProvider>
-        <ScrollToTop />
-        <KeepAlivePing />
-        <VisitorPulseTracker />
-        <Toaster position="top-center" richColors />
-        <ErrorBoundary>
-          {isAdminDomain ? <AdminPortal /> : <CustomerStorefront />}
-        </ErrorBoundary>
+        <CmsProvider>
+          <ScrollToTop />
+          <KeepAlivePing />
+          <VisitorPulseTracker />
+          <Toaster position="top-center" richColors />
+          <ErrorBoundary>
+            {isAdminDomain ? <AdminPortal /> : <CustomerStorefront />}
+          </ErrorBoundary>
+        </CmsProvider>
       </AuthProvider>
     </StoreProvider>
   );

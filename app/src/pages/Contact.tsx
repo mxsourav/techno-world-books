@@ -4,6 +4,7 @@ import { MapPin, Phone, Mail, Clock, Send, ExternalLink, CheckCircle2, Loader2, 
 import { toast } from 'sonner';
 import { contactService } from '@/services/api';
 import { useStore } from '@/store/StoreContext';
+import { CmsText } from '@/components/common/CmsText';
 
 export default function Contact() {
   const [searchParams] = useSearchParams();
@@ -60,9 +61,15 @@ export default function Contact() {
         <div className="flex items-center gap-2 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-2">
           <Phone className="h-4 w-4" /> Get in Touch
         </div>
-        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Contact Techno World Books</h1>
+        <h1 className="text-3xl font-black text-slate-900 tracking-tight">
+          <CmsText contentKey="contact.title" defaultText="Contact Techno World Books" label="Contact Title" />
+        </h1>
         <p className="text-sm text-slate-500 mt-2">
-          Visit our historic College Street bookshop or contact our digital customer service team
+          <CmsText
+            contentKey="contact.subtitle"
+            defaultText="Visit our historic College Street bookshop or contact our digital customer service team"
+            label="Contact Subtitle"
+          />
         </p>
       </div>
 
@@ -77,7 +84,11 @@ export default function Contact() {
               <div>
                 <p className="font-bold text-slate-900">Techno World Books</p>
                 <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                  90/6A, Mahatma Gandhi Rd, opp. Grace Cinema, Calcutta University, College Street, Kolkata, West Bengal 700007
+                  <CmsText
+                    contentKey="footer.address"
+                    defaultText="90/6A, Mahatma Gandhi Rd, opp. Grace Cinema, Calcutta University, College Street, Kolkata, West Bengal 700007"
+                    label="Store Address"
+                  />
                 </p>
               </div>
             </div>
@@ -86,9 +97,9 @@ export default function Contact() {
               <Phone className="h-5 w-5 text-emerald-700 shrink-0" />
               <div>
                 <p className="text-xs text-slate-500 font-medium">Store Landline (9:00 AM – 8:00 PM)</p>
-                <a href="tel:03322196115" className="font-bold text-slate-900 hover:text-emerald-700">
-                  033 2219 6115
-                </a>
+                <span className="font-bold text-slate-900 hover:text-emerald-700">
+                  <CmsText contentKey="footer.phone" defaultText="033 2219 6115" label="Store Landline" />
+                </span>
               </div>
             </div>
 
