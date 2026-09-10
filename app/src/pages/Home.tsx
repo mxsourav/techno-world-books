@@ -30,13 +30,13 @@ export default function Home() {
   const CACHED_COVER_KEY = 'tw_hero_cover_url';
   const CACHED_MODEL_KEY = 'tw_hero_book_model';
 
-  // Synchronously initialize from localStorage so the image renders on millisecond 0 with zero delay
+  // Synchronously initialize from localStorage with robust fallback
   const [heroCoverUrl, setHeroCoverUrl] = useState<string | null>(() => {
     try {
       const cached = localStorage.getItem(CACHED_COVER_KEY);
-      if (cached) return cached;
+      if (cached && !cached.includes('techno-world-api-qw4j.onrender.com') && !cached.includes('404')) return cached;
     } catch {}
-    return getImageUrl('/uploads/hero/hero-book-cover-1788824544793.webp');
+    return '/hero-book-cover.webp';
   });
 
   const [activePresetId, setActivePresetId] = useState<BookPresetId>(() => {
@@ -79,11 +79,12 @@ export default function Home() {
             } catch {}
           }
         } else {
-          setHeroCoverUrl(null);
+          setHeroCoverUrl((prev) => prev || '/hero-book-cover.webp');
         }
       })
       .catch(() => {
-        // Keep cached cover on error
+        // Fallback to local bundled cover on network or endpoint failure
+        setHeroCoverUrl((prev) => prev || '/hero-book-cover.webp');
       });
   }, []);
 
@@ -212,7 +213,7 @@ export default function Home() {
               className="absolute inset-0 pointer-events-none bg-gradient-to-r from-[#02120b]/60 via-[#02120b]/20 to-[#02120b]/35 mix-blend-multiply"
             />
 
-            {/* Soft Ambient Contact Shadow on Wooden Pedestal */}
+            {/* Soft Ambient Diffuse Shadow on Wooden Desk */}
             <div
               className="absolute hidden lg:block pointer-events-none"
               style={{
@@ -220,11 +221,61 @@ export default function Home() {
                 top: activePreset.shadow.diffuse.top,
                 width: activePreset.shadow.diffuse.width,
                 height: activePreset.shadow.diffuse.height,
+                transformOrigin: '0% 50%',
                 transform: `rotate(${activePreset.shadow.diffuse.angle})`,
-                background: 'radial-gradient(ellipse at 50% 50%, rgba(15, 8, 3, 0.40) 0%, rgba(25, 12, 4, 0.15) 50%, transparent 75%)',
+                background: 'radial-gradient(ellipse at 50% 50%, rgba(10, 5, 2, 0.45) 0%, rgba(18, 8, 3, 0.20) 50%, transparent 75%)',
                 filter: 'blur(10px)',
               }}
             />
+
+            {/* Front Bottom Seam Crisp Contact Shadow */}
+            <div
+              className="absolute hidden lg:block pointer-events-none"
+              style={{
+                left: activePreset.shadow.contact.left,
+                top: activePreset.shadow.contact.top,
+                width: activePreset.shadow.contact.width,
+                height: activePreset.shadow.contact.height,
+                transformOrigin: '0% 50%',
+                transform: `rotate(${activePreset.shadow.contact.angle})`,
+                background: 'linear-gradient(90deg, rgba(8,4,1,0.55) 0%, rgba(5,2,1,0.85) 35%, rgba(5,2,1,0.80) 75%, rgba(8,4,1,0.30) 100%)',
+                filter: 'blur(3px)',
+              }}
+            />
+
+            {/* Page Block Bottom Crease Shadow */}
+            {activePreset.shadow.pageBlock && (
+              <div
+                className="absolute hidden lg:block pointer-events-none"
+                style={{
+                  left: activePreset.shadow.pageBlock.left,
+                  top: activePreset.shadow.pageBlock.top,
+                  width: activePreset.shadow.pageBlock.width,
+                  height: activePreset.shadow.pageBlock.height,
+                  transformOrigin: '0% 50%',
+                  transform: `rotate(${activePreset.shadow.pageBlock.angle})`,
+                  background: 'linear-gradient(90deg, rgba(5,2,1,0.85) 0%, rgba(10,5,2,0.65) 50%, rgba(15,8,3,0.25) 100%)',
+                  filter: 'blur(2px)',
+                }}
+              />
+            )}
+
+            {/* Page Block Soft Cast Shadow to the Right */}
+            {activePreset.shadow.pageBlockCast && (
+              <div
+                className="absolute hidden lg:block pointer-events-none"
+                style={{
+                  left: activePreset.shadow.pageBlockCast.left,
+                  top: activePreset.shadow.pageBlockCast.top,
+                  width: activePreset.shadow.pageBlockCast.width,
+                  height: activePreset.shadow.pageBlockCast.height,
+                  transformOrigin: '0% 50%',
+                  transform: activePreset.shadow.pageBlockCast.angle ? `rotate(${activePreset.shadow.pageBlockCast.angle})` : undefined,
+                  background: 'radial-gradient(ellipse at 30% 50%, rgba(10,5,2,0.60) 0%, rgba(15,8,3,0.25) 50%, transparent 80%)',
+                  filter: 'blur(4px)',
+                }}
+              />
+            )}
 
             {/* Dynamic 3D Book on Wooden Pedestal */}
             <div
@@ -265,6 +316,12 @@ export default function Home() {
                     alt=""
                     aria-hidden="true"
                     className="h-full w-full object-cover scale-125 filter blur-[3px] brightness-70 contrast-110 saturate-105"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (!target.src.endsWith('/hero-book-cover.webp')) {
+                        target.src = '/hero-book-cover.webp';
+                      }
+                    }}
                     loading="eager"
                     decoding="async"
                   />
@@ -299,6 +356,12 @@ export default function Home() {
                     alt=""
                     aria-hidden="true"
                     className="absolute inset-0 h-full w-full object-cover scale-110 filter blur-sm brightness-60 pointer-events-none select-none"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (!target.src.endsWith('/hero-book-cover.webp')) {
+                        target.src = '/hero-book-cover.webp';
+                      }
+                    }}
                     loading="eager"
                     decoding="async"
                   />
@@ -310,6 +373,12 @@ export default function Home() {
                     className="relative z-10 h-full w-full object-fill block select-none"
                     style={{
                       filter: 'brightness(0.96) saturate(0.95) contrast(0.98)',
+                    }}
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (!target.src.endsWith('/hero-book-cover.webp')) {
+                        target.src = '/hero-book-cover.webp';
+                      }
                     }}
                     onLoad={(e) => {
                       if (!isManualModelChosen) {
