@@ -8,7 +8,7 @@ import { POPULAR_SEARCHES } from '@/data/blog';
 import { CATEGORIES as WEBSITE_CATEGORIES } from '@/data/books';
 import { useStore } from '@/store/StoreContext';
 import { useAuthStore } from '@/store/AuthStore';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetClose, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import {
   DropdownMenu,
@@ -250,6 +250,7 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
   );
 }
 
+// Search bar component with suggestions and voice search
 export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus?: boolean; className?: string; id?: string }) {
   const [q, setQ] = useState('');
   const [open, setOpen] = useState(false);
@@ -306,8 +307,8 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
   return (
     <div ref={ref} id={id} className={`relative ${className}`}>
       <div className="flex items-stretch rounded-full bg-white border-[4px] border-white shadow-sm h-full w-full min-h-[48px]">
-        <div className="flex-1 flex items-center bg-transparent pl-4">
-          <Search className="h-5 w-5 shrink-0 text-slate-400" />
+        <div className="flex-1 flex items-center bg-transparent pl-1 sm:pl-4">
+          <Search className="h-4 w-4 shrink-0 text-slate-400" />
           <input
             value={q}
             autoFocus={autoFocus}
@@ -315,13 +316,13 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
             onFocus={() => setOpen(true)}
             onKeyDown={(e) => e.key === 'Enter' && submit()}
             placeholder="Search by title, author, ISBN, exam, university…"
-            className="w-full bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400 self-stretch px-3"
+            className="w-full bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400 self-stretch px-0 sm:px-3 pl-2"
           />
           <button onClick={voice} aria-label="Voice search" className="shrink-0 text-slate-400 hover:text-emerald-700 mx-2">
             <Mic className="h-5 w-5" />
           </button>
         </div>
-        <button onClick={() => submit()} className="flex shrink-0 items-center justify-center px-8 bg-[#0a2e1f] text-white hover:bg-emerald-800 transition-colors rounded-r-full">
+        <button onClick={() => submit()} className="flex shrink-0 items-center justify-center px-2 bg-[#0a2e1f] text-white hover:bg-emerald-800 transition-colors rounded-r-full">
           <Search className="h-5 w-5" />
         </button>
       </div>
@@ -439,7 +440,6 @@ export default function Header() {
         <div className="flex items-center gap-4">
           <Link to="/track" className="hover:text-white">Track Order</Link>
           <Link to="/help" className="hover:text-white">Help Center</Link>
-          <Link to="/admin" className="hover:text-white">Seller/Admin</Link>
           <a href="https://wa.me/919876543210" target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:text-white">
             <MessageCircle className="h-3 w-3" /> WhatsApp Support
           </a>
@@ -465,19 +465,20 @@ export default function Header() {
                 <p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">Categories</p>
                 <div className="space-y-0.5">
                   {categories.map((c: any) => (
-                    <Link key={c.slug} to={`/category/${c.slug}`} className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">
-                      {c.icon && <span className="text-emerald-700">{c.icon}</span>}
-                      <span>{c.name}</span>
-                    </Link>
+                    <SheetClose key={c.slug} asChild>
+                      <Link to={`/category/${c.slug}`} className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">
+                        {c.icon && <span className="text-emerald-700">{c.icon}</span>}
+                        <span>{c.name}</span>
+                      </Link>
+                    </SheetClose>
                   ))}
                 </div>
                 <div className="mt-4 border-t border-slate-100 pt-3 space-y-0.5">
                   <p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">Quick Links</p>
-                  <Link to="/search?publisher=Techno%20World%20Publications" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">🏢 Our Publications</Link>
-                  <Link to="/track" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">📦 Track Order</Link>
-                  <Link to="/blog" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">✍️ Blog & Book Lists</Link>
-                  <Link to="/help" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">❓ Help Center</Link>
-                  <Link to="/admin" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">🛠️ Admin Panel</Link>
+                  <SheetClose asChild><Link to="/search?publisher=Techno%20World%20Publications" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">🏢 Our Publications</Link></SheetClose>
+                  <SheetClose asChild><Link to="/track" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">📦 Track Order</Link></SheetClose>
+                  <SheetClose asChild><Link to="/blog" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">✍️ Blog & Book Lists</Link></SheetClose>
+                  <SheetClose asChild><Link to="/help" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">❓ Help Center</Link></SheetClose>
                 </div>
               </nav>
             </SheetContent>
@@ -496,6 +497,12 @@ export default function Header() {
         {/* Right Section (Fixed width matches Left, ml-auto pushes it to right edge) */}
         <div className="flex w-auto md:w-[220px] lg:w-[280px] shrink-0 items-center justify-end ml-auto">
           <nav className="flex shrink-0 items-center gap-1 sm:gap-4">
+            <Link to="/cart" className="relative rounded-lg p-1.5 hover:bg-emerald-800 md:p-2" aria-label="Cart">
+              <ShoppingCart className="h-5 w-5 sm:h-7 sm:w-7" />
+              {cartCount > 0 && (
+                <span className="absolute right-0 top-0 flex h-3.5 w-3.5 sm:h-4 sm:w-4 items-center justify-center rounded-full bg-amber-400 text-[9px] sm:text-[10px] font-bold text-slate-900">{cartCount}</span>
+              )}
+            </Link>
             {user ? (
               <Link to="/profile" className="flex items-center gap-2 rounded-xl px-2.5 py-1.5 hover:bg-emerald-800 transition-all border border-emerald-700/50">
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-400 text-xs font-black text-slate-900 shadow-sm">
@@ -523,12 +530,6 @@ export default function Header() {
               <Heart className="h-5 w-5 sm:h-7 sm:w-7" />
               {wishlist?.length > 0 && (
                 <span className="absolute right-0 top-0 flex h-3.5 w-3.5 sm:h-4 sm:w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] sm:text-[10px] font-bold">{wishlist?.length}</span>
-              )}
-            </Link>
-            <Link to="/cart" className="relative rounded-lg p-1.5 hover:bg-emerald-800 md:p-2" aria-label="Cart">
-              <ShoppingCart className="h-5 w-5 sm:h-7 sm:w-7" />
-              {cartCount > 0 && (
-                <span className="absolute right-0 top-0 flex h-3.5 w-3.5 sm:h-4 sm:w-4 items-center justify-center rounded-full bg-amber-400 text-[9px] sm:text-[10px] font-bold text-slate-900">{cartCount}</span>
               )}
             </Link>
           </nav>

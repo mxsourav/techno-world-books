@@ -133,10 +133,7 @@ async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Re
   let response = await fetch(url, mergedOptions);
 
   if (response.status === 403 && isAdminRoute) {
-    if (typeof window !== 'undefined' && window.location.pathname.startsWith('/admin') && !window.location.pathname.includes('/admin/login')) {
-      localStorage.removeItem('tw_admin_token');
-      window.location.href = '/admin/login';
-    }
+    localStorage.removeItem('tw_admin_token');
   }
 
   if (response.status === 401) {
@@ -150,12 +147,7 @@ async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Re
         headers.set('Authorization', `Bearer ${newToken}`);
         return fetch(url, { ...options, headers, credentials: 'include' });
       } else {
-        // Do NOT drop token abruptly; trigger in-place session unlock so user never loses form state
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('tw:admin-auth-expired', {
-            detail: { message: 'Admin session timed out' }
-          }));
-        }
+        // Keep the current session state intact when token refresh is unavailable.
       }
     } else {
       return new Promise<Response>((resolve) => {

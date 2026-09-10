@@ -69,19 +69,6 @@ export function useCartTotals(
         }
 
         let effectiveUserId = (user as any)?.id || (user as any)?.userId;
-        if (!effectiveUserId) {
-          try {
-            const token = localStorage.getItem('tw_admin_token');
-            if (token && token.includes('.')) {
-              const decoded = JSON.parse(atob(token.split('.')[1]));
-              if (decoded?.userId) {
-                effectiveUserId = decoded.userId;
-              }
-            }
-          } catch {
-            // ignore
-          }
-        }
 
         const payload: any = {
           items: validCart,

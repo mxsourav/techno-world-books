@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import {
-  ChevronRight, Heart, Share2, Truck, ShieldCheck, RotateCcw, MapPin, Zap,
+  ChevronLeft, ChevronRight, Heart, Share2, Truck, ShieldCheck, RotateCcw, MapPin, Zap,
   ShoppingCart, BadgeCheck, Loader2, Star, Tag, ChevronDown, ChevronUp,
   BookOpen, HelpCircle, Check, Sparkles, Award, AlertCircle
 } from 'lucide-react';
@@ -605,10 +605,29 @@ export default function Product() {
 
                 {/* Main Active Preview Canvas */}
                 <div
-                  className="order-1 relative flex items-center justify-center rounded-xl bg-slate-50/80 p-4 border border-slate-100 min-h-[440px] touch-pan-y select-none sm:order-2"
+                  className="order-1 relative flex min-w-0 w-full max-w-full items-center justify-center overflow-hidden rounded-xl bg-slate-50/80 p-4 border border-slate-100 min-h-[440px] touch-pan-x select-none sm:order-2"
                   onTouchStart={handleGalleryTouchStart}
                   onTouchEnd={handleGalleryTouchEnd}
                 >
+
+                  <button
+                    type="button"
+                    onClick={() => moveGallery(-1)}
+                    disabled={activeImageIndex === 0}
+                    aria-label="Previous product preview"
+                    className="absolute left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-600 shadow-md transition hover:bg-white hover:text-emerald-700 disabled:pointer-events-none disabled:opacity-30"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => moveGallery(1)}
+                    disabled={activeImageIndex === galleryItems.length - 1}
+                    aria-label="Next product preview"
+                    className="absolute right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-600 shadow-md transition hover:bg-white hover:text-emerald-700 disabled:pointer-events-none disabled:opacity-30"
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
                   
                   {/* Floating Action Buttons: Wishlist & Share */}
                   <div className="absolute right-3 top-3 z-10 flex flex-col gap-2">
@@ -635,7 +654,7 @@ export default function Product() {
                   {/* Active Preview Rendering */}
                   <div
                     key={activeImageIndex}
-                    className={gallerySwipeDirection === 'next' ? 'animate-gallery-next' : 'animate-gallery-previous'}
+                    className={`w-full max-w-full min-w-0 overflow-hidden ${gallerySwipeDirection === 'next' ? 'animate-gallery-next' : 'animate-gallery-previous'}`}
                   >
                   {activeImageIndex === 0 ? (
                     <div className="w-full max-w-[260px] drop-shadow-xl transition-all duration-300">

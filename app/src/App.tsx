@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Route, Routes, useLocation, Outlet, Navigate } from 'react-router';
+import { Route, Routes, useLocation, Outlet } from 'react-router';
 import { MessageCircle } from 'lucide-react';
 import { Toaster } from 'sonner';
 import { StoreProvider } from '@/store/StoreContext';
@@ -23,11 +23,7 @@ import ShippingPolicy from '@/pages/ShippingPolicy';
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import Contact from '@/pages/Contact';
 
-import AdminLayout from '@/components/admin/AdminLayout';
-import AdminProtectedRoute from '@/components/admin/AdminProtectedRoute';
-import AdminLogin from '@/pages/admin/AdminLogin';
-import Dashboard from '@/pages/admin/Dashboard';
-import { AuthProvider, useAuthStore } from '@/store/AuthStore';
+import { AuthProvider } from '@/store/AuthStore';
 import OrderSuccess from '@/pages/OrderSuccess';
 import MyOrders from '@/pages/MyOrders';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -53,8 +49,6 @@ function ScrollToTop() {
       '/shipping-policy': 'Shipping Policy | Techno World Books',
       '/privacy-policy': 'Privacy Policy | Techno World Books',
       '/contact': 'Contact Us | Techno World Books',
-      '/admin/login': 'Admin Login | Techno World Books',
-      '/admin/dashboard': 'Admin Dashboard | Techno World Books',
     };
     if (titles[pathname]) document.title = titles[pathname];
   }, [pathname]);
@@ -140,67 +134,9 @@ function CustomerLayout() {
   );
 }
 
-function AdminPortal() {
-  const { accessToken } = useAuthStore();
-
-  return (
-    <Routes>
-      <Route path="/login" element={<AdminLogin />} />
-      <Route path="/admin/login" element={<AdminLogin />} />
-
-      <Route
-        path="/admin"
-        element={
-          <AdminProtectedRoute>
-            <AdminLayout />
-          </AdminProtectedRoute>
-        }
-      >
-        <Route index element={<Navigate to="/admin/dashboard" replace />} />
-        <Route path="dashboard" element={<Dashboard />} />
-      </Route>
-
-      <Route
-        path="/dashboard"
-        element={
-          <AdminProtectedRoute>
-            <AdminLayout />
-          </AdminProtectedRoute>
-        }
-      >
-        <Route index element={<Dashboard />} />
-      </Route>
-
-      <Route
-        path="/"
-        element={<Navigate to={accessToken ? "/admin/dashboard" : "/admin/login"} replace />}
-      />
-      <Route
-        path="*"
-        element={<Navigate to={accessToken ? "/admin/dashboard" : "/admin/login"} replace />}
-      />
-    </Routes>
-  );
-}
-
 function CustomerStorefront() {
   return (
     <Routes>
-      {/* Admin routes still accessible on storefront for operators */}
-      <Route path="/admin/login" element={<AdminLogin />} />
-      <Route
-        path="/admin"
-        element={
-          <AdminProtectedRoute>
-            <AdminLayout />
-          </AdminProtectedRoute>
-        }
-      >
-        <Route index element={<Navigate to="dashboard" replace />} />
-        <Route path="dashboard" element={<Dashboard />} />
-      </Route>
-      <Route path="/dashboard" element={<Navigate to="/admin/dashboard" replace />} />
-
       {/* Customer Storefront Routes */}
       <Route element={<CustomerLayout />}>
         <Route path="/" element={<Home />} />
@@ -235,14 +171,6 @@ function CustomerStorefront() {
 }
 
 export default function App() {
-  const isAdminDomain = typeof window !== 'undefined' && (
-    window.location.hostname.includes('admin') ||
-    window.location.hostname.startsWith('admin.') ||
-    window.location.search.includes('mode=admin') ||
-    import.meta.env.VITE_APP_MODE === 'admin' ||
-    import.meta.env.VITE_IS_ADMIN === 'true'
-  );
-
   return (
     <StoreProvider>
       <AuthProvider>
@@ -251,7 +179,7 @@ export default function App() {
         <VisitorPulseTracker />
         <Toaster position="top-center" richColors />
         <ErrorBoundary>
-          {isAdminDomain ? <AdminPortal /> : <CustomerStorefront />}
+          <CustomerStorefront />
         </ErrorBoundary>
       </AuthProvider>
     </StoreProvider>

@@ -65,21 +65,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [wishlist, setWishlist] = useState<string[]>(() => { const raw = loadArray<any>('twb_wishlist'); return raw.map(i => typeof i === 'string' ? i : i.id || i.bookId).filter(id => typeof id === 'string' && id.startsWith('c')); });
   const [orders, setOrders] = useState<Order[]>(() => loadArray('twb_orders'));
   const [user, setUser] = useState<User | null>(() => {
-    const u = load<User | null>('twb_user', null);
-    if (u && !u.id) {
-      try {
-        const token = localStorage.getItem('tw_admin_token');
-        if (token && token.includes('.')) {
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          if (payload?.userId) {
-            u.id = payload.userId;
-          }
-        }
-      } catch {
-        // silent
-      }
-    }
-    return u;
+    return load<User | null>('twb_user', null);
   });
   const [addresses, setAddresses] = useState<Address[]>(() => loadArray('twb_addresses'));
   const [searchHistory, setSearchHistory] = useState<string[]>(() => loadArray('twb_history'));
@@ -157,19 +143,6 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = useCallback((u: User) => {
-    if (!u.id) {
-      try {
-        const token = localStorage.getItem('tw_admin_token');
-        if (token && token.includes('.')) {
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          if (payload?.userId) {
-            u.id = payload.userId;
-          }
-        }
-      } catch {
-        // silent
-      }
-    }
     setUser(u);
   }, []);
   const logout = useCallback(() => setUser(null), []);
