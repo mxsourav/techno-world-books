@@ -184,23 +184,27 @@ function AdminPortal() {
   );
 }
 
+function RedirectToExternalAdmin() {
+  useEffect(() => {
+    window.location.replace('https://admin.technoworldbooks.in');
+  }, []);
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-slate-900 text-white font-sans">
+      <div className="text-center">
+        <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-emerald-400 border-t-transparent mb-3" />
+        <p className="text-sm font-semibold">Redirecting to Admin Portal (admin.technoworldbooks.in)...</p>
+      </div>
+    </div>
+  );
+}
+
 function CustomerStorefront() {
   return (
     <Routes>
-      {/* Admin routes still accessible on storefront for operators */}
-      <Route path="/admin/login" element={<AdminLogin />} />
-      <Route
-        path="/admin"
-        element={
-          <AdminProtectedRoute>
-            <AdminLayout />
-          </AdminProtectedRoute>
-        }
-      >
-        <Route index element={<Navigate to="dashboard" replace />} />
-        <Route path="dashboard" element={<Dashboard />} />
-      </Route>
-      <Route path="/dashboard" element={<Navigate to="/admin/dashboard" replace />} />
+      {/* Admin routes redirect directly to standalone admin subdomain */}
+      <Route path="/admin/*" element={<RedirectToExternalAdmin />} />
+      <Route path="/admin" element={<RedirectToExternalAdmin />} />
+      <Route path="/dashboard" element={<RedirectToExternalAdmin />} />
 
       {/* Customer Storefront Routes */}
       <Route element={<CustomerLayout />}>

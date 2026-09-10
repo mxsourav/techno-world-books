@@ -443,7 +443,6 @@ export default function Header() {
         <div className="flex items-center gap-4">
           <Link to="/track" className="hover:text-white">Track Order</Link>
           <Link to="/help" className="hover:text-white">Help Center</Link>
-          <Link to="/admin" className="hover:text-white">Seller/Admin</Link>
           <a href="https://wa.me/919876543210" target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:text-white">
             <MessageCircle className="h-3 w-3" /> WhatsApp Support
           </a>
@@ -481,7 +480,6 @@ export default function Header() {
                   <Link to="/track" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">📦 Track Order</Link>
                   <Link to="/blog" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">✍️ Blog & Book Lists</Link>
                   <Link to="/help" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">❓ Help Center</Link>
-                  <Link to="/admin" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">🛠️ Admin Panel</Link>
                 </div>
               </nav>
             </SheetContent>
