@@ -23,7 +23,16 @@ import ShippingPolicy from '@/pages/ShippingPolicy';
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import Contact from '@/pages/Contact';
 
+<<<<<<< HEAD
 import { AuthProvider } from '@/store/AuthStore';
+=======
+import AdminLayout from '@/components/admin/AdminLayout';
+import AdminProtectedRoute from '@/components/admin/AdminProtectedRoute';
+import AdminLogin from '@/pages/admin/AdminLogin';
+import Dashboard from '@/pages/admin/Dashboard';
+import { AuthProvider, useAuthStore } from '@/store/AuthStore';
+import { CmsProvider } from '@/context/CmsContext';
+>>>>>>> ee259e43620170bcfe0f4acef26c1a5367276ab5
 import OrderSuccess from '@/pages/OrderSuccess';
 import MyOrders from '@/pages/MyOrders';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -134,9 +143,77 @@ function CustomerLayout() {
   );
 }
 
+<<<<<<< HEAD
 function CustomerStorefront() {
   return (
     <Routes>
+=======
+function AdminPortal() {
+  const { accessToken } = useAuthStore();
+
+  return (
+    <Routes>
+      <Route path="/login" element={<AdminLogin />} />
+      <Route path="/admin/login" element={<AdminLogin />} />
+
+      <Route
+        path="/admin"
+        element={
+          <AdminProtectedRoute>
+            <AdminLayout />
+          </AdminProtectedRoute>
+        }
+      >
+        <Route index element={<Navigate to="/admin/dashboard" replace />} />
+        <Route path="dashboard" element={<Dashboard />} />
+      </Route>
+
+      <Route
+        path="/dashboard"
+        element={
+          <AdminProtectedRoute>
+            <AdminLayout />
+          </AdminProtectedRoute>
+        }
+      >
+        <Route index element={<Dashboard />} />
+      </Route>
+
+      <Route
+        path="/"
+        element={<Navigate to={accessToken ? "/admin/dashboard" : "/admin/login"} replace />}
+      />
+      <Route
+        path="*"
+        element={<Navigate to={accessToken ? "/admin/dashboard" : "/admin/login"} replace />}
+      />
+    </Routes>
+  );
+}
+
+function RedirectToExternalAdmin() {
+  useEffect(() => {
+    window.location.replace('https://admin.technoworldbooks.in');
+  }, []);
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-slate-900 text-white font-sans">
+      <div className="text-center">
+        <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-emerald-400 border-t-transparent mb-3" />
+        <p className="text-sm font-semibold">Redirecting to Admin Portal (admin.technoworldbooks.in)...</p>
+      </div>
+    </div>
+  );
+}
+
+function CustomerStorefront() {
+  return (
+    <Routes>
+      {/* Admin routes redirect directly to standalone admin subdomain */}
+      <Route path="/admin/*" element={<RedirectToExternalAdmin />} />
+      <Route path="/admin" element={<RedirectToExternalAdmin />} />
+      <Route path="/dashboard" element={<RedirectToExternalAdmin />} />
+
+>>>>>>> ee259e43620170bcfe0f4acef26c1a5367276ab5
       {/* Customer Storefront Routes */}
       <Route element={<CustomerLayout />}>
         <Route path="/" element={<Home />} />
@@ -171,6 +248,7 @@ function CustomerStorefront() {
 }
 
 export default function App() {
+<<<<<<< HEAD
   return (
     <StoreProvider>
       <AuthProvider>
@@ -181,6 +259,30 @@ export default function App() {
         <ErrorBoundary>
           <CustomerStorefront />
         </ErrorBoundary>
+=======
+  const isCmsPreview = typeof window !== 'undefined' && window.location.search.includes('cms_edit=true');
+
+  const isAdminDomain = !isCmsPreview && typeof window !== 'undefined' && (
+    window.location.hostname.includes('admin') ||
+    window.location.hostname.startsWith('admin.') ||
+    window.location.search.includes('mode=admin') ||
+    import.meta.env.VITE_APP_MODE === 'admin' ||
+    import.meta.env.VITE_IS_ADMIN === 'true'
+  );
+
+  return (
+    <StoreProvider>
+      <AuthProvider>
+        <CmsProvider>
+          <ScrollToTop />
+          <KeepAlivePing />
+          <VisitorPulseTracker />
+          <Toaster position="top-center" richColors />
+          <ErrorBoundary>
+            {isAdminDomain ? <AdminPortal /> : <CustomerStorefront />}
+          </ErrorBoundary>
+        </CmsProvider>
+>>>>>>> ee259e43620170bcfe0f4acef26c1a5367276ab5
       </AuthProvider>
     </StoreProvider>
   );

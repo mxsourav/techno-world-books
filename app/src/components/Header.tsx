@@ -20,6 +20,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp
 import { toast } from 'sonner';
 import { searchService, categoryService, authService } from '@/services/api';
 import { GoogleSignInButton } from '@/components/GoogleSignInButton';
+import { CmsText } from '@/components/common/CmsText';
 
 function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { login } = useStore();
@@ -436,7 +437,10 @@ export default function Header() {
     <header className="sticky top-0 z-40 w-full max-w-full overflow-x-hidden bg-[#0a2e1f] text-white shadow-md transition-colors duration-300">
       {/* top strip */}
       <div className="hidden w-full items-center justify-between gap-4 bg-[#061d13] px-6 py-1.5 text-[11px] text-emerald-200 md:flex">
-        <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> Delivering across India — 27,000+ pincodes</span>
+        <span className="flex items-center gap-1">
+          <MapPin className="h-3 w-3" />
+          <CmsText contentKey="header.top_strip" defaultText="Delivering across India — 27,000+ pincodes" label="Header Announcement" />
+        </span>
         <div className="flex items-center gap-4">
           <Link to="/track" className="hover:text-white">Track Order</Link>
           <Link to="/help" className="hover:text-white">Help Center</Link>
@@ -457,7 +461,7 @@ export default function Header() {
                 <p className="flex items-center gap-2 font-bold">
                   <img src="/techno_world.png" alt="Techno World Books Logo" className="h-8 w-auto object-contain brightness-0 invert" />
                 </p>
-                <p className="mt-1 text-xs text-emerald-200 truncate">{user ? `Hi, ${user.name}` : 'India ka apna bookstore'}</p>
+                <p className="mt-1 text-xs text-emerald-200 truncate">{user ? `Hi, ${user.name}` : <CmsText contentKey="header.sub_tagline" defaultText="India ka apna bookstore" label="Header Tagline" />}</p>
               </div>
 
               {/* Scrollable Categories & Links */}
@@ -475,10 +479,17 @@ export default function Header() {
                 </div>
                 <div className="mt-4 border-t border-slate-100 pt-3 space-y-0.5">
                   <p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">Quick Links</p>
+<<<<<<< HEAD
                   <SheetClose asChild><Link to="/search?publisher=Techno%20World%20Publications" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">🏢 Our Publications</Link></SheetClose>
                   <SheetClose asChild><Link to="/track" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">📦 Track Order</Link></SheetClose>
                   <SheetClose asChild><Link to="/blog" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">✍️ Blog & Book Lists</Link></SheetClose>
                   <SheetClose asChild><Link to="/help" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">❓ Help Center</Link></SheetClose>
+=======
+                  <Link to="/search?publisher=Techno%20World%20Publications" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">🏢 Our Publications</Link>
+                  <Link to="/track" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">📦 Track Order</Link>
+                  <Link to="/blog" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">✍️ Blog & Book Lists</Link>
+                  <Link to="/help" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">❓ Help Center</Link>
+>>>>>>> ee259e43620170bcfe0f4acef26c1a5367276ab5
                 </div>
               </nav>
             </SheetContent>

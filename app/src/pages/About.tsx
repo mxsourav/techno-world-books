@@ -3,6 +3,7 @@ import { CheckCircle2, BookOpen, Send, Upload, X, Loader2, Sparkles, MessageSqua
 import { toast } from 'sonner';
 import { bookRequestService } from '@/services/api';
 import { useStore } from '@/store/StoreContext';
+import { CmsText } from '@/components/common/CmsText';
 
 export default function About() {
   const { user } = useStore();
@@ -80,10 +81,10 @@ export default function About() {
       {/* Header Section */}
       <div className="text-center mb-16">
         <h1 className="text-4xl font-extrabold tracking-tight text-emerald-900 sm:text-5xl lg:text-6xl mb-6">
-          About Techno World Books
+          <CmsText contentKey="about.title" defaultText="About Techno World Books" label="About Page Title" />
         </h1>
         <p className="mx-auto max-w-3xl text-2xl text-emerald-700 leading-relaxed font-semibold">
-          Your Trusted Bookstore for Every Reader
+          <CmsText contentKey="about.subtitle" defaultText="Your Trusted Bookstore for Every Reader" label="About Page Subtitle" />
         </p>
       </div>
 
@@ -109,7 +110,12 @@ export default function About() {
             <div className="text-center space-y-4">
               <div className="text-6xl font-serif">❝</div>
               <p className="text-2xl font-serif italic max-w-md mx-auto leading-snug">
-                "Connecting generations of readers with the rich literary and academic heritage of College Street."
+                <CmsText
+                  contentKey="about.quote"
+                  defaultText='"Connecting generations of readers with the rich literary and academic heritage of College Street."'
+                  label="About Inspiring Quote"
+                  multiline
+                />
               </p>
               <div className="pt-4 text-emerald-300 font-bold uppercase tracking-wider text-sm">
                 Techno World Books · Kolkata
@@ -127,11 +133,16 @@ export default function About() {
             <div className="inline-flex items-center gap-2 text-emerald-800 text-xs font-bold uppercase tracking-wider mb-2">
               <Sparkles className="h-4 w-4" /> Book Procurement & Sourcing
             </div>
-            <h2 className="text-3xl font-extrabold tracking-tight text-emerald-950 mb-3">
-              Can't Find a Book? Request It Here
+            <h2 className="text-3xl font-extrabold tracking-tight text-emerald-955 mb-3">
+              <CmsText contentKey="about.procurement_title" defaultText="Can't Find a Book? Request It Here" label="Sourcing Heading" />
             </h2>
             <p className="text-sm sm:text-base text-slate-700 leading-relaxed">
-              Don't worry if the book you're looking for isn't currently displayed on our website. With our deep connections across College Street, national publishers, and academic distributors, our team can source rare, out-of-print, and foreign editions for you.
+              <CmsText
+                contentKey="about.procurement_desc"
+                defaultText="Don't worry if the book you're looking for isn't currently displayed on our website. With our deep connections across College Street, national publishers, and academic distributors, our team can source rare, out-of-print, and foreign editions for you."
+                label="Sourcing Subtitle"
+                multiline
+              />
             </p>
           </div>
 

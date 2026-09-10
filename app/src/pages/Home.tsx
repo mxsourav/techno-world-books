@@ -14,6 +14,8 @@ import PromoBanners from '@/components/PromoBanners';
 import { useAutoFeaturedBooks } from '@/hooks/useAutoFeaturedBooks';
 import { SEARCH_SUGGESTIONS } from '@/data/constants';
 import SEOHead, { buildWebsiteJsonLd } from '@/components/SEOHead';
+import { CmsText } from '@/components/common/CmsText';
+import { BOOKS as FALLBACK_BOOKS } from '@/data/books';
 
 const PUBLISHERS = ['NCERT', 'Arihant Publications', 'McGraw Hill', 'Elsevier', 'Penguin', 'Ananda Publishers', 'MTG Learning Media', 'Dhanpat Rai'];
 
@@ -28,13 +30,13 @@ export default function Home() {
   const CACHED_COVER_KEY = 'tw_hero_cover_url';
   const CACHED_MODEL_KEY = 'tw_hero_book_model';
 
-  // Synchronously initialize from localStorage so the image renders on millisecond 0 with zero delay
+  // Synchronously initialize from localStorage with robust fallback
   const [heroCoverUrl, setHeroCoverUrl] = useState<string | null>(() => {
     try {
       const cached = localStorage.getItem(CACHED_COVER_KEY);
-      if (cached) return cached;
+      if (cached && !cached.includes('techno-world-api-qw4j.onrender.com') && !cached.includes('404')) return cached;
     } catch {}
-    return getImageUrl('/uploads/hero/hero-book-cover-1788824544793.webp');
+    return '/hero-book-cover.webp';
   });
 
   const [activePresetId, setActivePresetId] = useState<BookPresetId>(() => {
@@ -77,11 +79,12 @@ export default function Home() {
             } catch {}
           }
         } else {
-          setHeroCoverUrl(null);
+          setHeroCoverUrl((prev) => prev || '/hero-book-cover.webp');
         }
       })
       .catch(() => {
-        // Keep cached cover on error
+        // Fallback to local bundled cover on network or endpoint failure
+        setHeroCoverUrl((prev) => prev || '/hero-book-cover.webp');
       });
   }, []);
 
@@ -111,7 +114,7 @@ export default function Home() {
   useEffect(() => {
     setLoading(true);
     setError(false);
-    bookService.getBooks({ limit: 100 })
+    bookService.getBooks({ limit: 500 })
       .then((booksRes) => {
         if (booksRes.success && Array.isArray(booksRes.data)) {
           setBooks(booksRes.data);
@@ -123,13 +126,51 @@ export default function Home() {
       .finally(() => setLoading(false));
   }, []);
 
-  const bestsellers = books.filter((b) => b.bestseller);
-  const trending = books.filter((b) => b.trending);
-  const newReleases = books.filter((b) => b.newRelease);
+  const bestsellers = books.filter((b) => b.bestseller).slice(0, 10);
+  const trending = books.filter((b) => b.trending).slice(0, 10);
+  const newReleases = books.filter((b) => b.newRelease).slice(0, 10);
   const recent = recentlyViewed.map((id) => books.find((b) => b.id === id)).filter(Boolean) as Book[];
   const recommended = [...books].sort((a, b) => b.rating * b.ratingsCount - a.rating * a.ratingsCount).slice(0, 10);
 
-  const byCategory = (slug: string) => books.filter((b) => b.category === slug).slice(0, 10);
+  const byCategory = (slug: string) => {
+    const targetSlug = slug.toLowerCase();
+    const matched = books.filter((b) => {
+      if (!b) return false;
+      const cat = (b.category || '').toLowerCase();
+      if (cat === targetSlug) return true;
+      if (cat.includes(targetSlug) || targetSlug.includes(cat)) return true;
+      if (targetSlug === 'competitive-exams' && (cat.includes('competitive') || cat.includes('exam') || cat.includes('civil'))) return true;
+      if (targetSlug === 'non-fiction' && (cat.includes('non-fiction') || cat.includes('literature') || cat.includes('humanities'))) return true;
+      if (targetSlug === 'medical' && (cat.includes('medical') || cat.includes('nursing') || cat.includes('pharmacy'))) return true;
+      if (targetSlug === 'engineering' && (cat.includes('engineering') || cat.includes('physics') || cat.includes('math') || cat.includes('computer'))) return true;
+      if (targetSlug === 'bengali' && (cat.includes('bengali') || (b.title && /pather|sanchita|galpaguchha/i.test(b.title)))) return true;
+      if (targetSlug === 'school' && (cat.includes('school') || (b.title && /ncert|icse|cbse|class/i.test(b.title)))) return true;
+      if (targetSlug === 'fiction' && (cat.includes('fiction') || (b.title && /alchemist|novel|story/i.test(b.title)))) return true;
+      if (targetSlug === 'university' && (cat.includes('university') || (b.title && /semester|b\.tech|degree|college/i.test(b.title)))) return true;
+      return false;
+    });
+
+    if (matched.length < 4) {
+      const fallbackMatches = (FALLBACK_BOOKS || []).filter((fb) => {
+        const cat = (fb.category || '').toLowerCase();
+        if (cat === targetSlug) return true;
+        if (targetSlug === 'school' && (cat === 'school' || /ncert|class/i.test(fb.title))) return true;
+        if (targetSlug === 'fiction' && cat === 'fiction') return true;
+        if (targetSlug === 'non-fiction' && cat === 'non-fiction') return true;
+        if (targetSlug === 'bengali' && cat === 'bengali') return true;
+        return false;
+      });
+      const combined = [...matched];
+      for (const fb of fallbackMatches) {
+        if (!combined.some((b) => b.id === fb.id || b.title === fb.title)) {
+          combined.push(fb);
+        }
+      }
+      return combined.slice(0, 10);
+    }
+
+    return matched.slice(0, 10);
+  };
 
   // const featuredBook = books.find((b) => b.featured) || books[0];
 
@@ -156,16 +197,23 @@ export default function Home() {
               height: 'auto',
             }}
           >
-            {/* Base Hero Mockup Image */}
+            {/* Base Hero Mockup Image (Dimmed saturation for eye-pleasing comfort) */}
             <img
               src="/hero_mockup.png"
               alt="Techno World Books Hero Mockup"
               className="absolute inset-0 h-full w-full object-fill pointer-events-none select-none"
+              style={{
+                filter: 'saturate(0.68) brightness(0.82) contrast(0.96)',
+              }}
               loading="eager"
               decoding="async"
             />
+            {/* Soft Ambient Eye-Pleasing Dimming Overlay */}
+            <div
+              className="absolute inset-0 pointer-events-none bg-gradient-to-r from-[#02120b]/60 via-[#02120b]/20 to-[#02120b]/35 mix-blend-multiply"
+            />
 
-            {/* Realistic Physical Multi-Vector Shadow on Wooden Riser */}
+            {/* Soft Ambient Diffuse Shadow on Wooden Desk */}
             <div
               className="absolute hidden lg:block pointer-events-none"
               style={{
@@ -173,12 +221,14 @@ export default function Home() {
                 top: activePreset.shadow.diffuse.top,
                 width: activePreset.shadow.diffuse.width,
                 height: activePreset.shadow.diffuse.height,
+                transformOrigin: '0% 50%',
                 transform: `rotate(${activePreset.shadow.diffuse.angle})`,
-                background: 'radial-gradient(ellipse at 50% 50%, rgba(5,2,1,0.88) 0%, rgba(15,8,3,0.50) 55%, transparent 75%)',
-                filter: 'blur(6px)',
+                background: 'radial-gradient(ellipse at 50% 50%, rgba(10, 5, 2, 0.45) 0%, rgba(18, 8, 3, 0.20) 50%, transparent 75%)',
+                filter: 'blur(10px)',
               }}
             />
-            {/* Front Cover Bottom Contact Shadow */}
+
+            {/* Front Bottom Seam Crisp Contact Shadow */}
             <div
               className="absolute hidden lg:block pointer-events-none"
               style={{
@@ -188,11 +238,12 @@ export default function Home() {
                 height: activePreset.shadow.contact.height,
                 transformOrigin: '0% 50%',
                 transform: `rotate(${activePreset.shadow.contact.angle})`,
-                background: 'linear-gradient(90deg, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.98) 40%, rgba(0,0,0,0.90) 85%, rgba(0,0,0,0.60) 100%)',
-                filter: 'blur(2px)',
+                background: 'linear-gradient(90deg, rgba(8,4,1,0.55) 0%, rgba(5,2,1,0.85) 35%, rgba(5,2,1,0.80) 75%, rgba(8,4,1,0.30) 100%)',
+                filter: 'blur(3px)',
               }}
             />
-            {/* Page Block Bottom Contact Shadow */}
+
+            {/* Page Block Bottom Crease Shadow */}
             {activePreset.shadow.pageBlock && (
               <div
                 className="absolute hidden lg:block pointer-events-none"
@@ -201,15 +252,15 @@ export default function Home() {
                   top: activePreset.shadow.pageBlock.top,
                   width: activePreset.shadow.pageBlock.width,
                   height: activePreset.shadow.pageBlock.height,
-                  transformOrigin: '0% 0%',
+                  transformOrigin: '0% 50%',
                   transform: `rotate(${activePreset.shadow.pageBlock.angle})`,
-                  background: 'linear-gradient(90deg, rgba(0,0,0,0.98) 0%, rgba(10,5,2,0.92) 40%, rgba(20,10,5,0.75) 80%, rgba(0,0,0,0.40) 100%)',
-                  filter: 'blur(1.5px)',
+                  background: 'linear-gradient(90deg, rgba(5,2,1,0.85) 0%, rgba(10,5,2,0.65) 50%, rgba(15,8,3,0.25) 100%)',
+                  filter: 'blur(2px)',
                 }}
               />
             )}
 
-            {/* Page Block Soft Cast Shadow on Wooden Table */}
+            {/* Page Block Soft Cast Shadow to the Right */}
             {activePreset.shadow.pageBlockCast && (
               <div
                 className="absolute hidden lg:block pointer-events-none"
@@ -220,7 +271,7 @@ export default function Home() {
                   height: activePreset.shadow.pageBlockCast.height,
                   transformOrigin: '0% 50%',
                   transform: activePreset.shadow.pageBlockCast.angle ? `rotate(${activePreset.shadow.pageBlockCast.angle})` : undefined,
-                  background: 'radial-gradient(ellipse at 40% 50%, rgba(0,0,0,0.85) 0%, rgba(10,5,2,0.50) 60%, transparent 85%)',
+                  background: 'radial-gradient(ellipse at 30% 50%, rgba(10,5,2,0.60) 0%, rgba(15,8,3,0.25) 50%, transparent 80%)',
                   filter: 'blur(4px)',
                 }}
               />
@@ -265,6 +316,12 @@ export default function Home() {
                     alt=""
                     aria-hidden="true"
                     className="h-full w-full object-cover scale-125 filter blur-[3px] brightness-70 contrast-110 saturate-105"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (!target.src.endsWith('/hero-book-cover.webp')) {
+                        target.src = '/hero-book-cover.webp';
+                      }
+                    }}
                     loading="eager"
                     decoding="async"
                   />
@@ -299,6 +356,12 @@ export default function Home() {
                     alt=""
                     aria-hidden="true"
                     className="absolute inset-0 h-full w-full object-cover scale-110 filter blur-sm brightness-60 pointer-events-none select-none"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (!target.src.endsWith('/hero-book-cover.webp')) {
+                        target.src = '/hero-book-cover.webp';
+                      }
+                    }}
                     loading="eager"
                     decoding="async"
                   />
@@ -310,6 +373,12 @@ export default function Home() {
                     className="relative z-10 h-full w-full object-fill block select-none"
                     style={{
                       filter: 'brightness(0.96) saturate(0.95) contrast(0.98)',
+                    }}
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (!target.src.endsWith('/hero-book-cover.webp')) {
+                        target.src = '/hero-book-cover.webp';
+                      }
                     }}
                     onLoad={(e) => {
                       if (!isManualModelChosen) {
@@ -339,11 +408,11 @@ export default function Home() {
                     }}
                   />
 
-                  {/* Physical Spine Crease & Page Seam Ambient Occlusion */}
+                  {/* Subtle Spine Crease Ambient Occlusion */}
                   <div
                     className="absolute inset-0 z-20 pointer-events-none"
                     style={{
-                      background: 'linear-gradient(90deg, rgba(0,0,0,0.50) 0%, rgba(0,0,0,0.12) 3%, transparent 8%, transparent 92%, rgba(0,0,0,0.22) 100%)',
+                      background: 'linear-gradient(90deg, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.05) 2%, transparent 6%)',
                     }}
                   />
                 </div>
@@ -372,7 +441,9 @@ export default function Home() {
             {/* Top Sale Badge */}
             <div className="inline-flex items-center gap-2 rounded-full bg-[#0a2e1f] border border-[#D4A017] px-3.5 py-1.5 mb-5 shadow-sm max-w-full">
               <Tag className="h-3.5 w-3.5 text-[#D4A017] shrink-0" />
-              <span className="text-[11px] sm:text-[13px] font-medium text-[#D4A017] truncate sm:whitespace-normal">Grand Book Sale — Up to 60% off 10,000+ titles</span>
+              <span className="text-[11px] sm:text-[13px] font-medium text-[#D4A017] truncate sm:whitespace-normal">
+                <CmsText contentKey="home.hero_badge" defaultText="Grand Book Sale — Up to 60% off 10,000+ titles" label="Hero Sale Badge" />
+              </span>
             </div>
 
             {/* Main Heading */}
@@ -394,7 +465,7 @@ export default function Home() {
                   filter: "drop-shadow(0px 4px 8px rgba(0,0,0,0.8))"
                 }}
               >
-                Every book India reads,
+                <CmsText contentKey="home.hero_title_1" defaultText="Every book India reads," label="Hero Heading Line 1" />
               </span>
               <span
                 className="block mt-1"
@@ -405,7 +476,7 @@ export default function Home() {
                   filter: "drop-shadow(0px 5px 10px rgba(0,0,0,0.9))"
                 }}
               >
-                one search away.
+                <CmsText contentKey="home.hero_title_2" defaultText="one search away." label="Hero Heading Line 2" />
               </span>
             </h1>
 
@@ -421,7 +492,12 @@ export default function Home() {
                 textAlign: "left"
               }}
             >
-              From academic textbooks to bestselling fiction, get genuine books delivered straight to your doorstep with guaranteed lowest prices.
+              <CmsText
+                contentKey="home.hero_desc"
+                defaultText="From academic textbooks to bestselling fiction, get genuine books delivered straight to your doorstep with guaranteed lowest prices."
+                label="Hero Subtitle Description"
+                multiline
+              />
             </p>
 
             {/* Search Bar */}
@@ -462,8 +538,12 @@ export default function Home() {
                   <BadgePercent className="h-5 w-5" strokeWidth={2} />
                 </div>
                 <div>
-                  <div className="font-bold text-slate-900 text-[13px] leading-tight">STUDENT15 — 15% off</div>
-                  <div className="text-slate-600 text-[11px] leading-tight mt-0.5 font-medium">For students on exam & academic books</div>
+                  <div className="font-bold text-slate-900 text-[13px] leading-tight">
+                    <CmsText contentKey="home.offer_1_title" defaultText="STUDENT15 — 15% off" label="Offer 1 Title" />
+                  </div>
+                  <div className="text-slate-600 text-[11px] leading-tight mt-0.5 font-medium">
+                    <CmsText contentKey="home.offer_1_desc" defaultText="For students on exam & academic books" label="Offer 1 Subtitle" />
+                  </div>
                 </div>
               </div>
 
@@ -475,8 +555,12 @@ export default function Home() {
                   <Truck className="h-5 w-5" strokeWidth={2} />
                 </div>
                 <div>
-                  <div className="font-bold text-slate-900 text-[13px] leading-tight">Free Delivery</div>
-                  <div className="text-slate-600 text-[11px] leading-tight mt-0.5 font-medium">On all orders above ₹999 across India</div>
+                  <div className="font-bold text-slate-900 text-[13px] leading-tight">
+                    <CmsText contentKey="home.offer_2_title" defaultText="Free Delivery" label="Offer 2 Title" />
+                  </div>
+                  <div className="text-slate-600 text-[11px] leading-tight mt-0.5 font-medium">
+                    <CmsText contentKey="home.offer_2_desc" defaultText="On all orders above ₹999 across India" label="Offer 2 Subtitle" />
+                  </div>
                 </div>
               </div>
 
@@ -488,8 +572,12 @@ export default function Home() {
                   <Gift className="h-5 w-5" strokeWidth={2} />
                 </div>
                 <div>
-                  <div className="font-bold text-slate-900 text-[13px] leading-tight">Techno Rewards</div>
-                  <div className="text-slate-600 text-[11px] leading-tight mt-0.5 font-medium">Earn 1 Techno Coin per ₹100 spent (excl. delivery)</div>
+                  <div className="font-bold text-slate-900 text-[13px] leading-tight">
+                    <CmsText contentKey="home.offer_3_title" defaultText="Techno Rewards" label="Offer 3 Title" />
+                  </div>
+                  <div className="text-slate-600 text-[11px] leading-tight mt-0.5 font-medium">
+                    <CmsText contentKey="home.offer_3_desc" defaultText="Earn 1 Techno Coin per ₹100 spent (excl. delivery)" label="Offer 3 Subtitle" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -534,21 +622,114 @@ export default function Home() {
             </div>
           </section>
 
-          <BookRow icon={<Heart className="h-5 w-5 text-rose-500" />} title="Recommended For You" books={recommended} loading={loading} />
-          {(recent.length > 0 || loading) && <BookRow icon={<Clock className="h-5 w-5 text-slate-500" />} title="Recently Viewed" books={recent} loading={loading} />}
+          {/* 1. Recommended For You */}
+          <BookRow 
+            icon={<Heart className="h-5 w-5 text-rose-500" />} 
+            title="Recommended For You" 
+            contentKey="home.section_recommended"
+            books={recommended} 
+            loading={loading} 
+          />
 
-          <HeroFeaturedBooks />
-          <BookRow icon={<Flame className="h-5 w-5 text-orange-500" />} title="Best Sellers" books={bestsellers} viewAllLink="/search?q=bestseller" loading={loading} />
-          <BookRow icon={<TrendingUp className="h-5 w-5 text-emerald-500" />} title="Trending Now" books={trending} loading={loading} />
-          <BookRow icon={<Sparkle className="h-5 w-5 text-amber-500" />} title="New Releases" books={newReleases} loading={loading} />
+          {/* 2. Competitive Exam Section (Placed directly after Recommended as requested) */}
+          <BookRow 
+            icon={<Trophy className="h-5 w-5 text-violet-500" />} 
+            title="Competitive Exam Books" 
+            contentKey="home.section_competitive"
+            books={byCategory('competitive-exams')} 
+            viewAllLink="/category/competitive-exams" 
+            loading={loading} 
+          />
+
+          {/* 3. Non-Fiction Section (Placed directly after as requested) */}
+          <BookRow 
+            icon={<Quote className="h-5 w-5 text-indigo-500" />} 
+            title="Non-Fiction Books" 
+            contentKey="home.section_non_fiction"
+            books={byCategory('non-fiction')} 
+            viewAllLink="/category/non-fiction" 
+            loading={loading} 
+          />
+
+          {/* 4. Medical & Healthcare Books */}
+          <BookRow 
+            icon={<Stethoscope className="h-5 w-5 text-blue-500" />} 
+            title="Medical & Healthcare Books" 
+            contentKey="home.section_medical"
+            books={byCategory('medical')} 
+            viewAllLink="/category/medical" 
+            loading={loading} 
+          />
+
+          {/* 5. Engineering & Technology Books */}
+          <BookRow 
+            icon={<Settings className="h-5 w-5 text-slate-600" />} 
+            title="Engineering & Technology Books" 
+            contentKey="home.section_engineering"
+            books={byCategory('engineering')} 
+            viewAllLink="/category/engineering" 
+            loading={loading} 
+          />
+
+          {/* 6. Bengali Story Books */}
+          <BookRow 
+            icon={<Languages className="h-5 w-5 text-rose-500" />} 
+            title="Bengali Story Books" 
+            contentKey="home.section_bengali"
+            books={byCategory('bengali')} 
+            viewAllLink="/category/bengali" 
+            loading={loading} 
+          />
+
+          {/* 7. Fiction & Novels */}
+          <BookRow 
+            icon={<BookOpen className="h-5 w-5 text-amber-600" />} 
+            title="Fiction & Novels" 
+            contentKey="home.section_fiction"
+            books={byCategory('fiction')} 
+            viewAllLink="/category/fiction" 
+            loading={loading} 
+          />
+
+          {/* 8. NCERT & School Books */}
+          <BookRow 
+            icon={<Library className="h-5 w-5 text-pink-500" />} 
+            title="School Books (NCERT / ICSE)" 
+            contentKey="home.section_school"
+            books={byCategory('school')} 
+            viewAllLink="/category/school" 
+            loading={loading} 
+          />
+
+          {/* 9. University Books */}
+          <BookRow 
+            icon={<GraduationCap className="h-5 w-5 text-emerald-600" />} 
+            title="University & College Books" 
+            contentKey="home.section_university"
+            books={byCategory('university')} 
+            viewAllLink="/category/university" 
+            loading={loading} 
+          />
 
           {/* EXAM ZONE BANNER */}
           <section className="mx-auto max-w-7xl px-3 py-5 sm:px-6">
             <div className="flex flex-col items-start justify-between gap-4 rounded-2xl bg-gradient-to-r from-indigo-900 to-violet-800 p-5 text-white sm:flex-row sm:items-center sm:p-8">
               <div className="min-w-0">
                 <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-violet-300"><Trophy className="h-4 w-4" /> Exam Zone</p>
-                <h3 className="mt-1 text-lg font-extrabold sm:text-2xl leading-snug">NEET · JEE · UPSC · GATE · SSC — all prep books in one place</h3>
-                <p className="mt-1 text-xs sm:text-sm text-violet-200">Previous year papers, toppers' booklists and combo packs at the best prices.</p>
+                <h3 className="mt-1 text-lg font-extrabold sm:text-2xl leading-snug">
+                  <CmsText
+                    contentKey="home.exam_zone_title"
+                    defaultText="NEET · JEE · UPSC · GATE · SSC — all prep books in one place"
+                    label="Exam Zone Heading"
+                  />
+                </h3>
+                <p className="mt-1 text-xs sm:text-sm text-violet-200">
+                  <CmsText
+                    contentKey="home.exam_zone_desc"
+                    defaultText="Previous year papers, toppers' booklists and combo packs at the best prices."
+                    label="Exam Zone Subtitle"
+                  />
+                </p>
               </div>
               <Link to="/category/competitive-exams" className="flex shrink-0 items-center gap-2 rounded-xl bg-amber-400 px-5 py-3 text-sm font-extrabold text-slate-900 hover:bg-amber-300 w-full sm:w-auto justify-center sm:justify-start">
                 Shop Exam Books <ArrowRight className="h-4 w-4" />
@@ -556,16 +737,64 @@ export default function Home() {
             </div>
           </section>
 
-          <BookRow icon={<Trophy className="h-5 w-5 text-violet-500" />} title="Competitive Exam Books" books={byCategory('competitive-exams')} viewAllLink="/category/competitive-exams" loading={loading} />
-          <BookRow icon={<Stethoscope className="h-5 w-5 text-blue-500" />} title="Medical Books" books={byCategory('medical')} viewAllLink="/category/medical" loading={loading} />
-          <BookRow icon={<Settings className="h-5 w-5 text-slate-500" />} title="Engineering Books" books={byCategory('engineering')} viewAllLink="/category/engineering" loading={loading} />
-          <BookRow icon={<Library className="h-5 w-5 text-pink-500" />} title="School Books" books={byCategory('school')} viewAllLink="/category/school" loading={loading} />
-          <BookRow icon={<GraduationCap className="h-5 w-5 text-emerald-600" />} title="University Books" books={byCategory('university')} viewAllLink="/category/university" loading={loading} />
-          <BookRow icon={<BookOpen className="h-5 w-5 text-amber-600" />} title="Fiction" books={byCategory('fiction')} viewAllLink="/category/fiction" loading={loading} />
-          <BookRow icon={<Quote className="h-5 w-5 text-indigo-500" />} title="Non-Fiction" books={byCategory('non-fiction')} viewAllLink="/category/non-fiction" loading={loading} />
-          <BookRow icon={<Languages className="h-5 w-5 text-rose-500" />} title="Bengali Story Books" books={byCategory('bengali')} viewAllLink="/category/bengali" loading={loading} />
-          <BookRow icon={<Globe2 className="h-5 w-5 text-teal-500" />} title="International Books" books={byCategory('international')} viewAllLink="/category/international" loading={loading} />
-          <BookRow icon={<Gem className="h-5 w-5 text-amber-500" />} title="Rare & Collector's Editions" books={byCategory('rare')} viewAllLink="/category/rare" loading={loading} />
+          {/* Best Sellers */}
+          <BookRow 
+            icon={<Flame className="h-5 w-5 text-orange-500" />} 
+            title="Best Sellers" 
+            contentKey="home.section_bestsellers"
+            books={bestsellers} 
+            viewAllLink="/search?q=bestseller" 
+            loading={loading} 
+          />
+
+          {/* Trending Now */}
+          <BookRow 
+            icon={<TrendingUp className="h-5 w-5 text-emerald-500" />} 
+            title="Trending Now" 
+            contentKey="home.section_trending"
+            books={trending} 
+            loading={loading} 
+          />
+
+          {/* New Releases */}
+          <BookRow 
+            icon={<Sparkle className="h-5 w-5 text-amber-500" />} 
+            title="New Releases" 
+            contentKey="home.section_new_releases"
+            books={newReleases} 
+            loading={loading} 
+          />
+
+          <HeroFeaturedBooks />
+
+          {(recent.length > 0 || loading) && (
+            <BookRow 
+              icon={<Clock className="h-5 w-5 text-slate-500" />} 
+              title="Recently Viewed" 
+              books={recent} 
+              loading={loading} 
+            />
+          )}
+
+          {/* International Books */}
+          <BookRow 
+            icon={<Globe2 className="h-5 w-5 text-teal-500" />} 
+            title="International Books" 
+            contentKey="home.section_international"
+            books={byCategory('international')} 
+            viewAllLink="/category/international" 
+            loading={loading} 
+          />
+
+          {/* Rare & Collector's Editions */}
+          <BookRow 
+            icon={<Gem className="h-5 w-5 text-amber-500" />} 
+            title="Rare & Collector's Editions" 
+            contentKey="home.section_rare"
+            books={byCategory('rare')} 
+            viewAllLink="/category/rare" 
+            loading={loading} 
+          />
 
           <StudyGuides />
         </>
