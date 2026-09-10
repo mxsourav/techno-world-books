@@ -212,7 +212,7 @@ export default function Home() {
               className="absolute inset-0 pointer-events-none bg-gradient-to-r from-[#02120b]/60 via-[#02120b]/20 to-[#02120b]/35 mix-blend-multiply"
             />
 
-            {/* Realistic Physical Multi-Vector Shadow on Wooden Riser */}
+            {/* Soft Ambient Contact Shadow on Wooden Pedestal */}
             <div
               className="absolute hidden lg:block pointer-events-none"
               style={{
@@ -221,57 +221,10 @@ export default function Home() {
                 width: activePreset.shadow.diffuse.width,
                 height: activePreset.shadow.diffuse.height,
                 transform: `rotate(${activePreset.shadow.diffuse.angle})`,
-                background: 'radial-gradient(ellipse at 50% 50%, rgba(5,2,1,0.88) 0%, rgba(15,8,3,0.50) 55%, transparent 75%)',
-                filter: 'blur(6px)',
+                background: 'radial-gradient(ellipse at 50% 50%, rgba(15, 8, 3, 0.40) 0%, rgba(25, 12, 4, 0.15) 50%, transparent 75%)',
+                filter: 'blur(10px)',
               }}
             />
-            {/* Front Cover Bottom Contact Shadow */}
-            <div
-              className="absolute hidden lg:block pointer-events-none"
-              style={{
-                left: activePreset.shadow.contact.left,
-                top: activePreset.shadow.contact.top,
-                width: activePreset.shadow.contact.width,
-                height: activePreset.shadow.contact.height,
-                transformOrigin: '0% 50%',
-                transform: `rotate(${activePreset.shadow.contact.angle})`,
-                background: 'linear-gradient(90deg, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.98) 40%, rgba(0,0,0,0.90) 85%, rgba(0,0,0,0.60) 100%)',
-                filter: 'blur(2px)',
-              }}
-            />
-            {/* Page Block Bottom Contact Shadow */}
-            {activePreset.shadow.pageBlock && (
-              <div
-                className="absolute hidden lg:block pointer-events-none"
-                style={{
-                  left: activePreset.shadow.pageBlock.left,
-                  top: activePreset.shadow.pageBlock.top,
-                  width: activePreset.shadow.pageBlock.width,
-                  height: activePreset.shadow.pageBlock.height,
-                  transformOrigin: '0% 0%',
-                  transform: `rotate(${activePreset.shadow.pageBlock.angle})`,
-                  background: 'linear-gradient(90deg, rgba(0,0,0,0.98) 0%, rgba(10,5,2,0.92) 40%, rgba(20,10,5,0.75) 80%, rgba(0,0,0,0.40) 100%)',
-                  filter: 'blur(1.5px)',
-                }}
-              />
-            )}
-
-            {/* Page Block Soft Cast Shadow on Wooden Table */}
-            {activePreset.shadow.pageBlockCast && (
-              <div
-                className="absolute hidden lg:block pointer-events-none"
-                style={{
-                  left: activePreset.shadow.pageBlockCast.left,
-                  top: activePreset.shadow.pageBlockCast.top,
-                  width: activePreset.shadow.pageBlockCast.width,
-                  height: activePreset.shadow.pageBlockCast.height,
-                  transformOrigin: '0% 50%',
-                  transform: activePreset.shadow.pageBlockCast.angle ? `rotate(${activePreset.shadow.pageBlockCast.angle})` : undefined,
-                  background: 'radial-gradient(ellipse at 40% 50%, rgba(0,0,0,0.85) 0%, rgba(10,5,2,0.50) 60%, transparent 85%)',
-                  filter: 'blur(4px)',
-                }}
-              />
-            )}
 
             {/* Dynamic 3D Book on Wooden Pedestal */}
             <div
@@ -386,11 +339,11 @@ export default function Home() {
                     }}
                   />
 
-                  {/* Physical Spine Crease & Page Seam Ambient Occlusion */}
+                  {/* Subtle Spine Crease Ambient Occlusion */}
                   <div
                     className="absolute inset-0 z-20 pointer-events-none"
                     style={{
-                      background: 'linear-gradient(90deg, rgba(0,0,0,0.50) 0%, rgba(0,0,0,0.12) 3%, transparent 8%, transparent 92%, rgba(0,0,0,0.22) 100%)',
+                      background: 'linear-gradient(90deg, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.05) 2%, transparent 6%)',
                     }}
                   />
                 </div>
