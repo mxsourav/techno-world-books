@@ -402,11 +402,19 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
 
 export default function Header() {
   const { cart, wishlist, user, logout } = useStore();
+  const { logout: authLogout } = useAuthStore();
   const { pathname } = useLocation();
   const [loginOpen, setLoginOpen] = useState(false);
   const [categories, setCategories] = useState<any[]>(WEBSITE_CATEGORIES);
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
   const [isScrolled, setIsScrolled] = useState(false);
+
+  const handleLogout = () => {
+    logout();
+    authLogout();
+    authService.logout().catch(() => {});
+    toast.success('Logged out successfully');
+  };
 
   useEffect(() => {
     if (pathname !== '/') {
@@ -479,19 +487,26 @@ export default function Header() {
                 </div>
                 <div className="mt-4 border-t border-slate-100 pt-3 space-y-0.5">
                   <p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">Quick Links</p>
-<<<<<<< HEAD
                   <SheetClose asChild><Link to="/search?publisher=Techno%20World%20Publications" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">🏢 Our Publications</Link></SheetClose>
                   <SheetClose asChild><Link to="/track" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">📦 Track Order</Link></SheetClose>
                   <SheetClose asChild><Link to="/blog" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">✍️ Blog & Book Lists</Link></SheetClose>
                   <SheetClose asChild><Link to="/help" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">❓ Help Center</Link></SheetClose>
-=======
-                  <Link to="/search?publisher=Techno%20World%20Publications" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">🏢 Our Publications</Link>
-                  <Link to="/track" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">📦 Track Order</Link>
-                  <Link to="/blog" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">✍️ Blog & Book Lists</Link>
-                  <Link to="/help" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">❓ Help Center</Link>
->>>>>>> ee259e43620170bcfe0f4acef26c1a5367276ab5
                 </div>
               </nav>
+              {user && (
+                <div className="shrink-0 border-t border-slate-200 p-4">
+                  <SheetClose asChild>
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-semibold text-rose-700 transition-colors hover:bg-rose-50"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Log out
+                    </button>
+                  </SheetClose>
+                </div>
+              )}
             </SheetContent>
           </Sheet>
 
