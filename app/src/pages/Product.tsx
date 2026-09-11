@@ -536,7 +536,7 @@ export default function Product() {
   });
 
   return (
-    <div className="bg-slate-50/60 min-h-screen pb-16">
+    <div className="min-h-screen w-full max-w-full overflow-x-clip bg-slate-50/60 pb-16">
       <SEOHead
         title={`${book.title} — ${author} | Techno World Books`}
         description={seoDescription}
@@ -571,14 +571,14 @@ export default function Product() {
       </div>
 
       {/* Main Flipkart-Style Layout Container */}
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-6 sm:px-6">
         <div className="grid gap-8 lg:grid-cols-[460px_1fr]">
           
           {/* ================= LEFT COLUMN: MEDIA GALLERY & BUY BUTTONS ================= */}
-          <div className="lg:sticky lg:top-28 lg:self-start space-y-4">
+          <div className="space-y-4 lg:sticky lg:top-[148px] lg:self-start">
             
             {/* Gallery Container */}
-            <div className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
+            <div className="w-full min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-sm sm:p-3">
               <div className="flex min-w-0 flex-col gap-3 sm:grid sm:grid-cols-[80px_minmax(0,1fr)] sm:gap-4">
                 
                 {/* Vertical Thumbnail Strip */}
@@ -614,7 +614,7 @@ export default function Product() {
 
                 {/* Main Active Preview Canvas */}
                 <div
-                  className="order-1 relative flex min-w-0 w-full max-w-full items-center justify-center overflow-clip rounded-xl bg-slate-50/80 p-3 border border-slate-100 min-h-[360px] touch-pan-x select-none sm:order-2 sm:min-h-[440px] sm:p-4"
+                  className="order-1 relative flex h-[360px] min-w-0 w-[90%] items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-slate-50/80 p-2 touch-pan-x select-none sm:order-2 sm:h-[440px] sm:p-3"
                   onTouchStart={handleGalleryTouchStart}
                   onTouchEnd={handleGalleryTouchEnd}
                 >
@@ -663,30 +663,30 @@ export default function Product() {
                   {/* Active Preview Rendering */}
                   <div
                     key={activeImageIndex}
-                    className={`flex w-full min-w-0 max-w-full justify-center overflow-hidden ${gallerySwipeDirection === 'next' ? 'animate-gallery-next' : 'animate-gallery-previous'}`}
+                    className={`flex h-full w-full min-w-0 items-center justify-center overflow-hidden ${gallerySwipeDirection === 'next' ? 'animate-gallery-next' : 'animate-gallery-previous'}`}
                   >
                   {activeImageIndex === 0 ? (
-                    <div className="w-full max-w-[260px] drop-shadow-xl transition-all duration-300">
+                    <div className="h-[334px] w-auto max-w-full aspect-[3/4.2] drop-shadow-xl transition-all duration-300 sm:h-[400px]">
                       <BookCover book={book} className="text-xl" />
                     </div>
                   ) : (
                     /* Sample Page / Contents Sheet Simulation */
-                    <div className="flex min-h-[380px] w-full max-w-[280px] flex-col justify-between rounded-lg border border-slate-200 bg-white p-4 text-xs text-slate-800 shadow-lg sm:p-5">
+                    <div className="flex h-full min-h-0 w-full max-w-[280px] min-w-0 flex-col justify-between rounded-lg border border-slate-200 bg-white p-4 text-xs text-slate-800 shadow-lg sm:h-full sm:p-5">
                       <div>
-                        <div className="flex items-center justify-between border-b pb-2 mb-3">
-                          <span className="font-extrabold text-slate-900 text-sm">
+                        <div className="flex min-w-0 items-center justify-between gap-2 border-b pb-2 mb-3">
+                          <span className="min-w-0 truncate font-extrabold text-slate-900 text-sm">
                             {galleryItems[activeImageIndex].title}
                           </span>
-                          <span className="text-[10px] font-mono text-slate-400">Sample Preview</span>
+                          <span className="shrink-0 text-[10px] font-mono text-slate-400">Sample Preview</span>
                         </div>
                         
                         {activeImageIndex === 1 && (
                           <div className="space-y-2 text-[11px] text-slate-700">
                             <p className="font-bold text-emerald-800 uppercase tracking-wide text-[10px]">Table of Contents</p>
                             {tocList.slice(0, 5).map((item: string, i: number) => (
-                              <div key={i} className="flex justify-between border-b border-dashed border-slate-100 py-1">
-                                <span className="line-clamp-1">{item}</span>
-                                <span className="text-slate-400 font-mono">p.{(i + 1) * 24}</span>
+                              <div key={i} className="flex min-w-0 justify-between gap-2 border-b border-dashed border-slate-100 py-1">
+                                <span className="min-w-0 truncate">{item}</span>
+                                <span className="shrink-0 text-slate-400 font-mono">p.{(i + 1) * 24}</span>
                               </div>
                             ))}
                           </div>
