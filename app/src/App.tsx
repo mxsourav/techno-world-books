@@ -24,6 +24,7 @@ import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import Contact from '@/pages/Contact';
 
 import { AuthProvider } from '@/store/AuthStore';
+import { CmsProvider } from '@/context/CmsContext';
 import OrderSuccess from '@/pages/OrderSuccess';
 import MyOrders from '@/pages/MyOrders';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -172,16 +173,18 @@ function CustomerStorefront() {
 
 export default function App() {
   return (
-    <StoreProvider>
-      <AuthProvider>
-        <ScrollToTop />
-        <KeepAlivePing />
-        <VisitorPulseTracker />
-        <Toaster position="top-center" richColors />
-        <ErrorBoundary>
-          <CustomerStorefront />
-        </ErrorBoundary>
-      </AuthProvider>
-    </StoreProvider>
+    <CmsProvider>
+      <StoreProvider>
+        <AuthProvider>
+          <ScrollToTop />
+          <KeepAlivePing />
+          <VisitorPulseTracker />
+          <Toaster position="top-center" richColors />
+          <ErrorBoundary>
+            <CustomerStorefront />
+          </ErrorBoundary>
+        </AuthProvider>
+      </StoreProvider>
+    </CmsProvider>
   );
 }
