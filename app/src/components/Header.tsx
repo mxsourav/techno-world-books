@@ -32,7 +32,16 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const isPreviewMode = typeof window !== 'undefined' && (
+    window.self !== window.top ||
+    window.location.search.includes('cms_edit=true')
+  );
+
   const handleEmailLogin = async (overrideEmail?: string) => {
+    if (isPreviewMode) {
+      toast.info('Visual Preview is for layout inspection only. Account login is disabled.');
+      return;
+    }
     const targetEmail = (overrideEmail || emailInput).trim().toLowerCase();
     if (!targetEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(targetEmail)) {
       toast.error('Please enter a valid email address');
@@ -66,12 +75,20 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
   };
 
   const sendOtp = () => {
+    if (isPreviewMode) {
+      toast.info('Visual Preview is for layout inspection only. Login is disabled.');
+      return;
+    }
     if (phone.length < 10) return toast.error('Enter a valid 10-digit mobile number');
     setStep('otp');
     toast.success('OTP sent! (any 4 digits work for verification)');
   };
 
   const verify = async () => {
+    if (isPreviewMode) {
+      toast.info('Visual Preview is for layout inspection only. Login is disabled.');
+      return;
+    }
     if (otp.length !== 4) return toast.error('Enter the 4-digit OTP');
     setLoading(true);
     try {
@@ -123,6 +140,14 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
             />
           </div>
         </div>
+
+        {isPreviewMode && (
+          <div className="bg-amber-500/15 border-b border-amber-500/30 px-4 py-2 text-center">
+            <p className="text-[11px] font-bold text-amber-900">
+              Live Preview Mode · User authentication is disabled for preview safety
+            </p>
+          </div>
+        )}
 
         <div className="px-8 py-6">
           {/* Primary Google Sign-In */}
@@ -409,6 +434,11 @@ export default function Header() {
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
   const [isScrolled, setIsScrolled] = useState(false);
 
+  const isPreviewMode = typeof window !== 'undefined' && (
+    window.self !== window.top ||
+    window.location.search.includes('cms_edit=true')
+  );
+
   const handleLogout = () => {
     logout();
     authLogout();
@@ -530,7 +560,7 @@ export default function Header() {
         </div>
 
         {/* Mobile Center Zone: Mobile Logo (!isScrolled) and Mobile Sticky Search Bar (isScrolled) */}
-        <div className="md:hidden flex-1 flex items-center justify-center min-w-0 mx-2 relative h-10">
+        <div className="md:hidden flex-1 flex items-center justify-center min-w-0 mx-2 relative h-11 sm:h-12">
           {/* Mobile-Only Center Brand Logo (Active when !isScrolled at top of homepage) */}
           <div
             className={`transition-all duration-300 ease-in-out flex items-center justify-center ${
@@ -547,7 +577,7 @@ export default function Header() {
               <img
                 src="/techno_world_black.png"
                 alt="Techno World Books Logo"
-                className="h-7 sm:h-8 w-auto max-w-[200px] object-contain brightness-0 invert drop-shadow-sm"
+                className="h-9 sm:h-10 w-auto max-w-[240px] xs:max-w-[270px] object-contain brightness-0 invert drop-shadow-sm"
               />
             </Link>
           </div>
@@ -597,7 +627,16 @@ export default function Header() {
                 </div>
               </Link>
             ) : (
-              <button onClick={() => setLoginOpen(true)} className="flex items-center gap-1 rounded-lg px-2 py-1.5 hover:bg-emerald-800">
+              <button
+                onClick={() => {
+                  if (isPreviewMode) {
+                    toast.info('Visual Preview Mode is for inspection only. User login is disabled.');
+                    return;
+                  }
+                  setLoginOpen(true);
+                }}
+                className="flex items-center gap-1 rounded-lg px-2 py-1.5 hover:bg-emerald-800"
+              >
                 <User className="h-5 w-5 sm:h-7 sm:w-7" />
                 <span className="hidden text-sm font-bold md:block">Login</span>
               </button>

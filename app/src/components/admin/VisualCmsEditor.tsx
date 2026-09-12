@@ -15,8 +15,7 @@ import {
   ChevronRight,
   Sliders,
   PanelRightClose,
-  Sun,
-  Moon,
+  PanelRight,
   Globe,
   SlidersHorizontal,
   Type,
@@ -96,10 +95,25 @@ const REGISTERED_CMS_KEYS: EditableKeyInfo[] = [
   { key: 'footer.phone', label: 'Landline Phone Number', section: 'Contact & Storefront', defaultText: '033 2219 6115' },
 ];
 
-
 export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
-  // Theme state: Clean 2-way toggle: Apple iOS light (default) or macOS dark
-  const [themeMode, setThemeMode] = useState<'ios-light' | 'macos-dark'>('ios-light');
+  // Theme state: Automatically synchronized with Global Admin Dark Mode
+  const [isDark, setIsDark] = useState(() => {
+    try {
+      return localStorage.getItem('tw_admin_dark_mode') === 'true' || document.documentElement.classList.contains('dark');
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    const updateTheme = () => {
+      setIsDark(document.documentElement.classList.contains('dark'));
+    };
+    updateTheme();
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
 
   // Viewport Device Presets
   const [devicePreset, setDevicePreset] = useState<'desktop' | 'tablet' | 'mobile' | 'custom'>('desktop');
@@ -115,6 +129,48 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
 
   // Fullscreen expansion
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+
+  // Zoom Controls & Interactive Canvas Scaling
+  const [zoomLevel, setZoomLevel] = useState<number>(1);
+  const canvasWrapperRef = useRef<HTMLDivElement>(null);
+
+  // Ctrl + Mouse Wheel listener for zooming preview
+  useEffect(() => {
+    const el = canvasWrapperRef.current;
+    if (!el) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        const delta = e.deltaY < 0 ? 0.05 : -0.05;
+        setZoomLevel((prev) => Math.min(2.0, Math.max(0.4, +(prev + delta).toFixed(2))));
+      }
+    };
+
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    return () => el.removeEventListener('wheel', handleWheel);
+  }, []);
+
+  // Keyboard shortcut listener for Ctrl + / Ctrl - / Ctrl 0
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === '=' || e.key === '+') {
+          e.preventDefault();
+          setZoomLevel((prev) => Math.min(2.0, +(prev + 0.1).toFixed(2)));
+        } else if (e.key === '-' || e.key === '_') {
+          e.preventDefault();
+          setZoomLevel((prev) => Math.max(0.4, +(prev - 0.1).toFixed(2)));
+        } else if (e.key === '0') {
+          e.preventDefault();
+          setZoomLevel(1);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Content & Preview State
   const [selectedPage, setSelectedPage] = useState<string>('/');
@@ -149,7 +205,7 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
       if (!data || typeof data !== 'object') return;
 
       if (data.type === 'TW_CMS_IFRAME_READY') {
-        // Iframe mounted and ready: push draft state and selection
+        // Handshake: live preview iframe is ready for synchronization
         handleIframeLoad();
       } else if (data.type === 'TW_CMS_ELEMENT_CLICKED' && data.key) {
         setSelectedKey(data.key);
@@ -187,13 +243,41 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
   }, [selectedKey]);
 
   // Determine storefront preview base URL (points to local storefront on port 3000 during dev, or live domain in production)
-  const previewOrigin = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-    ? 'http://localhost:3000'
+  const isLocalHost = typeof window !== 'undefined' && (
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1' ||
+    window.location.hostname === '0.0.0.0'
+  );
+  const previewOrigin = isLocalHost
+    ? `${window.location.protocol}//${window.location.hostname === '127.0.0.1' ? '127.0.0.1' : 'localhost'}:3000`
     : 'https://technoworldbooks.in';
   const previewUrl = `${previewOrigin}${selectedPage}${selectedPage.includes('?') ? '&' : '?'}cms_edit=true&_preview=${iframeKey}`;
 
   // Broadcast current drafts and styles to iframe on load
   const handleIframeLoad = () => {
+    try {
+      const doc = iframeRef.current?.contentDocument;
+      if (doc && !doc.getElementById('tw-macos-scrollbar-style')) {
+        const style = doc.createElement('style');
+        style.id = 'tw-macos-scrollbar-style';
+        style.textContent = `
+          * { scrollbar-width: thin; scrollbar-color: rgba(100, 116, 139, 0.3) transparent; }
+          .dark * { scrollbar-color: rgba(255, 255, 255, 0.22) transparent; }
+          ::-webkit-scrollbar { width: 8px; height: 8px; background-color: transparent; }
+          ::-webkit-scrollbar-track, ::-webkit-scrollbar-track-piece { background-color: transparent; }
+          ::-webkit-scrollbar-button { display: none !important; width: 0 !important; height: 0 !important; }
+          ::-webkit-scrollbar-corner { background-color: transparent; }
+          ::-webkit-scrollbar-thumb { background-color: rgba(0, 0, 0, 0.18); border-radius: 9999px; border: 2px solid transparent; background-clip: content-box; }
+          ::-webkit-scrollbar-thumb:hover { background-color: rgba(0, 0, 0, 0.35); }
+          .dark ::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.2); border-radius: 9999px; border: 2px solid transparent; background-clip: content-box; }
+          .dark ::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.38); }
+        `;
+        doc.head?.appendChild(style);
+      }
+    } catch {
+      // Cross-origin fallback handled by storefront app index.css
+    }
+
     if (!iframeRef.current?.contentWindow) return;
     iframeRef.current.contentWindow.postMessage(
       {
@@ -467,51 +551,50 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
   const activeMaxWidthRaw = selectedKey ? (content[`${selectedKey}__maxWidth`] || '') : '';
   const activeMaxWidthNum = parseInt(activeMaxWidthRaw, 10) || 0;
 
-  // Frosted Glass Styling Tokens with Crisp High-Contrast Dark Mode
-  const isDark = themeMode === 'macos-dark';
-  const isIos = themeMode === 'ios-light';
+  // Apple macOS Styling Tokens with Crisp High-Contrast Dark Mode
+  const isIos = !isDark;
 
   const themeClasses = {
     root: isIos
-      ? 'bg-gradient-to-br from-[#f8fafc]/95 via-[#f1f5f9]/95 to-[#e2e8f0]/95 text-slate-800 backdrop-blur-3xl'
-      : 'bg-zinc-950 text-zinc-100 backdrop-blur-3xl',
+      ? 'bg-white/70 text-slate-800 backdrop-blur-2xl border-slate-200/80 shadow-xl'
+      : 'bg-[#0a0f1d]/75 text-white backdrop-blur-2xl border-white/[0.08] shadow-2xl',
     header: isIos
-      ? 'bg-white/70 backdrop-blur-2xl border-b border-black/[0.08] shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.8),0_4px_20px_rgba(0,0,0,0.03)]'
-      : 'bg-zinc-900/95 backdrop-blur-2xl border-b border-zinc-800 shadow-md text-white',
+      ? 'bg-white/75 backdrop-blur-2xl border-b border-slate-200/80 text-slate-900 shadow-xs'
+      : 'bg-[#0d1324]/80 backdrop-blur-2xl border-b border-white/[0.08] text-white shadow-md',
     canvasBg: isIos
-      ? 'bg-[#E5E9F0]/90'
-      : 'bg-zinc-950',
+      ? 'bg-slate-200/35 backdrop-blur-md'
+      : 'bg-[#040814]/50 backdrop-blur-md',
     frameBorder: isIos
-      ? 'border border-black/[0.12] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.18)]'
-      : 'border border-zinc-800 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)]',
+      ? 'border border-slate-300/80 shadow-xl'
+      : 'border border-white/[0.12] shadow-2xl',
     inspector: isIos
-      ? 'bg-white/85 backdrop-blur-2xl border-l border-black/[0.08]'
-      : 'bg-zinc-900 border-l border-zinc-800',
+      ? 'bg-white/80 backdrop-blur-2xl border-l border-slate-200/80 text-slate-900'
+      : 'bg-[#0c1224]/85 backdrop-blur-2xl border-l border-white/[0.08] text-white',
     card: isIos
-      ? 'bg-white/80 backdrop-blur-xl border border-white/80 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.9),0_8px_24px_-4px_rgba(0,0,0,0.06)]'
-      : 'bg-zinc-900/90 border border-zinc-700/70 shadow-md',
+      ? 'bg-white/80 backdrop-blur-xl border border-slate-200/80 shadow-xs text-slate-900'
+      : 'bg-white/[0.04] backdrop-blur-xl border border-white/[0.08] shadow-md text-white',
     input: isIos
-      ? 'bg-white/90 border border-slate-200/80 text-slate-900 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 shadow-2xs'
-      : 'bg-zinc-950 border border-zinc-700 text-white placeholder-zinc-500 focus:bg-zinc-900 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20',
+      ? 'bg-white/90 border border-slate-200/80 text-slate-900 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs'
+      : 'bg-white/[0.06] border border-white/15 text-white placeholder-neutral-400 focus:bg-white/[0.10] focus:border-blue-400 focus:ring-2 focus:ring-blue-400/25',
     pillActive: isIos
       ? 'bg-white text-slate-900 shadow-sm border border-black/[0.04]'
-      : 'bg-zinc-800 text-white shadow-sm border border-zinc-700',
+      : 'bg-white/[0.15] text-white shadow-sm border border-white/20',
     pillInactive: isIos
       ? 'text-slate-500 hover:text-slate-900'
-      : 'text-zinc-400 hover:text-white',
+      : 'text-neutral-400 hover:text-white',
   };
 
   return (
     <div
       ref={containerRef}
-      className={`flex flex-col transition-all duration-200 rounded-3xl overflow-hidden border shadow-2xl ${
+      className={`flex flex-col transition-all duration-200 rounded-none overflow-hidden border ${
         isFullscreen
-          ? 'fixed inset-3 z-50 h-[calc(100vh-24px)] rounded-3xl'
-          : 'h-[calc(100vh-80px)] min-h-[660px]'
+          ? 'fixed inset-0 z-50 h-screen rounded-none'
+          : 'h-[calc(100vh-120px)] min-h-[560px] rounded-none'
       } ${themeClasses.root} ${themeClasses.frameBorder}`}
     >
-      {/* Frosted Glass Titlebar & Toolbar */}
-      <div className={`flex flex-wrap items-center justify-between gap-3 px-5 py-3 ${themeClasses.header} select-none shrink-0`}>
+      {/* Apple Titlebar & Toolbar */}
+      <div className={`flex flex-wrap items-center justify-between gap-2 px-4 py-2 ${themeClasses.header} select-none shrink-0`}>
         {/* Left: macOS Traffic Light Dots & Title */}
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
@@ -548,25 +631,25 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="text-xs font-black tracking-tight text-slate-900 dark:text-white">Visual CMS Studio</span>
+                <span className="text-xs font-black tracking-tight text-slate-900 dark:text-white">Visual CMS</span>
                 <span className="text-[9px] px-1.5 py-0.2 rounded-full font-bold uppercase tracking-wider bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/20">
-                  Frosted Acrylic 27
+                  Live Preview
                 </span>
               </div>
               <span className="text-[10px] text-slate-500 dark:text-zinc-300 flex items-center gap-1">
-                Select element to auto-locate · Drag marks to resize
+                Select element to auto-locate · Drag handles to resize
               </span>
             </div>
           </div>
         </div>
 
-        {/* Center: Device Viewport Presets & Page Selector */}
+        {/* Center: Device Viewport Presets, Page Selector & Zoom */}
         <div className="flex items-center gap-2">
           {/* Apple Segmented Device Pill */}
-          <div className="flex items-center p-1 rounded-xl bg-black/[0.05] dark:bg-zinc-800/80 border border-black/[0.04] dark:border-zinc-700/60 backdrop-blur-md">
+          <div className="flex items-center p-1 rounded-lg bg-black/[0.05] dark:bg-white/[0.06] border border-black/[0.04] dark:border-white/10 backdrop-blur-md">
             <button
               onClick={() => setDevicePreset('desktop')}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
                 devicePreset === 'desktop' ? themeClasses.pillActive : themeClasses.pillInactive
               }`}
             >
@@ -575,25 +658,25 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
             </button>
             <button
               onClick={() => setDevicePreset('tablet')}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
                 devicePreset === 'tablet' ? themeClasses.pillActive : themeClasses.pillInactive
               }`}
             >
               <Tablet className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">iPad</span>
+              <span className="hidden sm:inline">Tablet</span>
             </button>
             <button
               onClick={() => setDevicePreset('mobile')}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
                 devicePreset === 'mobile' ? themeClasses.pillActive : themeClasses.pillInactive
               }`}
             >
               <Smartphone className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">iPhone</span>
+              <span className="hidden sm:inline">Mobile</span>
             </button>
             <button
               onClick={() => setDevicePreset('custom')}
-              className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold transition-all ${
                 devicePreset === 'custom' ? themeClasses.pillActive : themeClasses.pillInactive
               }`}
               title="Fluid drag canvas right edge"
@@ -603,62 +686,88 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
             </button>
           </div>
 
+          {/* Zoom Controls Pill (Ctrl + / Ctrl - / Ctrl + Wheel) */}
+          <div className="flex items-center p-0.5 rounded-lg bg-black/[0.05] dark:bg-white/[0.06] border border-black/[0.04] dark:border-white/10 backdrop-blur-md">
+            <button
+              onClick={() => setZoomLevel((prev) => Math.max(0.4, +(prev - 0.1).toFixed(2)))}
+              title="Zoom Out (Ctrl -)"
+              className="p-1 rounded-md hover:bg-black/[0.06] dark:hover:bg-white/10 text-slate-600 dark:text-neutral-200 transition-colors"
+            >
+              <Minus className="h-3 w-3" />
+            </button>
+            <button
+              onClick={() => setZoomLevel(1)}
+              title="Reset Zoom to 100% (Ctrl 0)"
+              className="px-1.5 py-0.5 text-[11px] font-mono font-bold text-slate-700 dark:text-neutral-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            >
+              {Math.round(zoomLevel * 100)}%
+            </button>
+            <button
+              onClick={() => setZoomLevel((prev) => Math.min(2.0, +(prev + 0.1).toFixed(2)))}
+              title="Zoom In (Ctrl +)"
+              className="p-1 rounded-md hover:bg-black/[0.06] dark:hover:bg-white/10 text-slate-600 dark:text-neutral-200 transition-colors"
+            >
+              <Plus className="h-3 w-3" />
+            </button>
+          </div>
+
           {/* Page Picker Capsule */}
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-black/[0.05] dark:bg-zinc-800/80 border border-black/[0.04] dark:border-zinc-700/60 backdrop-blur-md text-xs font-medium">
-            <Globe className="h-3.5 w-3.5 text-slate-400 dark:text-zinc-300" />
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-black/[0.05] dark:bg-white/[0.06] border border-black/[0.04] dark:border-white/10 backdrop-blur-md text-xs font-medium">
+            <Globe className="h-3.5 w-3.5 text-slate-400 dark:text-neutral-300" />
             <select
               value={selectedPage}
               onChange={(e) => {
                 setSelectedPage(e.target.value);
                 setIframeKey(Date.now());
               }}
-              className="bg-transparent border-0 text-xs font-semibold outline-none cursor-pointer pr-1 text-slate-700 dark:text-zinc-100"
+              className="bg-transparent border-0 text-xs font-semibold outline-none cursor-pointer pr-1 text-slate-700 dark:text-white"
             >
-              <option value="/" className="text-black dark:bg-zinc-900 dark:text-white">🏠 Homepage</option>
-              <option value="/about" className="text-black dark:bg-zinc-900 dark:text-white">📖 About Us</option>
-              <option value="/contact" className="text-black dark:bg-zinc-900 dark:text-white">📞 Contact</option>
-              <option value="/terms" className="text-black dark:bg-zinc-900 dark:text-white">⚖️ Terms</option>
+              <option value="/" className="text-slate-900 dark:bg-[#0d1324] dark:text-white">🏠 Homepage</option>
+              <option value="/about" className="text-slate-900 dark:bg-[#0d1324] dark:text-white">📖 About Us</option>
+              <option value="/contact" className="text-slate-900 dark:bg-[#0d1324] dark:text-white">📞 Contact</option>
+              <option value="/terms" className="text-slate-900 dark:bg-[#0d1324] dark:text-white">⚖️ Terms</option>
             </select>
           </div>
         </div>
 
-        {/* Right: Clean 2-Way Light/Dark Toggle, Reload, and Publish Live Button */}
+        {/* Right: Reload, Open External, Inspector Toggle, and Publish Live Button */}
         <div className="flex items-center gap-2">
-          {/* Apple 2-Way Theme Toggle: Light / Dark */}
-          <div className="flex items-center p-0.5 rounded-xl bg-black/[0.05] dark:bg-zinc-800 border border-black/[0.04] dark:border-zinc-700">
-            <button
-              onClick={() => setThemeMode('ios-light')}
-              title="Light Mode"
-              className={`p-1.5 rounded-lg transition-all ${
-                themeMode === 'ios-light' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-700'
-              }`}
-            >
-              <Sun className="h-3.5 w-3.5" />
-            </button>
-            <button
-              onClick={() => setThemeMode('macos-dark')}
-              title="Dark Mode"
-              className={`p-1.5 rounded-lg transition-all ${
-                themeMode === 'macos-dark' ? 'bg-zinc-700 text-white shadow-sm' : 'text-zinc-400 hover:text-white'
-              }`}
-            >
-              <Moon className="h-3.5 w-3.5" />
-            </button>
-          </div>
-
           <button
             onClick={() => setIframeKey(Date.now())}
             title="Reload live preview frame"
-            className="p-2 rounded-xl bg-black/[0.05] dark:bg-zinc-800 hover:bg-black/[0.08] dark:hover:bg-zinc-700 transition-colors text-slate-500 dark:text-zinc-200"
+            className="p-2 rounded-lg bg-black/[0.05] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] transition-colors text-slate-500 dark:text-neutral-200"
           >
             <RotateCw className="h-3.5 w-3.5" />
           </button>
 
-          {/* Clean Publish Button (No emoji) */}
+          <a
+            href={`${previewOrigin}${selectedPage}`}
+            target="_blank"
+            rel="noreferrer"
+            title="Open storefront in new tab"
+            className="p-2 rounded-lg bg-black/[0.05] dark:bg-white/[0.06] hover:bg-black/[0.08] dark:hover:bg-white/[0.1] transition-colors text-slate-500 dark:text-neutral-200"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+          </a>
+
+          {/* Inspector Panel Toggle Button */}
+          <button
+            onClick={() => setIsInspectorCollapsed((prev) => !prev)}
+            title={isInspectorCollapsed ? "Open Inspector" : "Collapse Inspector"}
+            className={`p-2 rounded-lg transition-colors flex items-center justify-center ${
+              !isInspectorCollapsed
+                ? 'bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800/60'
+                : 'bg-black/[0.05] dark:bg-white/[0.06] text-slate-600 dark:text-neutral-200 hover:bg-black/[0.08] dark:hover:bg-white/[0.1]'
+            }`}
+          >
+            <PanelRight className="h-3.5 w-3.5" />
+          </button>
+
+          {/* Clean Publish Button */}
           <button
             onClick={handlePublish}
             disabled={isPublishing}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-600 hover:brightness-110 active:scale-95 transition-all shadow-md shadow-blue-500/25 disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-600 hover:brightness-110 active:scale-95 transition-all shadow-md shadow-blue-500/25 disabled:opacity-50"
           >
             <Save className="h-3.5 w-3.5" />
             <span>{isPublishing ? 'Publishing...' : 'Publish Live'}</span>
@@ -674,71 +783,44 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
       {/* Main Workbench Area */}
       <div className="flex-1 flex overflow-hidden relative">
         {/* Center / Left: Interactive Live Preview Canvas */}
-        <div className={`flex-1 ${themeClasses.canvasBg} p-4 sm:p-6 flex flex-col items-center justify-start overflow-auto relative select-none`}>
-          {/* Instruction banner in Frosted Glass pill */}
-          <div className="mb-3 px-4 py-1.5 rounded-full bg-white/80 dark:bg-zinc-900/90 backdrop-blur-xl border border-white/60 dark:border-zinc-700 text-[11px] font-medium text-slate-700 dark:text-zinc-200 shadow-sm flex items-center gap-2 shrink-0">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Select any element in the directory to auto-highlight and scroll to it · Drag handles to resize</span>
-          </div>
-
-          {/* Responsive Preview Device Window Frame (Resizable) */}
+        <div
+          ref={canvasWrapperRef}
+          className={`flex-1 ${themeClasses.canvasBg} p-2 sm:p-3 flex flex-col items-center justify-start overflow-auto relative select-none`}
+        >
+          {/* Responsive Preview Device Window Frame (16:9 in Desktop Preset, Resizable, Max Area) */}
           <div
-            className={`flex flex-col rounded-[24px] overflow-hidden transition-all duration-150 ${themeClasses.frameBorder} bg-white relative shadow-2xl`}
+            className={`flex flex-col rounded-none overflow-hidden transition-all duration-150 ${themeClasses.frameBorder} bg-white relative shadow-xl`}
             style={{
-              width: getCanvasWidthPx(),
+              width: devicePreset === 'desktop' ? '100%' : (devicePreset === 'mobile' ? 390 : (devicePreset === 'tablet' ? 820 : customWidth)),
               maxWidth: '100%',
-              height: 'calc(100% - 40px)',
-              minHeight: '480px',
-              borderRadius: '24px',
+              aspectRatio: devicePreset === 'desktop' ? '16 / 9' : undefined,
+              height: devicePreset === 'desktop' ? 'auto' : '100%',
+              maxHeight: devicePreset === 'desktop' ? '100%' : undefined,
+              minHeight: devicePreset === 'desktop' ? undefined : '520px',
+              borderRadius: '0px',
               overflow: 'hidden',
-              transform: 'translateZ(0)',
+              transform: `scale(${zoomLevel})`,
+              transformOrigin: 'top center',
+              transition: isDraggingCanvas ? 'none' : 'transform 0.1s ease-out',
               isolation: 'isolate',
-              WebkitMaskImage: '-webkit-radial-gradient(white, black)',
             }}
           >
-            {/* Safari Mock Address Bar */}
-            <div className="bg-slate-100/90 dark:bg-zinc-800/90 border-b border-slate-200/80 dark:border-zinc-700/80 px-3.5 py-2 flex items-center justify-between shrink-0 select-none backdrop-blur-md rounded-t-[24px]">
-              <div className="flex items-center gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-full bg-rose-400" />
-                <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
-                <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
-              </div>
-
-              {/* Safari Capsule Search Bar */}
-              <div className="bg-white dark:bg-zinc-900 px-4 py-1 rounded-xl border border-slate-200 dark:border-zinc-700 text-[11px] font-mono text-slate-600 dark:text-zinc-300 truncate max-w-sm flex items-center gap-1.5 shadow-2xs">
-                <span className="text-slate-400">🔒</span>
-                <span>technoworldbooks.in{selectedPage}</span>
-                <span className="text-[9px] text-blue-600 dark:text-blue-400 font-bold bg-blue-50 dark:bg-blue-950/60 px-1 rounded">
-                  ?cms_edit=true
-                </span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <a
-                  href={`${previewOrigin}${selectedPage}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  title="Open storefront in new tab"
-                  className="text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors"
-                >
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </a>
-              </div>
+            {/* Live Interactive Storefront Iframe Container (Full frame visible area without duplicate inner bar) */}
+            <div className="w-full flex-1 h-full relative overflow-hidden bg-white rounded-none">
+              <iframe
+                ref={iframeRef}
+                key={iframeKey}
+                src={previewUrl}
+                onLoad={handleIframeLoad}
+                title="Live Storefront Preview"
+                className="w-full h-full border-0 bg-white block rounded-none"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  border: 'none',
+                }}
+              />
             </div>
-
-            {/* Live Interactive Storefront Iframe */}
-            <iframe
-              ref={iframeRef}
-              key={iframeKey}
-              src={previewUrl}
-              onLoad={handleIframeLoad}
-              title="Live Storefront Preview"
-              className="w-full flex-1 border-0 bg-white rounded-b-[24px]"
-              style={{
-                borderBottomLeftRadius: '24px',
-                borderBottomRightRadius: '24px',
-              }}
-            />
 
             {/* Canvas Right Edge Drag Handle for Custom Width Resizing */}
             <div
@@ -746,10 +828,21 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
               title="Drag horizontally to resize preview width"
               className="absolute top-0 right-0 w-2.5 h-full cursor-ew-resize hover:bg-blue-500/40 active:bg-blue-600 transition-colors z-30 flex items-center justify-center group"
             >
-              <div className="w-1 h-8 rounded-full bg-slate-400/60 dark:bg-zinc-600 group-hover:bg-blue-500 shadow" />
+              <div className="w-1 h-8 rounded-full bg-slate-400/60 dark:bg-white/30 group-hover:bg-blue-500 shadow" />
             </div>
           </div>
         </div>
+
+        {/* Docked Inspector Expand Button when collapsed */}
+        {isInspectorCollapsed && (
+          <button
+            onClick={() => setIsInspectorCollapsed(false)}
+            title="Open Inspector"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-30 p-2.5 rounded-l-xl bg-white dark:bg-[#131b2e] border-l border-t border-b border-slate-200 dark:border-white/10 shadow-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all text-slate-700 dark:text-neutral-200 flex items-center justify-center group"
+          >
+            <PanelRight className="h-4 w-4 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform" />
+          </button>
+        )}
 
         {/* Draggable Splitter Handle between Preview and Inspector */}
         {!isInspectorCollapsed && (
@@ -761,19 +854,19 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
             }`}
           >
             <div className={`h-8 w-1 rounded-full transition-colors ${
-              isDraggingInspector ? 'bg-white' : 'bg-slate-400/40 dark:bg-zinc-600'
+              isDraggingInspector ? 'bg-white' : 'bg-slate-400/40 dark:bg-white/20'
             }`} />
           </div>
         )}
 
-        {/* Right Side: Apple macOS / iOS 27 Inspector Drawer (Resizable Width) */}
+        {/* Right Side: Resizable Inspector Sidebar (Docked Clean Square Layout) */}
         {!isInspectorCollapsed && (
           <div
             style={{ width: `${inspectorWidth}px` }}
-            className={`flex flex-col shrink-0 h-full overflow-hidden transition-[width] duration-75 ${themeClasses.inspector}`}
+            className={`flex flex-col shrink-0 h-full overflow-hidden transition-[width] duration-75 rounded-none border-l ${themeClasses.inspector}`}
           >
             {/* Inspector Header */}
-            <div className="px-4 py-3.5 border-b border-black/[0.08] dark:border-zinc-800 flex items-center justify-between select-none">
+            <div className="px-4 py-3.5 border-b border-slate-200/80 dark:border-white/[0.08] flex items-center justify-between select-none">
               <div className="flex items-center gap-2">
                 <div className="h-6 w-6 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
                   <Sliders className="h-3.5 w-3.5" />
@@ -787,7 +880,7 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
                 {selectedKey && (
                   <button
                     onClick={() => setSelectedKey(null)}
-                    className="text-[10px] font-bold text-slate-400 dark:text-zinc-400 hover:text-blue-500 dark:hover:text-blue-400 underline"
+                    className="text-[10px] font-bold text-slate-400 dark:text-neutral-400 hover:text-blue-500 dark:hover:text-blue-400 underline"
                   >
                     Clear
                   </button>
@@ -795,7 +888,7 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
                 <button
                   onClick={() => setIsInspectorCollapsed(true)}
                   title="Collapse Inspector"
-                  className="p-1 rounded-lg hover:bg-black/[0.05] dark:hover:bg-zinc-800 text-slate-400 hover:text-slate-700 dark:text-zinc-400 dark:hover:text-white"
+                  className="p-1 rounded-lg hover:bg-black/[0.05] dark:hover:bg-white/[0.08] text-slate-400 hover:text-slate-700 dark:text-neutral-400 dark:hover:text-white"
                 >
                   <PanelRightClose className="h-3.5 w-3.5" />
                 </button>
@@ -805,7 +898,7 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
             <div className="flex-1 overflow-y-auto p-4 space-y-4 overscroll-contain">
               {/* Active Selected Element Editor */}
               {selectedKey ? (
-                <div className={`rounded-2xl p-4.5 border transition-all ${themeClasses.card} space-y-4`}>
+                <div className={`rounded-xl p-4.5 border transition-all ${themeClasses.card} space-y-4`}>
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <div className="flex items-center gap-1.5">
@@ -822,7 +915,7 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
                     <button
                       onClick={handleResetCurrentKey}
                       title="Reset text & styles to default"
-                      className="flex items-center gap-1 text-[11px] font-bold text-slate-600 dark:text-zinc-300 hover:text-amber-600 dark:hover:text-amber-400 transition-colors bg-black/[0.04] dark:bg-zinc-800 px-2.5 py-1 rounded-lg border dark:border-zinc-700"
+                      className="flex items-center gap-1 text-[11px] font-bold text-slate-600 dark:text-neutral-300 hover:text-amber-600 dark:hover:text-amber-400 transition-colors bg-black/[0.04] dark:bg-white/[0.06] px-2.5 py-1 rounded-lg border border-slate-200 dark:border-white/10"
                     >
                       <Undo2 className="h-3 w-3" />
                       <span>Default</span>
@@ -831,7 +924,7 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
 
                   {/* Text Content Input */}
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-700 dark:text-zinc-200 mb-1.5">
+                    <label className="block text-[11px] font-bold text-slate-700 dark:text-neutral-200 mb-1.5">
                       Content String (Live Preview)
                     </label>
                     {currentKeyInfo?.multiline ? (
@@ -839,7 +932,7 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
                         rows={4}
                         value={content[selectedKey] !== undefined ? content[selectedKey] : (currentKeyInfo?.defaultText || '')}
                         onChange={(e) => handleValueChange(e.target.value)}
-                        className={`w-full rounded-xl px-3.5 py-2.5 text-xs transition-all resize-y outline-none ${themeClasses.input}`}
+                        className={`w-full rounded-lg px-3.5 py-2.5 text-xs transition-all resize-y outline-none ${themeClasses.input}`}
                         placeholder="Enter text..."
                       />
                     ) : (
@@ -854,18 +947,18 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
                   </div>
 
                   {/* Font Size & Precision Digital Roller Section */}
-                  <div className="pt-2.5 border-t border-black/[0.06] dark:border-zinc-800 space-y-2.5">
+                  <div className="pt-2.5 border-t border-black/[0.06] dark:border-white/[0.08] space-y-2.5">
                     <div className="flex items-center justify-between">
-                      <label className="text-[11px] font-extrabold uppercase tracking-wider text-slate-700 dark:text-zinc-200 flex items-center gap-1.5">
+                      <label className="text-[11px] font-extrabold uppercase tracking-wider text-slate-700 dark:text-neutral-200 flex items-center gap-1.5">
                         <Type className="h-3.5 w-3.5 text-blue-500" />
                         <span>Font Size Adjuster</span>
                       </label>
 
                       {/* Font Size Direct Stepper Input */}
-                      <div className="flex items-center gap-1 bg-black/[0.05] dark:bg-zinc-800 rounded-xl p-0.5 border border-black/[0.05] dark:border-zinc-700">
+                      <div className="flex items-center gap-1 bg-black/[0.05] dark:bg-white/[0.06] rounded-lg p-0.5 border border-black/[0.05] dark:border-white/10">
                         <button
                           onClick={() => handleFontSizeChange(Math.max(12, activeFontSizeNum - 1))}
-                          className="h-6 w-6 rounded-lg flex items-center justify-center hover:bg-white dark:hover:bg-zinc-700 text-slate-600 dark:text-zinc-200 transition-colors"
+                          className="h-6 w-6 rounded-md flex items-center justify-center hover:bg-white dark:hover:bg-white/[0.1] text-slate-600 dark:text-neutral-200 transition-colors"
                           title="Decrease 1px"
                         >
                           <Minus className="h-3 w-3" />
@@ -875,14 +968,13 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
                         </span>
                         <button
                           onClick={() => handleFontSizeChange(Math.min(80, activeFontSizeNum + 1))}
-                          className="h-6 w-6 rounded-lg flex items-center justify-center hover:bg-white dark:hover:bg-zinc-700 text-slate-600 dark:text-zinc-200 transition-colors"
+                          className="h-6 w-6 rounded-md flex items-center justify-center hover:bg-white dark:hover:bg-white/[0.1] text-slate-600 dark:text-neutral-200 transition-colors"
                           title="Increase 1px"
                         >
                           <Plus className="h-3 w-3" />
                         </button>
                       </div>
                     </div>
-
 
                     {/* Quick Preset Font Size Chips */}
                     <div className="flex flex-wrap gap-1">
@@ -899,10 +991,10 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
                         <button
                           key={chip.label}
                           onClick={() => handleFontSizeChange(chip.size)}
-                          className={`px-2 py-0.8 rounded-lg text-[10px] font-bold transition-all ${
+                          className={`px-2 py-0.8 rounded-md text-[10px] font-bold transition-all ${
                             activeFontSizeNum === chip.size
                               ? 'bg-blue-600 text-white shadow-xs'
-                              : 'bg-black/[0.04] dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 hover:bg-blue-500/10 hover:text-blue-600 dark:border dark:border-zinc-700'
+                              : 'bg-black/[0.04] dark:bg-white/[0.05] text-slate-700 dark:text-neutral-300 hover:bg-blue-500/10 hover:text-blue-600 dark:border dark:border-white/10'
                           }`}
                         >
                           {chip.label} ({chip.size})
@@ -912,9 +1004,9 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
                   </div>
 
                   {/* Text Field Size / Max-Width Section */}
-                  <div className="pt-2.5 border-t border-black/[0.06] dark:border-zinc-800 space-y-2.5">
+                  <div className="pt-2.5 border-t border-black/[0.06] dark:border-white/[0.08] space-y-2.5">
                     <div className="flex items-center justify-between">
-                      <label className="text-[11px] font-extrabold uppercase tracking-wider text-slate-700 dark:text-zinc-200 flex items-center gap-1.5">
+                      <label className="text-[11px] font-extrabold uppercase tracking-wider text-slate-700 dark:text-neutral-200 flex items-center gap-1.5">
                         <MoveHorizontal className="h-3.5 w-3.5 text-emerald-500" />
                         <span>Field Width / Wrap Boundary</span>
                       </label>
@@ -925,7 +1017,7 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
 
                     {/* Field Width Slider */}
                     <div className="flex items-center gap-3">
-                      <span className="text-[10px] font-mono text-slate-400 dark:text-zinc-400">200</span>
+                      <span className="text-[10px] font-mono text-slate-400 dark:text-neutral-400">200</span>
                       <input
                         type="range"
                         min="200"
@@ -933,9 +1025,9 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
                         step="10"
                         value={activeMaxWidthNum > 0 ? activeMaxWidthNum : 1200}
                         onChange={(e) => handleMaxWidthChange(parseInt(e.target.value, 10))}
-                        className="flex-1 accent-emerald-500 cursor-ew-resize h-1.5 bg-slate-200 dark:bg-zinc-800 rounded-lg"
+                        className="flex-1 accent-emerald-500 cursor-ew-resize h-1.5 bg-slate-200 dark:bg-white/[0.1] rounded-lg"
                       />
-                      <span className="text-[10px] font-mono text-slate-400 dark:text-zinc-400">1200</span>
+                      <span className="text-[10px] font-mono text-slate-400 dark:text-neutral-400">1200</span>
                     </div>
 
                     {/* Quick Preset Width Chips */}
@@ -950,11 +1042,11 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
                         <button
                           key={item.label}
                           onClick={() => handleMaxWidthChange(item.width)}
-                          className={`px-2 py-0.8 rounded-lg text-[10px] font-bold transition-all ${
+                          className={`px-2 py-0.8 rounded-md text-[10px] font-bold transition-all ${
                             (item.width === 'auto' && activeMaxWidthNum === 0) ||
                             (typeof item.width === 'number' && activeMaxWidthNum === item.width)
                               ? 'bg-emerald-600 text-white shadow-xs'
-                              : 'bg-black/[0.04] dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 hover:bg-emerald-500/10 hover:text-emerald-600 dark:border dark:border-zinc-700'
+                              : 'bg-black/[0.04] dark:bg-white/[0.05] text-slate-700 dark:text-neutral-300 hover:bg-emerald-500/10 hover:text-emerald-600 dark:border dark:border-white/10'
                           }`}
                         >
                           {item.label}
@@ -963,20 +1055,20 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
                     </div>
                   </div>
 
-                  <div className="text-[11px] text-slate-500 dark:text-zinc-300 flex items-center gap-1.5 pt-1 border-t border-black/[0.05] dark:border-zinc-800">
+                  <div className="text-[11px] text-slate-500 dark:text-neutral-300 flex items-center gap-1.5 pt-1 border-t border-black/[0.05] dark:border-white/[0.08]">
                     <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
                     <span>Real-time instant preview with live drag & auto-scroll.</span>
                   </div>
                 </div>
               ) : (
-                <div className={`rounded-2xl border-2 border-dashed p-6 text-center ${
-                  isIos ? 'border-slate-300/80 bg-white/50' : 'border-zinc-700 bg-zinc-900/50'
+                <div className={`rounded-xl border-2 border-dashed p-6 text-center ${
+                  isIos ? 'border-slate-300/80 bg-white/50' : 'border-white/10 bg-white/[0.02]'
                 }`}>
-                  <div className="h-10 w-10 rounded-2xl bg-blue-500/10 text-blue-500 mx-auto flex items-center justify-center mb-2 shadow-inner">
+                  <div className="h-10 w-10 rounded-xl bg-blue-500/10 text-blue-500 mx-auto flex items-center justify-center mb-2 shadow-inner">
                     <Edit3 className="h-5 w-5" />
                   </div>
                   <p className="text-xs font-bold text-slate-800 dark:text-white">No element selected</p>
-                  <p className="text-[11px] text-slate-500 dark:text-zinc-400 mt-1">
+                  <p className="text-[11px] text-slate-500 dark:text-neutral-400 mt-1">
                     Click any element from the directory below to auto-highlight and scroll to it in the live preview.
                   </p>
                 </div>
@@ -985,28 +1077,28 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
               {/* Editable Elements Directory */}
               <div className="space-y-2.5 pt-1">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-slate-600 dark:text-zinc-200 flex items-center gap-1.5">
+                  <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-slate-600 dark:text-neutral-200 flex items-center gap-1.5">
                     <Layers className="h-3.5 w-3.5" /> All Registered Elements
                   </h4>
-                  <span className="text-[10px] font-mono text-slate-500 dark:text-zinc-300 bg-black/[0.04] dark:bg-zinc-800 px-2 py-0.5 rounded-md border dark:border-zinc-700">
+                  <span className="text-[10px] font-mono text-slate-500 dark:text-neutral-300 bg-black/[0.04] dark:bg-white/[0.06] px-2 py-0.5 rounded-md border border-slate-200 dark:border-white/10">
                     {filteredKeys.length} keys
                   </span>
                 </div>
 
                 {/* Filter / Search Bar */}
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 dark:text-zinc-400" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 dark:text-neutral-400" />
                   <input
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search elements by label, section, key..."
-                    className={`w-full rounded-xl pl-9 pr-3.5 py-2 text-xs outline-none transition-all ${themeClasses.input}`}
+                    className={`w-full rounded-lg pl-9 pr-3.5 py-2 text-xs outline-none transition-all ${themeClasses.input}`}
                   />
                   {searchTerm && (
                     <button
                       onClick={() => setSearchTerm('')}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-zinc-400 dark:hover:text-white text-xs font-bold"
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-neutral-400 dark:hover:text-white text-xs font-bold"
                     >
                       ×
                     </button>
@@ -1024,11 +1116,11 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
                       <button
                         key={item.key}
                         onClick={() => handleSelectKeyFromDirectory(item)}
-                        className={`w-full text-left p-3 rounded-xl border transition-all flex items-start justify-between gap-2.5 ${
+                        className={`w-full text-left p-3 rounded-lg border transition-all flex items-start justify-between gap-2.5 ${
                           isCurrent
                             ? 'bg-blue-500/15 border-blue-500 shadow-md ring-1 ring-blue-500/30'
                             : isDark
-                            ? 'bg-zinc-900/80 border-zinc-800 hover:bg-zinc-800/90 hover:border-zinc-700'
+                            ? 'bg-white/[0.03] border-white/[0.06] hover:bg-white/[0.06] hover:border-white/10'
                             : 'bg-white border-slate-200/80 hover:border-blue-400/60 shadow-2xs'
                         }`}
                       >
