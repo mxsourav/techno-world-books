@@ -25,7 +25,15 @@ const CmsContext = createContext<CmsContextType | null>(null);
 
 export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [content, setContent] = useState<Record<string, string>>({});
-  const [isEditMode, setIsEditMode] = useState<boolean>(false);
+  const [isEditMode, setIsEditMode] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get('cms_edit') === 'true' || window.self !== window.top;
+    } catch {
+      return false;
+    }
+  });
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
 
   // Check URL param or window message for edit mode
@@ -89,15 +97,20 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       } else if (data.type === 'TW_CMS_SELECT_KEY') {
         setSelectedKey(data.key || null);
         if (data.key) {
-          const tryScroll = (attemptsLeft = 8) => {
+          const tryScroll = (attemptsLeft = 12) => {
             const el = document.querySelector(`[data-cms-key="${data.key}"]`) as HTMLElement | null;
             if (el) {
+              // 1. Native scrollIntoView
               el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+              // 2. Direct window.scrollTo guarantee for iframe/document
+              const rect = el.getBoundingClientRect();
+              const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+              const targetY = scrollTop + rect.top - (window.innerHeight / 2) + (rect.height / 2);
+              window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
             } else if (attemptsLeft > 0) {
-              setTimeout(() => tryScroll(attemptsLeft - 1), 120);
+              setTimeout(() => tryScroll(attemptsLeft - 1), 90);
             }
           };
-          // Try immediately, then retry if dynamic content is settling
           tryScroll();
         }
       } else if (data.type === 'TW_CMS_FORCE_EDIT_MODE') {

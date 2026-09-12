@@ -457,27 +457,31 @@ export default function Home() {
                 letterSpacing: "-0.01em"
               }}
             >
-              <span
-                className="block"
-                style={{
-                  backgroundImage: "linear-gradient(to bottom, #FFFFFF 0%, #B8C4BE 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  filter: "drop-shadow(0px 4px 8px rgba(0,0,0,0.8))"
-                }}
-              >
-                <CmsText contentKey="home.hero_title_1" defaultText="Every book India reads," label="Hero Heading Line 1" />
+              <span className="block">
+                <CmsText
+                  contentKey="home.hero_title_1"
+                  defaultText="Every book India reads,"
+                  label="Hero Heading Line 1"
+                  style={{
+                    backgroundImage: "linear-gradient(to bottom, #FFFFFF 0%, #B8C4BE 100%)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    filter: "drop-shadow(0px 4px 8px rgba(0,0,0,0.8))"
+                  }}
+                />
               </span>
-              <span
-                className="block mt-1"
-                style={{
-                  backgroundImage: "linear-gradient(to bottom, #FFE885 0%, #E6A300 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  filter: "drop-shadow(0px 5px 10px rgba(0,0,0,0.9))"
-                }}
-              >
-                <CmsText contentKey="home.hero_title_2" defaultText="one search away." label="Hero Heading Line 2" />
+              <span className="block mt-1">
+                <CmsText
+                  contentKey="home.hero_title_2"
+                  defaultText="one search away."
+                  label="Hero Heading Line 2"
+                  style={{
+                    backgroundImage: "linear-gradient(to bottom, #FFE885 0%, #E6A300 100%)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    filter: "drop-shadow(0px 5px 10px rgba(0,0,0,0.9))"
+                  }}
+                />
               </span>
             </h1>
 
