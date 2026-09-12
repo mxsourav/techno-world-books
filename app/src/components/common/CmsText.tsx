@@ -254,11 +254,8 @@ export const CmsText: React.FC<CmsTextProps> = ({
             WebkitTextFillColor: 'initial',
             WebkitBackgroundClip: 'border-box',
           }}
-          className="absolute -inset-2 pointer-events-none z-50 border-2 border-dashed border-emerald-500 rounded-lg ring-4 ring-emerald-500/20 bg-emerald-500/10 shadow-[0_0_20px_rgba(16,185,129,0.3)]"
+          className="absolute -inset-2 pointer-events-none z-50 border-2 border-dashed border-emerald-500 rounded-lg ring-2 ring-emerald-500/25 bg-emerald-500/10"
         >
-          {/* Spotlight Expanding Radar Wave Ping for instant visual location */}
-          <div className="absolute -inset-3 rounded-xl border-2 border-emerald-400 animate-ping opacity-60 pointer-events-none" />
-
           {/* 4 Corner Square Nodes */}
           <div className="absolute -top-1.5 -left-1.5 w-3 h-3 rounded-xs bg-white border-2 border-emerald-600 shadow-md" />
           <div className="absolute -top-1.5 -right-1.5 w-3 h-3 rounded-xs bg-white border-2 border-emerald-600 shadow-md" />
