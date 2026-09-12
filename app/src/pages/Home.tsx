@@ -11,6 +11,7 @@ import HeroFeaturedBooks from '@/components/HeroFeaturedBooks';
 import PublishedByTechnoWorld from '@/components/PublishedByTechnoWorld';
 import StudyGuides from '@/components/StudyGuides';
 import PromoBanners from '@/components/PromoBanners';
+import GoogleReviewsAndMap from '@/components/GoogleReviewsAndMap';
 import { useAutoFeaturedBooks } from '@/hooks/useAutoFeaturedBooks';
 import { SEARCH_SUGGESTIONS } from '@/data/constants';
 import SEOHead, { buildWebsiteJsonLd } from '@/components/SEOHead';
@@ -815,6 +816,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* GOOGLE REVIEWS & PHYSICAL STORE MAP */}
+      <GoogleReviewsAndMap />
     </div>
   );
 }

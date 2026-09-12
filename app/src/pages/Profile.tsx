@@ -56,6 +56,8 @@ export default function Profile() {
   // Edit Profile State
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
+  const [avatarError, setAvatarError] = useState(false);
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
 
   // Address Modals & State
@@ -121,6 +123,8 @@ export default function Profile() {
         setProfileData(res.data);
         setName(res.data.name || '');
         setPhone(res.data.phone || '');
+        setAvatarUrl(res.data.avatarUrl || '');
+        setAvatarError(false);
         setAddresses(res.data.addresses || []);
         setPaymentMethods(res.data.savedPaymentMethods || []);
       }
@@ -218,10 +222,15 @@ export default function Profile() {
 
     setIsUpdatingProfile(true);
     try {
-      const res = await profileService.updateProfile({ name, phone: phone || null });
+      const res = await profileService.updateProfile({
+        name,
+        phone: phone || null,
+        avatarUrl: avatarUrl.trim() ? avatarUrl.trim() : null,
+      });
       if (res.success) {
         toast.success('Profile updated successfully!');
         setProfileData((prev: any) => ({ ...prev, ...res.data }));
+        setAvatarError(false);
       }
     } catch (err: any) {
       toast.error(err.message || 'Failed to update profile');
@@ -372,76 +381,114 @@ export default function Profile() {
 
   const technoPoints = profileData?.technoPoints || 0;
   const technoWallet = Number(profileData?.technoWallet ?? pointsData?.technoWallet ?? 0);
-  // pending points ready for return period tracking
-  // const pendingPoints = profileData?.pendingPoints || 0;
+  const displayName = profileData?.name || storeUser?.name || (profileData?.email ? profileData.email.split('@')[0] : 'Reader');
+  const userInitials = displayName
+    .split(' ')
+    .filter(Boolean)
+    .map((part: string) => part[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase() || 'U';
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 font-sans">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        {/* Top Profile Banner with Loyalty Badge */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-950 via-slate-900 to-emerald-900 p-8 text-white shadow-xl">
-          {/* Subtle Background Art */}
-          <div className="absolute -right-10 -bottom-10 h-64 w-64 rounded-full bg-emerald-500/10 blur-3xl" />
-          <div className="absolute top-0 right-1/4 h-32 w-32 rounded-full bg-amber-400/10 blur-2xl" />
+    <div className="min-h-screen bg-slate-50 py-6 sm:py-10 font-sans">
+      <div className="mx-auto max-w-6xl px-3 sm:px-6">
+        {/* Top Profile Banner with Loyalty Badge & Elevated Aesthetics */}
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#041a12] via-[#09261a] to-[#03130d] p-4 sm:p-7 lg:p-8 text-white shadow-2xl border border-emerald-500/20">
+          {/* Subtle Ambient Lights */}
+          <div className="absolute -right-16 -top-16 h-72 w-72 rounded-full bg-emerald-500/15 blur-3xl pointer-events-none" />
+          <div className="absolute -left-16 -bottom-16 h-72 w-72 rounded-full bg-teal-500/10 blur-3xl pointer-events-none" />
+          <div className="absolute top-1/2 right-1/4 h-40 w-40 rounded-full bg-amber-400/10 blur-2xl pointer-events-none" />
 
-          <div className="relative z-10 flex flex-wrap items-center justify-between gap-6">
-            <div className="flex items-center gap-5">
-              <div className="relative h-20 w-20 overflow-hidden rounded-2xl border-2 border-emerald-400/40 bg-emerald-800 shadow-md flex items-center justify-center text-2xl font-black text-amber-300">
-                {profileData?.avatarUrl ? (
-                  <img src={profileData.avatarUrl} alt={profileData.name} className="h-full w-full object-cover" />
+          <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-5 lg:gap-6">
+            {/* User Identity Column */}
+            <div className="flex flex-col sm:flex-row items-center text-center sm:text-left gap-4 sm:gap-5 w-full lg:w-auto min-w-0">
+              {/* Always-Round Avatar */}
+              <div className="relative h-20 w-20 sm:h-22 sm:w-22 shrink-0 rounded-full border-[3px] border-emerald-400/50 shadow-[0_10px_25px_rgba(0,0,0,0.3)] ring-4 ring-emerald-500/20 overflow-hidden bg-gradient-to-br from-emerald-700 via-emerald-800 to-slate-950 flex items-center justify-center">
+                {profileData?.avatarUrl && !avatarError ? (
+                  <img
+                    src={profileData.avatarUrl}
+                    alt={displayName}
+                    referrerPolicy="no-referrer"
+                    onError={() => setAvatarError(true)}
+                    className="h-full w-full object-cover rounded-full"
+                  />
                 ) : (
-                  profileData?.name?.[0]?.toUpperCase() || 'U'
+                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-600 via-emerald-800 to-teal-950 font-black text-amber-300 text-2xl sm:text-3xl tracking-wider select-none">
+                    {userInitials}
+                  </div>
                 )}
+                {/* Verified Green Badge on Avatar */}
+                <div
+                  className="absolute bottom-0 right-0 h-6 w-6 rounded-full bg-emerald-500 border-2 border-slate-950 flex items-center justify-center text-slate-950 shadow-md"
+                  title="Verified Account"
+                >
+                  <CheckCircle2 className="h-3.5 w-3.5 text-white" />
+                </div>
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h1 className="text-2xl font-black tracking-tight text-white">{profileData?.name || 'Reader'}</h1>
-                  <span className="rounded-full bg-emerald-500/20 border border-emerald-400/30 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-emerald-300">
+
+              {/* Name & Credentials Info */}
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-white truncate max-w-[280px] sm:max-w-md">
+                    {displayName}
+                  </h1>
+                  <span className="rounded-full bg-emerald-500/20 border border-emerald-400/40 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-emerald-300 inline-flex items-center gap-1 shadow-xs shrink-0">
+                    <CheckCircle2 className="h-3 w-3 text-emerald-400" />
                     Verified Customer
                   </span>
                 </div>
-                <p className="text-xs font-medium text-emerald-200 mt-1 flex items-center gap-3">
-                  <span><Mail className="inline h-3.5 w-3.5 mr-1" />{profileData?.email}</span>
-                  {profileData?.phone && <span><Phone className="inline h-3.5 w-3.5 mr-1" />+91 {profileData.phone}</span>}
-                </p>
+                <div className="text-xs font-medium text-emerald-200/90 mt-1.5 flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3">
+                  <span className="inline-flex items-center gap-1.5 bg-white/5 border border-white/10 px-2.5 py-1 rounded-lg">
+                    <Mail className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                    <span className="truncate max-w-[200px] sm:max-w-none">{profileData?.email || storeUser?.email || 'No email attached'}</span>
+                  </span>
+                  {profileData?.phone && (
+                    <span className="inline-flex items-center gap-1.5 bg-white/5 border border-white/10 px-2.5 py-1 rounded-lg">
+                      <Phone className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                      <span>+91 {profileData.phone}</span>
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
 
-            {/* Wallet & Loyalty Cards */}
-            <div className="flex flex-wrap items-center gap-3">
+            {/* Wallet & Loyalty Cards (2-column on mobile, side-by-side flex on desktop) */}
+            <div className="grid grid-cols-2 gap-2.5 w-full mt-2 lg:mt-0 lg:flex lg:w-auto shrink-0">
               {/* TechnoWallet Cash Balance Card */}
-              <div className="flex items-center gap-3.5 rounded-2xl bg-emerald-900/50 backdrop-blur-md border border-emerald-400/30 p-3.5 shadow-lg">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-400 text-slate-950 shadow">
-                  <Wallet className="h-5 w-5" />
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2.5 sm:gap-3 rounded-2xl bg-gradient-to-br from-emerald-950/80 via-emerald-900/50 to-slate-900/80 border border-emerald-400/30 p-3 sm:p-3.5 shadow-lg shadow-emerald-950/40 hover:border-emerald-400/60 transition-all">
+                <div className="flex h-9 w-9 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-500 text-slate-950 shadow-md">
+                  <Wallet className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-xl font-black text-emerald-300">₹{technoWallet.toFixed(2)}</span>
-                    <span className="text-[11px] font-extrabold text-emerald-200 uppercase tracking-wider">TechnoWallet</span>
+                    <span className="text-lg sm:text-xl font-black text-emerald-300">₹{technoWallet.toFixed(2)}</span>
+                    <span className="text-[10px] sm:text-[11px] font-extrabold text-emerald-200 uppercase tracking-wider">Wallet</span>
                   </div>
-                  <p className="text-[10px] text-slate-300">
-                    Cash Balance &bull; <b className="text-emerald-200">No Expiry</b> &bull; 100% Usable
+                  <p className="text-[10px] text-slate-300 mt-0.5 leading-tight">
+                    Cash Balance &bull; <b className="text-emerald-300">No Expiry</b>
                   </p>
                 </div>
               </div>
 
-              {/* Loyalty Techno Points Card */}
-              <div className="flex items-center gap-3.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 p-3.5 shadow-lg">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-400 text-slate-900 shadow">
-                  <Coins className="h-5 w-5" />
+              {/* Loyalty Techno Coins Card */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2.5 sm:gap-3 rounded-2xl bg-gradient-to-br from-amber-950/50 via-slate-900/70 to-emerald-950/50 border border-amber-400/30 p-3 sm:p-3.5 shadow-lg shadow-black/30 hover:border-amber-400/60 transition-all relative">
+                <div className="flex h-9 w-9 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-amber-500 text-slate-950 shadow-md">
+                  <Coins className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-xl font-black text-amber-300">{technoPoints}</span>
-                    <span className="text-[11px] font-bold text-amber-200 uppercase tracking-wider">Techno Coins</span>
+                    <span className="text-lg sm:text-xl font-black text-amber-300">{technoPoints}</span>
+                    <span className="text-[10px] sm:text-[11px] font-extrabold text-amber-200 uppercase tracking-wider">Coins</span>
                   </div>
-                  <p className="text-[10px] text-slate-300">
-                    Worth <b>₹{technoPoints}.00</b> &bull; 1-Yr Expiry
+                  <p className="text-[10px] text-slate-300 mt-0.5 leading-tight">
+                    Worth <b>₹{technoPoints}.00</b> &bull; 1-Yr Exp
                   </p>
                 </div>
                 <button
                   onClick={() => setIsTermsModalOpen(true)}
-                  className="ml-1 rounded-lg bg-white/15 p-1 text-slate-300 hover:text-white hover:bg-white/25"
+                  type="button"
+                  className="hidden sm:grid ml-auto h-6 w-6 place-items-center rounded-lg bg-white/10 text-slate-300 hover:text-white hover:bg-white/20 transition-colors shrink-0"
                   title="View Techno Points Terms & Expiry"
                 >
                   <HelpCircle className="h-3.5 w-3.5" />
@@ -450,35 +497,56 @@ export default function Profile() {
             </div>
           </div>
 
-          {/* Navigation Tabs */}
-          <div className="mt-8 flex flex-wrap gap-2 border-t border-white/10 pt-4">
-            {[
-              { id: 'orders', label: `My Orders (${userOrders.length})`, icon: ShoppingCart },
-              { id: 'notifications', label: `Alerts & Notices (${userNotifs.filter(n => !n.isRead).length > 0 ? `${userNotifs.filter(n => !n.isRead).length} New` : userNotifs.length})`, icon: Bell, badge: userNotifs.filter(n => !n.isRead).length },
-              { id: 'profile', label: 'Personal Info', icon: UserIcon },
-              { id: 'addresses', label: `Addresses (${addresses.length})`, icon: MapPin },
-              { id: 'points', label: `Wallet & Coins (₹${(technoWallet + technoPoints).toFixed(0)})`, icon: Wallet },
-              { id: 'payments', label: 'Saved Payments', icon: CreditCard },
-            ].map((tab: any) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all ${
-                  activeTab === tab.id
-                    ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
-                    : 'text-slate-300 hover:bg-white/10 hover:text-white'
-                }`}
-              >
-                <tab.icon className="h-4 w-4" />
-                {tab.label}
-              </button>
-            ))}
+          {/* Navigation Tabs (Smooth Horizontal Scroll on Mobile, Full Bar on Desktop) */}
+          <div className="mt-6 sm:mt-8 flex items-center justify-between gap-2 border-t border-white/10 pt-4">
+            <div className="flex flex-1 items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {[
+                { id: 'orders', label: 'My Orders', count: userOrders.length, icon: ShoppingCart },
+                { id: 'notifications', label: 'Alerts & Notices', count: userNotifs.filter(n => !n.isRead).length > 0 ? `${userNotifs.filter(n => !n.isRead).length} New` : null, icon: Bell, isNew: userNotifs.filter(n => !n.isRead).length > 0 },
+                { id: 'profile', label: 'Personal Info', count: null, icon: UserIcon },
+                { id: 'addresses', label: 'Addresses', count: addresses.length, icon: MapPin },
+                { id: 'points', label: 'Wallet & Coins', count: `₹${(technoWallet + technoPoints).toFixed(0)}`, icon: Wallet },
+                { id: 'payments', label: 'Saved Payments', count: null, icon: CreditCard },
+              ].map((tab: any) => {
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActiveTab(tab.id as any)}
+                    className={`group flex items-center gap-1.5 sm:gap-2 whitespace-nowrap rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 text-xs font-bold transition-all duration-200 shrink-0 select-none ${
+                      isActive
+                        ? 'bg-emerald-400 text-slate-950 shadow-md shadow-emerald-500/25 ring-1 ring-emerald-300/60 scale-[1.02]'
+                        : 'text-slate-300 hover:text-white hover:bg-white/10 active:scale-95'
+                    }`}
+                  >
+                    <tab.icon className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${isActive ? 'text-slate-950' : 'text-emerald-300 group-hover:text-emerald-200'}`} />
+                    <span>{tab.label}</span>
+                    {tab.count !== null && tab.count !== undefined && (
+                      <span
+                        className={`ml-1 rounded-full px-1.5 py-0.2 text-[10px] font-extrabold ${
+                          isActive
+                            ? 'bg-slate-950/20 text-slate-950'
+                            : tab.isNew
+                            ? 'bg-amber-400 text-slate-950 font-black'
+                            : 'bg-white/10 text-emerald-300'
+                        }`}
+                      >
+                        {tab.count}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
 
             <button
               onClick={handleLogout}
-              className="ml-auto flex items-center gap-1.5 rounded-xl bg-rose-500/20 border border-rose-400/30 px-3.5 py-2 text-xs font-bold text-rose-300 hover:bg-rose-500/30 transition-colors"
+              type="button"
+              className="shrink-0 flex items-center gap-1.5 whitespace-nowrap rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-400/30 px-3 sm:px-4 py-2 sm:py-2.5 text-xs font-bold text-rose-300 hover:text-white transition-all shadow-sm active:scale-95"
             >
-              <LogOut className="h-3.5 w-3.5" /> Sign Out
+              <LogOut className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Sign Out</span>
             </button>
           </div>
         </div>
@@ -1061,19 +1129,65 @@ export default function Profile() {
 
           {/* 1. Personal Information Tab */}
           {activeTab === 'profile' && (
-            <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
               <div className="max-w-xl">
-                <h2 className="text-lg font-extrabold text-slate-900">Personal Information</h2>
-                <p className="text-xs text-slate-500 mt-0.5">Manage your display name and contact phone number.</p>
+                <h2 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                  <UserIcon className="h-5 w-5 text-emerald-700" /> Personal Information
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">Manage your profile photo, display name, and contact details.</p>
 
                 <form onSubmit={handleUpdateProfile} className="mt-6 space-y-5">
+                  {/* Round Profile Photo Field */}
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Profile Photo</label>
+                    <div className="flex items-center gap-4">
+                      <div className="relative h-16 w-16 rounded-full overflow-hidden border-2 border-emerald-500/40 bg-gradient-to-br from-emerald-700 via-emerald-800 to-slate-950 flex items-center justify-center shrink-0 shadow-md ring-2 ring-emerald-500/20 text-amber-300 font-black text-xl select-none">
+                        {avatarUrl && !avatarError ? (
+                          <img
+                            src={avatarUrl}
+                            alt="Preview"
+                            referrerPolicy="no-referrer"
+                            onError={() => setAvatarError(true)}
+                            className="h-full w-full object-cover rounded-full"
+                          />
+                        ) : (
+                          userInitials
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <input
+                          type="url"
+                          value={avatarUrl}
+                          onChange={(e) => {
+                            setAvatarUrl(e.target.value);
+                            setAvatarError(false);
+                          }}
+                          placeholder="Paste image URL (e.g. Google profile, gravatar)"
+                          className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-xs font-medium text-slate-800 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                        />
+                        <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                          {avatarUrl && (
+                            <button
+                              type="button"
+                              onClick={() => { setAvatarUrl(''); setAvatarError(false); }}
+                              className="text-[11px] font-bold text-rose-600 hover:text-rose-700 underline"
+                            >
+                              Remove Photo (Use Initials)
+                            </button>
+                          )}
+                          <span className="text-[11px] text-slate-400">Photo will always be framed as a perfect circle.</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Full Name</label>
                     <input
                       type="text"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-800 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                      className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                       required
                     />
                   </div>
@@ -1084,7 +1198,7 @@ export default function Profile() {
                       type="email"
                       value={profileData?.email || ''}
                       disabled
-                      className="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-500 cursor-not-allowed"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-500 cursor-not-allowed"
                     />
                     <span className="text-[11px] text-slate-400 mt-1 block">Email is permanently linked to your verified authentication credentials.</span>
                   </div>
@@ -1092,13 +1206,13 @@ export default function Profile() {
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">10-Digit Mobile Number</label>
                     <div className="flex items-center rounded-xl border border-slate-300 bg-white overflow-hidden focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/20">
-                      <span className="bg-slate-100 px-3.5 py-3 text-xs font-bold text-slate-600 border-r border-slate-200">+91</span>
+                      <span className="bg-slate-100 px-3.5 py-2.5 text-xs font-bold text-slate-600 border-r border-slate-200">+91</span>
                       <input
                         type="text"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                         placeholder="Enter mobile number"
-                        className="w-full px-4 py-3 text-sm font-semibold text-slate-800 outline-none"
+                        className="w-full px-4 py-2.5 text-sm font-semibold text-slate-800 outline-none"
                       />
                     </div>
                   </div>
@@ -1106,7 +1220,7 @@ export default function Profile() {
                   <button
                     type="submit"
                     disabled={isUpdatingProfile}
-                    className="flex items-center gap-2 rounded-xl bg-emerald-700 px-6 py-3 text-xs font-bold text-white hover:bg-emerald-800 shadow-md transition-all disabled:opacity-50"
+                    className="flex items-center gap-2 rounded-xl bg-emerald-700 px-6 py-2.5 text-xs font-bold text-white hover:bg-emerald-800 shadow-md transition-all disabled:opacity-50"
                   >
                     {isUpdatingProfile ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
                     Save Changes

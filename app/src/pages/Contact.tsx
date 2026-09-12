@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { contactService } from '@/services/api';
 import { useStore } from '@/store/StoreContext';
 import { CmsText } from '@/components/common/CmsText';
+import GoogleReviewsAndMap from '@/components/GoogleReviewsAndMap';
 
 export default function Contact() {
   const [searchParams] = useSearchParams();
@@ -292,6 +293,11 @@ export default function Contact() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Flagship Store Map & 16,000+ Google Reviews */}
+      <div className="mt-8 border-t border-slate-200/80">
+        <GoogleReviewsAndMap />
       </div>
     </div>
   );

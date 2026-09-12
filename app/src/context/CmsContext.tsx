@@ -37,6 +37,10 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (cmsEditParam || isEmbedded) {
         setIsEditMode(true);
       }
+      if (isEmbedded && window.parent) {
+        // Handshake: tell parent editor that the live preview iframe is ready
+        window.parent.postMessage({ type: 'TW_CMS_IFRAME_READY' }, '*');
+      }
     }
   }, []);
 
@@ -85,12 +89,16 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       } else if (data.type === 'TW_CMS_SELECT_KEY') {
         setSelectedKey(data.key || null);
         if (data.key) {
-          setTimeout(() => {
-            const el = document.querySelector(`[data-cms-key="${data.key}"]`);
+          const tryScroll = (attemptsLeft = 8) => {
+            const el = document.querySelector(`[data-cms-key="${data.key}"]`) as HTMLElement | null;
             if (el) {
-              el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+            } else if (attemptsLeft > 0) {
+              setTimeout(() => tryScroll(attemptsLeft - 1), 120);
             }
-          }, 100);
+          };
+          // Try immediately, then retry if dynamic content is settling
+          tryScroll();
         }
       } else if (data.type === 'TW_CMS_FORCE_EDIT_MODE') {
         setIsEditMode(Boolean(data.enabled));

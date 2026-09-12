@@ -50,6 +50,8 @@ export const CmsText: React.FC<CmsTextProps> = ({
     return (
       <Component
         ref={containerRef}
+        data-cms-key={contentKey}
+        data-cms-label={friendlyLabel}
         className={className}
         style={{
           ...mergedStyle,
@@ -82,7 +84,7 @@ export const CmsText: React.FC<CmsTextProps> = ({
       onMouseLeave={() => setIsHovered(false)}
       className={`relative inline-block transition-all duration-150 cursor-pointer ${className} ${
         isSelected
-          ? 'outline-2 outline-emerald-500 outline-dashed bg-emerald-500/10 rounded px-1'
+          ? 'outline-2 outline-emerald-500 outline-dashed bg-emerald-500/15 rounded px-1.5 ring-4 ring-emerald-500/25 shadow-md'
           : isHovered
           ? 'outline-2 outline-cyan-400 outline-dashed bg-cyan-400/10 rounded px-1'
           : 'hover:outline-1 hover:outline-cyan-400/70 hover:outline-dashed'

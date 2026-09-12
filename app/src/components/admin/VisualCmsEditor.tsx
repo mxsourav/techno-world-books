@@ -61,6 +61,11 @@ const REGISTERED_CMS_KEYS: EditableKeyInfo[] = [
   { key: 'home.exam_zone_title', label: 'Exam Zone Heading', section: 'Homepage Highlights', defaultText: 'NEET · JEE · UPSC · GATE · SSC — all prep books in one place', page: '/' },
   { key: 'home.exam_zone_desc', label: 'Exam Zone Subtitle', section: 'Homepage Highlights', defaultText: "Previous year papers, toppers' booklists and combo packs at the best prices.", page: '/' },
 
+  // Special Offer Floating Popup (page '/')
+  { key: 'popup.badge', label: 'Offer Popup Badge', section: 'Floating Special Offer', defaultText: 'Special offer', page: '/' },
+  { key: 'popup.headline', label: 'Offer Popup Headline', section: 'Floating Special Offer', defaultText: 'Book sale · Up to 60% off', page: '/' },
+  { key: 'popup.subtext', label: 'Offer Popup Subtext', section: 'Floating Special Offer', defaultText: 'Find your next favourite read.', multiline: true, page: '/' },
+
   // Homepage Book Sections (page '/')
   { key: 'home.section_recommended', label: 'Recommended Section Title', section: 'Homepage Book Sections', defaultText: 'Recommended For You', page: '/' },
   { key: 'home.section_competitive', label: 'Competitive Exam Section Title', section: 'Homepage Book Sections', defaultText: 'Competitive Exam Books', page: '/' },
@@ -143,7 +148,10 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
       const data = event.data;
       if (!data || typeof data !== 'object') return;
 
-      if (data.type === 'TW_CMS_ELEMENT_CLICKED' && data.key) {
+      if (data.type === 'TW_CMS_IFRAME_READY') {
+        // Iframe mounted and ready: push draft state and selection
+        handleIframeLoad();
+      } else if (data.type === 'TW_CMS_ELEMENT_CLICKED' && data.key) {
         setSelectedKey(data.key);
         if (isInspectorCollapsed) {
           setIsInspectorCollapsed(false);
@@ -171,6 +179,12 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, [isInspectorCollapsed]);
+
+  // Track latest selected key in a ref for iframe load handshakes
+  const selectedKeyRef = useRef(selectedKey);
+  useEffect(() => {
+    selectedKeyRef.current = selectedKey;
+  }, [selectedKey]);
 
   // Determine storefront preview base URL (points to local storefront on port 3000 during dev, or live domain in production)
   const previewOrigin = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
@@ -223,32 +237,44 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
       }
     });
 
-    if (selectedKey) {
-      iframeRef.current.contentWindow.postMessage(
-        {
-          type: 'TW_CMS_SELECT_KEY',
-          key: selectedKey,
-        },
-        '*'
-      );
+    const targetKey = selectedKeyRef.current || selectedKey;
+    if (targetKey) {
+      const sendKey = () => {
+        iframeRef.current?.contentWindow?.postMessage(
+          {
+            type: 'TW_CMS_SELECT_KEY',
+            key: targetKey,
+          },
+          '*'
+        );
+      };
+      sendKey();
+      setTimeout(sendKey, 150);
+      setTimeout(sendKey, 400);
     }
   };
 
   // Selection from directory: auto-switches page if necessary and sends scroll & highlight command
   const handleSelectKeyFromDirectory = (item: EditableKeyInfo) => {
     setSelectedKey(item.key);
+    selectedKeyRef.current = item.key;
 
     if (item.page && selectedPage !== item.page) {
       setSelectedPage(item.page);
       setIframeKey(Date.now());
     } else {
-      iframeRef.current?.contentWindow?.postMessage(
-        {
-          type: 'TW_CMS_SELECT_KEY',
-          key: item.key,
-        },
-        '*'
-      );
+      const sendSelect = () => {
+        iframeRef.current?.contentWindow?.postMessage(
+          {
+            type: 'TW_CMS_SELECT_KEY',
+            key: item.key,
+          },
+          '*'
+        );
+      };
+      sendSelect();
+      setTimeout(sendSelect, 100);
+      setTimeout(sendSelect, 300);
     }
   };
 
@@ -441,7 +467,7 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
   const activeMaxWidthRaw = selectedKey ? (content[`${selectedKey}__maxWidth`] || '') : '';
   const activeMaxWidthNum = parseInt(activeMaxWidthRaw, 10) || 0;
 
-  // Apple Liquid Glass Styling Tokens with Crisp High-Contrast Dark Mode
+  // Frosted Glass Styling Tokens with Crisp High-Contrast Dark Mode
   const isDark = themeMode === 'macos-dark';
   const isIos = themeMode === 'ios-light';
 
@@ -484,7 +510,7 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
           : 'h-[calc(100vh-80px)] min-h-[660px]'
       } ${themeClasses.root} ${themeClasses.frameBorder}`}
     >
-      {/* Apple Liquid Glass Titlebar & Toolbar */}
+      {/* Frosted Glass Titlebar & Toolbar */}
       <div className={`flex flex-wrap items-center justify-between gap-3 px-5 py-3 ${themeClasses.header} select-none shrink-0`}>
         {/* Left: macOS Traffic Light Dots & Title */}
         <div className="flex items-center gap-4">
@@ -524,7 +550,7 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
               <div className="flex items-center gap-1.5">
                 <span className="text-xs font-black tracking-tight text-slate-900 dark:text-white">Visual CMS Studio</span>
                 <span className="text-[9px] px-1.5 py-0.2 rounded-full font-bold uppercase tracking-wider bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/20">
-                  Liquid Glass 27
+                  Frosted Acrylic 27
                 </span>
               </div>
               <span className="text-[10px] text-slate-500 dark:text-zinc-300 flex items-center gap-1">
@@ -649,7 +675,7 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
       <div className="flex-1 flex overflow-hidden relative">
         {/* Center / Left: Interactive Live Preview Canvas */}
         <div className={`flex-1 ${themeClasses.canvasBg} p-4 sm:p-6 flex flex-col items-center justify-start overflow-auto relative select-none`}>
-          {/* Instruction banner in Apple Liquid Glass pill */}
+          {/* Instruction banner in Frosted Glass pill */}
           <div className="mb-3 px-4 py-1.5 rounded-full bg-white/80 dark:bg-zinc-900/90 backdrop-blur-xl border border-white/60 dark:border-zinc-700 text-[11px] font-medium text-slate-700 dark:text-zinc-200 shadow-sm flex items-center gap-2 shrink-0">
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>Select any element in the directory to auto-highlight and scroll to it · Drag handles to resize</span>

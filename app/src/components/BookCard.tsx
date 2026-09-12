@@ -120,6 +120,10 @@ export function BookRow({
     const el = scrollRef.current;
     if (!el) return;
 
+    // Only apply mouse-wheel horizontal scrolling on laptop/desktop with a fine mouse pointer
+    const isDesktopPointer = typeof window !== 'undefined' && window.matchMedia('(pointer: fine)').matches && window.innerWidth >= 1024;
+    if (!isDesktopPointer) return;
+
     const handleWheel = (e: WheelEvent) => {
       // If user is already scrolling horizontally (trackpad swipe with large deltaX), let native behavior handle it
       if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
@@ -166,7 +170,8 @@ export function BookRow({
       </div>
       <div 
         ref={scrollRef}
-        className="flex gap-3 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:thin]"
+        className="flex gap-3 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:thin] touch-pan-x"
+        style={{ WebkitOverflowScrolling: 'touch' }}
       >
         {loading
           ? Array.from({ length: 6 }).map((_, i) => <BookCardSkeleton key={i} />)

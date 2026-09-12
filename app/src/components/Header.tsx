@@ -308,27 +308,27 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
   return (
     <div ref={ref} id={id} className={`relative ${className}`}>
       <div className="flex items-stretch rounded-full bg-white border-[4px] border-white shadow-sm h-full w-full min-h-[48px]">
-        <div className="flex-1 flex items-center bg-transparent pl-1 sm:pl-4">
-          <Search className="h-4 w-4 shrink-0 text-slate-400" />
+        <div className="flex-1 flex items-center bg-transparent pl-2 sm:pl-3 lg:pl-4 min-w-0 lg:min-w-[420px]">
+          <Search className="h-4 w-4 lg:h-5 lg:w-5 shrink-0 text-slate-400" />
           <input
             value={q}
             autoFocus={autoFocus}
             onChange={(e) => { setQ(e.target.value); setOpen(true); }}
-            onFocus={() => setOpen(true)}
+            onFocus={() => { if (q.trim().length > 1) setOpen(true); }}
             onKeyDown={(e) => e.key === 'Enter' && submit()}
             placeholder="Search by title, author, ISBN, exam, university…"
-            className="w-full bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400 self-stretch px-0 sm:px-3 pl-2"
+            className="w-full bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400 self-stretch px-2 lg:px-3"
           />
-          <button onClick={voice} aria-label="Voice search" className="shrink-0 text-slate-400 hover:text-emerald-700 mx-2">
-            <Mic className="h-5 w-5" />
+          <button onClick={voice} aria-label="Voice search" className="shrink-0 text-slate-400 hover:text-emerald-700 mx-1.5 lg:mx-2">
+            <Mic className="h-4 w-4 lg:h-5 lg:w-5" />
           </button>
         </div>
-        <button onClick={() => submit()} className="flex shrink-0 items-center justify-center px-2 bg-[#0a2e1f] text-white hover:bg-emerald-800 transition-colors rounded-r-full">
-          <Search className="h-5 w-5" />
+        <button onClick={() => submit()} className="flex shrink-0 items-center justify-center px-3 sm:px-4 lg:px-8 bg-[#0a2e1f] text-white hover:bg-emerald-800 transition-colors rounded-r-full">
+          <Search className="h-4 w-4 lg:h-5 lg:w-5" />
         </button>
       </div>
-      {open && (
-        <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-96 overflow-auto rounded-lg border border-slate-100 bg-white py-2 shadow-xl">
+      {open && q.trim().length > 1 && (
+        <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-96 overflow-auto rounded-2xl border border-slate-100 bg-white py-2 shadow-2xl">
           {loading ? (
             <div className="px-4 py-3 text-center text-sm text-slate-500">Loading...</div>
           ) : q.trim().length > 1 && suggestions.length === 0 ? (
@@ -430,9 +430,14 @@ export default function Header() {
       return;
     }
 
-    const observer = new IntersectionObserver(([entry]) => {
-      setIsScrolled(!entry.isIntersecting);
-    });
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsScrolled(!entry.isIntersecting);
+      },
+      {
+        rootMargin: '-90px 0px 0px 0px',
+      }
+    );
     observer.observe(observedElement);
     return () => observer.disconnect();
   }, [pathname]);
@@ -466,8 +471,9 @@ export default function Header() {
             <SheetContent side="left" className="w-80 p-0 flex flex-col h-full max-h-[100dvh] overflow-hidden bg-white">
               {/* Top Branding Strip (Fixed) */}
               <div className="shrink-0 bg-[#0a2e1f] p-4 pr-12 text-white relative">
-                <p className="flex items-center gap-2 font-bold">
-                  <img src="/techno_world.png" alt="Techno World Books Logo" className="h-8 w-auto object-contain brightness-0 invert" />
+                <p className="flex items-center gap-2.5 font-bold">
+                  <img src="/techno_world_circle_white.png" alt="Techno World Books Logo" className="h-8 w-8 object-contain" />
+                  <span className="text-base font-extrabold tracking-wider uppercase text-white">Techno World</span>
                 </p>
                 <p className="mt-1 text-xs text-emerald-200 truncate">{user ? `Hi, ${user.name}` : <CmsText contentKey="header.sub_tagline" defaultText="India ka apna bookstore" label="Header Tagline" />}</p>
               </div>
@@ -510,13 +516,62 @@ export default function Header() {
             </SheetContent>
           </Sheet>
 
-          <Link to="/" className="hidden shrink-0 items-center gap-2 md:flex">
-            <img src="/techno_world.png" alt="Techno World Books Logo" className="h-8 sm:h-[56px] w-auto object-contain brightness-0 invert" />
+          {/* Desktop Brand Anchor: Always visible on desktop on the left */}
+          <Link
+            to="/"
+            className="hidden shrink-0 items-center gap-2 md:flex"
+          >
+            <img
+              src="/techno_world_black.png"
+              alt="Techno World Books Logo"
+              className="h-8 sm:h-[50px] w-auto object-contain brightness-0 invert"
+            />
           </Link>
         </div>
 
-        {/* Sticky Search Bar (Expands Left-to-Right because Right side has ml-auto) */}
-        <div className={`block transition-all duration-500 ease-in-out overflow-hidden mx-2 sm:mx-4 ${isScrolled ? 'flex-1 max-w-2xl opacity-100' : 'flex-none max-w-0 opacity-0'}`}>
+        {/* Mobile Center Zone: Mobile Logo (!isScrolled) and Mobile Sticky Search Bar (isScrolled) */}
+        <div className="md:hidden flex-1 flex items-center justify-center min-w-0 mx-2 relative h-10">
+          {/* Mobile-Only Center Brand Logo (Active when !isScrolled at top of homepage) */}
+          <div
+            className={`transition-all duration-300 ease-in-out flex items-center justify-center ${
+              !isScrolled
+                ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
+                : 'opacity-0 scale-90 -translate-y-2 pointer-events-none absolute inset-0'
+            }`}
+          >
+            <Link
+              to="/"
+              aria-label="Techno World Books Home"
+              className="flex items-center justify-center"
+            >
+              <img
+                src="/techno_world_black.png"
+                alt="Techno World Books Logo"
+                className="h-7 sm:h-8 w-auto max-w-[200px] object-contain brightness-0 invert drop-shadow-sm"
+              />
+            </Link>
+          </div>
+
+          {/* Mobile Sticky Search Bar (Active when isScrolled on mobile) */}
+          <div
+            className={`w-full transition-all duration-300 ease-in-out ${
+              isScrolled
+                ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
+                : 'opacity-0 scale-95 translate-y-2 pointer-events-none absolute inset-0 flex items-center justify-center'
+            }`}
+          >
+            <SearchBar className="w-full rounded-full shadow-[0_12px_35px_rgba(0,0,0,0.6)] border-none ring-0" />
+          </div>
+        </div>
+
+        {/* Desktop Sticky Search Bar (Expands Left-to-Right from round shape into pill on scroll) */}
+        <div
+          className={`hidden md:block rounded-full transition-all duration-500 ease-in-out overflow-hidden origin-left ${
+            isScrolled
+              ? 'flex-1 max-w-2xl opacity-100 mx-2 lg:mx-4 pointer-events-auto'
+              : 'flex-none max-w-0 opacity-0 pointer-events-none mx-0'
+          }`}
+        >
           <SearchBar className="w-full rounded-full shadow-[0_12px_35px_rgba(0,0,0,0.6)] border-none ring-0" />
         </div>
         
@@ -588,13 +643,13 @@ export default function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {WEBSITE_CATEGORIES.map((c: any) => (
+              {(categories?.length ? categories : WEBSITE_CATEGORIES).map((c: any) => (
                 <Link
-                  key={c.slug}
+                  key={c.slug || c.id}
                   to={`/category/${c.slug}`}
                   className="whitespace-nowrap rounded-full px-2 lg:px-2.5 py-0.5 text-xs text-emerald-100 transition hover:bg-white/10 hover:text-white shrink-0"
                 >
-                  {c.name.replace(' Books', '')}
+                  {(c.name || '').replace(' Books', '')}
                 </Link>
               ))}
             </div>
