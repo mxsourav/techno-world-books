@@ -287,9 +287,13 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const onClick = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
+    const onClick = (e: Event) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
     document.addEventListener('mousedown', onClick);
-    return () => document.removeEventListener('mousedown', onClick);
+    document.addEventListener('touchstart', onClick);
+    return () => {
+      document.removeEventListener('mousedown', onClick);
+      document.removeEventListener('touchstart', onClick);
+    };
   }, []);
 
   useEffect(() => {
@@ -339,7 +343,7 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
             value={q}
             autoFocus={autoFocus}
             onChange={(e) => { setQ(e.target.value); setOpen(true); }}
-            onFocus={() => { if (q.trim().length > 1) setOpen(true); }}
+            onFocus={() => setOpen(true)}
             onKeyDown={(e) => e.key === 'Enter' && submit()}
             placeholder="Search by title, author, ISBN, exam, university…"
             className="w-full bg-transparent text-xs sm:text-sm text-slate-800 outline-none placeholder:text-slate-400 self-stretch px-2.5 sm:px-3"
@@ -352,47 +356,49 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
           <Search className="h-4 w-4" />
         </button>
       </div>
-      {open && q.trim().length > 1 && (
-        <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-96 overflow-auto rounded-2xl border border-slate-100 bg-white py-2 shadow-2xl">
-          {loading ? (
-            <div className="px-4 py-3 text-center text-sm text-slate-500">Loading...</div>
-          ) : q.trim().length > 1 && suggestions.length === 0 ? (
-            <div className="px-4 py-3 text-center text-sm text-slate-500">No books found</div>
-          ) : suggestions.length > 0 ? (
-            suggestions.map((b) => (
-              <button
-                key={b.id}
-                onClick={() => { addSearchToHistory(b.title); setOpen(false); setQ(''); navigate(`/book/${b.slug}`); }}
-                className="flex w-full items-start gap-3 px-4 py-2.5 text-left hover:bg-emerald-50"
-              >
-                <BookOpen className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-semibold text-slate-800">{b.title}</span>
-                  <span className="block truncate text-xs text-slate-500">{b.author} • {b.category}</span>
-                </span>
-              </button>
-            )).concat(
-              Array.from(new Set(suggestions.map(b => b.author))).map(author => (
-                <button
-                  key={`author-${author}`}
-                  onClick={() => submit(author)}
-                  className="flex w-full items-center gap-3 px-4 py-2 text-left hover:bg-emerald-50 border-t border-slate-50"
-                >
-                  <User className="h-4 w-4 shrink-0 text-amber-500" />
-                  <span className="truncate text-sm font-medium text-slate-700">Author: {author}</span>
-                </button>
-              ))
-            ).concat(
-              Array.from(new Set(suggestions.map(b => b.category))).map(cat => (
-                <button
-                  key={`cat-${cat}`}
-                  onClick={() => submit(cat)}
-                  className="flex w-full items-center gap-3 px-4 py-2 text-left hover:bg-emerald-50 border-t border-slate-50"
-                >
-                  <Tag className="h-4 w-4 shrink-0 text-blue-500" />
-                  <span className="truncate text-sm font-medium text-slate-700">Category: {cat}</span>
-                </button>
-              ))
+      {open && (
+        <div className="absolute left-0 right-0 top-full z-[60] mt-2 max-h-[calc(100dvh-160px)] sm:max-h-96 overflow-y-auto overscroll-contain rounded-2xl border border-slate-100 bg-white py-2 shadow-2xl">
+          {q.trim().length > 1 ? (
+            loading ? (
+              <div className="px-4 py-3 text-center text-sm text-slate-500">Loading...</div>
+            ) : suggestions.length === 0 ? (
+              <div className="px-4 py-3 text-center text-sm text-slate-500">No books found</div>
+            ) : (
+              <>
+                {suggestions.map((b) => (
+                  <button
+                    key={b.id}
+                    onClick={() => { addSearchToHistory(b.title); setOpen(false); setQ(''); navigate(`/book/${b.slug}`); }}
+                    className="flex w-full items-start gap-3 px-4 py-2.5 text-left hover:bg-emerald-50 transition-colors"
+                  >
+                    <BookOpen className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-semibold text-slate-800">{b.title}</span>
+                      <span className="block truncate text-xs text-slate-500">{b.author} • {b.category}</span>
+                    </span>
+                  </button>
+                ))}
+                {Array.from(new Set(suggestions.map(b => b.author).filter(Boolean))).map(author => (
+                  <button
+                    key={`author-${author}`}
+                    onClick={() => submit(author)}
+                    className="flex w-full items-center gap-3 px-4 py-2 text-left hover:bg-emerald-50 border-t border-slate-50 transition-colors"
+                  >
+                    <User className="h-4 w-4 shrink-0 text-amber-500" />
+                    <span className="truncate text-sm font-medium text-slate-700">Author: {author}</span>
+                  </button>
+                ))}
+                {Array.from(new Set(suggestions.map(b => b.category).filter(Boolean))).map(cat => (
+                  <button
+                    key={`cat-${cat}`}
+                    onClick={() => submit(cat)}
+                    className="flex w-full items-center gap-3 px-4 py-2 text-left hover:bg-emerald-50 border-t border-slate-50 transition-colors"
+                  >
+                    <Tag className="h-4 w-4 shrink-0 text-blue-500" />
+                    <span className="truncate text-sm font-medium text-slate-700">Category: {cat}</span>
+                  </button>
+                ))}
+              </>
             )
           ) : (
             <>
@@ -477,7 +483,7 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-40 w-full max-w-full overflow-x-hidden bg-[#0a2e1f] text-white shadow-md transition-colors duration-300">
+    <header className="sticky top-0 z-40 w-full max-w-full bg-[#0a2e1f] text-white shadow-md transition-colors duration-300">
       {/* top strip */}
       <div className="hidden w-full items-center justify-between gap-4 bg-[#061d13] px-6 py-1.5 text-[11px] text-emerald-200 md:flex">
         <span className="flex items-center gap-1">
@@ -596,10 +602,10 @@ export default function Header() {
 
         {/* Desktop Sticky Search Bar (Expands Left-to-Right from round shape into pill on scroll) */}
         <div
-          className={`hidden md:block rounded-full transition-all duration-500 ease-in-out overflow-hidden origin-left ${
+          className={`hidden md:block rounded-full transition-all duration-500 ease-in-out origin-left ${
             isScrolled
-              ? 'flex-1 max-w-xl lg:max-w-2xl opacity-100 mx-3 lg:mx-6 pointer-events-auto'
-              : 'flex-none max-w-0 opacity-0 pointer-events-none mx-0'
+              ? 'flex-1 max-w-xl lg:max-w-2xl opacity-100 mx-3 lg:mx-6 pointer-events-auto overflow-visible'
+              : 'flex-none max-w-0 opacity-0 pointer-events-none mx-0 overflow-hidden'
           }`}
         >
           <SearchBar className="w-full" />
