@@ -332,9 +332,9 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
 
   return (
     <div ref={ref} id={id} className={`relative ${className}`}>
-      <div className="flex items-stretch rounded-full bg-white border-[4px] border-white shadow-sm h-full w-full min-h-[48px]">
-        <div className="flex-1 flex items-center bg-transparent pl-2 sm:pl-3 lg:pl-4 min-w-0 lg:min-w-[420px]">
-          <Search className="h-4 w-4 lg:h-5 lg:w-5 shrink-0 text-slate-400" />
+      <div className="flex items-stretch rounded-full bg-white shadow-md h-10 sm:h-11 w-full overflow-hidden border border-slate-200/80 hover:border-emerald-500 focus-within:border-emerald-600 transition-colors">
+        <div className="flex-1 flex items-center bg-transparent pl-3 sm:pl-4 min-w-0">
+          <Search className="h-4 w-4 shrink-0 text-slate-400" />
           <input
             value={q}
             autoFocus={autoFocus}
@@ -342,14 +342,14 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
             onFocus={() => { if (q.trim().length > 1) setOpen(true); }}
             onKeyDown={(e) => e.key === 'Enter' && submit()}
             placeholder="Search by title, author, ISBN, exam, university…"
-            className="w-full bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400 self-stretch px-2 lg:px-3"
+            className="w-full bg-transparent text-xs sm:text-sm text-slate-800 outline-none placeholder:text-slate-400 self-stretch px-2.5 sm:px-3"
           />
-          <button onClick={voice} aria-label="Voice search" className="shrink-0 text-slate-400 hover:text-emerald-700 mx-1.5 lg:mx-2">
-            <Mic className="h-4 w-4 lg:h-5 lg:w-5" />
+          <button onClick={voice} aria-label="Voice search" className="shrink-0 text-slate-400 hover:text-emerald-700 mx-1.5 sm:mx-2">
+            <Mic className="h-4 w-4" />
           </button>
         </div>
-        <button onClick={() => submit()} className="flex shrink-0 items-center justify-center px-3 sm:px-4 lg:px-8 bg-[#0a2e1f] text-white hover:bg-emerald-800 transition-colors rounded-r-full">
-          <Search className="h-4 w-4 lg:h-5 lg:w-5" />
+        <button onClick={() => submit()} aria-label="Submit search" className="flex shrink-0 items-center justify-center px-4 sm:px-6 bg-[#0a2e1f] text-white hover:bg-emerald-800 transition-colors">
+          <Search className="h-4 w-4" />
         </button>
       </div>
       {open && q.trim().length > 1 && (
@@ -493,9 +493,9 @@ export default function Header() {
         </div>
       </div>
 
-      <div className="mx-auto flex w-full max-w-7xl min-w-0 items-center px-3 py-3 sm:px-6">
+      <div className="mx-auto flex w-full max-w-7xl min-w-0 items-center px-4 py-2.5 sm:px-6 sm:py-3 gap-3 sm:gap-4 lg:gap-6">
         {/* Mobile header: menu on the left; profile access stays on the right. */}
-        <div className="flex w-auto md:w-[220px] lg:w-[280px] shrink-0 items-center justify-start gap-3 sm:gap-5">
+        <div className="flex w-auto md:w-[220px] lg:w-[260px] shrink-0 items-center justify-start gap-3 sm:gap-5">
           <Sheet>
             <SheetTrigger className="md:hidden" aria-label="Menu"><Menu className="h-6 w-6" /></SheetTrigger>
             <SheetContent side="left" className="w-80 p-0 flex flex-col h-full max-h-[100dvh] overflow-hidden bg-white">
@@ -598,16 +598,16 @@ export default function Header() {
         <div
           className={`hidden md:block rounded-full transition-all duration-500 ease-in-out overflow-hidden origin-left ${
             isScrolled
-              ? 'flex-1 max-w-2xl opacity-100 mx-2 lg:mx-4 pointer-events-auto'
+              ? 'flex-1 max-w-xl lg:max-w-2xl opacity-100 mx-3 lg:mx-6 pointer-events-auto'
               : 'flex-none max-w-0 opacity-0 pointer-events-none mx-0'
           }`}
         >
-          <SearchBar className="w-full rounded-full shadow-[0_12px_35px_rgba(0,0,0,0.6)] border-none ring-0" />
+          <SearchBar className="w-full" />
         </div>
         
         {/* Right Section (Fixed width matches Left, ml-auto pushes it to right edge) */}
-        <div className="flex w-auto md:w-[220px] lg:w-[280px] shrink-0 items-center justify-end ml-auto">
-          <nav className="flex shrink-0 items-center gap-1 sm:gap-4">
+        <div className="flex w-auto md:w-[220px] lg:w-[260px] shrink-0 items-center justify-end ml-auto">
+          <nav className="flex shrink-0 items-center gap-2 sm:gap-4">
             <Link to="/cart" className="relative rounded-lg p-1.5 hover:bg-emerald-800 md:p-2" aria-label="Cart">
               <ShoppingCart className="h-5 w-5 sm:h-7 sm:w-7" />
               {cartCount > 0 && (
