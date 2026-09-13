@@ -86,6 +86,7 @@ export interface User {
   name: string;
   email: string;
   phone: string;
+  avatarUrl?: string | null;
   rewardPoints: number;
   technoPoints?: number;
   technoWallet?: number;
