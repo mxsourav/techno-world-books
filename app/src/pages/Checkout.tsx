@@ -6,7 +6,7 @@ import { useStore } from '@/store/StoreContext';
 import { useCartTotals } from '@/hooks/useCartTotals';
 import type { Address, Order } from '@/types';
 import { toast } from 'sonner';
-import { shippingService, profileService, orderService } from '@/services/api';
+import { shippingService, profileService, orderService, paymentService } from '@/services/api';
 
 const PAYMENTS = [
   { id: 'upi', name: 'UPI', desc: 'GPay, PhonePe, Paytm & more', icon: Smartphone },
@@ -604,9 +604,21 @@ export default function Checkout() {
             name: 'Techno World Books',
             description: 'Store Pickup Order',
             order_id: serverOrder.razorpayOrderId,
-            handler: function (_response: any) {
-              toast.success('Payment successful!');
-              finishOrder();
+            handler: async function (response: any) {
+              try {
+                toast.loading('Verifying payment with bank...', { id: 'rzp-verify' });
+                await paymentService.verifyPayment({
+                  orderId: serverOrder.id,
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                });
+                toast.success('Payment verified successfully!', { id: 'rzp-verify' });
+                finishOrder();
+              } catch (verifyErr: any) {
+                toast.error(verifyErr.message || 'Payment verification failed. Please contact support.', { id: 'rzp-verify' });
+                setIsSubmitting(false);
+              }
             },
             prefill: {
               name: collectorName,
@@ -732,9 +744,21 @@ export default function Checkout() {
           name: 'Techno World Books',
           description: 'Book Purchase',
           order_id: serverOrder.razorpayOrderId,
-          handler: function (_response: any) {
-            toast.success('Payment successful!');
-            finishOrder();
+          handler: async function (response: any) {
+            try {
+              toast.loading('Verifying payment with bank...', { id: 'rzp-verify' });
+              await paymentService.verifyPayment({
+                orderId: serverOrder.id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              });
+              toast.success('Payment verified successfully!', { id: 'rzp-verify' });
+              finishOrder();
+            } catch (verifyErr: any) {
+              toast.error(verifyErr.message || 'Payment verification failed. Please contact support.', { id: 'rzp-verify' });
+              setIsSubmitting(false);
+            }
           },
           prefill: {
             name: form.name,

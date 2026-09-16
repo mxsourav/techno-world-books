@@ -572,6 +572,12 @@ export const paymentService = {
     refundReason?: string;
     notes?: string;
   }) => api.patch<any>(`/payments/${orderId}/status`, data),
+  verifyPayment: (data: {
+    orderId: string;
+    razorpay_order_id: string;
+    razorpay_payment_id: string;
+    razorpay_signature: string;
+  }) => api.post<any>('/payments/verify', data),
 };
 
 export const invoiceService = {
