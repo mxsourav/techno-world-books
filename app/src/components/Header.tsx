@@ -32,7 +32,16 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const isPreviewMode = typeof window !== 'undefined' && (
+    window.self !== window.top ||
+    window.location.search.includes('cms_edit=true')
+  );
+
   const handleEmailLogin = async (overrideEmail?: string) => {
+    if (isPreviewMode) {
+      toast.info('Visual Preview is for layout inspection only. Account login is disabled.');
+      return;
+    }
     const targetEmail = (overrideEmail || emailInput).trim().toLowerCase();
     if (!targetEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(targetEmail)) {
       toast.error('Please enter a valid email address');
@@ -66,12 +75,20 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
   };
 
   const sendOtp = () => {
+    if (isPreviewMode) {
+      toast.info('Visual Preview is for layout inspection only. Login is disabled.');
+      return;
+    }
     if (phone.length < 10) return toast.error('Enter a valid 10-digit mobile number');
     setStep('otp');
     toast.success('OTP sent! (any 4 digits work for verification)');
   };
 
   const verify = async () => {
+    if (isPreviewMode) {
+      toast.info('Visual Preview is for layout inspection only. Login is disabled.');
+      return;
+    }
     if (otp.length !== 4) return toast.error('Enter the 4-digit OTP');
     setLoading(true);
     try {
@@ -123,6 +140,14 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
             />
           </div>
         </div>
+
+        {isPreviewMode && (
+          <div className="bg-amber-500/15 border-b border-amber-500/30 px-4 py-2 text-center">
+            <p className="text-[11px] font-bold text-amber-900">
+              Live Preview Mode · User authentication is disabled for preview safety
+            </p>
+          </div>
+        )}
 
         <div className="px-8 py-6">
           {/* Primary Google Sign-In */}
@@ -262,9 +287,13 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const onClick = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
+    const onClick = (e: Event) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
     document.addEventListener('mousedown', onClick);
-    return () => document.removeEventListener('mousedown', onClick);
+    document.addEventListener('touchstart', onClick);
+    return () => {
+      document.removeEventListener('mousedown', onClick);
+      document.removeEventListener('touchstart', onClick);
+    };
   }, []);
 
   useEffect(() => {
@@ -307,8 +336,8 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
 
   return (
     <div ref={ref} id={id} className={`relative ${className}`}>
-      <div className="flex items-stretch rounded-full bg-white border-[4px] border-white shadow-sm h-full w-full min-h-[48px]">
-        <div className="flex-1 flex items-center bg-transparent pl-1 sm:pl-4">
+      <div className="flex items-stretch rounded-full bg-white shadow-md h-10 sm:h-11 w-full overflow-hidden border border-slate-200/80 hover:border-emerald-500 focus-within:border-emerald-600 transition-colors">
+        <div className="flex-1 flex items-center bg-transparent pl-3 sm:pl-4 min-w-0">
           <Search className="h-4 w-4 shrink-0 text-slate-400" />
           <input
             value={q}
@@ -317,57 +346,59 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
             onFocus={() => setOpen(true)}
             onKeyDown={(e) => e.key === 'Enter' && submit()}
             placeholder="Search by title, author, ISBN, exam, university…"
-            className="w-full bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400 self-stretch px-0 sm:px-3 pl-2"
+            className="w-full bg-transparent text-xs sm:text-sm text-slate-800 outline-none placeholder:text-slate-400 self-stretch px-2.5 sm:px-3"
           />
-          <button onClick={voice} aria-label="Voice search" className="shrink-0 text-slate-400 hover:text-emerald-700 mx-2">
-            <Mic className="h-5 w-5" />
+          <button onClick={voice} aria-label="Voice search" className="shrink-0 text-slate-400 hover:text-emerald-700 mx-1.5 sm:mx-2">
+            <Mic className="h-4 w-4" />
           </button>
         </div>
-        <button onClick={() => submit()} className="flex shrink-0 items-center justify-center px-2 bg-[#0a2e1f] text-white hover:bg-emerald-800 transition-colors rounded-r-full">
-          <Search className="h-5 w-5" />
+        <button onClick={() => submit()} aria-label="Submit search" className="flex shrink-0 items-center justify-center px-4 sm:px-6 bg-[#0a2e1f] text-white hover:bg-emerald-800 transition-colors">
+          <Search className="h-4 w-4" />
         </button>
       </div>
       {open && (
-        <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-96 overflow-auto rounded-lg border border-slate-100 bg-white py-2 shadow-xl">
-          {loading ? (
-            <div className="px-4 py-3 text-center text-sm text-slate-500">Loading...</div>
-          ) : q.trim().length > 1 && suggestions.length === 0 ? (
-            <div className="px-4 py-3 text-center text-sm text-slate-500">No books found</div>
-          ) : suggestions.length > 0 ? (
-            suggestions.map((b) => (
-              <button
-                key={b.id}
-                onClick={() => { addSearchToHistory(b.title); setOpen(false); setQ(''); navigate(`/book/${b.slug}`); }}
-                className="flex w-full items-start gap-3 px-4 py-2.5 text-left hover:bg-emerald-50"
-              >
-                <BookOpen className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-semibold text-slate-800">{b.title}</span>
-                  <span className="block truncate text-xs text-slate-500">{b.author} • {b.category}</span>
-                </span>
-              </button>
-            )).concat(
-              Array.from(new Set(suggestions.map(b => b.author))).map(author => (
-                <button
-                  key={`author-${author}`}
-                  onClick={() => submit(author)}
-                  className="flex w-full items-center gap-3 px-4 py-2 text-left hover:bg-emerald-50 border-t border-slate-50"
-                >
-                  <User className="h-4 w-4 shrink-0 text-amber-500" />
-                  <span className="truncate text-sm font-medium text-slate-700">Author: {author}</span>
-                </button>
-              ))
-            ).concat(
-              Array.from(new Set(suggestions.map(b => b.category))).map(cat => (
-                <button
-                  key={`cat-${cat}`}
-                  onClick={() => submit(cat)}
-                  className="flex w-full items-center gap-3 px-4 py-2 text-left hover:bg-emerald-50 border-t border-slate-50"
-                >
-                  <Tag className="h-4 w-4 shrink-0 text-blue-500" />
-                  <span className="truncate text-sm font-medium text-slate-700">Category: {cat}</span>
-                </button>
-              ))
+        <div className="absolute left-0 right-0 top-full z-[60] mt-2 max-h-[calc(100dvh-160px)] sm:max-h-96 overflow-y-auto overscroll-contain rounded-2xl border border-slate-100 bg-white py-2 shadow-2xl">
+          {q.trim().length > 1 ? (
+            loading ? (
+              <div className="px-4 py-3 text-center text-sm text-slate-500">Loading...</div>
+            ) : suggestions.length === 0 ? (
+              <div className="px-4 py-3 text-center text-sm text-slate-500">No books found</div>
+            ) : (
+              <>
+                {suggestions.map((b) => (
+                  <button
+                    key={b.id}
+                    onClick={() => { addSearchToHistory(b.title); setOpen(false); setQ(''); navigate(`/book/${b.slug}`); }}
+                    className="flex w-full items-start gap-3 px-4 py-2.5 text-left hover:bg-emerald-50 transition-colors"
+                  >
+                    <BookOpen className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-semibold text-slate-800">{b.title}</span>
+                      <span className="block truncate text-xs text-slate-500">{b.author} • {b.category}</span>
+                    </span>
+                  </button>
+                ))}
+                {Array.from(new Set(suggestions.map(b => b.author).filter(Boolean))).map(author => (
+                  <button
+                    key={`author-${author}`}
+                    onClick={() => submit(author)}
+                    className="flex w-full items-center gap-3 px-4 py-2 text-left hover:bg-emerald-50 border-t border-slate-50 transition-colors"
+                  >
+                    <User className="h-4 w-4 shrink-0 text-amber-500" />
+                    <span className="truncate text-sm font-medium text-slate-700">Author: {author}</span>
+                  </button>
+                ))}
+                {Array.from(new Set(suggestions.map(b => b.category).filter(Boolean))).map(cat => (
+                  <button
+                    key={`cat-${cat}`}
+                    onClick={() => submit(cat)}
+                    className="flex w-full items-center gap-3 px-4 py-2 text-left hover:bg-emerald-50 border-t border-slate-50 transition-colors"
+                  >
+                    <Tag className="h-4 w-4 shrink-0 text-blue-500" />
+                    <span className="truncate text-sm font-medium text-slate-700">Category: {cat}</span>
+                  </button>
+                ))}
+              </>
             )
           ) : (
             <>
@@ -409,6 +440,11 @@ export default function Header() {
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
   const [isScrolled, setIsScrolled] = useState(false);
 
+  const isPreviewMode = typeof window !== 'undefined' && (
+    window.self !== window.top ||
+    window.location.search.includes('cms_edit=true')
+  );
+
   const handleLogout = () => {
     logout();
     authLogout();
@@ -430,9 +466,14 @@ export default function Header() {
       return;
     }
 
-    const observer = new IntersectionObserver(([entry]) => {
-      setIsScrolled(!entry.isIntersecting);
-    });
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsScrolled(!entry.isIntersecting);
+      },
+      {
+        rootMargin: '-90px 0px 0px 0px',
+      }
+    );
     observer.observe(observedElement);
     return () => observer.disconnect();
   }, [pathname]);
@@ -442,7 +483,7 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-40 w-full max-w-full overflow-x-hidden bg-[#0a2e1f] text-white shadow-md transition-colors duration-300">
+    <header className="sticky top-0 z-40 w-full max-w-full bg-[#0a2e1f] text-white shadow-md transition-colors duration-300">
       {/* top strip */}
       <div className="hidden w-full items-center justify-between gap-4 bg-[#061d13] px-6 py-1.5 text-[11px] text-emerald-200 md:flex">
         <span className="flex items-center gap-1">
@@ -458,16 +499,17 @@ export default function Header() {
         </div>
       </div>
 
-      <div className="mx-auto flex w-full max-w-7xl min-w-0 items-center px-3 py-3 sm:px-6">
+      <div className="mx-auto flex w-full max-w-7xl min-w-0 items-center px-4 py-2.5 sm:px-6 sm:py-3 gap-3 sm:gap-4 lg:gap-6">
         {/* Mobile header: menu on the left; profile access stays on the right. */}
-        <div className="flex w-auto md:w-[220px] lg:w-[280px] shrink-0 items-center justify-start gap-3 sm:gap-5">
+        <div className="flex w-auto md:w-[220px] lg:w-[260px] shrink-0 items-center justify-start gap-3 sm:gap-5">
           <Sheet>
             <SheetTrigger className="md:hidden" aria-label="Menu"><Menu className="h-6 w-6" /></SheetTrigger>
             <SheetContent side="left" className="w-80 p-0 flex flex-col h-full max-h-[100dvh] overflow-hidden bg-white">
               {/* Top Branding Strip (Fixed) */}
               <div className="shrink-0 bg-[#0a2e1f] p-4 pr-12 text-white relative">
-                <p className="flex items-center gap-2 font-bold">
-                  <img src="/techno_world.png" alt="Techno World Books Logo" className="h-8 w-auto object-contain brightness-0 invert" />
+                <p className="flex items-center gap-2.5 font-bold">
+                  <img src="/techno_world_circle_white.png" alt="Techno World Books Logo" className="h-8 w-8 object-contain" />
+                  <span className="text-base font-extrabold tracking-wider uppercase text-white">Techno World</span>
                 </p>
                 <p className="mt-1 text-xs text-emerald-200 truncate">{user ? `Hi, ${user.name}` : <CmsText contentKey="header.sub_tagline" defaultText="India ka apna bookstore" label="Header Tagline" />}</p>
               </div>
@@ -510,19 +552,68 @@ export default function Header() {
             </SheetContent>
           </Sheet>
 
-          <Link to="/" className="hidden shrink-0 items-center gap-2 md:flex">
-            <img src="/techno_world.png" alt="Techno World Books Logo" className="h-8 sm:h-[56px] w-auto object-contain brightness-0 invert" />
+          {/* Desktop Brand Anchor: Always visible on desktop on the left */}
+          <Link
+            to="/"
+            className="hidden shrink-0 items-center gap-2 md:flex"
+          >
+            <img
+              src="/techno_world_black.png"
+              alt="Techno World Books Logo"
+              className="h-8 sm:h-[50px] w-auto object-contain brightness-0 invert"
+            />
           </Link>
         </div>
 
-        {/* Sticky Search Bar (Expands Left-to-Right because Right side has ml-auto) */}
-        <div className={`block transition-all duration-500 ease-in-out overflow-hidden mx-2 sm:mx-4 ${isScrolled ? 'flex-1 max-w-2xl opacity-100' : 'flex-none max-w-0 opacity-0'}`}>
-          <SearchBar className="w-full rounded-full shadow-[0_12px_35px_rgba(0,0,0,0.6)] border-none ring-0" />
+        {/* Mobile Center Zone: Mobile Logo (!isScrolled) and Mobile Sticky Search Bar (isScrolled) */}
+        <div className="md:hidden flex-1 flex items-center justify-center min-w-0 mx-2 relative h-11 sm:h-12">
+          {/* Mobile-Only Center Brand Logo (Active when !isScrolled at top of homepage) */}
+          <div
+            className={`transition-all duration-300 ease-in-out flex items-center justify-center ${
+              !isScrolled
+                ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
+                : 'opacity-0 scale-90 -translate-y-2 pointer-events-none absolute inset-0'
+            }`}
+          >
+            <Link
+              to="/"
+              aria-label="Techno World Books Home"
+              className="flex items-center justify-center"
+            >
+              <img
+                src="/techno_world_black.png"
+                alt="Techno World Books Logo"
+                className="h-9 sm:h-10 w-auto max-w-[240px] xs:max-w-[270px] object-contain brightness-0 invert drop-shadow-sm"
+              />
+            </Link>
+          </div>
+
+          {/* Mobile Sticky Search Bar (Active when isScrolled on mobile) */}
+          <div
+            className={`w-full transition-all duration-300 ease-in-out ${
+              isScrolled
+                ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
+                : 'opacity-0 scale-95 translate-y-2 pointer-events-none absolute inset-0 flex items-center justify-center'
+            }`}
+          >
+            <SearchBar className="w-full rounded-full shadow-[0_12px_35px_rgba(0,0,0,0.6)] border-none ring-0" />
+          </div>
+        </div>
+
+        {/* Desktop Sticky Search Bar (Expands Left-to-Right from round shape into pill on scroll) */}
+        <div
+          className={`hidden md:block rounded-full transition-all duration-500 ease-in-out origin-left ${
+            isScrolled
+              ? 'flex-1 max-w-xl lg:max-w-2xl opacity-100 mx-3 lg:mx-6 pointer-events-auto overflow-visible'
+              : 'flex-none max-w-0 opacity-0 pointer-events-none mx-0 overflow-hidden'
+          }`}
+        >
+          <SearchBar className="w-full" />
         </div>
         
         {/* Right Section (Fixed width matches Left, ml-auto pushes it to right edge) */}
-        <div className="flex w-auto md:w-[220px] lg:w-[280px] shrink-0 items-center justify-end ml-auto">
-          <nav className="flex shrink-0 items-center gap-1 sm:gap-4">
+        <div className="flex w-auto md:w-[220px] lg:w-[260px] shrink-0 items-center justify-end ml-auto">
+          <nav className="flex shrink-0 items-center gap-2 sm:gap-4">
             <Link to="/cart" className="relative rounded-lg p-1.5 hover:bg-emerald-800 md:p-2" aria-label="Cart">
               <ShoppingCart className="h-5 w-5 sm:h-7 sm:w-7" />
               {cartCount > 0 && (
@@ -542,7 +633,16 @@ export default function Header() {
                 </div>
               </Link>
             ) : (
-              <button onClick={() => setLoginOpen(true)} className="flex items-center gap-1 rounded-lg px-2 py-1.5 hover:bg-emerald-800">
+              <button
+                onClick={() => {
+                  if (isPreviewMode) {
+                    toast.info('Visual Preview Mode is for inspection only. User login is disabled.');
+                    return;
+                  }
+                  setLoginOpen(true);
+                }}
+                className="flex items-center gap-1 rounded-lg px-2 py-1.5 hover:bg-emerald-800"
+              >
                 <User className="h-5 w-5 sm:h-7 sm:w-7" />
                 <span className="hidden text-sm font-bold md:block">Login</span>
               </button>
@@ -588,13 +688,13 @@ export default function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {WEBSITE_CATEGORIES.map((c: any) => (
+              {(categories?.length ? categories : WEBSITE_CATEGORIES).map((c: any) => (
                 <Link
-                  key={c.slug}
+                  key={c.slug || c.id}
                   to={`/category/${c.slug}`}
                   className="whitespace-nowrap rounded-full px-2 lg:px-2.5 py-0.5 text-xs text-emerald-100 transition hover:bg-white/10 hover:text-white shrink-0"
                 >
-                  {c.name.replace(' Books', '')}
+                  {(c.name || '').replace(' Books', '')}
                 </Link>
               ))}
             </div>
