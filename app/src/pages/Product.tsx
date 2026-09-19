@@ -4,7 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router';
 import {
   ChevronLeft, ChevronRight, Heart, Share2, Truck, ShieldCheck, RotateCcw, MapPin, Zap,
   ShoppingCart, BadgeCheck, Loader2, Star, Tag, ChevronDown, ChevronUp,
-  BookOpen, HelpCircle, Check, Sparkles, Award, AlertCircle
+  BookOpen, HelpCircle, Check, Sparkles, Award, AlertCircle, Bell, MessageSquare
 } from 'lucide-react';
 
 import { formatINR } from '@/utils/helpers';
@@ -12,12 +12,17 @@ import { bookService, categoryService, shippingService, reviewService, questionS
 import { useStore } from '@/store/StoreContext';
 import { BookCover } from '@/components/BookCover';
 import { BookRow } from '@/components/BookCard';
-import SEOHead, { buildBookJsonLd } from '@/components/SEOHead';
+import SEOHead, { buildBookJsonLd, buildBreadcrumbJsonLd } from '@/components/SEOHead';
 import { toast } from 'sonner';
+import { SampleReaderModal } from '@/components/SampleReaderModal';
+import { NotifyStockModal } from '@/components/NotifyStockModal';
+import { RecentlyViewedCarousel } from '@/components/RecentlyViewedCarousel';
 
 export default function Product() {
   const { slug } = useParams();
   const [book, setBook] = useState<any>(null);
+  const [isSampleReaderOpen, setIsSampleReaderOpen] = useState(false);
+  const [isNotifyModalOpen, setIsNotifyModalOpen] = useState(false);
   const [related, setRelated] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<{ status: number; message: string } | null>(null);
@@ -248,6 +253,23 @@ export default function Product() {
         if (res.success && res.data) {
           setBook(res.data);
           addRecentlyViewed(res.data.id);
+          try {
+            const raw = localStorage.getItem('tw_recently_viewed');
+            const list = raw ? JSON.parse(raw) : [];
+            const item = {
+              id: res.data.id,
+              title: res.data.title,
+              slug: res.data.slug || slug,
+              author: res.data.author || 'Techno World',
+              price: res.data.price,
+              mrp: res.data.mrp,
+              coverUrl: res.data.coverUrl || res.data.coverImage,
+              publisher: typeof res.data.publisher === 'string' ? res.data.publisher : res.data.publisher?.name,
+              edition: res.data.edition,
+            };
+            const updated = [item, ...list.filter((x: any) => x.id !== res.data.id)].slice(0, 12);
+            localStorage.setItem('tw_recently_viewed', JSON.stringify(updated));
+          } catch (e) {}
           document.title = `${res.data.title} — ${res.data.author || 'Techno World'} | Techno World Books`;
 
           // Fetch live reviews and questions
@@ -512,9 +534,11 @@ export default function Product() {
   };
 
   const seoImageUrl = getImageUrl(book.coverUrl || book.coverImage);
+  const discountPercent = mrp && mrp > price ? Math.round(((mrp - price) / mrp) * 100) : 0;
+  const seoPageTitle = `${book.title}${author ? ` by ${author}` : ''}${edition ? ` (${edition} Edition)` : ''} — Buy Online at ₹${price} | Techno World Books`;
   const seoDescription = (book.description && book.description.trim())
-    ? book.description.slice(0, 160).trim()
-    : `Buy ${book.title} by ${author} (${publisher}) online at best price in India on Techno World Books. Fast delivery across 27,000+ pincodes.`;
+    ? `${book.description.slice(0, 140).trim()}... Buy online at lowest price ₹${price} with fast India Post delivery on Techno World Books.`
+    : `Buy ${book.title}${author ? ` by ${author}` : ''}${publisher ? ` (${publisher})` : ''} online in India at lowest price ₹${price}${discountPercent > 0 ? ` (${discountPercent}% OFF)` : ''}. Genuine edition, fast India Post Speed Post delivery & secure COD.`;
 
   const bookJsonLd = buildBookJsonLd({
     title: book.title,
@@ -535,16 +559,29 @@ export default function Product() {
     pubDate: book.publicationDate || (pubYear ? `${pubYear}-01-01` : undefined),
   });
 
+  const breadcrumbJsonLd = buildBreadcrumbJsonLd([
+    { name: 'Home', url: '/' },
+    { name: 'Books', url: '/category/all' },
+    ...(cat ? [{ name: cat.name, url: `/category/${cat.slug}` }] : []),
+    { name: book.title, url: `/book/${book.slug || slug}` },
+  ]);
+
   return (
     <div className="min-h-screen w-full max-w-full overflow-x-clip bg-slate-50/60 pb-16">
       <SEOHead
-        title={`${book.title} — ${author} | Techno World Books`}
+        title={seoPageTitle}
         description={seoDescription}
         canonicalUrl={`/book/${book.slug || slug}`}
         ogType="book"
         ogImage={seoImageUrl || undefined}
-        ogImageAlt={`Cover of ${book.title}`}
-        structuredData={bookJsonLd}
+        ogImageAlt={`Book Cover: ${book.title}`}
+        structuredData={[bookJsonLd, breadcrumbJsonLd]}
+        meta={[
+          {
+            name: 'keywords',
+            content: `${book.title}, ${author || ''}, ${publisher || ''}, buy ${book.title} online, college street kolkata books, academic textbooks online`,
+          },
+        ]}
       />
       {/* Breadcrumb Header */}
       <div className="border-b border-slate-200/80 bg-white">
@@ -658,6 +695,18 @@ export default function Product() {
                     >
                       <Share2 className="h-4 w-4" />
                     </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const shareUrl = encodeURIComponent(window.location.href);
+                        const shareMsg = encodeURIComponent(`Take a look at "${book.title}" on Techno World Books: `);
+                        window.open(`https://api.whatsapp.com/send?text=${shareMsg}${shareUrl}`, '_blank');
+                      }}
+                      className="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-md border border-slate-100 text-slate-500 hover:text-emerald-700 transition-transform active:scale-95 cursor-pointer"
+                      title="Share on WhatsApp"
+                    >
+                      <MessageSquare className="h-4 w-4" />
+                    </button>
                   </div>
 
                   {/* Active Preview Rendering */}
@@ -729,32 +778,62 @@ export default function Product() {
               </div>
             </div>
 
-            {/* Bottom Dual Action Buttons (Flipkart Authentic Signature Layout) */}
-            <div className="grid grid-cols-2 gap-3 pt-1">
-              <button
-                type="button"
-                onClick={() => {
-                  addToCart(book.id, 1);
-                  toast.success('Added to your cart');
-                }}
-                className="flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white py-3.5 px-4 text-sm font-bold text-slate-800 shadow-sm transition-all hover:bg-slate-50 hover:border-slate-400 active:scale-[0.99]"
-              >
-                <ShoppingCart className="h-4 w-4 text-slate-700" />
-                <span>Add to cart</span>
-              </button>
+            {/* Look Inside Preview Button */}
+            <button
+              type="button"
+              onClick={() => setIsSampleReaderOpen(true)}
+              className="w-full flex items-center justify-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50/80 hover:bg-emerald-100/90 py-2.5 px-4 text-xs font-bold text-emerald-900 shadow-2xs transition-all cursor-pointer"
+            >
+              <BookOpen className="h-4 w-4 text-emerald-700" />
+              <span>Look Inside · Preview Sample Pages</span>
+            </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  addToCart(book.id, 1);
-                  navigate('/checkout');
-                }}
-                className="flex items-center justify-center gap-2 rounded-lg bg-[#ffd814] hover:bg-[#f7ca00] active:bg-[#f0b800] border border-[#fcd200] py-3.5 px-4 text-sm font-extrabold text-slate-950 shadow-sm hover:shadow transition-all active:scale-[0.99]"
-              >
-                <Zap className="h-4 w-4 fill-slate-950 text-slate-950" />
-                <span>Buy at {formatINR(price)}</span>
-              </button>
-            </div>
+            {/* Bottom Dual Action Buttons or Out of Stock Lead Capture */}
+            {Boolean(book.stock !== undefined && book.stock <= 0) ? (
+              <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-4 text-center space-y-2">
+                <div className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-900">
+                  <AlertCircle className="h-4 w-4 text-amber-700" />
+                  <span>Currently Out of Stock at College Street</span>
+                </div>
+                <p className="text-[11px] text-amber-800">
+                  Publisher copies are on re-order. Register for priority WhatsApp alert.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setIsNotifyModalOpen(true)}
+                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-600 hover:bg-amber-700 py-3 px-4 text-xs font-bold text-white shadow-sm transition-all cursor-pointer"
+                >
+                  <Bell className="h-4 w-4" />
+                  <span>Notify Me When In Stock</span>
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    addToCart(book.id, 1);
+                    toast.success('Added to your cart');
+                  }}
+                  className="flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white py-3.5 px-4 text-sm font-bold text-slate-800 shadow-sm transition-all hover:bg-slate-50 hover:border-slate-400 active:scale-[0.99]"
+                >
+                  <ShoppingCart className="h-4 w-4 text-slate-700" />
+                  <span>Add to cart</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    addToCart(book.id, 1);
+                    navigate('/checkout');
+                  }}
+                  className="flex items-center justify-center gap-2 rounded-lg bg-[#ffd814] hover:bg-[#f7ca00] active:bg-[#f0b800] border border-[#fcd200] py-3.5 px-4 text-sm font-extrabold text-slate-950 shadow-sm hover:shadow transition-all active:scale-[0.99]"
+                >
+                  <Zap className="h-4 w-4 fill-slate-950 text-slate-950" />
+                  <span>Buy at {formatINR(price)}</span>
+                </button>
+              </div>
+            )}
 
           </div>
 
@@ -1265,31 +1344,44 @@ export default function Product() {
             </div>
 
             {/* Bottom Action Bar (Flipkart Style) */}
-            <div className="grid grid-cols-2 gap-4 pt-2">
-              <button
-                type="button"
-                onClick={() => {
-                  addToCart(book.id, 1);
-                  toast.success('Added to your cart');
-                }}
-                className="flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white py-3.5 px-6 text-sm font-bold text-slate-800 shadow-sm transition-all hover:bg-slate-50 hover:border-slate-400 active:scale-[0.99]"
-              >
-                <ShoppingCart className="h-4 w-4 text-slate-700" />
-                <span>Add to cart</span>
-              </button>
+            {Boolean(book.stock !== undefined && book.stock <= 0) ? (
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsNotifyModalOpen(true)}
+                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-600 hover:bg-amber-700 py-3.5 px-6 text-sm font-bold text-white shadow-sm transition-all cursor-pointer"
+                >
+                  <Bell className="h-4 w-4" />
+                  <span>Notify Me When In Stock</span>
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-4 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    addToCart(book.id, 1);
+                    toast.success('Added to your cart');
+                  }}
+                  className="flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white py-3.5 px-6 text-sm font-bold text-slate-800 shadow-sm transition-all hover:bg-slate-50 hover:border-slate-400 active:scale-[0.99]"
+                >
+                  <ShoppingCart className="h-4 w-4 text-slate-700" />
+                  <span>Add to cart</span>
+                </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  addToCart(book.id, 1);
-                  navigate('/checkout');
-                }}
-                className="flex items-center justify-center gap-2 rounded-lg bg-[#ffd814] hover:bg-[#f7ca00] active:bg-[#f0b800] border border-[#fcd200] py-3.5 px-6 text-sm font-extrabold text-slate-950 shadow-sm hover:shadow transition-all active:scale-[0.99]"
-              >
-                <Zap className="h-4 w-4 fill-slate-950 text-slate-950" />
-                <span>Buy at {formatINR(price)}</span>
-              </button>
-            </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    addToCart(book.id, 1);
+                    navigate('/checkout');
+                  }}
+                  className="flex items-center justify-center gap-2 rounded-lg bg-[#ffd814] hover:bg-[#f7ca00] active:bg-[#f0b800] border border-[#fcd200] py-3.5 px-6 text-sm font-extrabold text-slate-950 shadow-sm hover:shadow transition-all active:scale-[0.99]"
+                >
+                  <Zap className="h-4 w-4 fill-slate-950 text-slate-950" />
+                  <span>Buy at {formatINR(price)}</span>
+                </button>
+              </div>
+            )}
 
           </div>
 
@@ -1301,6 +1393,11 @@ export default function Product() {
             <BookRow title="Similar Books from Techno World" books={related} />
           </div>
         )}
+
+        {/* ================= RECENTLY VIEWED BOOKS CAROUSEL ================= */}
+        <div className="mt-12">
+          <RecentlyViewedCarousel currentBookId={book?.id} />
+        </div>
 
       </div>
 
@@ -1479,6 +1576,34 @@ export default function Product() {
         </div>
       )}
 
+      {/* Sample Reader Modal */}
+      {isSampleReaderOpen && (
+        <SampleReaderModal
+          isOpen={isSampleReaderOpen}
+          onClose={() => setIsSampleReaderOpen(false)}
+          book={book}
+          onAddToCart={() => {
+            addToCart(book.id, 1);
+            toast.success('Added to your cart');
+            setIsSampleReaderOpen(false);
+          }}
+          onBuyNow={() => {
+            addToCart(book.id, 1);
+            navigate('/checkout');
+          }}
+        />
+      )}
+
+      {/* Out of Stock Notify Modal */}
+      {isNotifyModalOpen && (
+        <NotifyStockModal
+          isOpen={isNotifyModalOpen}
+          onClose={() => setIsNotifyModalOpen(false)}
+          book={book}
+        />
+      )}
+
     </div>
   );
 }
+

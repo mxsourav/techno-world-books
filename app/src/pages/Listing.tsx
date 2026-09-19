@@ -10,7 +10,7 @@ import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import SEOHead from '@/components/SEOHead';
+import SEOHead, { buildBreadcrumbJsonLd, buildItemListJsonLd } from '@/components/SEOHead';
 
 type SortKey = 'relevance' | 'price-low' | 'price-high' | 'rating' | 'discount' | 'newest';
 
@@ -210,6 +210,23 @@ export default function Listing() {
     ? `/search?q=${encodeURIComponent(query)}`
     : '/category/all';
 
+  const breadcrumbJsonLd = buildBreadcrumbJsonLd([
+    { name: 'Home', url: '/' },
+    ...(catObj
+      ? [{ name: catObj.name, url: `/category/${catObj.slug}` }]
+      : [{ name: publisherQuery ? `Publisher: ${publisherQuery}` : query ? `Search: ${query}` : 'All Books', url: canonicalUrl }]),
+  ]);
+
+  const itemListJsonLd = buildItemListJsonLd(
+    filtered.map((b) => ({
+      title: b.title,
+      slug: b.slug,
+      price: b.price,
+      thumbnail: b.coverUrl || b.coverImage,
+    })),
+    catObj ? `${catObj.name} Books` : 'Catalog Listing'
+  );
+
   return (
     <div className="mx-auto max-w-7xl px-3 py-4 sm:px-6">
       <SEOHead
@@ -217,6 +234,7 @@ export default function Listing() {
         description={pageDescription}
         canonicalUrl={canonicalUrl}
         ogType="website"
+        structuredData={[breadcrumbJsonLd, itemListJsonLd]}
       />
       {/* breadcrumbs */}
       <nav className="mb-3 flex items-center gap-1 text-xs text-slate-500">

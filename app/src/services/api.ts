@@ -450,6 +450,8 @@ export const authService = {
   logout: () => api.post<any>('/auth/logout'),
   me: () => api.get<any>('/auth/me'),
   googleAuth: (data: { credential: string }) => api.post<any>('/auth/google', data),
+  sendOtp: (phone: string) => api.post<{ success: boolean; message: string; sandboxMode?: boolean; devOtp?: string }>('/auth/otp/send', { phone }),
+  verifyOtp: (data: { phone: string; otp: string; name?: string }) => api.post<any>('/auth/otp/verify', data),
   devGoogleBypass: (data?: { email?: string; name?: string; googleId?: string; avatarUrl?: string }) =>
     api.post<any>('/auth/google/dev-bypass', data || {}),
 };
@@ -572,6 +574,12 @@ export const paymentService = {
     refundReason?: string;
     notes?: string;
   }) => api.patch<any>(`/payments/${orderId}/status`, data),
+  verifyPayment: (data: {
+    orderId: string;
+    razorpay_order_id: string;
+    razorpay_payment_id: string;
+    razorpay_signature: string;
+  }) => api.post<any>('/payments/verify', data),
 };
 
 export const invoiceService = {

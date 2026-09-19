@@ -1,0 +1,26 @@
+# Techno World Books
+
+> Techno World Books is India’s premier academic, professional, and competitive examination bookstore, originating from College Street ("Boi Para"), Kolkata. The platform provides verified original textbooks, study packages, competitive test preparation materials, and literature with doorstep nationwide delivery across 27,000+ Indian pincodes.
+
+## Primary Sections & Catalog
+
+- [Home & Featured Publications](https://technoworldbooks.in/): Official digital storefront, featured collections, seasonal discounts, and announcements.
+- [Book Catalog & Search](https://technoworldbooks.in/search): Real-time searchable catalog of 1,000+ titles with filtering by subject, academic course, exam board, publisher, and edition.
+- [Academic & Medical Disciplines](https://technoworldbooks.in/category/medical): MBBS, Nursing, Pharmacology, and Health Science curricula.
+- [Engineering & Technology](https://technoworldbooks.in/category/engineering): Computer Science, Mechanical, Civil, Electrical, and Polytechnic semester textbooks.
+- [Competitive Exams (NEET / JEE / UPSC)](https://technoworldbooks.in/category/competitive-exams): National eligibility test banks, solved past year questions (PYQs), and comprehensive theory guides.
+- [College Street Publications & Bengali Classics](https://technoworldbooks.in/category/bengali-literature): Rare editions, College Street academic treatises, and regional literature.
+- [Blog & Academic Study Guides](https://technoworldbooks.in/blog): In-depth exam preparation roadmaps, book comparison reviews, and syllabus breakdowns.
+
+## Customer Support & Logistics
+
+- [Order Tracking](https://technoworldbooks.in/track): Real-time parcel tracking via India Post (Speed Post & Business Parcel) and local express logistics.
+- [Help Center & FAQs](https://technoworldbooks.in/help): Customer support documentation, ordering guidelines, payment options, and delivery timelines.
+- [Shipping Policy](https://technoworldbooks.in/shipping-policy): Delivery across 27,000+ pincodes. Free shipping on qualifying orders above ₹999. Cash on Delivery (COD) supported.
+- [Cancellation & Refund Policy](https://technoworldbooks.in/refund-policy): Transparent return, replacement, and refund policies for damaged or defective copies.
+- [Contact & Store Location](https://technoworldbooks.in/contact): Physical address at College Street / Bidhan Sarani, Kolkata, West Bengal 700006, India. Direct phone and WhatsApp hotline (+91-747-913-5626).
+
+## Machine-Readable Endpoints
+
+- [Full LLM Context & Specification](https://technoworldbooks.in/llms-full.txt): Comprehensive catalog metadata, API structure, shipping logistics, and domain knowledge for AI reasoning engines.
+- [XML Sitemap](https://technoworldbooks.in/sitemap.xml): Complete URL index containing daily/weekly update schedules and Google Image extensions for cover art.

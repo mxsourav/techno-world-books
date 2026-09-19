@@ -18,6 +18,10 @@
     <meta name="keywords" content="buy books online, college street books kolkata, ncert books online, neet exam books, jee mains books, upsc study materials, engineering textbooks, medical mbbs books, techno world books" />
     <meta name="robots" content="index, follow" />
     <meta name="author" content="Techno World Books" />
+    <meta name="geo.region" content="IN-WB" />
+    <meta name="geo.placename" content="Kolkata, College Street" />
+    <meta name="geo.position" content="22.5744;88.3639" />
+    <meta name="ICBM" content="22.5744, 88.3639" />
     <link rel="canonical" href="https://technoworldbooks.in/" />
 
     <!-- Favicon & Web App Icons (Chrome, Brave, Edge Sidebar, PWA, Safari, Android) -->
@@ -32,38 +36,87 @@
 
     <!-- Open Graph (Facebook / WhatsApp / LinkedIn) -->
     <meta property="og:title" content="Techno World Books — Buy Books Online in India" />
-    <meta property="og:description" content="India's trusted online bookstore from College Street, Kolkata. School, college, competitive exam (NEET, JEE, UPSC), medical & engineering books. Best prices, fast delivery." />
+    <meta property="og:description" content="India's trusted online bookstore from College Street, Kolkata. School, college, competitive exam (NEET, JEE, UPSC), medical &amp; engineering books. Best prices, fast delivery." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://technoworldbooks.in/" />
     <meta property="og:site_name" content="Techno World Books" />
-    <meta property="og:image" content="https://technoworldbooks.in/hero_mockup.png" />
-    <meta property="og:image:alt" content="Techno World Books — College Street Bookstore" />
+    <meta property="og:locale" content="en_IN" />
+    <meta property="og:image" content="https://technoworldbooks.in/og-cover.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:alt" content="Techno World Books — India's Trusted Online Bookstore from College Street, Kolkata" />
 
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Techno World Books — Buy Books Online in India" />
-    <meta name="twitter:description" content="India's trusted online bookstore from College Street, Kolkata. NCERT, NEET, JEE, UPSC, Medical & Engineering books at best discounts." />
-    <meta name="twitter:image" content="https://technoworldbooks.in/hero_mockup.png" />
-
-    <!-- Structured Data (JSON-LD) -->
+    <!-- Structured Data (JSON-LD @graph) -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "BookStore",
-        "name": "Techno World Books",
-        "description": "Online bookstore for India — school, university, competitive exam, medical, engineering and literature books.",
-        "url": "https://technoworldbooks.in",
-        "telephone": "+91 747 913 5626",
-        "address": {
-          "@type": "PostalAddress",
-          "streetAddress": "College Street",
-          "addressLocality": "Kolkata",
-          "addressRegion": "West Bengal",
-          "postalCode": "700073",
-          "addressCountry": "IN"
-        },
-        "currenciesAccepted": "INR",
-        "paymentAccepted": "UPI, Credit Card, Debit Card, Net Banking, Cash on Delivery"
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://technoworldbooks.in/#website",
+            "name": "Techno World Books",
+            "url": "https://technoworldbooks.in",
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": {
+                "@type": "EntryPoint",
+                "urlTemplate": "https://technoworldbooks.in/listing?search={search_term_string}"
+              },
+              "query-input": "required name=search_term_string"
+            }
+          },
+          {
+            "@type": "Organization",
+            "@id": "https://technoworldbooks.in/#organization",
+            "name": "Techno World Books",
+            "url": "https://technoworldbooks.in",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://technoworldbooks.in/techno_world.png",
+              "width": 512,
+              "height": 512
+            },
+            "contactPoint": {
+              "@type": "ContactPoint",
+              "telephone": "+91-747-913-5626",
+              "contactType": "customer service",
+              "availableLanguage": ["en", "hi", "bn"]
+            },
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "College Street, Bidhan Sarani",
+              "addressLocality": "Kolkata",
+              "addressRegion": "West Bengal",
+              "postalCode": "700006",
+              "addressCountry": "IN"
+            }
+          },
+          {
+            "@type": ["LocalBusiness", "BookStore"],
+            "@id": "https://technoworldbooks.in/#bookstore",
+            "name": "Techno World Books",
+            "description": "India's trusted online bookstore from College Street, Kolkata. School, university, competitive exam, medical, engineering and literature books.",
+            "url": "https://technoworldbooks.in",
+            "telephone": "+91-747-913-5626",
+            "image": "https://technoworldbooks.in/og-cover.png",
+            "currenciesAccepted": "INR",
+            "paymentAccepted": "UPI, Credit Card, Debit Card, Net Banking, Cash on Delivery",
+            "geo": {
+              "@type": "GeoCoordinates",
+              "latitude": "22.5744",
+              "longitude": "88.3639"
+            },
+            "openingHoursSpecification": {
+              "@type": "OpeningHoursSpecification",
+              "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
+              "opens": "09:00",
+              "closes": "21:00"
+            },
+            "address": { "@id": "https://technoworldbooks.in/#organization" },
+            "priceRange": "INR"
+          }
+        ]
       }
     </script>
 

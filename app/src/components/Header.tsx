@@ -74,14 +74,31 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
     }
   };
 
-  const sendOtp = () => {
+  const sendOtp = async () => {
     if (isPreviewMode) {
       toast.info('Visual Preview is for layout inspection only. Login is disabled.');
       return;
     }
-    if (phone.length < 10) return toast.error('Enter a valid 10-digit mobile number');
-    setStep('otp');
-    toast.success('OTP sent! (any 4 digits work for verification)');
+    const clean = phone.replace(/\D/g, '');
+    if (clean.length < 10) return toast.error('Enter a valid 10-digit mobile number');
+    setLoading(true);
+    try {
+      const res = await authService.sendOtp(clean);
+      if (res.success) {
+        setStep('otp');
+        const isSandbox = (res as any).sandboxMode || res.data?.sandboxMode;
+        const devCode = (res as any).devOtp || res.data?.devOtp || '1234';
+        if (isSandbox) {
+          toast.success(`OTP sent to mobile! (Sandbox Code: ${devCode})`);
+        } else {
+          toast.success(res.message || 'OTP sent successfully to your mobile!');
+        }
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to send OTP. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const verify = async () => {
@@ -92,29 +109,27 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
     if (otp.length !== 4) return toast.error('Enter the 4-digit OTP');
     setLoading(true);
     try {
-      const phoneEmail = `user${phone}@technoworldbooks.in`;
-      const res = await authService.devGoogleBypass({
-        email: phoneEmail,
-        name: `Reader ${phone.slice(-4)}`,
+      const res = await authService.verifyOtp({
+        phone: phone.trim(),
+        otp: otp.trim(),
       });
       if (res.success && res.data) {
-        authLogin(res.data.accessToken, res.data.user);
+        const user = res.data.user;
+        authLogin(res.data.accessToken, user);
         login({
-          id: res.data.user.id,
-          name: res.data.user.name,
-          email: res.data.user.email,
-          phone: phone,
-          rewardPoints: res.data.user.technoPoints || 120,
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone || phone,
+          rewardPoints: user.technoPoints || 120,
         });
+        toast.success(`Welcome back, ${user.name}!`);
+        onClose();
       } else {
-        login({ name: 'Reader', email: phoneEmail, phone, rewardPoints: 120 });
+        toast.error(res.message || 'OTP verification failed');
       }
-      toast.success('Welcome to Techno World Books!');
-      onClose();
-    } catch {
-      login({ name: 'Reader', email: `user${phone.slice(-4)}@mail.com`, phone, rewardPoints: 120 });
-      toast.success('Welcome to Techno World Books!');
-      onClose();
+    } catch (err: any) {
+      toast.error(err.message || 'Invalid or expired OTP');
     } finally {
       setLoading(false);
     }

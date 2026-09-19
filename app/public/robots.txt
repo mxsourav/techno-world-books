@@ -1,10 +1,143 @@
-User-agent: *
-Allow: /
-Disallow: /admin/
+# Techno World Books — robots.txt
+# Production | https://technoworldbooks.in
+
+# === Googlebot ===
+User-agent: Googlebot
+Crawl-delay: 1
 Disallow: /checkout
 Disallow: /my-orders
 Disallow: /profile
 Disallow: /account
 Disallow: /order-success
+Disallow: /api/
+Allow: /
+
+# === Bingbot ===
+User-agent: Bingbot
+Crawl-delay: 2
+Disallow: /checkout
+Disallow: /my-orders
+Disallow: /profile
+Disallow: /account
+Disallow: /order-success
+Disallow: /api/
+Allow: /
+
+# === AI Search Engines & Conversational Agents (Explicitly Welcomed) ===
+# OpenAI ChatGPT & Search
+User-agent: GPTBot
+Disallow: /checkout
+Disallow: /my-orders
+Disallow: /profile
+Disallow: /account
+Disallow: /order-success
+Disallow: /api/
+Allow: /book/
+Allow: /category/
+Allow: /blog/
+Allow: /search
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /
+
+User-agent: ChatGPT-User
+Disallow: /checkout
+Disallow: /my-orders
+Disallow: /profile
+Disallow: /account
+Disallow: /order-success
+Disallow: /api/
+Allow: /
+
+# Anthropic Claude
+User-agent: ClaudeBot
+Disallow: /checkout
+Disallow: /my-orders
+Disallow: /profile
+Disallow: /account
+Disallow: /order-success
+Disallow: /api/
+Allow: /book/
+Allow: /category/
+Allow: /blog/
+Allow: /search
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /
+
+User-agent: anthropic-ai
+Disallow: /checkout
+Disallow: /my-orders
+Disallow: /profile
+Disallow: /account
+Disallow: /order-success
+Disallow: /api/
+Allow: /
+
+# Perplexity AI
+User-agent: PerplexityBot
+Disallow: /checkout
+Disallow: /my-orders
+Disallow: /profile
+Disallow: /account
+Disallow: /order-success
+Disallow: /api/
+Allow: /book/
+Allow: /category/
+Allow: /blog/
+Allow: /search
+Allow: /llms.txt
+Allow: /llms-full.txt
+Allow: /
+
+# Apple Intelligence
+User-agent: Applebot
+User-agent: Applebot-Extended
+Disallow: /checkout
+Disallow: /my-orders
+Disallow: /profile
+Disallow: /account
+Disallow: /order-success
+Disallow: /api/
+Allow: /
+
+# === Unwanted Scrapers & Training Bulk Harvesters (Blocked) ===
+User-agent: CCBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: Amazonbot
+Disallow: /
+
+User-agent: cohere-ai
+Disallow: /
+
+User-agent: Diffbot
+Disallow: /
+
+# === SEO Analysis Crawlers (Limited) ===
+User-agent: SemrushBot
+Crawl-delay: 5
+Disallow: /api/
+Disallow: /checkout
+Disallow: /account
+
+User-agent: AhrefsBot
+Crawl-delay: 5
+Disallow: /api/
+Disallow: /checkout
+Disallow: /account
+
+# === Default Rule for All Other Crawlers ===
+User-agent: *
+Allow: /
+Disallow: /checkout
+Disallow: /my-orders
+Disallow: /profile
+Disallow: /account
+Disallow: /order-success
+Disallow: /api/
 
 Sitemap: https://technoworldbooks.in/sitemap.xml
