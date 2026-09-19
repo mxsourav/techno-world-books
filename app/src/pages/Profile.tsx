@@ -38,7 +38,7 @@ import { toast } from 'sonner';
 import { GoogleSignInButton } from '@/components/GoogleSignInButton';
 
 export default function Profile() {
-  const { logout: authLogout, accessToken, user: authUser } = useAuthStore();
+  const { logout: authLogout, accessToken } = useAuthStore();
   const { logout: storeLogout, user: storeUser } = useStore();
   const navigate = useNavigate();
 

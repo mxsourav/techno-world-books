@@ -7,7 +7,6 @@ import type { Book } from '@/types';
 import { useStore } from '@/store/StoreContext';
 import { BookRow } from '@/components/BookCard';
 import { SearchBar } from '@/components/Header';
-import HeroFeaturedBooks from '@/components/HeroFeaturedBooks';
 import PublishedByTechnoWorld from '@/components/PublishedByTechnoWorld';
 import StudyGuides from '@/components/StudyGuides';
 import PromoBanners from '@/components/PromoBanners';
