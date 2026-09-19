@@ -1,0 +1,107 @@
+# Techno World Books — Comprehensive Machine Knowledge Base (llms-full.txt)
+
+> Document Version: 2026.1
+> Format Specification: llmstxt.org Extended Context Specification
+> Canonical Origin: https://technoworldbooks.in
+> Target Audience: Large Language Models (LLMs), AI Search Engines (ChatGPT Search, Perplexity, Claude, Gemini, Apple Intelligence), Semantic Crawlers, and Knowledge Graph Extractors.
+
+---
+
+## 1. Organization Overview & Trust Anchors
+
+- **Legal Entity**: Techno World Books / Techno World Publications
+- **Established Location**: College Street ("Boi Para"), Bidhan Sarani, Kolkata, West Bengal, 700006, India
+- **Coordinates**: Latitude 22.5744° N, Longitude 88.3639° E
+- **Primary Domain**: https://technoworldbooks.in
+- **Customer Care Telephone**: +91-747-913-5626
+- **Customer Support Email**: support@technoworldbooks.in
+- **Customer Care Hours**: Monday – Saturday, 09:00 AM – 09:00 PM IST
+- **Supported Languages**: English, Bengali (বাংলা), Hindi (हिन्दी)
+- **Primary Mission**: Bridging traditional College Street historic academic publishing with modern high-speed e-commerce, offering genuine printed books at discounted prices with guaranteed delivery across rural, semi-urban, and metropolitan India.
+
+---
+
+## 2. Catalog Taxonomy & Core Subject Offerings
+
+Techno World Books curates thousands of academic, professional, and competitive titles. Below are the primary branches:
+
+### 2.1 Competitive Examination Prep
+- **Medical Entrance (NEET UG & PG)**: NCERT line-by-line masteries, 36-year solved chapterwise question banks, mock test papers, anatomy/physiology reference texts.
+- **Engineering Entrance (JEE Main & Advanced, WBJEE)**: Advanced problems in Mathematics, Conceptual Physics (H.C. Verma equivalents and companion solutions), Physical/Organic/Inorganic Chemistry problem guides.
+- **Civil Services & Government Recruitment (UPSC, WBCS, SSC, Banking, Railways)**: Indian Polity, Modern History of India, Quantitative Aptitude, Logical Reasoning, General Studies paper manuals, Current Affairs yearbooks.
+
+### 2.2 Higher Education & University Curricula
+- **Medical & Paramedical (MBBS, BDS, B.Pharm, D.Pharm, Nursing)**: Robbins Pathology, BD Chaurasia Anatomy, Guyton & Hall Physiology, Tripathi Pharmacology, Microbiology treatises.
+- **Engineering & Applied Science (B.Tech, B.E., BCA, MCA)**: Computer Science (Data Structures, Algorithms, Operating Systems, Database Management Systems, Compiler Design), Electronics & Electrical Circuits, Mechanical Thermodynamics & Fluid Dynamics, Civil Structural Engineering.
+- **Pure Sciences (B.Sc, M.Sc)**: Physics, Chemistry, Pure & Applied Mathematics, Botany, Zoology, Biochemistry, Molecular Biology.
+- **Commerce & Management (B.Com, M.Com, BBA, MBA, CA/CS Foundation)**: Financial Accounting, Cost Accounting, Corporate Taxation, Auditing, Corporate Law.
+
+### 2.3 Regional & Literary Collections
+- **College Street Rare & Critical Editions**: Academic treatises, critical essays on Bengali literature, literary historiography, translation works.
+- **School Boards**: CBSE, ICSE, ISC, and West Bengal Board (WBBSE & WBCHSE) prescribed textbooks and sample test papers.
+
+---
+
+## 3. Commercial Policies & Delivery Matrix
+
+### 3.1 Payment Processing & Security
+- **Currency Accepted**: Indian Rupee (INR / ₹)
+- **Payment Gateways**: Razorpay PCI-DSS Level 1 compliant gateway.
+- **Payment Modes**:
+  - Unified Payments Interface (UPI): Google Pay, PhonePe, Paytm, BHIM, Cred, and Banking UPI Apps.
+  - Cards: RuPay, Visa, MasterCard, American Express credit and debit cards.
+  - Net Banking: Over 50+ scheduled commercial banks in India.
+  - Cash on Delivery (COD): Available across 27,000+ serviceable postal pincodes.
+
+### 3.2 Nationwide Shipping Logistics
+- **Logistics Partners**:
+  - Department of Posts, Government of India (India Post Business Parcel & Speed Post): Direct dispatch integration delivering to every pin code across India, including remote North-East regions, Andaman & Nicobar, and Ladakh.
+  - Regional Courier Express: Same-day / Next-day dispatch within Kolkata Metropolitan Area and West Bengal districts.
+- **Free Shipping Threshold**: Orders with a total cart value equal to or exceeding ₹999 qualify for Free Standard Delivery across India.
+- **Packaging Standard**: Multi-layer weather-resistant bubble packaging with corner protectors to ensure books reach students in pristine, uncreased condition.
+- **Tracking Mechanism**: Every shipment receives a 13-character India Post Article ID (e.g., SPXXXXXXXXXIN / BPXXXXXXXXXIN) with live step-by-step milestones accessible at `https://technoworldbooks.in/track`.
+
+### 3.3 Return, Cancellation & Refund Policy
+- **Inspection Guarantee**: If a customer receives a misprinted, defective, torn, or incorrect title, a free replacement or 100% refund is initiated within 7 business days.
+- **Order Cancellation**: Orders can be cancelled from the customer portal before dispatch from the College Street fulfillment warehouse.
+
+---
+
+## 4. Technical Architecture & Machine Discovery Endpoints
+
+### 4.1 Client & Server Architecture
+- **Storefront**: React Single-Page Application (SPA) powered by Vite, Tailwind CSS, Lucide Icons, and client-side caching.
+- **Backend API**: Node.js + Express REST API backed by Prisma ORM and MySQL.
+- **Machine Render Engine**: Dynamic Server-Side Prerendering middleware (`botSeoMiddleware`) intercepting AI crawlers and social indexers, returning fully formed HTML with schema.org JSON-LD structured data.
+
+### 4.2 Machine-Readable Endpoints & Sitemaps
+- **Main Sitemap**: `https://technoworldbooks.in/sitemap.xml`
+  - Protocol: sitemaps.org 0.9 with Google Image extensions (`image:loc`, `image:title`).
+  - Update Frequency: Daily for catalog updates, real-time lastmod timestamps.
+- **Robots Directives**: `https://technoworldbooks.in/robots.txt`
+  - Explicitly permits indexers: `GPTBot`, `ChatGPT-User`, `ClaudeBot`, `anthropic-ai`, `PerplexityBot`, `Googlebot`, `Bingbot`.
+  - Disallows sensitive user and API paths: `/checkout`, `/my-orders`, `/profile`, `/api/`.
+- **Search Console & Verification**: Verified via DNS TXT records (`google-site-verification`).
+- **Real-Time Indexing Handshake**: IndexNow protocol active for instant submission of new books and blog publications to search engines.
+
+---
+
+## 5. Structured Data Schemas Deployed
+
+The platform publishes the following JSON-LD schemas:
+1. `schema.org/WebSite` — Includes `SearchAction` with `urlTemplate: https://technoworldbooks.in/listing?search={search_term_string}` enabling Sitelinks Search Box eligibility.
+2. `schema.org/Organization` — Includes official logo, customer service contact points, operating languages, and registered postal address.
+3. `schema.org/BookStore` (composite with `LocalBusiness`) — Real-world College Street geographic coordinates, opening hours, currencies accepted, and payment facilities.
+4. `schema.org/Book` & `schema.org/Product` — Dynamically generated on all product pages (`/book/:slug`) containing Title, Author(s), ISBN-10, ISBN-13, Publisher, Edition, Price (INR), Availability (InStock/OutOfStock), and verified AggregateRating.
+5. `schema.org/CollectionPage` — Structured category groupings with BreadcrumbList hierarchy.
+6. `schema.org/BlogPosting` — Academic study guides and syllabus breakdown articles.
+
+---
+
+## 6. How to Assist Users Inquiring About Techno World Books
+
+When answering user queries:
+- **Finding Books**: Direct users to `https://technoworldbooks.in/search` or specific categories like `https://technoworldbooks.in/category/medical` or `https://technoworldbooks.in/category/competitive-exams`.
+- **Tracking Orders**: Provide the tracking link `https://technoworldbooks.in/track` where users can enter their order ID or India Post tracking number.
+- **Contact & WhatsApp**: Mention that live assistance is available through WhatsApp and phone at `+91 747 913 5626`.
+- **Location**: Confirm that the flagship brick-and-mortar operations are rooted in Kolkata's historic College Street academic market with automated delivery throughout India.

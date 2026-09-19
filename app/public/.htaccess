@@ -14,6 +14,26 @@
   # Don't rewrite sitemap or robots if handled as static files
   RewriteRule ^robots\.txt$ - [L]
   RewriteRule ^sitemap\.xml$ - [L]
+  RewriteRule ^llms\.txt$ - [L]
+  RewriteRule ^llms-full\.txt$ - [L]
+
+  # ------------------------------------------------------------------
+  # Bot SEO Proxy: pass crawler traffic to Express API for OG injection
+  # The Express botSeoMiddleware returns server-rendered HTML with all
+  # <meta> OG tags so social scrapers (WhatsApp, Facebook, LinkedIn)
+  # and search engines (Googlebot, Bingbot) get proper metadata.
+  #
+  # Wrapped in <IfModule mod_proxy.c> as defensive guard:
+  # If mod_proxy is disabled on Hostinger shared Apache, requests
+  # fall back safely to index.html without throwing a 500 error.
+  # ------------------------------------------------------------------
+  <IfModule mod_proxy.c>
+    RewriteCond %{HTTP_USER_AGENT} "(googlebot|google-inspectiontool|bingbot|bingpreview|yandexbot|duckduckbot|facebookexternalhit|facebot|whatsapp|linkedinbot|pinterest|telegrambot|slackbot|discordbot|twitterbot|gptbot|chatgpt-user|perplexitybot|amazonbot|diffbot|semrushbot|ahrefsbot|applebot)" [NC]
+    RewriteRule ^(book|category|blog)/(.+)$ https://api.technoworldbooks.in/$1/$2 [P,L]
+
+    RewriteCond %{HTTP_USER_AGENT} "(googlebot|google-inspectiontool|bingbot|bingpreview|yandexbot|duckduckbot|facebookexternalhit|facebot|whatsapp|linkedinbot|pinterest|telegrambot|slackbot|discordbot|twitterbot|gptbot|chatgpt-user|perplexitybot|amazonbot|diffbot|semrushbot|ahrefsbot|applebot)" [NC]
+    RewriteRule ^$ https://api.technoworldbooks.in/ [P,L]
+  </IfModule>
 
   # Route all other URLs to index.html for client-side routing
   RewriteRule ^ index.html [L]
@@ -35,7 +55,16 @@ Options -Indexes
   AddType application/json .json
   AddType font/woff .woff
   AddType font/woff2 .woff2
+  AddType "text/plain; charset=utf-8" .txt
 </IfModule>
+
+# Ensure LLM discovery and crawler protocol files are served with UTF-8 text/plain
+<FilesMatch "^(llms|llms-full|robots)\.txt$">
+  <IfModule mod_headers.c>
+    Header set Content-Type "text/plain; charset=utf-8"
+    Header set Cache-Control "public, max-age=86400"
+  </IfModule>
+</FilesMatch>
 
 # Prevent caching of index.html so updates are immediate
 <Files "index.html">
