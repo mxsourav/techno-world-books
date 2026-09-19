@@ -14,7 +14,7 @@ import PromoBanners from '@/components/PromoBanners';
 import GoogleReviewsAndMap from '@/components/GoogleReviewsAndMap';
 import { useAutoFeaturedBooks } from '@/hooks/useAutoFeaturedBooks';
 import { SEARCH_SUGGESTIONS } from '@/data/constants';
-import SEOHead, { buildWebsiteJsonLd } from '@/components/SEOHead';
+import SEOHead, { buildWebsiteJsonLd, buildLocalBusinessJsonLd } from '@/components/SEOHead';
 import { CmsText } from '@/components/common/CmsText';
 import { BOOKS as FALLBACK_BOOKS } from '@/data/books';
 
@@ -179,9 +179,9 @@ export default function Home() {
     <div className="w-full min-w-0 max-w-full overflow-x-hidden bg-slate-50 selection:bg-emerald-500/30">
       <SEOHead
         title="Techno World Books — Buy Academic, School & College Books Online"
-        description="Every book India reads, one search away. Fast delivery across India on genuine textbooks, reference materials, and publications."
+        description="Every book India reads, one search away. Fast delivery across India on genuine textbooks, reference materials, and publications from College Street, Kolkata."
         canonicalUrl="https://technoworldbooks.in/"
-        structuredData={buildWebsiteJsonLd()}
+        structuredData={[buildWebsiteJsonLd(), buildLocalBusinessJsonLd()]}
       />
       {/* Hero Section */}
       <section id="home-hero" className="relative flex min-h-[620px] w-full max-w-full min-w-0 flex-col justify-center overflow-x-hidden bg-[#02120b] pb-24 pt-7 text-white sm:min-h-[85vh] sm:pb-32 sm:pt-14 lg:pt-16 lg:pb-40">
