@@ -522,10 +522,12 @@ export default function Header() {
             <SheetContent side="left" className="w-80 p-0 flex flex-col h-full max-h-[100dvh] overflow-hidden bg-white">
               {/* Top Branding Strip (Fixed) */}
               <div className="shrink-0 bg-[#0a2e1f] p-4 pr-12 text-white relative">
-                <p className="flex items-center gap-2.5 font-bold">
-                  <img src="/techno_world_circle_white.png" alt="Techno World Books Logo" className="h-8 w-8 object-contain" />
-                  <span className="text-base font-extrabold tracking-wider uppercase text-white">Techno World</span>
-                </p>
+                <SheetClose asChild>
+                  <Link to="/" className="flex items-center gap-2.5 font-bold">
+                    <img src="/techno_world_circle_white.png" alt="Techno World Books Logo" className="h-8 w-8 object-contain" />
+                    <span className="text-base font-extrabold tracking-wider uppercase text-white">Techno World</span>
+                  </Link>
+                </SheetClose>
                 <p className="mt-1 text-xs text-emerald-200 truncate">{user ? `Hi, ${user.name}` : <CmsText contentKey="header.sub_tagline" defaultText="India ka apna bookstore" label="Header Tagline" />}</p>
               </div>
 
