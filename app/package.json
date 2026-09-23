@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "sync:sitemap": "node scripts/syncSitemap.js",
+    "build": "node scripts/syncSitemap.js && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "extract": "node scripts/extractBooks.js"

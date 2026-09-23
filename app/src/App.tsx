@@ -76,14 +76,42 @@ function VisitorPulseTracker() {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    let sessionId = sessionStorage.getItem('tw_vis_sid');
-    if (!sessionId) {
-      sessionId = `vis_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
-      sessionStorage.setItem('tw_vis_sid', sessionId);
+    // 1. Persistent Unique Device ID (Stored in localStorage and 1-year first-party cookie)
+    // Ensures multiple visits or tab reopens from the same device NEVER count as a new customer visit
+    let deviceId = '';
+    try {
+      deviceId = localStorage.getItem('tw_device_id') || '';
+      if (!deviceId) {
+        const match = document.cookie.match(/(?:^|; )tw_did=([^;]*)/);
+        deviceId = match ? decodeURIComponent(match[1]) : '';
+      }
+      if (!deviceId) {
+        deviceId = `dev_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
+        localStorage.setItem('tw_device_id', deviceId);
+      }
+      // Sync 1-year cookie for Safari / partitioned storage safety
+      document.cookie = `tw_did=${encodeURIComponent(deviceId)};path=/;max-age=31536000;SameSite=Lax`;
+    } catch {
+      deviceId = `dev_fallback_${Math.random().toString(36).substring(2, 10)}`;
     }
 
-    const sendPulse = () => {
-      const baseUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://techno-world-api-qw4j.onrender.com/api/v1' : 'http://localhost:5000/api/v1');
+    // 2. Tab Session ID (sessionStorage for current active browser tab)
+    let sessionId = '';
+    try {
+      sessionId = sessionStorage.getItem('tw_vis_sid') || '';
+      if (!sessionId) {
+        sessionId = `vis_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+        sessionStorage.setItem('tw_vis_sid', sessionId);
+      }
+    } catch {
+      sessionId = `vis_${Date.now()}`;
+    }
+
+    const sendPulse = (isPageview: boolean) => {
+      const baseUrl =
+        import.meta.env.VITE_API_URL ||
+        (import.meta.env.PROD ? 'https://techno-world-api-qw4j.onrender.com/api/v1' : 'http://localhost:5000/api/v1');
+
       const isMobile = window.innerWidth < 768 || /Mobi|Android|iPhone|iPod/i.test(navigator.userAgent);
       const isTablet = !isMobile && (window.innerWidth < 1024 || /iPad|Tablet/i.test(navigator.userAgent));
       const detectedDevice = isMobile ? 'mobile' : isTablet ? 'tablet' : 'desktop';
@@ -92,18 +120,26 @@ function VisitorPulseTracker() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          deviceId,
           sessionId,
           path: pathname,
           pageTitle: document.title || 'Techno World Books',
           referrer: document.referrer || undefined,
           deviceType: detectedDevice,
           screenWidth: window.innerWidth,
+          isPageview,
         }),
       }).catch(() => {});
     };
 
-    sendPulse();
-    const interval = setInterval(sendPulse, 25000); // 25-second active pulse
+    // Immediate pulse when navigating to route = genuine pageview
+    sendPulse(true);
+
+    // Keepalive heartbeats every 25 seconds = NOT a new pageview, just active presence
+    const interval = setInterval(() => {
+      sendPulse(false);
+    }, 25000);
+
     return () => clearInterval(interval);
   }, [pathname]);
 

@@ -56,7 +56,17 @@ Options -Indexes
   AddType font/woff .woff
   AddType font/woff2 .woff2
   AddType "text/plain; charset=utf-8" .txt
+  AddType application/xml .xml
 </IfModule>
+
+# Ensure XML sitemap is served with proper MIME and crawler permissions
+<Files "sitemap.xml">
+  <IfModule mod_headers.c>
+    Header set Content-Type "application/xml; charset=utf-8"
+    Header set X-Robots-Tag "all"
+    Header set Cache-Control "public, max-age=3600"
+  </IfModule>
+</Files>
 
 # Ensure LLM discovery and crawler protocol files are served with UTF-8 text/plain
 <FilesMatch "^(llms|llms-full|robots)\.txt$">
