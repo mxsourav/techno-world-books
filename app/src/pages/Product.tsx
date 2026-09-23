@@ -651,7 +651,7 @@ export default function Product() {
 
                 {/* Main Active Preview Canvas */}
                 <div
-                  className="order-1 relative flex h-[360px] min-w-0 w-[90%] items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-slate-50/80 p-2 touch-pan-x select-none sm:order-2 sm:h-[440px] sm:p-3"
+                  className="order-1 relative flex h-[360px] min-w-0 w-[90%] items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-slate-50/80 p-2 select-none sm:order-2 sm:h-[440px] sm:p-3"
                   onTouchStart={handleGalleryTouchStart}
                   onTouchEnd={handleGalleryTouchEnd}
                 >
