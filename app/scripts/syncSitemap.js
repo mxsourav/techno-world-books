@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SITEMAP_PATH = path.resolve(__dirname, '../public/sitemap.xml');
-const API_URL = 'https://techno-world-api-qw4j.onrender.com';
+const API_URL = process.env.VITE_API_URL ? process.env.VITE_API_URL.replace(/\/api\/v1\/?$/, '') : 'https://api.technoworldbooks.in';
 
 async function syncSitemap() {
   try {

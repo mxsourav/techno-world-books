@@ -61,7 +61,7 @@ function KeepAlivePing() {
   useEffect(() => {
     // Ping backend every 14 minutes to prevent Render free-tier sleep
     const interval = setInterval(() => {
-      const baseUrl = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || (import.meta.env.PROD ? 'https://techno-world-api-qw4j.onrender.com' : 'http://localhost:5000');
+      const baseUrl = import.meta.env.VITE_API_URL?.replace(/\/api\/v1\/?$/, '') || (import.meta.env.PROD ? 'https://api.technoworldbooks.in' : 'http://localhost:5000');
       fetch(`${baseUrl}/health`).catch(() => {});
     }, 14 * 60 * 1000); // 14 minutes
     
@@ -110,7 +110,7 @@ function VisitorPulseTracker() {
     const sendPulse = (isPageview: boolean) => {
       const baseUrl =
         import.meta.env.VITE_API_URL ||
-        (import.meta.env.PROD ? 'https://techno-world-api-qw4j.onrender.com/api/v1' : 'http://localhost:5000/api/v1');
+        (import.meta.env.PROD ? 'https://api.technoworldbooks.in/api/v1' : 'http://localhost:5000/api/v1');
 
       const isMobile = window.innerWidth < 768 || /Mobi|Android|iPhone|iPod/i.test(navigator.userAgent);
       const isTablet = !isMobile && (window.innerWidth < 1024 || /iPad|Tablet/i.test(navigator.userAgent));
