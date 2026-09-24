@@ -215,7 +215,12 @@ export default function App() {
           <ScrollToTop />
           <KeepAlivePing />
           <VisitorPulseTracker />
-          <Toaster position="top-center" richColors />
+          <Toaster
+            position="top-center"
+            toastOptions={{
+              className: 'bg-white text-zinc-900 border border-zinc-200/90 shadow-sm rounded-xl text-xs font-semibold dark:bg-zinc-900 dark:text-zinc-100 dark:border-zinc-800',
+            }}
+          />
           <ErrorBoundary>
             <CustomerStorefront />
           </ErrorBoundary>
