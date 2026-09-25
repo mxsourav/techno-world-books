@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router';
-import { BadgePercent, Truck, Gift, Sparkles, ArrowRight, Trophy, Flame, TrendingUp, Sparkle, Stethoscope, Settings, GraduationCap, Library, BookOpen, Quote, Languages, Globe2, Gem, Heart, Clock, Tag } from 'lucide-react';
+import { BadgePercent, Truck, Gift, ArrowRight, Trophy, Flame, TrendingUp, Sparkle, Stethoscope, Settings, GraduationCap, Library, BookOpen, Quote, Languages, Globe2, Gem, Heart, Clock, Tag } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 
 import { bookService, heroService, getImageUrl } from '@/services/api';
@@ -804,21 +804,6 @@ export default function Home() {
         </>
       )}
 
-      {/* LOYALTY CTA */}
-      <section className="mx-auto max-w-7xl px-3 py-6 sm:px-6">
-        <div className="rounded-2xl bg-gradient-to-r from-amber-400 to-orange-400 p-5 text-slate-900 sm:p-8">
-          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-            <div className="min-w-0">
-              <p className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-widest"><Sparkles className="h-4 w-4" /> Techno Rewards</p>
-              <h3 className="mt-1 text-lg font-extrabold sm:text-2xl leading-snug">Earn points on every order. Redeem on your next.</h3>
-              <p className="mt-1 text-xs sm:text-sm font-medium opacity-80">Refer a friend and both of you get ₹100 in points.</p>
-            </div>
-            <Link to="/account" className="shrink-0 rounded-xl bg-slate-900 px-5 py-3 text-sm font-extrabold text-white hover:bg-slate-800 w-full sm:w-auto text-center">
-              Check My Rewards
-            </Link>
-          </div>
-        </div>
-      </section>
 
       {/* GOOGLE REVIEWS & PHYSICAL STORE MAP */}
       <GoogleReviewsAndMap />

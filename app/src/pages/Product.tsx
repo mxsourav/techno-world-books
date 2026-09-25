@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import {
   ChevronLeft, ChevronRight, Heart, Share2, Truck, ShieldCheck, RotateCcw, MapPin, Zap,
@@ -360,14 +360,72 @@ export default function Product() {
   const bookType = book.exam ? 'Exam Question Bank / Cracker' : 'Textbook & Reference Guide';
   const subject = book.subject || book.course || (cat ? cat.name : 'General Academic');
 
-  // Multi-image gallery items
-  const galleryItems = [
-    { type: 'cover', title: 'Front Cover', subtitle: 'Official Edition' },
-    { type: 'contents', title: 'Contents / Syllabus', subtitle: 'Table of Contents' },
-    { type: 'sample1', title: 'Unit I Sample Page', subtitle: 'Reading Comprehension' },
-    { type: 'sample2', title: 'Unit II Practice MCQs', subtitle: 'Verbal Ability & Practice' },
-    { type: 'back', title: 'Back Cover', subtitle: 'Features & Syllabus' }
-  ];
+  // Multi-image gallery items: build dynamically from real uploaded images or fallback
+  const rawGalleryUrls: string[] = useMemo(() => {
+    if (Array.isArray(book.galleryUrls) && book.galleryUrls.length > 0) return book.galleryUrls;
+    if (typeof book.galleryUrls === 'string') {
+      try {
+        const parsed = JSON.parse(book.galleryUrls);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch {}
+    }
+    if (Array.isArray(book.images) && book.images.length > 0) {
+      return book.images.map((img: any) => img.secureUrl || img.url);
+    }
+    return [];
+  }, [book.galleryUrls, book.images]);
+
+  const galleryItems = useMemo(() => {
+    const items: Array<{
+      type: 'cover' | 'image' | 'pdf' | 'contents' | 'sample1' | 'sample2' | 'back';
+      title: string;
+      subtitle?: string;
+      imageUrl?: string;
+      pdfUrl?: string;
+    }> = [];
+
+    // 1st item: primary cover thumbnail
+    const coverUrl = book.coverUrl || book.coverImage || rawGalleryUrls[0];
+    items.push({
+      type: 'cover',
+      title: 'Front Cover',
+      subtitle: 'Official Edition',
+      imageUrl: coverUrl,
+    });
+
+    // Additional uploaded gallery images
+    const additionalImages = rawGalleryUrls.filter((url) => url !== coverUrl);
+    additionalImages.forEach((imgUrl, idx) => {
+      items.push({
+        type: 'image',
+        title: idx === additionalImages.length - 1 ? 'Back Cover' : `Book View #${idx + 1}`,
+        subtitle: 'Official Image',
+        imageUrl: imgUrl,
+      });
+    });
+
+    // Preview PDF if present
+    if (book.previewPdfUrl) {
+      items.push({
+        type: 'pdf',
+        title: 'Sample PDF Pages',
+        subtitle: 'Read Sample Chapters',
+        pdfUrl: book.previewPdfUrl,
+      });
+    }
+
+    // If no extra media uploaded, provide academic TOC & sample preview simulation
+    if (items.length === 1 && !book.previewPdfUrl) {
+      items.push(
+        { type: 'contents', title: 'Contents / Syllabus', subtitle: 'Table of Contents' },
+        { type: 'sample1', title: 'Unit I Sample Page', subtitle: 'Reading Comprehension' },
+        { type: 'sample2', title: 'Unit II Practice MCQs', subtitle: 'Verbal Ability & Practice' },
+        { type: 'back', title: 'Back Cover', subtitle: 'Features & Syllabus' }
+      );
+    }
+
+    return items;
+  }, [book.coverUrl, book.coverImage, rawGalleryUrls, book.previewPdfUrl]);
 
   // Real reviews from database
   const reviewsList = liveReviews.length > 0 
@@ -632,7 +690,19 @@ export default function Product() {
                       }`}
                       style={{ aspectRatio: '3 / 4.2' }}
                     >
-                      {idx === 0 ? (
+                      {item.imageUrl ? (
+                        <img
+                          src={getImageUrl(item.imageUrl)}
+                          alt={item.title}
+                          className="w-full h-full object-cover rounded"
+                          loading="lazy"
+                        />
+                      ) : item.type === 'pdf' ? (
+                        <div className="w-full h-full bg-rose-50 border border-rose-200 rounded p-1 flex flex-col items-center justify-center text-center">
+                          <BookOpen className="h-4 w-4 text-rose-600 mb-0.5" />
+                          <span className="text-[7px] font-bold text-rose-800 leading-tight">PDF Preview</span>
+                        </div>
+                      ) : idx === 0 ? (
                         <BookCover book={book} className="w-full h-full text-[6px]" />
                       ) : (
                         <div className="w-full h-full bg-slate-50 border border-slate-200 rounded p-1 flex flex-col justify-between text-[7px] text-slate-600 leading-tight">
@@ -714,7 +784,24 @@ export default function Product() {
                     key={activeImageIndex}
                     className={`flex h-full w-full min-w-0 items-center justify-center overflow-hidden ${gallerySwipeDirection === 'next' ? 'animate-gallery-next' : 'animate-gallery-previous'}`}
                   >
-                  {activeImageIndex === 0 ? (
+                  {galleryItems[activeImageIndex]?.type === 'pdf' && galleryItems[activeImageIndex]?.pdfUrl ? (
+                    <div className="h-full w-full rounded-xl overflow-hidden border border-slate-200 bg-white shadow-md">
+                      <iframe
+                        src={`${getImageUrl(galleryItems[activeImageIndex].pdfUrl)}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`}
+                        className="w-full h-full border-0"
+                        title="Sample PDF Preview"
+                      />
+                    </div>
+                  ) : galleryItems[activeImageIndex]?.imageUrl ? (
+                    <div className="h-[334px] w-auto max-w-full aspect-[3/4.2] drop-shadow-xl transition-all duration-300 sm:h-[400px] flex items-center justify-center">
+                      <img
+                        src={getImageUrl(galleryItems[activeImageIndex].imageUrl)}
+                        alt={galleryItems[activeImageIndex].title}
+                        className="h-full w-auto max-w-full object-contain rounded-lg shadow-sm"
+                        loading="eager"
+                      />
+                    </div>
+                  ) : activeImageIndex === 0 ? (
                     <div className="h-[334px] w-auto max-w-full aspect-[3/4.2] drop-shadow-xl transition-all duration-300 sm:h-[400px]">
                       <BookCover book={book} className="text-xl" />
                     </div>

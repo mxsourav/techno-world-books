@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { toast } from 'sonner';
-import { searchService, categoryService, authService } from '@/services/api';
+import { searchService, categoryService, authService, getImageUrl } from '@/services/api';
 import { GoogleSignInButton } from '@/components/GoogleSignInButton';
 import { CmsText } from '@/components/common/CmsText';
 
@@ -380,19 +380,53 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
               <div className="px-4 py-3 text-center text-sm text-slate-500">No books found</div>
             ) : (
               <>
-                {suggestions.map((b) => (
-                  <button
-                    key={b.id}
-                    onClick={() => { addSearchToHistory(b.title); setOpen(false); setQ(''); navigate(`/book/${b.slug}`); }}
-                    className="flex w-full items-start gap-3 px-4 py-2.5 text-left hover:bg-emerald-50 transition-colors"
-                  >
-                    <BookOpen className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-semibold text-slate-800">{b.title}</span>
-                      <span className="block truncate text-xs text-slate-500">{b.author} • {b.category}</span>
-                    </span>
-                  </button>
-                ))}
+                {suggestions.map((b) => {
+                  const coverSrc = getImageUrl(b.coverUrl || b.coverImage);
+                  return (
+                    <button
+                      key={b.id}
+                      onClick={() => { addSearchToHistory(b.title); setOpen(false); setQ(''); navigate(`/book/${b.slug}`); }}
+                      className="group flex w-full items-center gap-3.5 px-3.5 py-2 text-left hover:bg-emerald-50/80 transition-colors border-b border-slate-50 last:border-0"
+                    >
+                      <div className="relative h-12 w-9 shrink-0 overflow-hidden rounded bg-slate-100 border border-slate-200/90 shadow-xs flex items-center justify-center">
+                        {coverSrc ? (
+                          <img
+                            src={coverSrc}
+                            alt={b.title}
+                            className="h-full w-full object-cover"
+                            loading="lazy"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              if (e.currentTarget.parentElement) {
+                                e.currentTarget.parentElement.innerHTML = '<span class="text-emerald-700 text-[10px] font-bold">TW</span>';
+                              }
+                            }}
+                          />
+                        ) : (
+                          <BookOpen className="h-4 w-4 text-emerald-600" />
+                        )}
+                      </div>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-xs sm:text-sm font-semibold text-slate-900 group-hover:text-emerald-800 transition-colors">
+                          {b.title}
+                        </span>
+                        <span className="block truncate text-[11px] text-slate-500 mt-0.5">
+                          {b.author && b.author !== 'Unknown' ? <span>{b.author}</span> : null}
+                          {b.author && b.author !== 'Unknown' && b.category ? <span> • </span> : null}
+                          {b.category ? <span className="text-slate-400">{b.category}</span> : null}
+                        </span>
+                      </span>
+                      {b.price !== undefined && (
+                        <span className="shrink-0 text-right pl-2">
+                          <span className="block text-xs sm:text-sm font-bold text-slate-900">₹{b.price}</span>
+                          {b.mrp && Number(b.mrp) > Number(b.price) && (
+                            <span className="block text-[10px] text-slate-400 line-through">₹{b.mrp}</span>
+                          )}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
                 {Array.from(new Set(suggestions.map(b => b.author).filter(Boolean))).map(author => (
                   <button
                     key={`author-${author}`}

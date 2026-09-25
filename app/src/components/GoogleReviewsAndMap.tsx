@@ -267,9 +267,9 @@ export const GoogleReviewsAndMap: React.FC = () => {
                 <span>Google Verified Reviews</span>
               </div>
 
-              <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-                100% Organic Customer Feedback
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+                <CheckCircle2 className="h-3.5 w-3.5 text-slate-600" />
+                Customer Ratings & Feedback
               </span>
             </div>
 
