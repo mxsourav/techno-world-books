@@ -721,7 +721,7 @@ export default function Product() {
               <div className="flex min-w-0 flex-col gap-3 sm:grid sm:grid-cols-[80px_minmax(0,1fr)] sm:gap-4">
                 
                 {/* Vertical Thumbnail Strip */}
-                <div className="order-2 flex w-full min-w-0 flex-row gap-2.5 overflow-x-auto overscroll-x-contain touch-pan-x pb-1 pr-1 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:order-1 sm:max-h-[460px] sm:flex-col sm:overflow-y-auto sm:overflow-x-hidden sm:pb-0">
+                <div className="order-2 flex w-full min-w-0 flex-row gap-2.5 overflow-x-auto overscroll-x-contain touch-auto sm:touch-pan-x pb-1 pr-1 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:order-1 sm:max-h-[460px] sm:flex-col sm:overflow-y-auto sm:overflow-x-hidden sm:pb-0">
                   {galleryItems.map((item, idx) => (
                     <button
                       key={idx}
