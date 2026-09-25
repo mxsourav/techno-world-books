@@ -142,12 +142,6 @@ async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Re
     headers.set('Authorization', `Bearer ${token}`);
   }
 
-  const refToken = isAdminRoute
-    ? localStorage.getItem('tw_admin_refresh_token')
-    : (localStorage.getItem('tw_customer_refresh_token') || localStorage.getItem('tw_admin_refresh_token'));
-  if (refToken && !headers.has('x-refresh-token')) {
-    headers.set('x-refresh-token', refToken);
-  }
 
   const mergedOptions: RequestInit = {
     cache: 'no-store',
