@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useStore } from '@/store/StoreContext';
 import { pricingService } from '@/services/api';
 
@@ -13,6 +13,9 @@ export function useCartTotals(
 ) {
   const { cart, coupon, user } = useStore();
   const [pricing, setPricing] = useState<any>(null);
+  const pricingRef = useRef<any>(null);
+  pricingRef.current = pricing;
+
   const [loading, setLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState<{status: number, message: string} | null>(null);
@@ -47,7 +50,7 @@ export function useCartTotals(
         return;
       }
       try {
-        if (!pricing) {
+        if (!pricingRef.current) {
           setLoading(true);
         } else {
           setIsUpdating(true);
@@ -90,14 +93,18 @@ export function useCartTotals(
         
         if (active) {
           setPricing(res.data);
+          setError(null);
         }
       } catch (err: any) {
         if (active) {
-          console.error("Pricing Error:", err);
-          setError({
-            status: err?.status || 500,
-            message: err?.message || 'Failed to calculate pricing.'
-          });
+          console.warn("Pricing recalculation non-fatal warning:", err);
+          // Only show fatal error if initial load has no pricing at all
+          if (!pricingRef.current) {
+            setError({
+              status: err?.status || 500,
+              message: err?.message || 'Failed to calculate pricing.'
+            });
+          }
         }
       } finally {
         if (active) {
@@ -118,12 +125,19 @@ export function useCartTotals(
   const promoError = pricing?.promotionError || pricing?.couponError || null;
   const discount = Number(pricing?.promotionDiscount ?? pricing?.couponDiscount ?? 0);
 
+  const effectiveCodFee = paymentMethod === 'cod' ? Number(pricing?.codFee || 20) : 0;
+  const baseTotal = Number(pricing?.totalAmount || 0);
+  const pricingHadCod = Number(pricing?.codFee || 0) > 0;
+  const effectiveTotal = (paymentMethod === 'cod' && !pricingHadCod && baseTotal > 0)
+    ? Number((baseTotal + 20).toFixed(2))
+    : baseTotal;
+
   return { 
     items: pricing?.items || [], 
     subtotal: pricing?.subtotal || 0, 
     mrpTotal: pricing?.mrpTotal || 0, 
     shipping: pricing?.shippingCharge || 0, 
-    codFee: Number(pricing?.codFee ?? (paymentMethod === 'cod' ? 20 : 0)),
+    codFee: effectiveCodFee,
     isShippingCalculated: Boolean(pricing?.isShippingCalculated),
     isExpressEligible: Boolean(pricing?.isExpressEligible),
     deliveryOptions: pricing?.deliveryOptions || [],
@@ -142,7 +156,7 @@ export function useCartTotals(
     walletDiscount: Number(pricing?.walletDiscount || 0),
     userPointsBalance: pricing?.userPointsBalance,
     userWalletBalance: pricing?.userWalletBalance,
-    total: pricing?.totalAmount || 0, 
+    total: effectiveTotal, 
     coupon: rawPromoCode, 
     appliedCoupon: rawPromoCode,
     pendingCoupon: coupon,

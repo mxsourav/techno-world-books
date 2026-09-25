@@ -76,7 +76,7 @@ export default function Checkout() {
     }).catch(() => {});
   }, []);
 
-  // Strict Address Deduplication: unique by address line and pincode
+  // Strict Address Deduplication & Normalization: supports both DB (fullName, addressLine1) and frontend (name, line1) schemas
   const addresses = useMemo(() => {
     const rawList = dbAddresses.length > 0 ? dbAddresses : storeAddresses;
     if (!rawList || !Array.isArray(rawList)) return [];
@@ -88,7 +88,22 @@ export default function Checkout() {
       if (seen.has(key)) return false;
       seen.add(key);
       return true;
-    });
+    }).map((a: any) => ({
+      ...a,
+      id: a.id || `addr_${Math.random().toString(36).substring(2, 9)}`,
+      name: a.name || a.fullName || 'Valued Customer',
+      fullName: a.fullName || a.name || 'Valued Customer',
+      phone: a.phone || '',
+      line1: a.line1 || a.addressLine1 || '',
+      addressLine1: a.addressLine1 || a.line1 || '',
+      line2: a.line2 || a.addressLine2 || '',
+      addressLine2: a.addressLine2 || a.line2 || '',
+      postOffice: a.postOffice || 'Local Post Office',
+      city: a.city || '',
+      state: a.state || 'West Bengal',
+      pincode: a.pincode || '',
+      type: a.type || 'Home',
+    }));
   }, [dbAddresses, storeAddresses]);
 
   useEffect(() => {
@@ -312,7 +327,7 @@ export default function Checkout() {
     );
   }
 
-  if (error) {
+  if (error && (!items || items.length === 0)) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-20 text-center text-slate-500">
         <span className="text-4xl mb-4">⚠️</span>
@@ -324,13 +339,29 @@ export default function Checkout() {
   }
 
   if (placed) {
+    const placedDeliveryDate = (() => {
+      try {
+        const d = placed?.expectedDelivery ? new Date(placed.expectedDelivery) : null;
+        return d && !isNaN(d.getTime()) ? d.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' }) : '3–5 Business Days';
+      } catch {
+        return '3–5 Business Days';
+      }
+    })();
+
+    const placedAddrName = placed.address?.name || (placed.address as any)?.fullName || 'Valued Customer';
+    const placedAddrPhone = placed.address?.phone || '';
+    const placedAddrEmail = placed.address?.email || '';
+    const placedAddrLine = placed.address?.line1 || (placed.address as any)?.addressLine1 || '';
+    const placedAddrCity = placed.address?.city || '';
+    const placedAddrPin = placed.address?.pincode || '';
+
     if (placed.courier === 'STORE_TAKEAWAY' || placed.trackingId?.startsWith('PICKUP-')) {
       return (
         <div className="mx-auto max-w-2xl px-4 py-14 text-center">
           <PartyPopper className="mx-auto h-16 w-16 text-emerald-600" />
           <h1 className="mt-4 text-2xl font-extrabold text-slate-900">Store Pickup Order Placed!</h1>
           <p className="mt-2 text-sm text-slate-500">
-            Order <b className="text-slate-800">{placed.id}</b> · {placed.items?.length} item(s) · {formatINR(placed.total)} · {placed.payment}
+            Order <b className="text-slate-800">{placed.id}</b> · {placed.items?.length || 0} item(s) · {formatINR(placed.total)} · {placed.payment}
           </p>
           <div className="mt-6 rounded-xl border border-slate-200 bg-white p-5 text-left shadow-sm">
             <p className="flex items-center gap-2 text-sm font-bold text-slate-800">
@@ -346,9 +377,9 @@ export default function Checkout() {
               </div>
               <div>
                 <p className="text-xs text-slate-400 font-medium">Collector</p>
-                <p className="font-semibold text-slate-800">{placed.address.name}</p>
-                <p className="text-xs text-slate-600">+91 {placed.address.phone}</p>
-                <p className="text-xs text-slate-400 mt-1">{placed.address.email}</p>
+                <p className="font-semibold text-slate-800">{placedAddrName}</p>
+                <p className="text-xs text-slate-600">{placedAddrPhone ? `+91 ${placedAddrPhone}` : 'Phone on record'}</p>
+                {placedAddrEmail && <p className="text-xs text-slate-400 mt-1">{placedAddrEmail}</p>}
               </div>
             </div>
             <div className="mt-4 rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-xs text-emerald-900">
@@ -380,17 +411,17 @@ export default function Checkout() {
         <PartyPopper className="mx-auto h-16 w-16 text-amber-500" />
         <h1 className="mt-4 text-2xl font-extrabold text-slate-900">Order placed successfully!</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Order <b className="text-slate-800">{placed.id}</b> · {placed.items?.length} item(s) · {formatINR(placed.total)} · {placed.payment}
+          Order <b className="text-slate-800">{placed.id}</b> · {placed.items?.length || 0} item(s) · {formatINR(placed.total)} · {placed.payment}
         </p>
         <div className="mt-6 rounded-xl border border-slate-100 bg-white p-5 text-left shadow-sm">
           <p className="flex items-center gap-2 text-sm font-bold text-slate-800"><CheckCircle2 className="h-4 w-4 text-emerald-600" /> Confirmation sent via WhatsApp, SMS & email</p>
           <div className="mt-3 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
-            <p>📦 Courier: <b>{placed.courier}</b></p>
-            <p>🔢 Tracking ID: <b>{placed.trackingId}</b></p>
-            <p>🚚 Expected: <b>{new Date(placed.expectedDelivery).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}</b></p>
-            <p>🎁 Points earned: <b>+{Math.floor(placed.total / 100) * 5}</b></p>
+            <p>📦 Courier: <b>{placed.courier || 'India Post'}</b></p>
+            <p>🔢 Tracking ID: <b>{placed.trackingId || 'TW-PENDING'}</b></p>
+            <p>🚚 Expected: <b>{placedDeliveryDate}</b></p>
+            <p>🎁 Points earned: <b>+{Math.floor((placed.total || 0) / 100) * 5}</b></p>
           </div>
-          <p className="mt-3 text-xs text-slate-400">Delivering to: {placed.address.name}, {placed.address.line1}, {placed.address.city} — {placed.address.pincode}</p>
+          <p className="mt-3 text-xs text-slate-400">Delivering to: {placedAddrName}{placedAddrLine ? `, ${placedAddrLine}` : ''}{placedAddrCity ? `, ${placedAddrCity}` : ''}{placedAddrPin ? ` — ${placedAddrPin}` : ''}</p>
         </div>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link to={`/track?id=${placed.id}`} className="rounded-xl bg-emerald-700 px-5 py-2.5 text-sm font-bold text-white hover:bg-emerald-800">Track Order</Link>
@@ -648,15 +679,17 @@ export default function Checkout() {
       return;
     }
 
-    let address: Address;
+    let address: Address | undefined;
     const deliveryEmail = (form.email || user?.email || '').trim();
     if (!deliveryEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(deliveryEmail)) {
       return toast.error('Valid Email ID is mandatory to place an order');
     }
 
     if (selectedAddr !== 'new') {
-      address = addresses.find((a: any) => a.id === selectedAddr)!;
-    } else {
+      const found = addresses.find((a: any) => a.id === selectedAddr);
+      address = found || (addresses.length > 0 ? addresses[0] : undefined);
+    }
+    if (!address) {
       if (!form.name.trim()) return toast.error('Full Name is required');
       if (!form.phone || !/^\d{10}$/.test(form.phone.replace(/\D/g, ''))) {
         return toast.error('Please enter a valid 10-digit mobile number');
@@ -668,7 +701,20 @@ export default function Checkout() {
         return toast.error('Please enter a valid 6-digit PIN code');
       }
 
-      address = { id: 'addr_' + Date.now(), ...form, email: userEmail };
+      address = {
+        id: 'addr_' + Date.now(),
+        name: form.name.trim(),
+        phone: form.phone.trim(),
+        email: userEmail,
+        line1: form.line1.trim(),
+        line2: form.line2.trim(),
+        postOffice: form.postOffice.trim(),
+        landmark: form.landmark.trim(),
+        city: form.city.trim(),
+        state: form.state.trim(),
+        pincode: form.pincode.trim(),
+        type: form.type || 'Home',
+      };
       addAddress(address);
     }
     if (total > 0) {
@@ -682,21 +728,31 @@ export default function Checkout() {
 
     setIsSubmitting(true);
     try {
+      const resolvedAddressName = address.name || (address as any).fullName || form.name || 'Valued Customer';
+      const resolvedAddressPhone = address.phone || form.phone || '9876543210';
+      const resolvedAddressLine1 = address.line1 || (address as any).addressLine1 || form.line1 || 'Delivery Address';
+      const resolvedAddressLine2 = (address as any).line2 || (address as any).addressLine2 || null;
+      const resolvedAddressPO = (address as any).postOffice || form.postOffice || 'Local Post Office';
+      const resolvedAddressLandmark = (address as any).landmark || form.landmark || null;
+      const resolvedAddressCity = address.city || form.city || 'Kolkata';
+      const resolvedAddressState = address.state || form.state || 'West Bengal';
+      const resolvedAddressPincode = address.pincode || form.pincode || '700001';
+
       const orderPayload = {
         items: items.map((i: any) => ({ bookId: i.bookId, quantity: i.quantity })),
         addressId: address.id?.startsWith('addr_') ? undefined : address.id,
         email: userEmail,
         address: {
-          fullName: address.name || (address as any).fullName || form.name || 'Valued Customer',
+          fullName: resolvedAddressName,
           email: userEmail,
-          phone: address.phone || form.phone || '9876543210',
-          addressLine1: address.line1 || (address as any).addressLine1 || form.line1 || 'Delivery Address',
-          addressLine2: (address as any).line2 || (address as any).addressLine2 || null,
-          postOffice: (address as any).postOffice || form.postOffice || 'Local Post Office',
-          landmark: (address as any).landmark || form.landmark || null,
-          city: address.city || form.city || 'Kolkata',
-          state: address.state || form.state || 'West Bengal',
-          pincode: address.pincode || form.pincode || '700001',
+          phone: resolvedAddressPhone,
+          addressLine1: resolvedAddressLine1,
+          addressLine2: resolvedAddressLine2,
+          postOffice: resolvedAddressPO,
+          landmark: resolvedAddressLandmark,
+          city: resolvedAddressCity,
+          state: resolvedAddressState,
+          pincode: resolvedAddressPincode,
         },
         paymentMethod: total === 0 ? 'REWARDS_AND_WALLET' : (payment === 'cod' ? 'COD' : (PAYMENTS.find(p => p.id === payment)?.name || 'UPI')),
         couponCode: appliedCoupon ? appliedCoupon : undefined,
@@ -709,6 +765,21 @@ export default function Checkout() {
       const serverOrder = res.data;
 
       const finishOrder = () => {
+        const finalConfirmedAddress: Address = {
+          id: address?.id || 'addr_placed',
+          name: resolvedAddressName,
+          phone: resolvedAddressPhone,
+          email: address?.email || userEmail,
+          line1: resolvedAddressLine1,
+          line2: resolvedAddressLine2 || '',
+          postOffice: resolvedAddressPO,
+          landmark: resolvedAddressLandmark || '',
+          city: resolvedAddressCity,
+          state: resolvedAddressState,
+          pincode: resolvedAddressPincode,
+          type: address?.type || 'Home',
+        };
+
         const createdOrder: Order = {
           id: serverOrder.orderNumber,
           items: items.map((i: any) => ({ bookId: i.bookId, qty: i.quantity, price: i.unitPrice })),
@@ -719,7 +790,7 @@ export default function Checkout() {
           status: serverOrder.status,
           placedAt: new Date().toISOString(),
           payment: serverOrder.paymentMethod,
-          address,
+          address: finalConfirmedAddress,
           trackingId: `TW${Math.floor(10000000 + Math.random() * 90000000)}`,
           courier: 'Delhivery',
           expectedDelivery: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString(),
@@ -1741,7 +1812,9 @@ export default function Checkout() {
           {errors && errors?.length > 0 && (
             <div className="mt-3 rounded-lg bg-rose-50 p-3 text-xs text-rose-700">
               <ul className="list-inside list-disc">
-                {errors.map((e: string, i: number) => <li key={i}>{e}</li>)}
+                {errors.map((e: any, i: number) => (
+                  <li key={i}>{typeof e === 'string' ? e : e?.message || JSON.stringify(e)}</li>
+                ))}
               </ul>
             </div>
           )}
