@@ -393,59 +393,54 @@ export default function Profile() {
   return (
     <div className="min-h-screen bg-slate-50 py-6 sm:py-10 font-sans">
       <div className="mx-auto max-w-6xl px-3 sm:px-6">
-        {/* Top Profile Banner with Loyalty Badge & Elevated Aesthetics */}
-        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#041a12] via-[#09261a] to-[#03130d] p-4 sm:p-7 lg:p-8 text-white shadow-2xl border border-emerald-500/20">
-          {/* Subtle Ambient Lights */}
-          <div className="absolute -right-16 -top-16 h-72 w-72 rounded-full bg-emerald-500/15 blur-3xl pointer-events-none" />
-          <div className="absolute -left-16 -bottom-16 h-72 w-72 rounded-full bg-teal-500/10 blur-3xl pointer-events-none" />
-          <div className="absolute top-1/2 right-1/4 h-40 w-40 rounded-full bg-amber-400/10 blur-2xl pointer-events-none" />
-
-          <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-5 lg:gap-6">
-            {/* User Identity Column */}
-            <div className="flex flex-col sm:flex-row items-center text-center sm:text-left gap-4 sm:gap-5 w-full lg:w-auto min-w-0">
-              {/* Always-Round Avatar */}
-              <div className="relative h-20 w-20 sm:h-22 sm:w-22 shrink-0 rounded-full border-[3px] border-emerald-400/50 shadow-[0_10px_25px_rgba(0,0,0,0.3)] ring-4 ring-emerald-500/20 overflow-hidden bg-gradient-to-br from-emerald-700 via-emerald-800 to-slate-950 flex items-center justify-center">
+        {/* Top Profile Card - Clean, Minimal & Compact */}
+        <div className="rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-xs mb-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            {/* User Identity */}
+            <div className="flex items-center gap-3.5 min-w-0">
+              {/* Compact Avatar */}
+              <div className="relative h-12 w-12 sm:h-14 sm:w-14 shrink-0 rounded-full border border-slate-200 bg-slate-100 flex items-center justify-center overflow-hidden">
                 {profileData?.avatarUrl && !avatarError ? (
                   <img
                     src={profileData.avatarUrl}
                     alt={displayName}
                     referrerPolicy="no-referrer"
                     onError={() => setAvatarError(true)}
-                    className="h-full w-full object-cover rounded-full"
+                    className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-600 via-emerald-800 to-teal-950 font-black text-amber-300 text-2xl sm:text-3xl tracking-wider select-none">
+                  <span className="font-bold text-slate-700 text-base sm:text-lg select-none">
                     {userInitials}
-                  </div>
+                  </span>
                 )}
-                {/* Verified Green Badge on Avatar */}
+                {/* Verified Green Dot */}
                 <div
-                  className="absolute bottom-0 right-0 h-6 w-6 rounded-full bg-emerald-500 border-2 border-slate-950 flex items-center justify-center text-slate-950 shadow-md"
-                  title="Verified Account"
+                  className="absolute -bottom-0.5 -right-0.5 h-4 w-4 sm:h-4.5 sm:w-4.5 rounded-full bg-emerald-600 border-2 border-white flex items-center justify-center text-white"
+                  title="Verified Customer"
                 >
-                  <CheckCircle2 className="h-3.5 w-3.5 text-white" />
+                  <CheckCircle2 className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                 </div>
               </div>
 
-              {/* Name & Credentials Info */}
+              {/* Name & Contact */}
               <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-white truncate max-w-[280px] sm:max-w-md">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-base sm:text-lg font-bold text-slate-900 truncate max-w-[220px] sm:max-w-md">
                     {displayName}
                   </h1>
-                  <span className="rounded-full bg-emerald-500/20 border border-emerald-400/40 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-emerald-300 inline-flex items-center gap-1 shadow-xs shrink-0">
-                    <CheckCircle2 className="h-3 w-3 text-emerald-400" />
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 border border-emerald-200/80 shrink-0">
+                    <CheckCircle2 className="h-2.5 w-2.5 text-emerald-600" />
                     Verified Customer
                   </span>
                 </div>
-                <div className="text-xs font-medium text-emerald-200/90 mt-1.5 flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3">
-                  <span className="inline-flex items-center gap-1.5 bg-white/5 border border-white/10 px-2.5 py-1 rounded-lg">
-                    <Mail className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-                    <span className="truncate max-w-[200px] sm:max-w-none">{profileData?.email || storeUser?.email || 'No email attached'}</span>
+                <div className="text-xs text-slate-500 mt-0.5 flex flex-wrap items-center gap-2 sm:gap-3">
+                  <span className="inline-flex items-center gap-1 truncate max-w-[180px] sm:max-w-none">
+                    <Mail className="h-3 w-3 text-slate-400 shrink-0" />
+                    <span className="truncate">{profileData?.email || storeUser?.email || 'No email attached'}</span>
                   </span>
                   {profileData?.phone && (
-                    <span className="inline-flex items-center gap-1.5 bg-white/5 border border-white/10 px-2.5 py-1 rounded-lg">
-                      <Phone className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                    <span className="inline-flex items-center gap-1 shrink-0">
+                      <Phone className="h-3 w-3 text-slate-400 shrink-0" />
                       <span>+91 {profileData.phone}</span>
                     </span>
                   )}
@@ -453,56 +448,55 @@ export default function Profile() {
               </div>
             </div>
 
-            {/* Wallet & Loyalty Cards (2-column on mobile, side-by-side flex on desktop) */}
-            <div className="grid grid-cols-2 gap-2.5 w-full mt-2 lg:mt-0 lg:flex lg:w-auto shrink-0">
-              {/* TechnoWallet Cash Balance Card */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2.5 sm:gap-3 rounded-2xl bg-gradient-to-br from-emerald-950/80 via-emerald-900/50 to-slate-900/80 border border-emerald-400/30 p-3 sm:p-3.5 shadow-lg shadow-emerald-950/40 hover:border-emerald-400/60 transition-all">
-                <div className="flex h-9 w-9 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-500 text-slate-950 shadow-md">
-                  <Wallet className="h-4 w-4 sm:h-5 sm:w-5" />
+            {/* Wallet & Coins Badges */}
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+              {/* TechnoWallet Cash Balance */}
+              <div className="flex items-center gap-2.5 rounded-xl border border-slate-200/80 bg-slate-50/80 px-3 py-2">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
+                  <Wallet className="h-4 w-4" />
                 </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-lg sm:text-xl font-black text-emerald-300">₹{technoWallet.toFixed(2)}</span>
-                    <span className="text-[10px] sm:text-[11px] font-extrabold text-emerald-200 uppercase tracking-wider">Wallet</span>
+                <div>
+                  <div className="text-xs sm:text-sm font-bold text-slate-900 leading-tight">
+                    ₹{technoWallet.toFixed(2)}
                   </div>
-                  <p className="text-[10px] text-slate-300 mt-0.5 leading-tight">
-                    Cash Balance &bull; <b className="text-emerald-300">No Expiry</b>
-                  </p>
+                  <div className="text-[10px] font-medium text-slate-500 leading-tight">
+                    TechnoWallet
+                  </div>
                 </div>
               </div>
 
-              {/* Loyalty Techno Coins Card */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2.5 sm:gap-3 rounded-2xl bg-gradient-to-br from-amber-950/50 via-slate-900/70 to-emerald-950/50 border border-amber-400/30 p-3 sm:p-3.5 shadow-lg shadow-black/30 hover:border-amber-400/60 transition-all relative">
-                <div className="flex h-9 w-9 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-amber-500 text-slate-950 shadow-md">
-                  <Coins className="h-4 w-4 sm:h-5 sm:w-5" />
+              {/* Techno Coins */}
+              <div className="flex items-center gap-2.5 rounded-xl border border-slate-200/80 bg-slate-50/80 px-3 py-2">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-700">
+                  <Coins className="h-4 w-4" />
                 </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-lg sm:text-xl font-black text-amber-300">{technoPoints}</span>
-                    <span className="text-[10px] sm:text-[11px] font-extrabold text-amber-200 uppercase tracking-wider">Coins</span>
+                <div>
+                  <div className="flex items-center gap-1 leading-tight">
+                    <span className="text-xs sm:text-sm font-bold text-slate-900">{technoPoints}</span>
+                    <span className="text-[10px] text-slate-400 font-medium">(₹{technoPoints})</span>
                   </div>
-                  <p className="text-[10px] text-slate-300 mt-0.5 leading-tight">
-                    Worth <b>₹{technoPoints}.00</b> &bull; 1-Yr Exp
-                  </p>
+                  <div className="text-[10px] font-medium text-slate-500 leading-tight flex items-center gap-1">
+                    <span>Techno Coins</span>
+                    <button
+                      onClick={() => setIsTermsModalOpen(true)}
+                      type="button"
+                      className="text-slate-400 hover:text-slate-600 transition-colors"
+                      title="View Techno Coins Terms"
+                    >
+                      <HelpCircle className="h-2.5 w-2.5" />
+                    </button>
+                  </div>
                 </div>
-                <button
-                  onClick={() => setIsTermsModalOpen(true)}
-                  type="button"
-                  className="hidden sm:grid ml-auto h-6 w-6 place-items-center rounded-lg bg-white/10 text-slate-300 hover:text-white hover:bg-white/20 transition-colors shrink-0"
-                  title="View Techno Points Terms & Expiry"
-                >
-                  <HelpCircle className="h-3.5 w-3.5" />
-                </button>
               </div>
             </div>
           </div>
 
-          {/* Navigation Tabs (Smooth Horizontal Scroll on Mobile, Full Bar on Desktop) */}
-          <div className="mt-6 sm:mt-8 flex items-center justify-between gap-2 border-t border-white/10 pt-4">
-            <div className="flex flex-1 items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {/* Navigation Tabs Bar */}
+          <div className="mt-4 pt-3.5 border-t border-slate-100 flex items-center justify-between gap-2">
+            <div className="flex flex-1 items-center gap-1 sm:gap-1.5 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {[
                 { id: 'orders', label: 'My Orders', count: userOrders.length, icon: ShoppingCart },
-                { id: 'notifications', label: 'Alerts & Notices', count: userNotifs.filter(n => !n.isRead).length > 0 ? `${userNotifs.filter(n => !n.isRead).length} New` : null, icon: Bell, isNew: userNotifs.filter(n => !n.isRead).length > 0 },
+                { id: 'notifications', label: 'Alerts', count: userNotifs.filter(n => !n.isRead).length > 0 ? `${userNotifs.filter(n => !n.isRead).length} New` : null, icon: Bell, isNew: userNotifs.filter(n => !n.isRead).length > 0 },
                 { id: 'profile', label: 'Personal Info', count: null, icon: UserIcon },
                 { id: 'addresses', label: 'Addresses', count: addresses.length, icon: MapPin },
                 { id: 'points', label: 'Wallet & Coins', count: `₹${(technoWallet + technoPoints).toFixed(0)}`, icon: Wallet },
@@ -514,22 +508,22 @@ export default function Profile() {
                     key={tab.id}
                     type="button"
                     onClick={() => setActiveTab(tab.id as any)}
-                    className={`group flex items-center gap-1.5 sm:gap-2 whitespace-nowrap rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 text-xs font-bold transition-all duration-200 shrink-0 select-none ${
+                    className={`flex items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-semibold transition-colors shrink-0 select-none ${
                       isActive
-                        ? 'bg-emerald-400 text-slate-950 shadow-md shadow-emerald-500/25 ring-1 ring-emerald-300/60 scale-[1.02]'
-                        : 'text-slate-300 hover:text-white hover:bg-white/10 active:scale-95'
+                        ? 'bg-slate-900 text-white shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                     }`}
                   >
-                    <tab.icon className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${isActive ? 'text-slate-950' : 'text-emerald-300 group-hover:text-emerald-200'}`} />
+                    <tab.icon className={`h-3.5 w-3.5 ${isActive ? 'text-white' : 'text-slate-500'}`} />
                     <span>{tab.label}</span>
                     {tab.count !== null && tab.count !== undefined && (
                       <span
-                        className={`ml-1 rounded-full px-1.5 py-0.2 text-[10px] font-extrabold ${
+                        className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
                           isActive
-                            ? 'bg-slate-950/20 text-slate-950'
+                            ? 'bg-white/20 text-white'
                             : tab.isNew
-                            ? 'bg-amber-400 text-slate-950 font-black'
-                            : 'bg-white/10 text-emerald-300'
+                            ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                            : 'bg-slate-200/80 text-slate-700'
                         }`}
                       >
                         {tab.count}
@@ -543,7 +537,7 @@ export default function Profile() {
             <button
               onClick={handleLogout}
               type="button"
-              className="shrink-0 flex items-center gap-1.5 whitespace-nowrap rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-400/30 px-3 sm:px-4 py-2 sm:py-2.5 text-xs font-bold text-rose-300 hover:text-white transition-all shadow-sm active:scale-95"
+              className="shrink-0 flex items-center gap-1.5 whitespace-nowrap rounded-lg border border-slate-200 bg-white hover:bg-rose-50 hover:border-rose-200 hover:text-rose-700 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors"
             >
               <LogOut className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Sign Out</span>
@@ -817,7 +811,7 @@ export default function Profile() {
                           const replacementDaysRemaining = Math.max(0, 7 - daysSinceDelivery);
 
                           return isReplacementEligible ? (
-                            <div className="rounded-2xl border border-emerald-300 bg-gradient-to-r from-emerald-50 via-teal-50/60 to-white p-4 space-y-2.5 shadow-sm">
+                            <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-4 space-y-2.5">
                               <div className="flex flex-wrap items-center justify-between gap-3">
                                 <div className="flex items-start gap-2.5">
                                   <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-emerald-600 text-white text-xs font-bold shadow-sm shrink-0 mt-0.5">
@@ -1141,7 +1135,7 @@ export default function Profile() {
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Profile Photo</label>
                     <div className="flex items-center gap-4">
-                      <div className="relative h-16 w-16 rounded-full overflow-hidden border-2 border-emerald-500/40 bg-gradient-to-br from-emerald-700 via-emerald-800 to-slate-950 flex items-center justify-center shrink-0 shadow-md ring-2 ring-emerald-500/20 text-amber-300 font-black text-xl select-none">
+                      <div className="relative h-14 w-14 rounded-full overflow-hidden border border-slate-200 bg-slate-100 flex items-center justify-center shrink-0 text-slate-700 font-bold text-lg select-none">
                         {avatarUrl && !avatarError ? (
                           <img
                             src={avatarUrl}
@@ -1401,42 +1395,42 @@ export default function Profile() {
           {activeTab === 'points' && (
             <div className="space-y-6">
               {/* TechnoWallet Cash Balance Banner */}
-              <div className="rounded-2xl border border-emerald-300 bg-gradient-to-br from-emerald-950 via-slate-900 to-emerald-900 p-6 text-white shadow-md">
+              <div className="rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs">
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <div className="flex items-center gap-3.5">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500 text-slate-950 shadow">
-                      <Wallet className="h-6 w-6" />
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+                      <Wallet className="h-5 w-5" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h2 className="text-xl font-black text-white">TechnoWallet Cash Balance</h2>
-                        <span className="rounded-full bg-emerald-400/20 border border-emerald-400/40 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-emerald-300">
+                        <h2 className="text-lg font-bold text-slate-900">TechnoWallet Cash Balance</h2>
+                        <span className="rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-800">
                           Direct Cash
                         </span>
                       </div>
-                      <p className="text-xs text-emerald-200/90 mt-0.5">
+                      <p className="text-xs text-slate-500 mt-0.5">
                         Consolidated parcel delivery refunds & store credit with zero restrictions.
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs text-emerald-300 block font-medium">Available Cash Balance</span>
-                    <span className="text-3xl font-black text-emerald-300">₹{technoWallet.toFixed(2)}</span>
+                    <span className="text-xs text-slate-500 block font-medium">Available Cash Balance</span>
+                    <span className="text-2xl sm:text-3xl font-bold text-slate-900">₹{technoWallet.toFixed(2)}</span>
                   </div>
                 </div>
 
-                <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3 border-t border-emerald-800/60 pt-4 text-xs">
-                  <div className="rounded-xl bg-white/5 p-3 border border-white/10">
-                    <p className="font-extrabold text-emerald-300">⏳ No Expiry Date</p>
-                    <p className="text-[11px] text-slate-300 mt-1">Unlike promotional points, your TechnoWallet balance never expires.</p>
+                <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3 border-t border-slate-100 pt-4 text-xs">
+                  <div className="rounded-xl bg-slate-50 p-3 border border-slate-200/80">
+                    <p className="font-bold text-slate-900">⏳ No Expiry Date</p>
+                    <p className="text-[11px] text-slate-500 mt-1">Unlike promotional points, your TechnoWallet balance never expires.</p>
                   </div>
-                  <div className="rounded-xl bg-white/5 p-3 border border-white/10">
-                    <p className="font-extrabold text-emerald-300">💯 100% Usable</p>
-                    <p className="text-[11px] text-slate-300 mt-1">Pay for any book or entire order. No minimum or maximum percentage limits.</p>
+                  <div className="rounded-xl bg-slate-50 p-3 border border-slate-200/80">
+                    <p className="font-bold text-slate-900">💯 100% Usable</p>
+                    <p className="text-[11px] text-slate-500 mt-1">Pay for any book or entire order. No minimum or maximum percentage limits.</p>
                   </div>
-                  <div className="rounded-xl bg-white/5 p-3 border border-white/10">
-                    <p className="font-extrabold text-emerald-300">⚡ Stackable</p>
-                    <p className="text-[11px] text-slate-300 mt-1">Combine wallet cash with Techno Points and coupon promo discounts freely.</p>
+                  <div className="rounded-xl bg-slate-50 p-3 border border-slate-200/80">
+                    <p className="font-bold text-slate-900">⚡ Stackable</p>
+                    <p className="text-[11px] text-slate-500 mt-1">Combine wallet cash with Techno Points and coupon promo discounts freely.</p>
                   </div>
                 </div>
               </div>
@@ -1471,7 +1465,7 @@ export default function Profile() {
               )}
 
               {/* Techno Points Loyalty Card */}
-              <div className="rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-amber-100/50 p-6 shadow-sm flex flex-wrap items-center justify-between gap-4">
+              <div className="rounded-2xl border border-amber-200/80 bg-amber-50/50 p-5 sm:p-6 shadow-xs flex flex-wrap items-center justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2">
                     <Coins className="h-6 w-6 text-amber-700" />

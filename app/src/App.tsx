@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Route, Routes, useLocation, Outlet } from 'react-router';
 import { MessageCircle } from 'lucide-react';
 import { Toaster } from 'sonner';
+import { ToastSwipeHandler } from '@/components/common/ToastSwipeHandler';
 import { StoreProvider } from '@/store/StoreContext';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -217,10 +218,13 @@ export default function App() {
           <VisitorPulseTracker />
           <Toaster
             position="top-center"
+            swipeDirections={['top', 'left', 'right']}
+            closeButton
             toastOptions={{
               className: 'bg-white text-zinc-900 border border-zinc-200/90 shadow-sm rounded-xl text-xs font-semibold dark:bg-zinc-900 dark:text-zinc-100 dark:border-zinc-800',
             }}
           />
+          <ToastSwipeHandler />
           <ErrorBoundary>
             <CustomerStorefront />
           </ErrorBoundary>
