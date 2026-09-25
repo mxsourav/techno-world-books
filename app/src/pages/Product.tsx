@@ -41,23 +41,25 @@ export default function Product() {
     if (!book) return [];
     const urls: string[] = [];
 
-    // 1. Primary cover
+    const isCleanImage = (u: any) => typeof u === 'string' && u.trim() && !u.includes('placeholder-book.jpg');
+
+    // 1. Primary cover (only if not a placeholder)
     const primaryCover = book.coverUrl || book.coverImage;
-    if (primaryCover && typeof primaryCover === 'string' && primaryCover.trim()) {
+    if (isCleanImage(primaryCover)) {
       urls.push(primaryCover.trim());
     }
 
     // 2. galleryUrls (array or JSON string)
     if (Array.isArray(book.galleryUrls)) {
       book.galleryUrls.forEach((u: any) => {
-        if (typeof u === 'string' && u.trim()) urls.push(u.trim());
+        if (isCleanImage(u)) urls.push(u.trim());
       });
     } else if (typeof book.galleryUrls === 'string') {
       try {
         const parsed = JSON.parse(book.galleryUrls);
         if (Array.isArray(parsed)) {
           parsed.forEach((u: any) => {
-            if (typeof u === 'string' && u.trim()) urls.push(u.trim());
+            if (isCleanImage(u)) urls.push(u.trim());
           });
         }
       } catch {}
@@ -67,7 +69,7 @@ export default function Product() {
     if (Array.isArray(book.images)) {
       book.images.forEach((img: any) => {
         const u = img.secureUrl || img.url;
-        if (typeof u === 'string' && u.trim()) urls.push(u.trim());
+        if (isCleanImage(u)) urls.push(u.trim());
       });
     }
 
@@ -105,13 +107,16 @@ export default function Product() {
         });
       });
     } else {
-      // Fallback if no images found yet
-      items.push({
-        type: 'cover',
-        title: 'Front Cover',
-        subtitle: 'Official Edition',
-        imageUrl: book?.coverUrl || book?.coverImage || '',
-      });
+      // Fallback if no gallery images found yet
+      const fallback = book?.coverUrl || book?.coverImage;
+      if (fallback && typeof fallback === 'string' && !fallback.includes('placeholder-book.jpg')) {
+        items.push({
+          type: 'cover',
+          title: 'Front Cover',
+          subtitle: 'Official Edition',
+          imageUrl: fallback,
+        });
+      }
     }
 
     // Preview PDF if present
