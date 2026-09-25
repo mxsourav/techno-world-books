@@ -181,6 +181,7 @@ function CustomerStorefront() {
         <Route path="/category/:category" element={<Listing />} />
         <Route path="/search" element={<Listing />} />
         <Route path="/book/:slug" element={<Product />} />
+        <Route path="/product/:slug" element={<Product />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/order-success" element={<OrderSuccess />} />
