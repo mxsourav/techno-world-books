@@ -32,10 +32,11 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '@/store/AuthStore';
 import { useStore } from '@/store/StoreContext';
-import { profileService, getImageUrl, authService, orderService, shippingService } from '@/services/api';
+import { profileService, authService, orderService, shippingService } from '@/services/api';
 import { generateAndPrintInvoice } from '@/utils/generateInvoice';
 import { toast } from 'sonner';
 import { GoogleSignInButton } from '@/components/GoogleSignInButton';
+import { BookCover } from '@/components/BookCover';
 
 export default function Profile() {
   const { logout: authLogout, accessToken } = useAuthStore();
@@ -666,11 +667,17 @@ export default function Profile() {
                           {ord.items?.map((item: any) => (
                             <div key={item.id} className="py-3 flex items-center gap-4">
                               <div className="h-16 w-12 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
-                                {item.book?.coverUrl ? (
-                                  <img src={getImageUrl(item.book?.coverUrl)} alt={item.book?.title} className="h-full w-full object-cover" loading="lazy" decoding="async" />
-                                ) : (
-                                  <span className="text-xs font-bold text-slate-400">📖</span>
-                                )}
+                                <BookCover
+                                  book={{
+                                    id: item.book?.id || item.bookId,
+                                    title: item.book?.title || 'Book',
+                                    coverUrl: item.book?.coverUrl,
+                                    galleryUrls: item.book?.galleryUrls,
+                                    images: item.book?.images,
+                                    coverImage: item.book?.coverImage,
+                                  }}
+                                  className="w-full h-full text-[6px]"
+                                />
                               </div>
                               <div className="flex-1 min-w-0">
                                 <h4 className="text-xs font-bold text-slate-900 truncate">{item.book?.title || 'Book'}</h4>

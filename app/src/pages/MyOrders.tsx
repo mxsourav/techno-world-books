@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { Package, Truck, CheckCircle2, XCircle, Clock, ExternalLink, Store, CalendarCheck, Download, Loader2, Link2, HelpCircle, MessageSquare, Phone, Mail, X } from 'lucide-react';
-import { orderService, getImageUrl } from '@/services/api';
+import { orderService } from '@/services/api';
 import { formatINR } from '@/utils/helpers';
 import { downloadOrderInvoice } from '@/utils/generateInvoice';
 import { toast } from 'sonner';
 import { useStore } from '@/store/StoreContext';
+import { BookCover } from '@/components/BookCover';
 
 const getStatusBadge = (status: string) => {
   switch (status) {
@@ -172,9 +173,17 @@ export default function MyOrders() {
                 {order.items?.map((item: any) => (
                   <div key={item.id} className="flex gap-4 items-center">
                     <div className="w-12 h-16 bg-slate-100 rounded overflow-hidden flex-shrink-0 border border-slate-200">
-                      {item.book?.coverUrl && (
-                        <img src={getImageUrl(item.book?.coverUrl)} alt={item.book?.title} className="w-full h-full object-cover" loading="lazy" decoding="async" />
-                      )}
+                      <BookCover
+                        book={{
+                          id: item.book?.id || item.bookId,
+                          title: item.book?.title || 'Academic Book',
+                          coverUrl: item.book?.coverUrl,
+                          galleryUrls: item.book?.galleryUrls,
+                          images: item.book?.images,
+                          coverImage: item.book?.coverImage,
+                        }}
+                        className="w-full h-full text-[6px]"
+                      />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-sm text-slate-800 line-clamp-1">{item.book?.title || 'Unknown Book'}</p>

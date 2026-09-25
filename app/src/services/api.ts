@@ -19,7 +19,8 @@ const getApiUrl = (): string => {
 const API_URL = getApiUrl();
 
 export const getImageUrl = (path?: string) => {
-  if (!path) return '';
+  if (!path || typeof path !== 'string') return '';
+  if (path.includes('placeholder-book.jpg')) return '';
   if (path.startsWith('http')) return path;
   const baseUrl = API_URL.replace('/api/v1', '');
   return `${baseUrl}${path.startsWith('/') ? path : '/' + path}`;

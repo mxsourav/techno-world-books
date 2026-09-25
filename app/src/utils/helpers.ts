@@ -130,7 +130,7 @@ export function formatClientFsn(book: any): string {
   }
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let fsnSuffix = '';
-  let tempHash = Math.abs(hash);
+  const tempHash = Math.abs(hash);
   for (let i = 0; i < 13; i++) {
     fsnSuffix += chars.charAt((tempHash + i * 7) % chars.length);
   }

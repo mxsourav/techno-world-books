@@ -596,7 +596,7 @@ export const GoogleReviewsAndMap: React.FC = () => {
                 </a>
 
                 <a
-                  href="https://wa.me/919876543210?text=Hi%20Techno%20World,%20I%20want%20to%20inquire%20about%20a%20book"
+                  href="https://wa.me/917479135626?text=Hi%20Techno%20World,%20I%20want%20to%20inquire%20about%20a%20book"
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-3 text-xs sm:text-sm font-bold text-emerald-800 hover:bg-emerald-100 transition"

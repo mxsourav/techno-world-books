@@ -20,6 +20,8 @@ export interface Book {
   edition: string;
   coverImage?: string;
   coverUrl?: string;
+  galleryUrls?: string[] | string;
+  images?: any[];
   pubDate: string;
   language: string;
   pages: number;
