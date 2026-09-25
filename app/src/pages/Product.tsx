@@ -36,9 +36,113 @@ export default function Product() {
   const [gallerySwipeDirection, setGallerySwipeDirection] = useState<'next' | 'previous'>('next');
   const galleryTouchStartX = useRef<number | null>(null);
 
+  // Multi-image gallery items: build dynamically from real uploaded images or fallback
+  const rawGalleryUrls: string[] = useMemo(() => {
+    if (!book) return [];
+    const urls: string[] = [];
+
+    // 1. Primary cover
+    const primaryCover = book.coverUrl || book.coverImage;
+    if (primaryCover && typeof primaryCover === 'string' && primaryCover.trim()) {
+      urls.push(primaryCover.trim());
+    }
+
+    // 2. galleryUrls (array or JSON string)
+    if (Array.isArray(book.galleryUrls)) {
+      book.galleryUrls.forEach((u: any) => {
+        if (typeof u === 'string' && u.trim()) urls.push(u.trim());
+      });
+    } else if (typeof book.galleryUrls === 'string') {
+      try {
+        const parsed = JSON.parse(book.galleryUrls);
+        if (Array.isArray(parsed)) {
+          parsed.forEach((u: any) => {
+            if (typeof u === 'string' && u.trim()) urls.push(u.trim());
+          });
+        }
+      } catch {}
+    }
+
+    // 3. images array from DB/API
+    if (Array.isArray(book.images)) {
+      book.images.forEach((img: any) => {
+        const u = img.secureUrl || img.url;
+        if (typeof u === 'string' && u.trim()) urls.push(u.trim());
+      });
+    }
+
+    // Deduplicate while preserving first appearance
+    return Array.from(new Set(urls));
+  }, [book?.coverUrl, book?.coverImage, book?.galleryUrls, book?.images]);
+
+  const galleryItems = useMemo(() => {
+    const items: Array<{
+      type: 'cover' | 'image' | 'pdf' | 'contents' | 'sample1' | 'sample2' | 'back';
+      title: string;
+      subtitle?: string;
+      imageUrl?: string;
+      pdfUrl?: string;
+    }> = [];
+
+    if (rawGalleryUrls.length > 0) {
+      // First image is Front Cover
+      items.push({
+        type: 'cover',
+        title: 'Front Cover',
+        subtitle: 'Official Edition',
+        imageUrl: rawGalleryUrls[0],
+      });
+
+      // Additional images
+      const additional = rawGalleryUrls.slice(1);
+      additional.forEach((imgUrl, idx) => {
+        const isLast = idx === additional.length - 1;
+        items.push({
+          type: 'image',
+          title: isLast ? 'Back Cover' : `Book View #${idx + 2}`,
+          subtitle: 'Official Image',
+          imageUrl: imgUrl,
+        });
+      });
+    } else {
+      // Fallback if no images found yet
+      items.push({
+        type: 'cover',
+        title: 'Front Cover',
+        subtitle: 'Official Edition',
+        imageUrl: book?.coverUrl || book?.coverImage || '',
+      });
+    }
+
+    // Preview PDF if present
+    if (book?.previewPdfUrl) {
+      items.push({
+        type: 'pdf',
+        title: 'Sample PDF Pages',
+        subtitle: 'Read Sample Chapters',
+        pdfUrl: book.previewPdfUrl,
+      });
+    }
+
+    // If only 1 item and no preview PDF, provide academic TOC & sample preview simulation
+    if (items.length === 1 && !book?.previewPdfUrl) {
+      items.push(
+        { type: 'contents', title: 'Contents / Syllabus', subtitle: 'Table of Contents' },
+        { type: 'sample1', title: 'Unit I Sample Page', subtitle: 'Reading Comprehension' },
+        { type: 'sample2', title: 'Unit II Practice MCQs', subtitle: 'Verbal Ability & Practice' },
+        { type: 'back', title: 'Back Cover', subtitle: 'Features & Syllabus' }
+      );
+    }
+
+    return items;
+  }, [rawGalleryUrls, book?.coverUrl, book?.coverImage, book?.previewPdfUrl]);
+
   const moveGallery = (step: number) => {
     setGallerySwipeDirection(step > 0 ? 'next' : 'previous');
-    setActiveImageIndex((currentIndex) => Math.max(0, Math.min(4, currentIndex + step)));
+    setActiveImageIndex((currentIndex) => {
+      const maxIdx = Math.max(0, galleryItems.length - 1);
+      return Math.max(0, Math.min(maxIdx, currentIndex + step));
+    });
   };
 
   const selectGalleryImage = (index: number) => {
@@ -62,13 +166,14 @@ export default function Product() {
   };
 
   useEffect(() => {
+    if (galleryItems.length <= 1) return;
     const autoScrollTimer = window.setInterval(() => {
       setGallerySwipeDirection('next');
-      setActiveImageIndex((currentIndex) => (currentIndex + 1) % 5);
+      setActiveImageIndex((currentIndex) => (currentIndex + 1) % galleryItems.length);
     }, 30000);
 
     return () => window.clearInterval(autoScrollTimer);
-  }, []);
+  }, [galleryItems.length]);
   
   // Delivery pincode state
   const [pincode, setPincode] = useState('700006');
@@ -360,72 +465,6 @@ export default function Product() {
   const bookType = book.exam ? 'Exam Question Bank / Cracker' : 'Textbook & Reference Guide';
   const subject = book.subject || book.course || (cat ? cat.name : 'General Academic');
 
-  // Multi-image gallery items: build dynamically from real uploaded images or fallback
-  const rawGalleryUrls: string[] = useMemo(() => {
-    if (Array.isArray(book.galleryUrls) && book.galleryUrls.length > 0) return book.galleryUrls;
-    if (typeof book.galleryUrls === 'string') {
-      try {
-        const parsed = JSON.parse(book.galleryUrls);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-      } catch {}
-    }
-    if (Array.isArray(book.images) && book.images.length > 0) {
-      return book.images.map((img: any) => img.secureUrl || img.url);
-    }
-    return [];
-  }, [book.galleryUrls, book.images]);
-
-  const galleryItems = useMemo(() => {
-    const items: Array<{
-      type: 'cover' | 'image' | 'pdf' | 'contents' | 'sample1' | 'sample2' | 'back';
-      title: string;
-      subtitle?: string;
-      imageUrl?: string;
-      pdfUrl?: string;
-    }> = [];
-
-    // 1st item: primary cover thumbnail
-    const coverUrl = book.coverUrl || book.coverImage || rawGalleryUrls[0];
-    items.push({
-      type: 'cover',
-      title: 'Front Cover',
-      subtitle: 'Official Edition',
-      imageUrl: coverUrl,
-    });
-
-    // Additional uploaded gallery images
-    const additionalImages = rawGalleryUrls.filter((url) => url !== coverUrl);
-    additionalImages.forEach((imgUrl, idx) => {
-      items.push({
-        type: 'image',
-        title: idx === additionalImages.length - 1 ? 'Back Cover' : `Book View #${idx + 1}`,
-        subtitle: 'Official Image',
-        imageUrl: imgUrl,
-      });
-    });
-
-    // Preview PDF if present
-    if (book.previewPdfUrl) {
-      items.push({
-        type: 'pdf',
-        title: 'Sample PDF Pages',
-        subtitle: 'Read Sample Chapters',
-        pdfUrl: book.previewPdfUrl,
-      });
-    }
-
-    // If no extra media uploaded, provide academic TOC & sample preview simulation
-    if (items.length === 1 && !book.previewPdfUrl) {
-      items.push(
-        { type: 'contents', title: 'Contents / Syllabus', subtitle: 'Table of Contents' },
-        { type: 'sample1', title: 'Unit I Sample Page', subtitle: 'Reading Comprehension' },
-        { type: 'sample2', title: 'Unit II Practice MCQs', subtitle: 'Verbal Ability & Practice' },
-        { type: 'back', title: 'Back Cover', subtitle: 'Features & Syllabus' }
-      );
-    }
-
-    return items;
-  }, [book.coverUrl, book.coverImage, rawGalleryUrls, book.previewPdfUrl]);
 
   // Real reviews from database
   const reviewsList = liveReviews.length > 0 
@@ -691,12 +730,14 @@ export default function Product() {
                       style={{ aspectRatio: '3 / 4.2' }}
                     >
                       {item.imageUrl ? (
-                        <img
-                          src={getImageUrl(item.imageUrl)}
-                          alt={item.title}
-                          className="w-full h-full object-cover rounded"
-                          loading="lazy"
-                        />
+                        <div className="w-full h-full flex items-center justify-center bg-white p-0.5 rounded overflow-hidden">
+                          <img
+                            src={getImageUrl(item.imageUrl)}
+                            alt={item.title}
+                            className="w-full h-full object-contain rounded"
+                            loading="lazy"
+                          />
+                        </div>
                       ) : item.type === 'pdf' ? (
                         <div className="w-full h-full bg-rose-50 border border-rose-200 rounded p-1 flex flex-col items-center justify-center text-center">
                           <BookOpen className="h-4 w-4 text-rose-600 mb-0.5" />
@@ -721,7 +762,7 @@ export default function Product() {
 
                 {/* Main Active Preview Canvas */}
                 <div
-                  className="order-1 relative flex h-[360px] min-w-0 w-[90%] items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-slate-50/80 p-2 select-none sm:order-2 sm:h-[440px] sm:p-3"
+                  className="order-1 relative flex h-[360px] min-w-0 w-full items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-slate-50/80 p-2 select-none sm:order-2 sm:h-[440px] sm:p-3"
                   onTouchStart={handleGalleryTouchStart}
                   onTouchEnd={handleGalleryTouchEnd}
                 >

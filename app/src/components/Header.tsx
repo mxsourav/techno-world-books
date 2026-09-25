@@ -381,25 +381,34 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
             ) : (
               <>
                 {suggestions.map((b) => {
-                  const coverSrc = getImageUrl(b.coverUrl || b.coverImage);
+                  let rawCover = b.coverUrl || b.coverImage;
+                  if (!rawCover && Array.isArray(b.galleryUrls) && b.galleryUrls[0]) {
+                    rawCover = b.galleryUrls[0];
+                  } else if (!rawCover && typeof b.galleryUrls === 'string' && b.galleryUrls.startsWith('[')) {
+                    try {
+                      const p = JSON.parse(b.galleryUrls);
+                      if (Array.isArray(p) && p[0]) rawCover = p[0];
+                    } catch {}
+                  }
+                  if (!rawCover && Array.isArray(b.images) && b.images[0]?.secureUrl) {
+                    rawCover = b.images[0].secureUrl;
+                  }
+                  const coverSrc = getImageUrl(rawCover);
                   return (
                     <button
                       key={b.id}
                       onClick={() => { addSearchToHistory(b.title); setOpen(false); setQ(''); navigate(`/book/${b.slug}`); }}
                       className="group flex w-full items-center gap-3.5 px-3.5 py-2 text-left hover:bg-emerald-50/80 transition-colors border-b border-slate-50 last:border-0"
                     >
-                      <div className="relative h-12 w-9 shrink-0 overflow-hidden rounded bg-slate-100 border border-slate-200/90 shadow-xs flex items-center justify-center">
+                      <div className="relative h-12 w-9 shrink-0 overflow-hidden rounded bg-white border border-slate-200/90 shadow-xs flex items-center justify-center p-0.5">
                         {coverSrc ? (
                           <img
                             src={coverSrc}
                             alt={b.title}
-                            className="h-full w-full object-cover"
+                            className="h-full w-full object-contain rounded"
                             loading="lazy"
                             onError={(e) => {
-                              e.currentTarget.style.display = 'none';
-                              if (e.currentTarget.parentElement) {
-                                e.currentTarget.parentElement.innerHTML = '<span class="text-emerald-700 text-[10px] font-bold">TW</span>';
-                              }
+                              (e.target as HTMLElement).style.display = 'none';
                             }}
                           />
                         ) : (
