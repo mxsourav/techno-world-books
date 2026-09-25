@@ -56,7 +56,7 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
         email: targetEmail,
       });
       if (res.success && res.data) {
-        authLogin(res.data.accessToken, res.data.user);
+        authLogin(res.data.accessToken, res.data.user, res.data.refreshToken);
         login({
           id: res.data.user.id,
           name: res.data.user.name,
@@ -115,7 +115,7 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
       });
       if (res.success && res.data) {
         const user = res.data.user;
-        authLogin(res.data.accessToken, user);
+        authLogin(res.data.accessToken, user, res.data.refreshToken);
         login({
           id: user.id,
           name: user.name,

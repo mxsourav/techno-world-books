@@ -129,43 +129,66 @@
   background-color: rgba(255, 255, 255, 0.38);
 }
 
-/* Enhanced Directional Swipe-to-Dismiss Toast Animations for Mobile/Touch */
+/* Sonner Notification Toast - Pure sliding gestures (no card stack, no card tilt/rotation, no close cross) */
+[data-sonner-toaster] [data-close-button] {
+  display: none !important;
+}
+
+/* Hide stacked cards underneath to prevent card deck peeking */
+[data-sonner-toaster] [data-sonner-toast]:not([data-mounted="true"]:first-of-type) {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+[data-sonner-toast] {
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+  /* Ensure strict flat sliding with zero 3D tilt/rotation */
+  transform-style: flat !important;
+}
+
+[data-sonner-toast]:active {
+  cursor: grabbing;
+}
+
 @keyframes swipe-out-up {
   from {
     transform: translateY(var(--swipe-amount-y, 0px));
     opacity: 1;
   }
   to {
-    transform: translateY(-160px) scale(0.92);
+    transform: translateY(-140px);
     opacity: 0;
   }
 }
 
 @keyframes swipe-out-left {
   from {
-    transform: translateX(var(--swipe-amount-x, 0px)) rotate(0deg);
+    transform: translateX(var(--swipe-amount-x, 0px));
     opacity: 1;
   }
   to {
-    transform: translateX(-140%) rotate(-12deg);
+    transform: translateX(-100vw);
     opacity: 0;
   }
 }
 
 @keyframes swipe-out-right {
   from {
-    transform: translateX(var(--swipe-amount-x, 0px)) rotate(0deg);
+    transform: translateX(var(--swipe-amount-x, 0px));
     opacity: 1;
   }
   to {
-    transform: translateX(140%) rotate(12deg);
+    transform: translateX(100vw);
     opacity: 0;
   }
 }
 
 [data-sonner-toast][data-swipe-out='true'] {
-  animation-duration: 220ms !important;
-  animation-timing-function: cubic-bezier(0.2, 0.9, 0.3, 1) !important;
+  animation-duration: 200ms !important;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1) !important;
   animation-fill-mode: forwards !important;
 }
 

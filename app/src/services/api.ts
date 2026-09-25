@@ -71,27 +71,46 @@ function onRefreshed(token: string) {
   refreshSubscribers = [];
 }
 
-async function refreshAccessToken(): Promise<string | null> {
+async function refreshAccessToken(isAdmin = false): Promise<string | null> {
   try {
-    const refreshToken = localStorage.getItem('tw_admin_refresh_token');
+    const refreshToken = isAdmin
+      ? localStorage.getItem('tw_admin_refresh_token')
+      : (localStorage.getItem('tw_customer_refresh_token') || localStorage.getItem('tw_admin_refresh_token'));
+
+    if (!refreshToken) return null;
+
     const res = await fetch(`${API_URL}/auth/refresh`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...(refreshToken ? { 'x-refresh-token': refreshToken } : {}),
+        'x-refresh-token': refreshToken,
       },
-      body: refreshToken ? JSON.stringify({ refreshToken }) : undefined,
+      body: JSON.stringify({ refreshToken }),
       credentials: 'include',
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      if (!isAdmin && res.status === 401) {
+        localStorage.removeItem('tw_customer_token');
+        localStorage.removeItem('tw_customer_refresh_token');
+      }
+      return null;
+    }
     const data = await res.json();
     const newToken = data.data?.accessToken || data.accessToken || '';
     const newRefreshToken = data.data?.refreshToken || data.refreshToken || '';
     if (newToken) {
-      localStorage.setItem('tw_admin_token', newToken);
+      if (isAdmin) {
+        localStorage.setItem('tw_admin_token', newToken);
+      } else {
+        localStorage.setItem('tw_customer_token', newToken);
+      }
     }
     if (newRefreshToken) {
-      localStorage.setItem('tw_admin_refresh_token', newRefreshToken);
+      if (isAdmin) {
+        localStorage.setItem('tw_admin_refresh_token', newRefreshToken);
+      } else {
+        localStorage.setItem('tw_customer_refresh_token', newRefreshToken);
+      }
     }
     return newToken;
   } catch (err) {
@@ -123,6 +142,13 @@ async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Re
     headers.set('Authorization', `Bearer ${token}`);
   }
 
+  const refToken = isAdminRoute
+    ? localStorage.getItem('tw_admin_refresh_token')
+    : (localStorage.getItem('tw_customer_refresh_token') || localStorage.getItem('tw_admin_refresh_token'));
+  if (refToken && !headers.has('x-refresh-token')) {
+    headers.set('x-refresh-token', refToken);
+  }
+
   const mergedOptions: RequestInit = {
     cache: 'no-store',
     ...options,
@@ -132,6 +158,15 @@ async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Re
 
   let response = await fetch(url, mergedOptions);
 
+  const newAccessToken = response.headers.get('x-new-access-token');
+  if (newAccessToken) {
+    if (isAdminRoute) {
+      localStorage.setItem('tw_admin_token', newAccessToken);
+    } else {
+      localStorage.setItem('tw_customer_token', newAccessToken);
+    }
+  }
+
   if (response.status === 403 && isAdminRoute) {
     localStorage.removeItem('tw_admin_token');
   }
@@ -139,7 +174,7 @@ async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Re
   if (response.status === 401) {
     if (!isRefreshing) {
       isRefreshing = true;
-      const newToken = await refreshAccessToken();
+      const newToken = await refreshAccessToken(isAdminRoute);
       isRefreshing = false;
 
       if (newToken) {
@@ -147,7 +182,15 @@ async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Re
         headers.set('Authorization', `Bearer ${newToken}`);
         return fetch(url, { ...options, headers, credentials: 'include' });
       } else {
-        // Keep the current session state intact when token refresh is unavailable.
+        if (!isAdminRoute) {
+          localStorage.removeItem('tw_customer_token');
+          localStorage.removeItem('tw_customer_refresh_token');
+          if (url.includes('/orders')) {
+            headers.delete('Authorization');
+            headers.delete('x-refresh-token');
+            return fetch(url, { ...options, headers, credentials: 'include' });
+          }
+        }
       }
     } else {
       return new Promise<Response>((resolve) => {

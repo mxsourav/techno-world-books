@@ -11,7 +11,7 @@ interface User {
 interface AuthState {
   accessToken: string | null;
   user: User | null;
-  login: (token: string, user?: User) => void;
+  login: (token: string, user?: User, refreshToken?: string) => void;
   logout: () => void;
 }
 
@@ -23,14 +23,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
   const [user, setUser] = useState<User | null>(null);
 
-  const login = (token: string, userData?: User) => {
+  const login = (token: string, userData?: User, refreshToken?: string) => {
     localStorage.setItem('tw_customer_token', token);
+    if (refreshToken) {
+      localStorage.setItem('tw_customer_refresh_token', refreshToken);
+    }
     setAccessToken(token);
     setUser(userData || null);
   };
 
   const logout = () => {
     localStorage.removeItem('tw_customer_token');
+    localStorage.removeItem('tw_customer_refresh_token');
     setAccessToken(null);
     setUser(null);
   };

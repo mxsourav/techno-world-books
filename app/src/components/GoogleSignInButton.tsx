@@ -118,7 +118,7 @@ export const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
     try {
       const res = await authService.googleAuth({ credential: response.credential });
       if (res.success && res.data) {
-        authLogin(res.data.accessToken, res.data.user);
+        authLogin(res.data.accessToken, res.data.user, res.data.refreshToken);
         login({
           id: res.data.user.id,
           name: res.data.user.name,

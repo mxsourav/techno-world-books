@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://technoworldbooks.in/</loc>
-    <lastmod>2026-09-25T13:25:43+00:00</lastmod>
+    <lastmod>2026-09-25T14:18:44+00:00</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -296,11 +296,11 @@
   </url>
   <url>
     <loc>https://technoworldbooks.in/book/test-default-book-6457</loc>
-    <lastmod>2026-09-25T13:16:09+00:00</lastmod>
+    <lastmod>2026-09-25T13:59:11+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <image:image>
-      <image:loc>https://res.cloudinary.com/tcsmyxe2/image/upload/v1790342039/Home/books/test-default-book-6457/images/gallery_1_1790342036113.png</image:loc>
+      <image:loc>https://res.cloudinary.com/tcsmyxe2/image/upload/v1790342040/Home/books/test-default-book-6457/images/gallery_2_1790342040398.png</image:loc>
       <image:title>Test Default Book</image:title>
     </image:image>
   </url>
@@ -372,61 +372,61 @@
   </url>
   <url>
     <loc>https://technoworldbooks.in/search</loc>
-    <lastmod>2026-09-25T13:25:43+00:00</lastmod>
+    <lastmod>2026-09-25T14:18:44+00:00</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/blog</loc>
-    <lastmod>2026-09-25T13:25:43+00:00</lastmod>
+    <lastmod>2026-09-25T14:18:44+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/track</loc>
-    <lastmod>2026-09-25T13:25:43+00:00</lastmod>
+    <lastmod>2026-09-25T14:18:44+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/about</loc>
-    <lastmod>2026-09-25T13:25:43+00:00</lastmod>
+    <lastmod>2026-09-25T14:18:44+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/contact</loc>
-    <lastmod>2026-09-25T13:25:43+00:00</lastmod>
+    <lastmod>2026-09-25T14:18:44+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/help</loc>
-    <lastmod>2026-09-25T13:25:43+00:00</lastmod>
+    <lastmod>2026-09-25T14:18:44+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/terms</loc>
-    <lastmod>2026-09-25T13:25:43+00:00</lastmod>
+    <lastmod>2026-09-25T14:18:44+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/shipping-policy</loc>
-    <lastmod>2026-09-25T13:25:43+00:00</lastmod>
+    <lastmod>2026-09-25T14:18:44+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/refund-policy</loc>
-    <lastmod>2026-09-25T13:25:43+00:00</lastmod>
+    <lastmod>2026-09-25T14:18:44+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/privacy-policy</loc>
-    <lastmod>2026-09-25T13:25:43+00:00</lastmod>
+    <lastmod>2026-09-25T14:18:44+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>

@@ -588,8 +588,25 @@ export default function Checkout() {
           walletUsed: effectiveWalletUsed > 0 ? effectiveWalletUsed : undefined,
         };
 
-        const res = await orderService.create(orderPayload);
+        let res;
+        try {
+          res = await orderService.create(orderPayload);
+        } catch (firstErr: any) {
+          if (firstErr.status === 401 || firstErr.message?.toLowerCase().includes('token') || firstErr.message?.toLowerCase().includes('auth')) {
+            localStorage.removeItem('tw_customer_token');
+            localStorage.removeItem('tw_customer_refresh_token');
+            res = await orderService.create(orderPayload);
+          } else {
+            throw firstErr;
+          }
+        }
         const serverOrder = res.data;
+        if (serverOrder.accessToken) {
+          localStorage.setItem('tw_customer_token', serverOrder.accessToken);
+        }
+        if (serverOrder.refreshToken) {
+          localStorage.setItem('tw_customer_refresh_token', serverOrder.refreshToken);
+        }
 
         const finishOrder = () => {
           const createdOrder: Order = {
@@ -763,8 +780,25 @@ export default function Checkout() {
         walletUsed: effectiveWalletUsed > 0 ? effectiveWalletUsed : undefined,
       };
 
-      const res = await orderService.create(orderPayload);
+      let res;
+      try {
+        res = await orderService.create(orderPayload);
+      } catch (firstErr: any) {
+        if (firstErr.status === 401 || firstErr.message?.toLowerCase().includes('token') || firstErr.message?.toLowerCase().includes('auth')) {
+          localStorage.removeItem('tw_customer_token');
+          localStorage.removeItem('tw_customer_refresh_token');
+          res = await orderService.create(orderPayload);
+        } else {
+          throw firstErr;
+        }
+      }
       const serverOrder = res.data;
+      if (serverOrder.accessToken) {
+        localStorage.setItem('tw_customer_token', serverOrder.accessToken);
+      }
+      if (serverOrder.refreshToken) {
+        localStorage.setItem('tw_customer_refresh_token', serverOrder.refreshToken);
+      }
 
       const finishOrder = () => {
         const finalConfirmedAddress: Address = {
