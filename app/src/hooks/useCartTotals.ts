@@ -129,8 +129,8 @@ export function useCartTotals(
   const baseTotal = Number(pricing?.totalAmount || 0);
   const pricingHadCod = Number(pricing?.codFee || 0) > 0;
   const effectiveTotal = (paymentMethod === 'cod' && !pricingHadCod && baseTotal > 0)
-    ? Number((baseTotal + 20).toFixed(2))
-    : baseTotal;
+    ? Number((Number(baseTotal || 0) + 20).toFixed(2))
+    : Number(baseTotal || 0);
 
   return { 
     items: pricing?.items || [], 
@@ -154,8 +154,8 @@ export function useCartTotals(
     pointsDiscount: Number(pricing?.pointsDiscount || 0),
     walletUsed: Number(pricing?.walletUsed || 0),
     walletDiscount: Number(pricing?.walletDiscount || 0),
-    userPointsBalance: pricing?.userPointsBalance,
-    userWalletBalance: pricing?.userWalletBalance,
+    userPointsBalance: pricing?.userPointsBalance !== undefined ? Number(pricing.userPointsBalance) : undefined,
+    userWalletBalance: pricing?.userWalletBalance !== undefined ? Number(pricing.userWalletBalance) : undefined,
     total: effectiveTotal, 
     coupon: rawPromoCode, 
     appliedCoupon: rawPromoCode,

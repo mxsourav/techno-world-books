@@ -62,8 +62,8 @@ export default function Checkout() {
   useEffect(() => {
     profileService.getPoints().then((res: any) => {
       if (res.success && res.data) {
-        setAvailablePoints(res.data.technoPoints ?? 0);
-        setAvailableWallet(res.data.technoWallet ?? 0);
+        setAvailablePoints(Number(res.data.technoPoints) || 0);
+        setAvailableWallet(Number(res.data.technoWallet) || 0);
       }
     }).catch(() => {});
   }, []);
@@ -212,11 +212,13 @@ export default function Checkout() {
   );
 
   useEffect(() => {
-    if (userPointsBalance !== undefined && userPointsBalance > availablePoints) {
-      setAvailablePoints(userPointsBalance);
+    const pts = Number(userPointsBalance);
+    const wal = Number(userWalletBalance);
+    if (!isNaN(pts) && pts > availablePoints) {
+      setAvailablePoints(pts);
     }
-    if (userWalletBalance !== undefined && userWalletBalance > availableWallet) {
-      setAvailableWallet(userWalletBalance);
+    if (!isNaN(wal) && wal > availableWallet) {
+      setAvailableWallet(wal);
     }
   }, [userPointsBalance, userWalletBalance, availablePoints, availableWallet]);
 
@@ -1530,7 +1532,7 @@ export default function Checkout() {
                             💳 TechnoWallet
                           </span>
                           <span className="rounded bg-emerald-200 px-1.5 py-0.2 text-[10px] font-black text-emerald-900">
-                            ₹{availableWallet.toFixed(2)}
+                            ₹{Number(availableWallet || 0).toFixed(2)}
                           </span>
                         </div>
                         <p className="text-[10px] text-slate-500 mt-0.5">₹1 Cash = ₹1.00 instant deduction</p>
@@ -1549,7 +1551,7 @@ export default function Checkout() {
                               max={availableWallet}
                               value={customWallet}
                               onChange={(e) => setCustomWallet(e.target.value)}
-                              placeholder={`Max ${availableWallet.toFixed(2)}`}
+                              placeholder={`Max ${Number(availableWallet || 0).toFixed(2)}`}
                               className="w-full rounded-lg border border-emerald-300 bg-white pl-5 pr-2.5 py-1 text-xs font-bold text-slate-900 outline-none focus:ring-2 focus:ring-emerald-500/20"
                             />
                           </div>
@@ -1563,7 +1565,7 @@ export default function Checkout() {
                         </div>
                         {effectiveWalletUsed > 0 && (
                           <p className="mt-1 text-[11px] font-bold text-emerald-700">
-                            ✓ Using ₹{effectiveWalletUsed.toFixed(2)} wallet cash
+                            ✓ Using ₹{Number(effectiveWalletUsed || 0).toFixed(2)} wallet cash
                           </p>
                         )}
                       </div>
@@ -1696,7 +1698,7 @@ export default function Checkout() {
                 <span>Rewards available:</span>
               </span>
               <span className="font-extrabold text-[11px] text-slate-800">
-                🪙 {availablePoints} pts · 💳 ₹{availableWallet.toFixed(0)}
+                🪙 {Number(availablePoints || 0)} pts · 💳 ₹{Number(availableWallet || 0).toFixed(0)}
               </span>
             </div>
           )}
