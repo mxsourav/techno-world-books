@@ -491,10 +491,11 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
 
 export default function Header() {
   const { cart, wishlist, user, logout } = useStore();
-  const { logout: authLogout } = useAuthStore();
+  const { logout: authLogout, user: authUser } = useAuthStore();
   const { pathname } = useLocation();
   const [loginOpen, setLoginOpen] = useState(false);
   const [categories, setCategories] = useState<any[]>(WEBSITE_CATEGORIES);
+  const [avatarError, setAvatarError] = useState(false);
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -682,8 +683,20 @@ export default function Header() {
             </Link>
             {user ? (
               <Link to="/profile" className="flex items-center gap-2 rounded-xl px-2.5 py-1.5 hover:bg-emerald-800 transition-all border border-emerald-700/50">
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-400 text-xs font-black text-slate-900 shadow-sm">
-                  {user.name?.[0]?.toUpperCase() || 'U'}
+                <div className="relative h-7 w-7 shrink-0">
+                  {(authUser?.avatarUrl || user?.avatarUrl) && !avatarError ? (
+                    <img
+                      src={(authUser?.avatarUrl || user?.avatarUrl) ?? undefined}
+                      alt={user.name}
+                      referrerPolicy="no-referrer"
+                      onError={() => setAvatarError(true)}
+                      className="h-7 w-7 rounded-lg object-cover border border-white/20 shadow-sm"
+                    />
+                  ) : (
+                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-400 text-xs font-black text-slate-900 shadow-sm">
+                      {user.name?.[0]?.toUpperCase() || 'U'}
+                    </div>
+                  )}
                 </div>
                 <div className="hidden text-left md:block leading-tight">
                   <span className="block max-w-[85px] truncate text-xs font-bold">{user.name.split(' ')[0]}</span>

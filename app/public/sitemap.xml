@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://technoworldbooks.in/</loc>
-    <lastmod>2026-09-26T17:00:04+00:00</lastmod>
+    <lastmod>2026-09-26T18:04:32+00:00</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -5981,12 +5981,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://technoworldbooks.in/book/problems-in-physical-chemistry-for-neet-2026-edition-21-9789390000941</loc>
-    <lastmod>2026-09-25T18:17:05+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://technoworldbooks.in/book/engineering-mechanics-statics-and-dynamics-2026-edition-21-9789390000951</loc>
     <lastmod>2026-09-25T18:17:05+00:00</lastmod>
     <changefreq>weekly</changefreq>
@@ -5995,6 +5989,12 @@
   <url>
     <loc>https://technoworldbooks.in/book/an-outline-history-of-english-literature-2026-edition-21-9789390000961</loc>
     <lastmod>2026-09-25T18:17:05+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://technoworldbooks.in/book/problems-in-physical-chemistry-for-neet-2026-edition-21-9789390000941</loc>
+    <lastmod>2026-09-26T17:39:47+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -6108,61 +6108,61 @@
   </url>
   <url>
     <loc>https://technoworldbooks.in/search</loc>
-    <lastmod>2026-09-26T17:00:04+00:00</lastmod>
+    <lastmod>2026-09-26T18:04:32+00:00</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/blog</loc>
-    <lastmod>2026-09-26T17:00:04+00:00</lastmod>
+    <lastmod>2026-09-26T18:04:32+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/track</loc>
-    <lastmod>2026-09-26T17:00:04+00:00</lastmod>
+    <lastmod>2026-09-26T18:04:32+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/about</loc>
-    <lastmod>2026-09-26T17:00:04+00:00</lastmod>
+    <lastmod>2026-09-26T18:04:32+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/contact</loc>
-    <lastmod>2026-09-26T17:00:04+00:00</lastmod>
+    <lastmod>2026-09-26T18:04:32+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/help</loc>
-    <lastmod>2026-09-26T17:00:04+00:00</lastmod>
+    <lastmod>2026-09-26T18:04:32+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/terms</loc>
-    <lastmod>2026-09-26T17:00:04+00:00</lastmod>
+    <lastmod>2026-09-26T18:04:32+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/shipping-policy</loc>
-    <lastmod>2026-09-26T17:00:04+00:00</lastmod>
+    <lastmod>2026-09-26T18:04:32+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/refund-policy</loc>
-    <lastmod>2026-09-26T17:00:04+00:00</lastmod>
+    <lastmod>2026-09-26T18:04:32+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/privacy-policy</loc>
-    <lastmod>2026-09-26T17:00:04+00:00</lastmod>
+    <lastmod>2026-09-26T18:04:32+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>

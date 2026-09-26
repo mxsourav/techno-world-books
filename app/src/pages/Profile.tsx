@@ -214,6 +214,16 @@ export default function Profile() {
     fetchFullProfile();
   }, []);
 
+  // Auto-retry once if token exists but profile load failed (handles cold-start server wakeup)
+  useEffect(() => {
+    if (!loading && !profileData && (accessToken || storeUser)) {
+      const timer = setTimeout(() => {
+        fetchFullProfile();
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [loading, profileData, accessToken, storeUser]);
+
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return toast.error('Name cannot be empty');
