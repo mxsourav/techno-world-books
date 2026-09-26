@@ -9,6 +9,8 @@ import {
 import { formatINR } from '@/utils/helpers';
 import { useStore } from '@/store/StoreContext';
 import { toast } from 'sonner';
+import { BookCover } from '@/components/BookCover';
+import type { Book } from '@/types';
 
 export interface RecentlyViewedItem {
   id: string;
@@ -106,7 +108,6 @@ export const RecentlyViewedCarousel: React.FC<RecentlyViewedCarouselProps> = ({ 
         className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-200"
       >
         {items.map((book) => {
-          const cover = book.coverUrl || book.coverImage || '/placeholder-book.png';
           const discountPercent =
             book.mrp && book.mrp > book.price
               ? Math.round(((book.mrp - book.price) / book.mrp) * 100)
@@ -119,9 +120,8 @@ export const RecentlyViewedCarousel: React.FC<RecentlyViewedCarouselProps> = ({ 
             >
               <Link to={`/book/${book.slug}`} className="block">
                 <div className="relative aspect-[3/4] w-full overflow-hidden rounded-lg bg-slate-100 border border-slate-100">
-                  <img
-                    src={cover}
-                    alt={book.title}
+                  <BookCover
+                    book={book as any as Book}
                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                   {discountPercent && (

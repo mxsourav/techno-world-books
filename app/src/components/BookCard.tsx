@@ -170,7 +170,7 @@ export function BookRow({
       </div>
       <div 
         ref={scrollRef}
-        className="flex gap-3 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:thin] touch-pan-x"
+        className="flex gap-3 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:thin] touch-auto lg:touch-pan-x"
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
         {loading

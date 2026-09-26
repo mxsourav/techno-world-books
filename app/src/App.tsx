@@ -160,7 +160,7 @@ function CustomerLayout() {
       <HomePopupAd />
       {/* floating WhatsApp support */}
       <a
-        href="https://wa.me/919876543210?text=Hi%20Techno%20World%20Books!%20I%20need%20help%20with%20my%20order."
+        href="https://wa.me/917479135626?text=Hi%20Techno%20World%20Books!%20I%20need%20help%20with%20my%20order."
         target="_blank"
         rel="noreferrer"
         aria-label="WhatsApp Support"
@@ -219,8 +219,10 @@ export default function App() {
           <VisitorPulseTracker />
           <Toaster
             position="top-center"
+            visibleToasts={1}
+            expand={false}
+            closeButton={false}
             swipeDirections={['top', 'left', 'right']}
-            closeButton
             toastOptions={{
               className: 'bg-white text-zinc-900 border border-zinc-200/90 shadow-sm rounded-xl text-xs font-semibold dark:bg-zinc-900 dark:text-zinc-100 dark:border-zinc-800',
             }}

@@ -10,6 +10,8 @@ import {
   BookOpen,
 } from 'lucide-react';
 import { formatINR } from '@/utils/helpers';
+import { BookCover } from '@/components/BookCover';
+import type { Book } from '@/types';
 
 interface NotifyStockModalProps {
   isOpen: boolean;
@@ -40,7 +42,6 @@ export const NotifyStockModal: React.FC<NotifyStockModalProps> = ({
 
   if (!isOpen) return null;
 
-  const coverImg = book.coverUrl || book.coverImage || '/placeholder-book.png';
   const publisherName =
     typeof book.publisher === 'string'
       ? book.publisher
@@ -126,10 +127,9 @@ export const NotifyStockModal: React.FC<NotifyStockModalProps> = ({
           
           {/* Book Summary Card */}
           <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/60 p-3">
-            <img
-              src={coverImg}
-              alt={book.title}
-              className="h-16 w-12 rounded object-cover border border-slate-200 shadow-2xs shrink-0"
+            <BookCover
+              book={book as any as Book}
+              className="h-16 w-12 rounded object-cover border border-slate-200 shadow-2xs shrink-0 text-[6px]"
             />
             <div className="min-w-0 flex-1">
               <span className="inline-block rounded bg-amber-100 px-1.5 py-0.2 text-[9px] font-bold text-amber-800 uppercase tracking-wider">

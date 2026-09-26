@@ -13,6 +13,8 @@ import {
   GraduationCap,
 } from 'lucide-react';
 import { formatINR } from '@/utils/helpers';
+import { BookCover } from '@/components/BookCover';
+import type { Book } from '@/types';
 
 interface SampleReaderModalProps {
   isOpen: boolean;
@@ -54,7 +56,6 @@ export const SampleReaderModal: React.FC<SampleReaderModalProps> = ({
       ? book.publisher
       : book.publisher?.name || 'Techno World Publications';
 
-  const coverImg = book.coverUrl || book.coverImage || '/placeholder-book.png';
   const discountPercent =
     book.mrp && book.mrp > book.price
       ? Math.round(((book.mrp - book.price) / book.mrp) * 100)
@@ -359,11 +360,10 @@ export const SampleReaderModal: React.FC<SampleReaderModalProps> = ({
           {/* TAB 4: COVER VIEW */}
           {activeTab === 'cover' && (
             <div className="flex flex-col items-center justify-center p-4">
-              <div className="relative max-w-xs rounded-xl overflow-hidden border border-slate-200 shadow-lg bg-white">
-                <img
-                  src={coverImg}
-                  alt={book.title}
-                  className="w-full h-auto object-contain max-h-[460px]"
+              <div className="relative w-64 max-w-xs rounded-xl overflow-hidden shadow-lg bg-white">
+                <BookCover
+                  book={book as any as Book}
+                  className="w-full h-auto text-sm"
                 />
               </div>
               <p className="mt-3 text-xs text-slate-500 font-medium">

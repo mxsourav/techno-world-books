@@ -1,10 +1,37 @@
+import { useState } from 'react';
 import type { Book } from '@/types';
 import { getImageUrl } from '@/services/api';
 
-export function BookCover({ book, className = '' }: { book: Book; className?: string }) {
-  const imageUrl = getImageUrl(book.coverUrl || book.coverImage);
+export function BookCover({ book, className = '' }: { book: Partial<Book> & Record<string, any>; className?: string }) {
+  const [imageError, setImageError] = useState(false);
 
-  if (imageUrl) {
+  // Fallback hierarchy: coverUrl -> galleryUrls[0] -> images[0] -> coverImage
+  let rawCover: string | null = null;
+  if (book.coverUrl && typeof book.coverUrl === 'string' && !book.coverUrl.includes('placeholder-book.jpg')) {
+    rawCover = book.coverUrl;
+  } else if (book.galleryUrls && Array.isArray(book.galleryUrls)) {
+    rawCover = book.galleryUrls.find((u: string) => typeof u === 'string' && u.trim() && !u.includes('placeholder-book.jpg')) || null;
+  } else if (typeof (book as any).galleryUrls === 'string') {
+    try {
+      const parsed = JSON.parse((book as any).galleryUrls);
+      if (Array.isArray(parsed)) {
+        rawCover = parsed.find((u: string) => typeof u === 'string' && u.trim() && !u.includes('placeholder-book.jpg')) || null;
+      }
+    } catch {}
+  }
+  
+  if (!rawCover && (book as any).images && Array.isArray((book as any).images)) {
+    const firstImg = (book as any).images.find((img: any) => img?.secureUrl && !img.secureUrl.includes('placeholder-book.jpg'));
+    if (firstImg) rawCover = firstImg.secureUrl;
+  }
+
+  if (!rawCover && book.coverImage && typeof book.coverImage === 'string' && !book.coverImage.includes('placeholder-book.jpg')) {
+    rawCover = book.coverImage;
+  }
+
+  const imageUrl = getImageUrl(rawCover || undefined);
+
+  if (imageUrl && !imageError) {
     if (imageUrl.toLowerCase().endsWith('.pdf')) {
       return (
         <div className={`relative overflow-hidden rounded-md shadow-md ${className}`} style={{ aspectRatio: '3 / 4.2' }}>
@@ -24,12 +51,8 @@ export function BookCover({ book, className = '' }: { book: Book; className?: st
           src={imageUrl} 
           alt={`Cover of ${book.title}`} 
           className="w-full h-full object-cover" loading="lazy" decoding="async" 
-          onError={(e) => {
-            // Hide the broken image if it fails to load
-            e.currentTarget.style.display = 'none';
-            if (e.currentTarget.parentElement) {
-              e.currentTarget.parentElement.classList.add('bg-slate-100');
-            }
+          onError={() => {
+            setImageError(true);
           }}
         />
       </div>

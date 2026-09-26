@@ -138,7 +138,7 @@ export default function Checkout() {
     if (fulfillmentMode === 'PICKUP') {
       return {
         fullName: pickupForm.name || user?.name || 'Valued Customer',
-        phone: pickupForm.phone || user?.phone || '9876543210',
+        phone: pickupForm.phone || user?.phone || '',
         email: pickupForm.email || user?.email || '',
         addressLine1: 'Techno World Books Takeaway Desk, 90/6A Mahatma Gandhi Rd',
         pincode: '700007',
@@ -582,8 +582,25 @@ export default function Checkout() {
           walletUsed: effectiveWalletUsed > 0 ? effectiveWalletUsed : undefined,
         };
 
-        const res = await orderService.create(orderPayload);
+        let res;
+        try {
+          res = await orderService.create(orderPayload);
+        } catch (firstErr: any) {
+          if (firstErr.status === 401 || firstErr.message?.toLowerCase().includes('token') || firstErr.message?.toLowerCase().includes('auth')) {
+            localStorage.removeItem('tw_customer_token');
+            localStorage.removeItem('tw_customer_refresh_token');
+            res = await orderService.create(orderPayload);
+          } else {
+            throw firstErr;
+          }
+        }
         const serverOrder = res.data;
+        if (serverOrder.accessToken) {
+          localStorage.setItem('tw_customer_token', serverOrder.accessToken);
+        }
+        if (serverOrder.refreshToken) {
+          localStorage.setItem('tw_customer_refresh_token', serverOrder.refreshToken);
+        }
 
         const finishOrder = () => {
           const createdOrder: Order = {
@@ -716,7 +733,7 @@ export default function Checkout() {
     setIsSubmitting(true);
     try {
       const resolvedAddressName = address.name || (address as any).fullName || form.name || 'Valued Customer';
-      const resolvedAddressPhone = address.phone || form.phone || '9876543210';
+      const resolvedAddressPhone = address.phone || form.phone || user?.phone || '';
       const resolvedAddressLine1 = address.line1 || (address as any).addressLine1 || form.line1 || 'Delivery Address';
       const resolvedAddressLine2 = (address as any).line2 || (address as any).addressLine2 || null;
       const resolvedAddressPO = (address as any).postOffice || form.postOffice || 'Local Post Office';
@@ -748,8 +765,25 @@ export default function Checkout() {
         walletUsed: effectiveWalletUsed > 0 ? effectiveWalletUsed : undefined,
       };
 
-      const res = await orderService.create(orderPayload);
+      let res;
+      try {
+        res = await orderService.create(orderPayload);
+      } catch (firstErr: any) {
+        if (firstErr.status === 401 || firstErr.message?.toLowerCase().includes('token') || firstErr.message?.toLowerCase().includes('auth')) {
+          localStorage.removeItem('tw_customer_token');
+          localStorage.removeItem('tw_customer_refresh_token');
+          res = await orderService.create(orderPayload);
+        } else {
+          throw firstErr;
+        }
+      }
       const serverOrder = res.data;
+      if (serverOrder.accessToken) {
+        localStorage.setItem('tw_customer_token', serverOrder.accessToken);
+      }
+      if (serverOrder.refreshToken) {
+        localStorage.setItem('tw_customer_refresh_token', serverOrder.refreshToken);
+      }
 
       const finishOrder = () => {
         const finalConfirmedAddress: Address = {

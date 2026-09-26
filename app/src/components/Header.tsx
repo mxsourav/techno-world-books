@@ -56,7 +56,7 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
         email: targetEmail,
       });
       if (res.success && res.data) {
-        authLogin(res.data.accessToken, res.data.user);
+        authLogin(res.data.accessToken, res.data.user, res.data.refreshToken);
         login({
           id: res.data.user.id,
           name: res.data.user.name,
@@ -115,7 +115,7 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
       });
       if (res.success && res.data) {
         const user = res.data.user;
-        authLogin(res.data.accessToken, user);
+        authLogin(res.data.accessToken, user, res.data.refreshToken);
         login({
           id: user.id,
           name: user.name,
@@ -551,7 +551,7 @@ export default function Header() {
         <div className="flex items-center gap-4">
           <Link to="/track" className="hover:text-white">Track Order</Link>
           <Link to="/help" className="hover:text-white">Help Center</Link>
-          <a href="https://wa.me/919876543210" target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:text-white">
+          <a href="https://wa.me/917479135626?text=Hi%20Techno%20World%20Books!%20I%20need%20assistance." target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:text-white">
             <MessageCircle className="h-3 w-3" /> WhatsApp Support
           </a>
         </div>

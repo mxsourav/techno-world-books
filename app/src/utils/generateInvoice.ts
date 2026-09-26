@@ -42,7 +42,7 @@ export function generateAndPrintInvoice(order: any) {
   const customerEmail = order.pickupEmail || order.customerEmail || order.address?.email || order.user?.email || 'N/A';
   const paymentMethod = (order.paymentMethod || 'PREPAID').toUpperCase();
 
-  let items: any[] = [];
+  const items: any[] = [];
   const seenItemKeys = new Set<string>();
 
   const addItemSafely = (it: any, ordId?: string) => {

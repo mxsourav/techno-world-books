@@ -2,307 +2,9 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://technoworldbooks.in/</loc>
-    <lastmod>2026-09-25T13:25:43+00:00</lastmod>
+    <lastmod>2026-09-25T15:32:22+00:00</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/rich-dad-poor-dad</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/atomic-habits</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/the-alchemist</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/ncert-physics-class-12</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/rd-sharma-mathematics-class-12</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/concepts-of-physics-hc-verma</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/objective-mathematics-rd-sharma-jee</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/neet-physics-chemistry-biology-40-years</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/mtg-neet-guide-biology</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/upsc-indian-polity-laxmikanth</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/quantitative-aptitude-rs-aggarwal</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/grays-anatomy-students</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/robbins-basic-pathology</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/harrisons-internal-medicine</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/bd-chaurasia-human-anatomy</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/engineering-mathematics-bs-grewal</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/data-structures-cormen-algorithms</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/strength-of-materials-timoshenko</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/wings-of-fire-kalam</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/sapiens-yuval-noah-harari</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/the-psychology-of-money</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/one-indian-girl-chetan-bhagat</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/half-girlfriend-chetan-bhagat</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/the-guide-rk-narayan</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/feluda-samagra-satyajit-ray</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/srikanta-sarat-chandra</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/professor-shonku-samagra</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/harry-potter-philosophers-stone</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/the-lord-of-the-rings-tolkien</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/1984-george-orwell</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/the-kite-runner-khaled-hosseini</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/to-kill-a-mockingbird-first-edition</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/sherlock-holmes-complete-leatherbound</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/ncert-chemistry-class-11</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/icse-total-english-class-10</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/indian-economy-ramesh-singh</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/modern-abc-physics-class-12</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/principles-of-economics-mankiw</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/let-us-c-yashavant-kanetkar</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/ikigai-hector-garcia</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/atomic-habits-hindi</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/gate-computer-science-papers</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/pharmacology-kd-tripathi</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/panchatantra-classic-tales</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/ghotoner-bhitor-ghoton-byomkesh</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/thinking-fast-and-slow</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/operating-system-concepts-galvin</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/the-almanack-of-naval-ravikant</loc>
-    <lastmod>2026-09-24T17:17:30+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/test-default-book-6457</loc>
-    <lastmod>2026-09-25T13:16:09+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/tcsmyxe2/image/upload/v1790342039/Home/books/test-default-book-6457/images/gallery_1_1790342036113.png</image:loc>
-      <image:title>Test Default Book</image:title>
-    </image:image>
   </url>
   <url>
     <loc>https://technoworldbooks.in/category/competitive-exams</loc>
@@ -371,62 +73,92 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://technoworldbooks.in/category/competitive-exams-civil-services-rc90</loc>
+    <lastmod>2026-09-25T14:45:01+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://technoworldbooks.in/category/medical-nursing-pharmacy-y83f</loc>
+    <lastmod>2026-09-25T14:45:01+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://technoworldbooks.in/category/engineering-mathematics-physics-fzoq</loc>
+    <lastmod>2026-09-25T14:45:01+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://technoworldbooks.in/category/computer-science-programming-it-kc3j</loc>
+    <lastmod>2026-09-25T14:45:01+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://technoworldbooks.in/category/literature-language-humanities-3yd9</loc>
+    <lastmod>2026-09-25T14:45:01+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://technoworldbooks.in/search</loc>
-    <lastmod>2026-09-25T13:25:43+00:00</lastmod>
+    <lastmod>2026-09-25T15:32:22+00:00</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/blog</loc>
-    <lastmod>2026-09-25T13:25:43+00:00</lastmod>
+    <lastmod>2026-09-25T15:32:22+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/track</loc>
-    <lastmod>2026-09-25T13:25:43+00:00</lastmod>
+    <lastmod>2026-09-25T15:32:22+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/about</loc>
-    <lastmod>2026-09-25T13:25:43+00:00</lastmod>
+    <lastmod>2026-09-25T15:32:22+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/contact</loc>
-    <lastmod>2026-09-25T13:25:43+00:00</lastmod>
+    <lastmod>2026-09-25T15:32:22+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/help</loc>
-    <lastmod>2026-09-25T13:25:43+00:00</lastmod>
+    <lastmod>2026-09-25T15:32:22+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/terms</loc>
-    <lastmod>2026-09-25T13:25:43+00:00</lastmod>
+    <lastmod>2026-09-25T15:32:22+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/shipping-policy</loc>
-    <lastmod>2026-09-25T13:25:43+00:00</lastmod>
+    <lastmod>2026-09-25T15:32:22+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/refund-policy</loc>
-    <lastmod>2026-09-25T13:25:43+00:00</lastmod>
+    <lastmod>2026-09-25T15:32:22+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/privacy-policy</loc>
-    <lastmod>2026-09-25T13:25:43+00:00</lastmod>
+    <lastmod>2026-09-25T15:32:22+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
