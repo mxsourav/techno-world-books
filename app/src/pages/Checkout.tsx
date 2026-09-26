@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router';
-import { MapPin, CreditCard, CheckCircle2, Smartphone, Landmark, Banknote, Wallet, PartyPopper, Download, Tag, Loader2, ShieldCheck, AlertCircle, Truck, Sparkles, Package, Zap, Store, Clock, Building2, Info, CalendarCheck } from 'lucide-react';
+import { MapPin, CreditCard, CheckCircle2, Smartphone, Landmark, Wallet, PartyPopper, Download, Tag, Loader2, ShieldCheck, AlertCircle, Truck, Sparkles, Package, Zap, Store, Clock, Building2, Info, CalendarCheck } from 'lucide-react';
 import { formatINR } from '@/utils/helpers';
 import { useStore } from '@/store/StoreContext';
 import { useCartTotals } from '@/hooks/useCartTotals';
@@ -9,11 +9,10 @@ import { toast } from 'sonner';
 import { shippingService, profileService, orderService, paymentService } from '@/services/api';
 
 const PAYMENTS = [
-  { id: 'upi', name: 'UPI', desc: 'GPay, PhonePe, Paytm & more', icon: Smartphone },
+  { id: 'upi', name: 'UPI', desc: 'GPay, PhonePe, Paytm & all UPI apps', icon: Smartphone },
   { id: 'card', name: 'Credit / Debit Card', desc: 'Visa, Mastercard, RuPay', icon: CreditCard },
   { id: 'netbanking', name: 'Net Banking', desc: 'All major Indian banks', icon: Landmark },
   { id: 'wallet', name: 'Wallets', desc: 'Paytm, Amazon Pay, Mobikwik', icon: Wallet },
-  { id: 'cod', name: 'Cash on Delivery', desc: 'Pay when your books arrive', icon: Banknote },
 ];
 
 const INDIAN_STATES = ['West Bengal', 'Maharashtra', 'Delhi', 'Karnataka', 'Tamil Nadu', 'Uttar Pradesh', 'Telangana', 'Gujarat', 'Rajasthan', 'Kerala', 'Bihar', 'Madhya Pradesh', 'Punjab', 'Odisha', 'Assam', 'Other'];
@@ -415,13 +414,16 @@ export default function Checkout() {
         <p className="mt-2 text-sm text-slate-500">
           Order <b className="text-slate-800">{placed.id}</b> · {placed.items?.length || 0} item(s) · {formatINR(placed.total)} · {placed.payment}
         </p>
-        <div className="mt-6 rounded-xl border border-slate-100 bg-white p-5 text-left shadow-sm">
-          <p className="flex items-center gap-2 text-sm font-bold text-slate-800"><CheckCircle2 className="h-4 w-4 text-emerald-600" /> Confirmation sent via WhatsApp, SMS & email</p>
-          <div className="mt-3 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
-            <p>📦 Courier: <b>{placed.courier || 'India Post'}</b></p>
-            <p>🔢 Tracking ID: <b>{placed.trackingId || 'TW-PENDING'}</b></p>
-            <p>🚚 Expected: <b>{placedDeliveryDate}</b></p>
-            <p>🎁 Points earned: <b>+{Math.floor((placed.total || 0) / 100) * 5}</b></p>
+        <div className="mt-6 rounded-xl border border-slate-200 bg-white p-5 text-left shadow-sm">
+          <p className="flex items-center gap-2 text-sm font-bold text-slate-800"><CheckCircle2 className="h-4 w-4 text-emerald-600" /> Order Confirmed & Receipt Sent via Email</p>
+          <div className="mt-3 grid gap-2.5 text-sm text-slate-600 sm:grid-cols-2">
+            <p>📦 Delivery Partner: <b className="text-slate-900">{placed.courier || 'India Post'}</b></p>
+            <p>📬 Consignment No: <span className="rounded bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-800 border border-amber-200">Generated upon postal dispatch</span></p>
+            <p>🚚 Expected Delivery: <b>{placedDeliveryDate}</b></p>
+            <p>🎁 TechnoPoints Earned: <b className="text-emerald-700">+{Math.floor((placed.total || 0) / 100) * 5} pts</b></p>
+          </div>
+          <div className="mt-3.5 rounded-lg bg-slate-50 p-3 border border-slate-200 text-xs text-slate-600 leading-relaxed">
+            ✉️ Official tracking details and your India Post barcode (AWB) will be automatically sent to <b>{placedAddrEmail || 'your email'}</b> as soon as our College Street dispatch desk books the package.
           </div>
           <p className="mt-3 text-xs text-slate-400">Delivering to: {placedAddrName}{placedAddrLine ? `, ${placedAddrLine}` : ''}{placedAddrCity ? `, ${placedAddrCity}` : ''}{placedAddrPin ? ` — ${placedAddrPin}` : ''}</p>
         </div>
@@ -446,8 +448,18 @@ export default function Checkout() {
     );
   }
 
+  const getStrictUserEmail = () => {
+    const enteredEmail = (form.email || pickupForm.email).trim();
+    if (enteredEmail) return enteredEmail;
+    // Only fallback to user.email if it's a real email, not a dummy OTP email
+    if (user?.email && !user.email.includes('technoworld.com') && !user.email.includes('google.dev') && !user.email.includes('@mail.com')) {
+      return user.email;
+    }
+    return '';
+  };
+
   const handleProceedToDelivery = () => {
-    const userEmail = (form.email || user?.email || pickupForm.email || '').trim();
+    const userEmail = getStrictUserEmail();
     if (!userEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userEmail)) {
       return toast.error('Valid Email ID is mandatory for order confirmation and tracking');
     }
@@ -538,7 +550,7 @@ export default function Checkout() {
   };
 
   const handlePlaceOrder = async () => {
-    const userEmail = (form.email || user?.email || pickupForm.email || '').trim();
+    const userEmail = getStrictUserEmail();
     if (!userEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userEmail)) {
       return toast.error('Valid Email ID is mandatory to place an order');
     }
@@ -546,7 +558,7 @@ export default function Checkout() {
     if (fulfillmentMode === 'PICKUP') {
       const collectorName = pickupForm.name.trim();
       const collectorPhone = pickupForm.phone.replace(/\D/g, '');
-      const collectorEmail = (pickupForm.email || userEmail).trim();
+      const collectorEmail = getStrictUserEmail();
 
       if (!collectorName) return toast.error("Collector's Full Name is required for Store Pickup");
       if (!collectorPhone || collectorPhone.length < 10) {
@@ -647,6 +659,7 @@ export default function Checkout() {
             currency: 'INR',
             name: 'Techno World Books',
             description: 'Store Pickup Order',
+            image: 'https://res.cloudinary.com/tcsmyxe2/image/upload/v1789254075/techno_world_white_logo.png',
             order_id: serverOrder.razorpayOrderId,
             handler: async function (response: any) {
               try {
@@ -670,7 +683,7 @@ export default function Checkout() {
               email: collectorEmail,
             },
             theme: {
-              color: '#059669',
+              color: '#047857',
             },
           };
 
@@ -693,7 +706,7 @@ export default function Checkout() {
     }
 
     let address: Address | undefined;
-    const deliveryEmail = (form.email || user?.email || '').trim();
+    const deliveryEmail = getStrictUserEmail();
     if (!deliveryEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(deliveryEmail)) {
       return toast.error('Valid Email ID is mandatory to place an order');
     }
@@ -718,7 +731,7 @@ export default function Checkout() {
         id: 'addr_' + Date.now(),
         name: form.name.trim(),
         phone: form.phone.trim(),
-        email: userEmail,
+        email: deliveryEmail,
         line1: form.line1.trim(),
         line2: form.line2.trim(),
         postOffice: form.postOffice.trim(),
@@ -808,13 +821,13 @@ export default function Checkout() {
           shipping,
           discount,
           total: serverOrder.totalAmount,
-          status: serverOrder.status,
+          status: serverOrder.status || 'CONFIRMED',
           placedAt: new Date().toISOString(),
           payment: serverOrder.paymentMethod,
           address: finalConfirmedAddress,
-          trackingId: `TW${Math.floor(10000000 + Math.random() * 90000000)}`,
-          courier: 'Delhivery',
-          expectedDelivery: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString(),
+          trackingId: '',
+          courier: serverOrder.shippingCarrier || (shippingMethod === 'SPEED_POST' ? 'India Post Speed Post' : 'India Post Book Post'),
+          expectedDelivery: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
         };
         
         setPlaced(createdOrder);
@@ -834,7 +847,8 @@ export default function Checkout() {
           amount: Math.round(serverOrder.totalAmount * 100),
           currency: 'INR',
           name: 'Techno World Books',
-          description: 'Book Purchase',
+          description: 'Official Bookstore Order',
+          image: 'https://res.cloudinary.com/tcsmyxe2/image/upload/v1789254075/techno_world_white_logo.png',
           order_id: serverOrder.razorpayOrderId,
           handler: async function (response: any) {
             try {
@@ -853,11 +867,12 @@ export default function Checkout() {
             }
           },
           prefill: {
-            name: form.name,
-            contact: form.phone
+            name: (address as any)?.fullName || form.name || 'Valued Customer',
+            email: userEmail,
+            contact: (address as any)?.phone || form.phone,
           },
           theme: {
-            color: '#059669' // Emerald-600
+            color: '#047857' // Official Emerald
           }
         };
 
@@ -1451,25 +1466,25 @@ export default function Checkout() {
               </div>
 
               {/* TechnoRewards & TechnoWallet Redemption Box */}
-              <div className="mb-5 rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50/60 via-white to-emerald-50/40 p-4 shadow-sm">
-                <div className="flex items-center justify-between border-b border-amber-100/80 pb-2.5">
+              <div className="mb-5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <div className="flex items-center gap-2">
-                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-400 text-slate-950 font-black text-xs shadow-sm">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
                       <Sparkles className="h-4 w-4" />
                     </span>
                     <div>
-                      <h4 className="text-xs font-extrabold text-slate-900 uppercase tracking-wide">Redeem Loyalty Coins & Wallet Cash</h4>
-                      <p className="text-[11px] text-slate-500">Apply your balance directly towards this order subtotal & delivery</p>
+                      <h4 className="text-sm font-bold text-slate-900 tracking-tight">Loyalty Coins & Wallet Cash</h4>
+                      <p className="text-xs text-slate-500">Apply balance towards this order</p>
                     </div>
                   </div>
-                  <span className="rounded-full bg-emerald-100 border border-emerald-300 px-2 py-0.5 text-[10px] font-black text-emerald-800">
-                    100% STACKABLE
+                  <span className="rounded-full bg-slate-100 border border-slate-200 px-2 py-0.5 text-[10px] font-bold text-slate-600">
+                    STACKABLE
                   </span>
                 </div>
 
-                <div className="mt-3.5 grid gap-3 sm:grid-cols-2">
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
                   {/* Option 1: TechnoPoints Coins */}
-                  <div className={`rounded-xl border p-3 transition-all ${usePoints ? 'border-amber-400 bg-amber-50/90 shadow-sm' : 'border-slate-200 bg-white'}`}>
+                  <div className={`rounded-xl border p-3 transition-colors ${usePoints ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 bg-white'}`}>
                     <label className="flex items-start gap-2.5 cursor-pointer select-none">
                       <input
                         type="checkbox"
@@ -1603,66 +1618,115 @@ export default function Checkout() {
                   </p>
                 </div>
               ) : null}
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {PAYMENTS.map((p) => {
-                  const isCod = p.id === 'cod';
-                  const isPickupDisabled = fulfillmentMode === 'PICKUP' && isCod;
+                  const isSelected = payment === p.id;
                   return (
                     <label
                       key={p.id}
-                      className={`flex items-center gap-3 rounded-lg border p-3.5 transition-all ${
-                        isPickupDisabled
-                          ? 'cursor-not-allowed opacity-50 bg-slate-50 border-slate-200'
-                          : payment === p.id
-                          ? 'cursor-pointer border-emerald-500 bg-emerald-50'
-                          : 'cursor-pointer border-slate-200 hover:border-slate-300'
+                      onClick={() => setPayment(p.id)}
+                      className={`flex items-center gap-3.5 rounded-xl border p-3.5 sm:p-4 cursor-pointer transition-all duration-200 select-none ${
+                        isSelected
+                          ? 'border-emerald-600 bg-emerald-50/60 shadow-sm ring-1 ring-emerald-600/30'
+                          : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50'
                       }`}
                     >
                       <input
                         type="radio"
-                        disabled={isPickupDisabled}
-                        checked={payment === p.id && !isPickupDisabled}
-                        onChange={() => !isPickupDisabled && setPayment(p.id)}
+                        checked={isSelected}
+                        onChange={() => setPayment(p.id)}
+                        className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-slate-300"
                       />
-                      <p.icon className="h-5 w-5 text-emerald-700" />
-                      <span className="text-sm">
-                        <b className="text-slate-800">{p.name}</b>
-                        {isPickupDisabled ? (
-                          <span className="block text-xs text-rose-600 font-medium">Prepaid only for Store Pickup (COD is not available)</span>
-                        ) : (
-                          <span className="block text-xs text-slate-500">{p.desc}</span>
-                        )}
-                      </span>
-                      {p.id === 'upi' && <span className="ml-auto rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">FASTEST</span>}
+                      <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${isSelected ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600'}`}>
+                        <p.icon className="h-4 w-4" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-bold text-slate-900">{p.name}</span>
+                          {p.id === 'upi' && (
+                            <span className="rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
+                              RECOMMENDED
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">{p.desc}</p>
+                      </div>
                     </label>
                   );
                 })}
               </div>
+
               {payment === 'upi' && (
-                <input value={upiId} onChange={(e) => setUpiId(e.target.value)} placeholder="yourname@upi" className="mt-3 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-emerald-500 sm:max-w-xs" />
+                <div className="mt-3.5 rounded-xl bg-slate-50 p-3 border border-slate-200">
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Enter UPI ID / VPA</label>
+                  <input
+                    value={upiId}
+                    onChange={(e) => setUpiId(e.target.value)}
+                    placeholder="e.g. mobile@upi or username@okaxis"
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                  />
+                  <p className="mt-1 text-[11px] text-slate-400">Accepts GPay, PhonePe, Paytm, BHIM and all banking apps</p>
+                </div>
               )}
+
               {payment === 'card' && (
-                <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                  <input value={card.number} onChange={(e) => setCard({ ...card, number: e.target.value.replace(/[^\d]/g, '').slice(0, 16) })} placeholder="Card number" inputMode="numeric" className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-emerald-500 sm:col-span-2" />
-                  <input value={card.name} onChange={(e) => setCard({ ...card, name: e.target.value })} placeholder="Name on card" className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-emerald-500" />
-                  <div className="flex gap-3">
-                    <input value={card.expiry} onChange={(e) => setCard({ ...card, expiry: e.target.value.slice(0, 5) })} placeholder="MM/YY" className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-emerald-500" />
-                    <input value={card.cvv} onChange={(e) => setCard({ ...card, cvv: e.target.value.replace(/\D/g, '').slice(0, 3) })} placeholder="CVV" type="password" inputMode="numeric" className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-emerald-500" />
+                <div className="mt-3.5 space-y-2.5 rounded-xl bg-slate-50 p-3 border border-slate-200">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Card Number</label>
+                    <input
+                      value={card.number}
+                      onChange={(e) => setCard({ ...card, number: e.target.value.replace(/[^\d]/g, '').slice(0, 16) })}
+                      placeholder="16-digit card number"
+                      inputMode="numeric"
+                      className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Name on Card</label>
+                    <input
+                      value={card.name}
+                      onChange={(e) => setCard({ ...card, name: e.target.value })}
+                      placeholder="Full Name as printed on card"
+                      className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">Expiry</label>
+                      <input
+                        value={card.expiry}
+                        onChange={(e) => setCard({ ...card, expiry: e.target.value.slice(0, 5) })}
+                        placeholder="MM/YY"
+                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">CVV</label>
+                      <input
+                        value={card.cvv}
+                        onChange={(e) => setCard({ ...card, cvv: e.target.value.replace(/\D/g, '').slice(0, 3) })}
+                        placeholder="3 digits"
+                        type="password"
+                        inputMode="numeric"
+                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-500"
+                      />
+                    </div>
                   </div>
                 </div>
               )}
-              {payment === 'cod' && fulfillmentMode !== 'PICKUP' && (
-                <p className="mt-3 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-900 font-medium">
-                  💵 ₹20 Cash on Delivery handling fee added to your order total. Please keep exact change ready upon delivery.
-                </p>
-              )}
+
+              {/* Secure Payment Guarantee */}
+              <div className="mt-4 flex items-center justify-center gap-1.5 text-xs text-slate-500">
+                <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+                <span>256-bit Bank Grade Encrypted &bull; Razorpay Certified</span>
+              </div>
 
               {/* Place Order button in Step 3 */}
-              <div className="mt-5 border-t border-slate-100 pt-4">
+              <div className="mt-4 border-t border-slate-100 pt-4">
                 <button
                   disabled={isSubmitting || !isValid}
                   onClick={handlePlaceOrder}
-                  className="w-full rounded-xl bg-amber-400 py-3.5 text-sm font-extrabold text-slate-900 shadow hover:bg-amber-500 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+                  className="w-full rounded-xl bg-emerald-700 hover:bg-emerald-800 active:scale-[0.99] py-3.5 text-sm font-bold text-white shadow-md shadow-emerald-700/15 disabled:opacity-50 disabled:pointer-events-none transition-all duration-200 flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (
                     <>
@@ -1670,10 +1734,8 @@ export default function Checkout() {
                     </>
                   ) : total === 0 ? (
                     'Confirm Free Order with Rewards (₹0.00)'
-                  ) : payment === 'cod' ? (
-                    `Place Order · ${formatINR(total)}`
                   ) : (
-                    `Pay ${formatINR(total)} Securely`
+                    `Pay ${formatINR(total)} Securely →`
                   )}
                 </button>
               </div>
