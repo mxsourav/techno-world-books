@@ -556,12 +556,6 @@ export default function Checkout() {
         if (payment === 'cod') {
           return toast.error("Cash on Delivery is not available for Store Takeaway. Please pay online via UPI, Card, or Net Banking.");
         }
-        if (payment === 'upi' && !/^[\w.\-]+@[a-zA-Z]+$/.test(upiId)) {
-          return toast.error('Enter your UPI ID (e.g. name@upi)');
-        }
-        if (payment === 'card' && (card.number.replace(/\s/g, '').length < 16 || !card.expiry || card.cvv.length < 3)) {
-          return toast.error('Enter valid card details');
-        }
       }
 
       setIsSubmitting(true);
@@ -631,7 +625,7 @@ export default function Checkout() {
           }
 
           const options = {
-            key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_placeholder',
+            key: serverOrder.razorpayKeyId,
             amount: Math.round(serverOrder.totalAmount * 100),
             currency: 'INR',
             name: 'Techno World Books',
@@ -719,15 +713,6 @@ export default function Checkout() {
       };
       addAddress(address);
     }
-    if (total > 0) {
-      if (payment === 'upi' && !/^[\w.\-]+@[a-zA-Z]+$/.test(upiId)) {
-        return toast.error('Enter your UPI ID (e.g. name@upi)');
-      }
-      if (payment === 'card' && (card.number.replace(/\s/g, '').length < 16 || !card.expiry || card.cvv.length < 3)) {
-        return toast.error('Enter valid card details');
-      }
-    }
-
     setIsSubmitting(true);
     try {
       const resolvedAddressName = address.name || (address as any).fullName || form.name || 'Valued Customer';
@@ -811,7 +796,7 @@ export default function Checkout() {
         }
 
         const options = {
-          key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_placeholder', // Fallback for demo
+          key: serverOrder.razorpayKeyId,
           amount: Math.round(serverOrder.totalAmount * 100),
           currency: 'INR',
           name: 'Techno World Books',
