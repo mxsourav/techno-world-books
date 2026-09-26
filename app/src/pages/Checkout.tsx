@@ -423,7 +423,7 @@ export default function Checkout() {
             <p>🎁 TechnoPoints Earned: <b className="text-emerald-700">+{Math.floor((placed.total || 0) / 100) * 5} pts</b></p>
           </div>
           <div className="mt-3.5 rounded-lg bg-slate-50 p-3 border border-slate-200 text-xs text-slate-600 leading-relaxed">
-            ✉️ Official tracking details and your India Post barcode (AWB) will be automatically sent to <b>{placedAddrEmail || 'your email'}</b> as soon as our College Street dispatch desk books the package.
+            ✉️ Official tracking details and your India Post barcode (AWB) will be automatically sent to <b>{placedAddrEmail || 'your email'}</b> as soon as our dispatch desk books the package.
           </div>
           <p className="mt-3 text-xs text-slate-400">Delivering to: {placedAddrName}{placedAddrLine ? `, ${placedAddrLine}` : ''}{placedAddrCity ? `, ${placedAddrCity}` : ''}{placedAddrPin ? ` — ${placedAddrPin}` : ''}</p>
         </div>
