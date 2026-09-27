@@ -18,13 +18,14 @@ const PAYMENTS = [
 const INDIAN_STATES = ['West Bengal', 'Maharashtra', 'Delhi', 'Karnataka', 'Tamil Nadu', 'Uttar Pradesh', 'Telangana', 'Gujarat', 'Rajasthan', 'Kerala', 'Bihar', 'Madhya Pradesh', 'Punjab', 'Odisha', 'Assam', 'Other'];
 
 export default function Checkout() {
-  const { user, addresses: storeAddresses, addAddress, clearCart, applyCoupon, clearCoupon } = useStore();
+  const { user, login, addresses: storeAddresses, addAddress, clearCart, applyCoupon, clearCoupon } = useStore();
   const [fulfillmentMode, setFulfillmentMode] = useState<'DELIVERY' | 'PICKUP'>('DELIVERY');
   void setFulfillmentMode; // Retained for future re-enabling of store pickup
   const [dbAddresses, setDbAddresses] = useState<any[]>([]);
   const [selectedAddr, setSelectedAddr] = useState<string>('new');
   const [shippingMethod, setShippingMethod] = useState<string>('NORMAL_POST');
   const [payment, setPayment] = useState('upi');
+  void setPayment;
   const [activeStep, setActiveStep] = useState<1 | 2 | 3>(1);
   const [form, setForm] = useState({
     name: user?.name ?? '',
@@ -44,14 +45,12 @@ export default function Checkout() {
     phone: user?.phone ?? '',
     email: (user?.email && !user.email.includes('technoworld.com') && !user.email.includes('google.dev') && !user.email.includes('@mail.com')) ? user.email : '',
   });
-  const [upiId, setUpiId] = useState('');
-  const [card, setCard] = useState({ number: '', expiry: '', cvv: '', name: '' });
   const [couponInput, setCouponInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [placed, setPlaced] = useState<Order | null>(null);
 
   // TechnoPoints & TechnoWallet Redemption State
-  const [availablePoints, setAvailablePoints] = useState<number>(0);
+  const [availablePoints, setAvailablePoints] = useState<number>(() => Number(user?.rewardPoints) || 0);
   const [availableWallet, setAvailableWallet] = useState<number>(0);
   const [usePoints, setUsePoints] = useState<boolean>(false);
   const [customPoints, setCustomPoints] = useState<string>('');
@@ -60,12 +59,17 @@ export default function Checkout() {
 
   useEffect(() => {
     profileService.getPoints().then((res: any) => {
-      if (res.success && res.data) {
-        setAvailablePoints(Number(res.data.technoPoints) || 0);
-        setAvailableWallet(Number(res.data.technoWallet) || 0);
+      if (res?.success && res?.data) {
+        const livePts = Number(res.data.technoPoints) || 0;
+        const liveWal = Number(res.data.technoWallet) || 0;
+        setAvailablePoints(livePts);
+        setAvailableWallet(liveWal);
+        if (user && user.rewardPoints !== livePts) {
+          login({ ...user, rewardPoints: livePts });
+        }
       }
     }).catch(() => {});
-  }, []);
+  }, [user?.id, activeStep]);
 
   useEffect(() => {
     profileService.getAddresses().then((res: any) => {
@@ -832,6 +836,14 @@ export default function Checkout() {
         
         setPlaced(createdOrder);
         if (clearCart) clearCart();
+        if (effectivePointsUsed > 0) {
+          const nextPts = Math.max(0, availablePoints - effectivePointsUsed);
+          setAvailablePoints(nextPts);
+          if (user) login({ ...user, rewardPoints: nextPts });
+        }
+        if (effectiveWalletUsed > 0) {
+          setAvailableWallet((prev) => Math.max(0, prev - effectiveWalletUsed));
+        }
         window.scrollTo(0, 0);
       };
 
@@ -1614,103 +1626,24 @@ export default function Checkout() {
                   <CheckCircle2 className="mx-auto h-8 w-8 text-emerald-600 mb-1" />
                   <p className="text-sm font-extrabold text-emerald-950">🎉 Order 100% Covered by TechnoRewards & Wallet!</p>
                   <p className="text-xs text-emerald-800 mt-1">
-                    Zero out-of-pocket payable (₹0.00). No UPI or credit card required.
+                    Zero out-of-pocket payable (₹0.00). No online payment required.
                   </p>
                 </div>
-              ) : null}
-              <div className="space-y-2.5">
-                {PAYMENTS.map((p) => {
-                  const isSelected = payment === p.id;
-                  return (
-                    <label
-                      key={p.id}
-                      onClick={() => setPayment(p.id)}
-                      className={`flex items-center gap-3.5 rounded-xl border p-3.5 sm:p-4 cursor-pointer transition-all duration-200 select-none ${
-                        isSelected
-                          ? 'border-emerald-600 bg-emerald-50/60 shadow-sm ring-1 ring-emerald-600/30'
-                          : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50'
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        checked={isSelected}
-                        onChange={() => setPayment(p.id)}
-                        className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-slate-300"
-                      />
-                      <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${isSelected ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600'}`}>
-                        <p.icon className="h-4 w-4" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-bold text-slate-900">{p.name}</span>
-                          {p.id === 'upi' && (
-                            <span className="rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
-                              RECOMMENDED
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">{p.desc}</p>
-                      </div>
-                    </label>
-                  );
-                })}
-              </div>
-
-              {payment === 'upi' && (
-                <div className="mt-3.5 rounded-xl bg-slate-50 p-3 border border-slate-200">
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Enter UPI ID / VPA</label>
-                  <input
-                    value={upiId}
-                    onChange={(e) => setUpiId(e.target.value)}
-                    placeholder="e.g. mobile@upi or username@okaxis"
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
-                  />
-                  <p className="mt-1 text-[11px] text-slate-400">Accepts GPay, PhonePe, Paytm, BHIM and all banking apps</p>
-                </div>
-              )}
-
-              {payment === 'card' && (
-                <div className="mt-3.5 space-y-2.5 rounded-xl bg-slate-50 p-3 border border-slate-200">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Card Number</label>
-                    <input
-                      value={card.number}
-                      onChange={(e) => setCard({ ...card, number: e.target.value.replace(/[^\d]/g, '').slice(0, 16) })}
-                      placeholder="16-digit card number"
-                      inputMode="numeric"
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
-                    />
+              ) : (
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-3.5 flex items-center gap-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-white shadow-sm">
+                    <ShieldCheck className="h-4 w-4" />
                   </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Name on Card</label>
-                    <input
-                      value={card.name}
-                      onChange={(e) => setCard({ ...card, name: e.target.value })}
-                      placeholder="Full Name as printed on card"
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-500"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1">Expiry</label>
-                      <input
-                        value={card.expiry}
-                        onChange={(e) => setCard({ ...card, expiry: e.target.value.slice(0, 5) })}
-                        placeholder="MM/YY"
-                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-500"
-                      />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs sm:text-sm font-bold text-slate-900">Razorpay Secure Online Payment</span>
+                      <span className="rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800 shrink-0">
+                        INSTANT
+                      </span>
                     </div>
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1">CVV</label>
-                      <input
-                        value={card.cvv}
-                        onChange={(e) => setCard({ ...card, cvv: e.target.value.replace(/\D/g, '').slice(0, 3) })}
-                        placeholder="3 digits"
-                        type="password"
-                        inputMode="numeric"
-                        className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-500"
-                      />
-                    </div>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      Choose UPI (GPay, PhonePe, Paytm), Credit/Debit Card, Net Banking or Wallets in the next window
+                    </p>
                   </div>
                 </div>
               )}
@@ -1937,7 +1870,7 @@ export default function Checkout() {
               {isSubmitting ? 'Processing...' : payment === 'cod' ? `Place Order · ${formatINR(total)}` : `Pay ${formatINR(total)} Securely`}
             </button>
           )}
-          <p className="mt-2 text-center text-[11px] text-slate-400">🔒 256-bit SSL encrypted · PCI-DSS compliant · Demo checkout, no real charge</p>
+          <p className="mt-2 text-center text-[11px] text-slate-400">🔒 256-bit SSL encrypted · PCI-DSS compliant · Razorpay Verified</p>
         </aside>
       </div>
     </div>

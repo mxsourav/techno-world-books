@@ -125,7 +125,7 @@ export const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
           email: res.data.user.email,
           phone: res.data.user.phone || '',
           avatarUrl: res.data.user.avatarUrl || null,
-          rewardPoints: res.data.user.technoPoints || 120,
+          rewardPoints: Number(res.data.user.technoPoints ?? 0),
         });
         toast.success(`Welcome, ${res.data.user.name}! Signed in successfully.`);
         onSuccess?.();

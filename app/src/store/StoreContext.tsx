@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import type { CartItem, Order, Address, User } from '@/types';
-import { cartService, wishlistService } from '@/services/api';
+import { cartService, wishlistService, profileService } from '@/services/api';
 
 
 
@@ -129,6 +129,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         }
       }).catch(() => {});
     }
+
+    // 3. Sync live TechnoPoints balance so Header badge & Checkout always match
+    profileService.getPoints().then((res: any) => {
+      if (res?.success && res?.data && typeof res.data.technoPoints !== 'undefined') {
+        const livePts = Number(res.data.technoPoints) || 0;
+        setUser((prev) => (prev && prev.rewardPoints !== livePts ? { ...prev, rewardPoints: livePts } : prev));
+      }
+    }).catch(() => {});
   }, [user]);
 
   const addToCart = useCallback((bookId: string, qty = 1) => {

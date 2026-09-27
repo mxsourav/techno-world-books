@@ -62,7 +62,7 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
           name: res.data.user.name,
           email: res.data.user.email,
           phone: res.data.user.phone || '',
-          rewardPoints: res.data.user.technoPoints || 120,
+          rewardPoints: Number(res.data.user.technoPoints ?? 0),
         });
         toast.success(`Welcome, ${res.data.user.name}! Signed in successfully.`);
         onClose();
@@ -121,7 +121,7 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
           name: user.name,
           email: user.email,
           phone: user.phone || phone,
-          rewardPoints: user.technoPoints || 120,
+          rewardPoints: Number(user.technoPoints ?? 0),
         });
         toast.success(`Welcome back, ${user.name}!`);
         onClose();
