@@ -15,6 +15,7 @@ import { useAutoFeaturedBooks } from '@/hooks/useAutoFeaturedBooks';
 import { SEARCH_SUGGESTIONS } from '@/data/constants';
 import SEOHead, { buildWebsiteJsonLd, buildLocalBusinessJsonLd } from '@/components/SEOHead';
 import { CmsText } from '@/components/common/CmsText';
+import { useCms } from '@/context/CmsContext';
 import { BOOKS as FALLBACK_BOOKS } from '@/data/books';
 
 const PUBLISHERS = ['NCERT', 'Arihant Publications', 'McGraw Hill', 'Elsevier', 'Penguin', 'Ananda Publishers', 'MTG Learning Media', 'Dhanpat Rai'];
@@ -24,6 +25,7 @@ import { BOOK_PRESETS, type BookPresetId } from '@/types/hero';
 export default function Home() {
   const { recentlyViewed } = useStore();
   const navigate = useNavigate();
+  const { t } = useCms();
 
   const [books, setBooks] = useState<Book[]>([]);
 
@@ -132,32 +134,71 @@ export default function Home() {
   const recent = recentlyViewed.map((id) => books.find((b) => b.id === id)).filter(Boolean) as Book[];
   const recommended = [...books].sort((a, b) => b.rating * b.ratingsCount - a.rating * a.ratingsCount).slice(0, 10);
 
-  const byCategory = (slug: string) => {
-    const targetSlug = slug.toLowerCase();
+  const resolveCategorySlug = (rawTitleOrSlug: string, fallbackSlug: string): string => {
+    if (!rawTitleOrSlug) return fallbackSlug;
+    const s = rawTitleOrSlug.toLowerCase().trim();
+
+    // Direct slug match
+    const knownSlugs = ['competitive-exams', 'medical', 'engineering', 'school', 'university', 'fiction', 'non-fiction', 'bengali', 'international', 'rare'];
+    if (knownSlugs.includes(s)) return s;
+
+    // Keyword detection
+    if (s.includes('bengali') || s.includes('bangla')) return 'bengali';
+    if (s.includes('medic') || s.includes('health') || s.includes('doctor') || s.includes('pharm') || s.includes('nurs')) return 'medical';
+    if (s.includes('engine') || s.includes('tech') || s.includes('comput') || s.includes('coding') || s.includes('software')) return 'engineering';
+    if (s.includes('compet') || s.includes('exam') || s.includes('upsc') || s.includes('jee') || s.includes('neet') || s.includes('gate') || s.includes('ssc') || s.includes('govt')) return 'competitive-exams';
+    if (s.includes('school') || s.includes('ncert') || s.includes('cbse') || s.includes('icse') || s.includes('class')) return 'school';
+    if (s.includes('non-fiction') || s.includes('biograph') || s.includes('finance') || s.includes('self-help') || s.includes('history')) return 'non-fiction';
+    if (s.includes('fiction') || s.includes('novel') || s.includes('literature') || s.includes('story')) return 'fiction';
+    if (s.includes('university') || s.includes('college') || s.includes('degree') || s.includes('semester')) return 'university';
+    if (s.includes('internat') || s.includes('foreign') || s.includes('global')) return 'international';
+    if (s.includes('rare') || s.includes('collect') || s.includes('antique')) return 'rare';
+
+    return fallbackSlug;
+  };
+
+  const byCategory = (titleOrSlug: string, fallbackSlug?: string) => {
+    const defaultSlug = fallbackSlug || titleOrSlug;
+    const activeSlug = resolveCategorySlug(titleOrSlug, defaultSlug);
+    const targetQuery = (titleOrSlug || '').toLowerCase().trim();
+
     const matched = books.filter((b) => {
       if (!b) return false;
       const cat = (b.category || '').toLowerCase();
-      if (cat === targetSlug) return true;
-      if (cat.includes(targetSlug) || targetSlug.includes(cat)) return true;
-      if (targetSlug === 'competitive-exams' && (cat.includes('competitive') || cat.includes('exam') || cat.includes('civil'))) return true;
-      if (targetSlug === 'non-fiction' && (cat.includes('non-fiction') || cat.includes('literature') || cat.includes('humanities'))) return true;
-      if (targetSlug === 'medical' && (cat.includes('medical') || cat.includes('nursing') || cat.includes('pharmacy'))) return true;
-      if (targetSlug === 'engineering' && (cat.includes('engineering') || cat.includes('physics') || cat.includes('math') || cat.includes('computer'))) return true;
-      if (targetSlug === 'bengali' && (cat.includes('bengali') || (b.title && /pather|sanchita|galpaguchha/i.test(b.title)))) return true;
-      if (targetSlug === 'school' && (cat.includes('school') || (b.title && /ncert|icse|cbse|class/i.test(b.title)))) return true;
-      if (targetSlug === 'fiction' && (cat.includes('fiction') || (b.title && /alchemist|novel|story/i.test(b.title)))) return true;
-      if (targetSlug === 'university' && (cat.includes('university') || (b.title && /semester|b\.tech|degree|college/i.test(b.title)))) return true;
+      const tags = (b.tags || []).map((t: string) => t.toLowerCase());
+
+      if (cat === activeSlug) return true;
+      if (cat.includes(activeSlug) || activeSlug.includes(cat)) return true;
+
+      if (targetQuery && targetQuery !== defaultSlug) {
+        if (cat.includes(targetQuery) || targetQuery.includes(cat)) return true;
+        if (tags.some((t: string) => targetQuery.includes(t) || t.includes(targetQuery))) return true;
+      }
+
+      if (activeSlug === 'competitive-exams' && (cat.includes('competitive') || cat.includes('exam') || cat.includes('civil') || tags.includes('jee') || tags.includes('neet') || tags.includes('upsc'))) return true;
+      if (activeSlug === 'non-fiction' && (cat.includes('non-fiction') || cat.includes('literature') || cat.includes('humanities') || tags.includes('finance') || tags.includes('biography'))) return true;
+      if (activeSlug === 'medical' && (cat.includes('medical') || cat.includes('nursing') || cat.includes('pharmacy') || tags.includes('mbbs') || tags.includes('anatomy'))) return true;
+      if (activeSlug === 'engineering' && (cat.includes('engineering') || cat.includes('physics') || cat.includes('math') || cat.includes('computer') || tags.includes('btech') || tags.includes('dsa'))) return true;
+      if (activeSlug === 'bengali' && (cat.includes('bengali') || (b.title && /pather|sanchita|galpaguchha|feluda/i.test(b.title)))) return true;
+      if (activeSlug === 'school' && (cat.includes('school') || (b.title && /ncert|icse|cbse|class/i.test(b.title)))) return true;
+      if (activeSlug === 'fiction' && (cat.includes('fiction') || (b.title && /alchemist|novel|story/i.test(b.title)))) return true;
+      if (activeSlug === 'university' && (cat.includes('university') || (b.title && /semester|b\.tech|degree|college/i.test(b.title)))) return true;
+      if (activeSlug === 'international' && (cat.includes('international') || tags.includes('fantasy') || tags.includes('epic'))) return true;
+      if (activeSlug === 'rare' && (cat.includes('rare') || tags.includes('rare') || tags.includes('collector'))) return true;
       return false;
     });
 
     if (matched.length < 4) {
       const fallbackMatches = (FALLBACK_BOOKS || []).filter((fb) => {
         const cat = (fb.category || '').toLowerCase();
-        if (cat === targetSlug) return true;
-        if (targetSlug === 'school' && (cat === 'school' || /ncert|class/i.test(fb.title))) return true;
-        if (targetSlug === 'fiction' && cat === 'fiction') return true;
-        if (targetSlug === 'non-fiction' && cat === 'non-fiction') return true;
-        if (targetSlug === 'bengali' && cat === 'bengali') return true;
+        if (cat === activeSlug) return true;
+        if (activeSlug === 'school' && (cat === 'school' || /ncert|class/i.test(fb.title))) return true;
+        if (activeSlug === 'fiction' && cat === 'fiction') return true;
+        if (activeSlug === 'non-fiction' && cat === 'non-fiction') return true;
+        if (activeSlug === 'bengali' && cat === 'bengali') return true;
+        if (activeSlug === 'medical' && cat === 'medical') return true;
+        if (activeSlug === 'engineering' && cat === 'engineering') return true;
+        if (activeSlug === 'competitive-exams' && cat === 'competitive-exams') return true;
         return false;
       });
       const combined = [...matched];
@@ -170,6 +211,11 @@ export default function Home() {
     }
 
     return matched.slice(0, 10);
+  };
+
+  const viewAllFor = (titleOrSlug: string, fallbackSlug: string) => {
+    const activeSlug = resolveCategorySlug(titleOrSlug, fallbackSlug);
+    return `/category/${activeSlug}`;
   };
 
   // const featuredBook = books.find((b) => b.featured) || books[0];
@@ -640,8 +686,8 @@ export default function Home() {
             icon={<Trophy className="h-5 w-5 text-violet-500" />} 
             title="Competitive Exam Books" 
             contentKey="home.section_competitive"
-            books={byCategory('competitive-exams')} 
-            viewAllLink="/category/competitive-exams" 
+            books={byCategory(t('home.section_competitive', 'Competitive Exam Books'), 'competitive-exams')} 
+            viewAllLink={viewAllFor(t('home.section_competitive', 'Competitive Exam Books'), 'competitive-exams')} 
             loading={loading} 
           />
 
@@ -650,8 +696,8 @@ export default function Home() {
             icon={<Quote className="h-5 w-5 text-indigo-500" />} 
             title="Non-Fiction Books" 
             contentKey="home.section_non_fiction"
-            books={byCategory('non-fiction')} 
-            viewAllLink="/category/non-fiction" 
+            books={byCategory(t('home.section_non_fiction', 'Non-Fiction Books'), 'non-fiction')} 
+            viewAllLink={viewAllFor(t('home.section_non_fiction', 'Non-Fiction Books'), 'non-fiction')} 
             loading={loading} 
           />
 
@@ -660,8 +706,8 @@ export default function Home() {
             icon={<Stethoscope className="h-5 w-5 text-blue-500" />} 
             title="Medical & Healthcare Books" 
             contentKey="home.section_medical"
-            books={byCategory('medical')} 
-            viewAllLink="/category/medical" 
+            books={byCategory(t('home.section_medical', 'Medical & Healthcare Books'), 'medical')} 
+            viewAllLink={viewAllFor(t('home.section_medical', 'Medical & Healthcare Books'), 'medical')} 
             loading={loading} 
           />
 
@@ -670,8 +716,8 @@ export default function Home() {
             icon={<Settings className="h-5 w-5 text-slate-600" />} 
             title="Engineering & Technology Books" 
             contentKey="home.section_engineering"
-            books={byCategory('engineering')} 
-            viewAllLink="/category/engineering" 
+            books={byCategory(t('home.section_engineering', 'Engineering & Technology Books'), 'engineering')} 
+            viewAllLink={viewAllFor(t('home.section_engineering', 'Engineering & Technology Books'), 'engineering')} 
             loading={loading} 
           />
 
@@ -680,8 +726,8 @@ export default function Home() {
             icon={<Languages className="h-5 w-5 text-rose-500" />} 
             title="Bengali Story Books" 
             contentKey="home.section_bengali"
-            books={byCategory('bengali')} 
-            viewAllLink="/category/bengali" 
+            books={byCategory(t('home.section_bengali', 'Bengali Story Books'), 'bengali')} 
+            viewAllLink={viewAllFor(t('home.section_bengali', 'Bengali Story Books'), 'bengali')} 
             loading={loading} 
           />
 
@@ -690,8 +736,8 @@ export default function Home() {
             icon={<BookOpen className="h-5 w-5 text-amber-600" />} 
             title="Fiction & Novels" 
             contentKey="home.section_fiction"
-            books={byCategory('fiction')} 
-            viewAllLink="/category/fiction" 
+            books={byCategory(t('home.section_fiction', 'Fiction & Novels'), 'fiction')} 
+            viewAllLink={viewAllFor(t('home.section_fiction', 'Fiction & Novels'), 'fiction')} 
             loading={loading} 
           />
 
@@ -700,8 +746,8 @@ export default function Home() {
             icon={<Library className="h-5 w-5 text-pink-500" />} 
             title="School Books (NCERT / ICSE)" 
             contentKey="home.section_school"
-            books={byCategory('school')} 
-            viewAllLink="/category/school" 
+            books={byCategory(t('home.section_school', 'School Books (NCERT / ICSE)'), 'school')} 
+            viewAllLink={viewAllFor(t('home.section_school', 'School Books (NCERT / ICSE)'), 'school')} 
             loading={loading} 
           />
 
@@ -710,8 +756,8 @@ export default function Home() {
             icon={<GraduationCap className="h-5 w-5 text-emerald-600" />} 
             title="University & College Books" 
             contentKey="home.section_university"
-            books={byCategory('university')} 
-            viewAllLink="/category/university" 
+            books={byCategory(t('home.section_university', 'University & College Books'), 'university')} 
+            viewAllLink={viewAllFor(t('home.section_university', 'University & College Books'), 'university')} 
             loading={loading} 
           />
 
@@ -785,8 +831,8 @@ export default function Home() {
             icon={<Globe2 className="h-5 w-5 text-teal-500" />} 
             title="International Books" 
             contentKey="home.section_international"
-            books={byCategory('international')} 
-            viewAllLink="/category/international" 
+            books={byCategory(t('home.section_international', 'International Books'), 'international')} 
+            viewAllLink={viewAllFor(t('home.section_international', 'International Books'), 'international')} 
             loading={loading} 
           />
 
@@ -795,8 +841,8 @@ export default function Home() {
             icon={<Gem className="h-5 w-5 text-amber-500" />} 
             title="Rare & Collector's Editions" 
             contentKey="home.section_rare"
-            books={byCategory('rare')} 
-            viewAllLink="/category/rare" 
+            books={byCategory(t('home.section_rare', 'Rare & Collector\'s Editions'), 'rare')} 
+            viewAllLink={viewAllFor(t('home.section_rare', 'Rare & Collector\'s Editions'), 'rare')} 
             loading={loading} 
           />
 

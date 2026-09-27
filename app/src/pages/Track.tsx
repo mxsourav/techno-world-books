@@ -83,6 +83,15 @@ export default function Track() {
   const bookingDetails = liveTracking?.tracking?.booking_details;
   const matchedOrder = liveTracking?.order || localOrder;
 
+  // Determine the nature of a "not found" result
+  const lookupTrimmed = lookup.trim();
+  const isLikelyInvalid = lookupTrimmed && !loading && !matchedOrder && !bookingDetails && (
+    // Too short to be either a valid order ID or India Post barcode
+    lookupTrimmed.length < 8 ||
+    // Doesn't look like an order ID (TW-...) or India Post barcode (EBxxxxxxIN / RVxxxxxxIN etc.)
+    (!lookupTrimmed.toUpperCase().startsWith('TW') && !/^[A-Z]{2}\d{8,}[A-Z]{2}$/.test(lookupTrimmed.toUpperCase()))
+  );
+
   return (
     <div className="mx-auto max-w-3xl px-3 py-8 sm:px-6">
       <div className="flex items-center gap-2">
@@ -114,10 +123,28 @@ export default function Track() {
       </div>
 
       {lookup && !loading && !matchedOrder && !bookingDetails && (
-        <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-5 text-center text-sm text-amber-800">
-          {errorMsg || (
+        <div className={`mt-6 rounded-xl border p-5 text-center text-sm ${isLikelyInvalid ? 'border-red-200 bg-red-50 text-red-800' : 'border-amber-200 bg-amber-50 text-amber-800'}`}>
+          {isLikelyInvalid ? (
             <>
-              No consignment or order found for "<b>{lookup}</b>". Please verify your Order ID or India Post barcode.
+              <p className="font-bold text-base mb-1">Invalid Tracking ID</p>
+              <p>
+                <b>"{lookup}"</b> is not a valid Order ID or India Post barcode.
+              </p>
+              <p className="mt-2 text-xs opacity-75">
+                Order IDs start with <code>TW-</code>. India Post barcodes look like <code>EB123456789IN</code>.
+              </p>
+            </>
+          ) : errorMsg ? (
+            errorMsg
+          ) : (
+            <>
+              <p className="font-bold text-base mb-1">No tracking data yet</p>
+              <p>
+                No live tracking found for <b>"{lookup}"</b>.
+              </p>
+              <p className="mt-2 text-xs opacity-75">
+                If you just placed this order, your AWB / consignment number will be assigned once we hand it over to India Post. Check back soon or contact us on WhatsApp.
+              </p>
             </>
           )}
         </div>

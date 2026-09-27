@@ -758,5 +758,29 @@ export const heroService = {
     api.delete<{ id: string; hero_book_cover_url: null; hero_book_cover_updated_at: string }>('/hero/admin/cover'),
 };
 
+export const cartService = {
+  getCart: () =>
+    api.get<any>('/cart'),
+  syncCart: (items: Array<{ bookId: string; qty: number }>) =>
+    api.post<any>('/cart/sync', { items }),
+  updateItem: (bookId: string, qty: number) =>
+    api.post<any>('/cart', { bookId, qty }),
+  removeItem: (bookId: string) =>
+    api.delete<any>(`/cart/${bookId}`),
+  clearCart: () =>
+    api.delete<any>('/cart'),
+};
+
+export const wishlistService = {
+  getWishlist: () =>
+    api.get<any>('/wishlist'),
+  syncWishlist: (bookIds: string[]) =>
+    api.post<any>('/wishlist/sync', { bookIds }),
+  toggleItem: (bookId: string) =>
+    api.post<any>('/wishlist/toggle', { bookId }),
+  removeItem: (bookId: string) =>
+    api.delete<any>(`/wishlist/${bookId}`),
+};
+
 
 
