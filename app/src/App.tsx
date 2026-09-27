@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, Suspense, lazy } from 'react';
 import { Route, Routes, useLocation, Outlet } from 'react-router';
 import { MessageCircle } from 'lucide-react';
 import { Toaster } from 'sonner';
@@ -8,26 +8,29 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Home from '@/pages/Home';
 import Listing from '@/pages/Listing';
-import Product from '@/pages/Product';
-import Cart from '@/pages/Cart';
-import Checkout from '@/pages/Checkout';
-import Wishlist from '@/pages/Wishlist';
-import Account from '@/pages/Account';
-import Profile from '@/pages/Profile';
-import Track from '@/pages/Track';
-import { BlogList, BlogPost } from '@/pages/Blog';
-import Help from '@/pages/Help';
-import About from '@/pages/About';
-import Terms from '@/pages/Terms';
-import RefundPolicy from '@/pages/RefundPolicy';
-import ShippingPolicy from '@/pages/ShippingPolicy';
-import PrivacyPolicy from '@/pages/PrivacyPolicy';
-import Contact from '@/pages/Contact';
+
+// Lazy-loaded pages for optimal bundle size and instantaneous initial load
+const Product = lazy(() => import('@/pages/Product'));
+const Cart = lazy(() => import('@/pages/Cart'));
+const Checkout = lazy(() => import('@/pages/Checkout'));
+const Wishlist = lazy(() => import('@/pages/Wishlist'));
+const Account = lazy(() => import('@/pages/Account'));
+const Profile = lazy(() => import('@/pages/Profile'));
+const Track = lazy(() => import('@/pages/Track'));
+const BlogList = lazy(() => import('@/pages/Blog').then((m) => ({ default: m.BlogList })));
+const BlogPost = lazy(() => import('@/pages/Blog').then((m) => ({ default: m.BlogPost })));
+const Help = lazy(() => import('@/pages/Help'));
+const About = lazy(() => import('@/pages/About'));
+const Terms = lazy(() => import('@/pages/Terms'));
+const RefundPolicy = lazy(() => import('@/pages/RefundPolicy'));
+const ShippingPolicy = lazy(() => import('@/pages/ShippingPolicy'));
+const PrivacyPolicy = lazy(() => import('@/pages/PrivacyPolicy'));
+const Contact = lazy(() => import('@/pages/Contact'));
+const OrderSuccess = lazy(() => import('@/pages/OrderSuccess'));
+const MyOrders = lazy(() => import('@/pages/MyOrders'));
 
 import { AuthProvider } from '@/store/AuthStore';
 import { CmsProvider } from '@/context/CmsContext';
-import OrderSuccess from '@/pages/OrderSuccess';
-import MyOrders from '@/pages/MyOrders';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import HomePopupAd from './components/HomePopupAd';
 
@@ -148,13 +151,27 @@ function VisitorPulseTracker() {
 }
 
 
+function PageLoader() {
+  return (
+    <div className="min-h-[55vh] flex flex-col items-center justify-center py-20 animate-in fade-in duration-300">
+      <div className="relative flex items-center justify-center">
+        <div className="w-10 h-10 border-3 border-emerald-600/20 border-t-emerald-600 rounded-full animate-spin" />
+        <div className="absolute w-2 h-2 bg-emerald-600 rounded-full animate-ping" />
+      </div>
+      <p className="mt-4 text-[11px] font-semibold tracking-wider text-zinc-400 uppercase">Loading...</p>
+    </div>
+  );
+}
+
 // This is the customer layout that wraps around the customer-facing pages, including the header, footer, and a floating WhatsApp support button.
 function CustomerLayout() {
   return (
     <>
       <Header />
       <main className="flex-1">
-        <Outlet />
+        <Suspense fallback={<PageLoader />}>
+          <Outlet />
+        </Suspense>
       </main>
       <Footer />
       <HomePopupAd />

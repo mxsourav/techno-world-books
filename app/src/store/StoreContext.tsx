@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import type { CartItem, Order, Address, User } from '@/types';
+import { cartService, wishlistService } from '@/services/api';
 
 
 
@@ -82,20 +83,84 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => { localStorage.setItem('twb_recent', JSON.stringify(recentlyViewed)); }, [recentlyViewed]);
   useEffect(() => { localStorage.setItem('twb_coupon', JSON.stringify(coupon)); }, [coupon]);
 
+  const initialSyncDoneRef = useRef(false);
+
+  // Sync cart & wishlist with backend PostgreSQL database when user is authenticated
+  useEffect(() => {
+    const token = localStorage.getItem('tw_customer_token') || localStorage.getItem('tw_token');
+    if (!token) {
+      initialSyncDoneRef.current = false;
+      return;
+    }
+
+    if (initialSyncDoneRef.current) return;
+    initialSyncDoneRef.current = true;
+
+    // 1. Sync guest cart to DB and merge with any existing account items
+    if (cart.length > 0) {
+      cartService.syncCart(cart).then((res: any) => {
+        const items = res?.items || res?.data?.items;
+        if (Array.isArray(items)) {
+          setCart(items.map((i: any) => ({ bookId: i.bookId, qty: i.qty })));
+        }
+      }).catch(() => {});
+    } else {
+      cartService.getCart().then((res: any) => {
+        const items = res?.items || res?.data?.items;
+        if (Array.isArray(items) && items.length > 0) {
+          setCart(items.map((i: any) => ({ bookId: i.bookId, qty: i.qty })));
+        }
+      }).catch(() => {});
+    }
+
+    // 2. Sync guest wishlist to DB and merge
+    if (wishlist.length > 0) {
+      wishlistService.syncWishlist(wishlist).then((res: any) => {
+        const bookIds = res?.bookIds || res?.data?.bookIds;
+        if (Array.isArray(bookIds)) {
+          setWishlist(bookIds);
+        }
+      }).catch(() => {});
+    } else {
+      wishlistService.getWishlist().then((res: any) => {
+        const bookIds = res?.bookIds || res?.data?.bookIds;
+        if (Array.isArray(bookIds) && bookIds.length > 0) {
+          setWishlist(bookIds);
+        }
+      }).catch(() => {});
+    }
+  }, [user]);
+
   const addToCart = useCallback((bookId: string, qty = 1) => {
     setCart((c) => {
       const ex = c.find((i) => i.bookId === bookId);
-      if (ex) return c.map((i) => (i.bookId === bookId ? { ...i, qty: Math.min(i.qty + qty, 10) } : i));
+      const newQty = ex ? Math.min(ex.qty + qty, 10) : qty;
+      const token = localStorage.getItem('tw_customer_token') || localStorage.getItem('tw_token');
+      if (token) {
+        cartService.updateItem(bookId, newQty).catch(() => {});
+      }
+      if (ex) return c.map((i) => (i.bookId === bookId ? { ...i, qty: newQty } : i));
       return [...c, { bookId, qty }];
     });
     setSavedForLater((s) => s.filter((i) => i.bookId !== bookId));
   }, []);
 
-  const removeFromCart = useCallback((bookId: string) => setCart((c) => c.filter((i) => i.bookId !== bookId)), []);
+  const removeFromCart = useCallback((bookId: string) => {
+    setCart((c) => c.filter((i) => i.bookId !== bookId));
+    const token = localStorage.getItem('tw_customer_token') || localStorage.getItem('tw_token');
+    if (token) {
+      cartService.removeItem(bookId).catch(() => {});
+    }
+  }, []);
 
   const setQty = useCallback((bookId: string, qty: number) => {
     if (qty < 1) return;
-    setCart((c) => c.map((i) => (i.bookId === bookId ? { ...i, qty: Math.min(qty, 10) } : i)));
+    const capped = Math.min(qty, 10);
+    setCart((c) => c.map((i) => (i.bookId === bookId ? { ...i, qty: capped } : i)));
+    const token = localStorage.getItem('tw_customer_token') || localStorage.getItem('tw_token');
+    if (token) {
+      cartService.updateItem(bookId, capped).catch(() => {});
+    }
   }, []);
 
   const saveForLater = useCallback((bookId: string) => {
@@ -116,6 +181,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const toggleWishlist = useCallback((bookId: string) => {
     setWishlist((w) => (w.includes(bookId) ? w.filter((id) => id !== bookId) : [...w, bookId]));
+    const token = localStorage.getItem('tw_customer_token') || localStorage.getItem('tw_token');
+    if (token) {
+      wishlistService.toggleItem(bookId).catch(() => {});
+    }
   }, []);
 
   const isWishlisted = useCallback((bookId: string) => wishlist.includes(bookId), [wishlist]);
@@ -165,7 +234,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const clearCoupon = useCallback(() => { setCoupon(null); }, []);
-  const clearCart = useCallback(() => setCart([]), []);
+  const clearCart = useCallback(() => {
+    setCart([]);
+    const token = localStorage.getItem('tw_customer_token') || localStorage.getItem('tw_token');
+    if (token) {
+      cartService.clearCart().catch(() => {});
+    }
+  }, []);
 
   const value = useMemo<StoreState>(() => ({
     cart, savedForLater, wishlist, orders, user, addresses, searchHistory, recentlyViewed, coupon,
