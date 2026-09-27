@@ -45,6 +45,7 @@ export default function Profile() {
 
   const [loading, setLoading] = useState(true);
   const [profileData, setProfileData] = useState<any>(null);
+  const [profileErrorStatus, setProfileErrorStatus] = useState<number | null>(null); // NEW: tracks 401 vs other failures
   const [activeTab, setActiveTab] = useState<'orders' | 'profile' | 'addresses' | 'notifications' | 'payments' | 'points'>('orders');
   const [userOrders, setUserOrders] = useState<any[]>([]);
   const [isLoadingOrders, setIsLoadingOrders] = useState(false);
@@ -119,6 +120,7 @@ export default function Profile() {
   const fetchFullProfile = async () => {
     try {
       setLoading(true);
+      setProfileErrorStatus(null); // reset on each new attempt
       const res = await profileService.getProfile();
       if (res.success && res.data) {
         setProfileData(res.data);
@@ -150,7 +152,15 @@ export default function Profile() {
       }).catch(() => {});
 
     } catch (err: any) {
-      // If unauthorized, user may not have logged in
+      // NOTE: adjust this extraction to match how profileService/api actually
+      // attaches the HTTP status to a thrown error in your codebase.
+      const status = err?.status ?? err?.response?.status ?? err?.statusCode ?? null;
+      setProfileErrorStatus(status);
+
+      // If unauthorized, the session is dead — nothing else to retry against.
+      if (status === 401) {
+        // no-op here; the render logic below branches on profileErrorStatus
+      }
     } finally {
       setLoading(false);
     }
@@ -348,33 +358,43 @@ export default function Profile() {
     );
   }
 
-  // User is logged in but profile API call failed or still loading — show retry UI
+  // User is logged in but the profile could not be loaded. Never retry an
+  // authenticated request from this screen; let the user re-authenticate or sign out.
   if (!loading && !profileData && isLoggedIn) {
+    const isSessionExpired = profileErrorStatus === 401 || profileErrorStatus === 403;
+
     return (
       <div className="mx-auto max-w-md px-6 py-24 text-center">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-100 text-amber-700 shadow">
+        <div
+          className={`mx-auto flex h-16 w-16 items-center justify-center rounded-2xl shadow ${
+            isSessionExpired ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'
+          }`}
+        >
           <AlertTriangle className="h-8 w-8" />
         </div>
         <h1 className="mt-4 text-2xl font-extrabold text-slate-900">
-          Welcome, {storeUser?.name || 'Reader'}!
+          {isSessionExpired ? 'Session Expired' : 'Profile Unavailable'}
         </h1>
         <p className="mt-2 text-sm text-slate-500">
-          We're having trouble loading your profile data. The server may be starting up — please try again.
+          {isSessionExpired
+            ? 'Your session has expired. Please sign in again to continue.'
+            : 'We could not verify your profile right now. Please sign in again or sign out and return to the bookstore.'}
         </p>
         <div className="mt-6 space-y-3">
-          <button
-            onClick={() => {
-              setLoading(true);
+          <GoogleSignInButton
+            onSuccess={() => {
+              setProfileErrorStatus(null);
               fetchFullProfile();
             }}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3.5 text-sm font-bold text-white shadow-lg hover:bg-emerald-700 transition-all"
+            width={320}
+          />
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="w-full rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 hover:bg-rose-50 hover:border-rose-200 hover:text-rose-700 transition-colors"
           >
-            <Loader2 className="h-4 w-4" />
-            Retry Loading Profile
+            Sign Out
           </button>
-          <Link to="/" className="block text-xs font-semibold text-slate-500 hover:text-slate-800">
-            Back to Bookstore
-          </Link>
         </div>
       </div>
     );
