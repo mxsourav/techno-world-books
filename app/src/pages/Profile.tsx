@@ -11,6 +11,7 @@ import {
   Trash2,
   Plus,
   CheckCircle2,
+  ShieldCheck,
   LogOut,
   HelpCircle,
   X,
@@ -25,14 +26,12 @@ import {
   ExternalLink,
   ChevronRight,
   Package,
-  Store,
-  CalendarCheck,
   Download,
   MessageSquare,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/AuthStore';
 import { useStore } from '@/store/StoreContext';
-import { profileService, authService, orderService, shippingService } from '@/services/api';
+import { profileService, authService, shippingService } from '@/services/api';
 import { generateAndPrintInvoice } from '@/utils/generateInvoice';
 import { toast } from 'sonner';
 import { GoogleSignInButton } from '@/components/GoogleSignInButton';
@@ -51,8 +50,6 @@ export default function Profile() {
   const [isLoadingOrders, setIsLoadingOrders] = useState(false);
   const [userNotifs, setUserNotifs] = useState<any[]>([]);
   const [isLoadingNotifs, setIsLoadingNotifs] = useState(false);
-  const [selectedSlotsByOrder, setSelectedSlotsByOrder] = useState<{ [orderId: string]: string }>({});
-  const [isConfirmingSlot, setIsConfirmingSlot] = useState<string | null>(null);
   const [helpOrderModal, setHelpOrderModal] = useState<any | null>(null);
 
   // Edit Profile State
@@ -176,34 +173,6 @@ export default function Profile() {
     } catch {}
     finally {
       setIsLoadingOrders(false);
-    }
-  };
-
-  const handleConfirmSlot = async (orderId: string) => {
-    const order = userOrders.find(o => o.id === orderId);
-    let slots: string[] = [];
-    try {
-      slots = typeof order?.pickupSlots === 'string' ? JSON.parse(order.pickupSlots) : (order?.pickupSlots || []);
-    } catch (_e) {}
-
-    const chosen = selectedSlotsByOrder[orderId] || slots[0];
-    if (!chosen) {
-      return toast.error('Please select one of the proposed pickup time slots.');
-    }
-
-    setIsConfirmingSlot(orderId);
-    try {
-      const res = await orderService.confirmPickupSlot(orderId, chosen);
-      if (res.success) {
-        toast.success('Pickup appointment slot confirmed!');
-        fetchUserOrders();
-      } else {
-        toast.error(res.message || 'Failed to confirm pickup slot');
-      }
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to confirm pickup slot');
-    } finally {
-      setIsConfirmingSlot(null);
     }
   };
 
@@ -421,280 +390,346 @@ export default function Profile() {
     .join('')
     .toUpperCase() || 'U';
 
-  return (
-    <div className="min-h-screen bg-slate-50 py-6 sm:py-10 font-sans">
-      <div className="mx-auto max-w-6xl px-3 sm:px-6">
-        {/* Top Profile Card - Clean, Minimal & Compact */}
-        <div className="rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-xs mb-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            {/* User Identity */}
-            <div className="flex items-center gap-3.5 min-w-0">
-              {/* Compact Avatar */}
-              <div className="relative h-12 w-12 sm:h-14 sm:w-14 shrink-0 rounded-full border border-slate-200 bg-slate-100 flex items-center justify-center overflow-hidden">
-                {profileData?.avatarUrl && !avatarError ? (
-                  <img
-                    src={profileData.avatarUrl}
-                    alt={displayName}
-                    referrerPolicy="no-referrer"
-                    onError={() => setAvatarError(true)}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <span className="font-bold text-slate-700 text-base sm:text-lg select-none">
-                    {userInitials}
-                  </span>
-                )}
-                {/* Verified Green Dot */}
-                <div
-                  className="absolute -bottom-0.5 -right-0.5 h-4 w-4 sm:h-4.5 sm:w-4.5 rounded-full bg-emerald-600 border-2 border-white flex items-center justify-center text-white"
-                  title="Verified Customer"
-                >
-                  <CheckCircle2 className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                </div>
-              </div>
+  const navigationTabs = [
+    { id: 'orders', label: 'My Orders', count: userOrders.length, icon: ShoppingCart },
+    { id: 'notifications', label: 'Alerts', count: userNotifs.filter(n => !n.isRead).length > 0 ? userNotifs.filter(n => !n.isRead).length : null, icon: Bell, isNew: userNotifs.filter(n => !n.isRead).length > 0 },
+    { id: 'profile', label: 'Personal Info', count: null, icon: UserIcon },
+    { id: 'addresses', label: 'Addresses', count: addresses.length, icon: MapPin },
+    { id: 'points', label: 'Wallet & Coins', count: `₹${(technoWallet + technoPoints).toFixed(0)}`, icon: Wallet },
+    { id: 'payments', label: 'Saved Payments', count: null, icon: CreditCard },
+  ];
 
-              {/* Name & Contact */}
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h1 className="text-base sm:text-lg font-bold text-slate-900 truncate max-w-[220px] sm:max-w-md">
-                    {displayName}
-                  </h1>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2.5 py-0.5 text-[10px] font-medium text-stone-600 border border-stone-200 shrink-0">
-                    <CheckCircle2 className="h-2.5 w-2.5 text-stone-500" />
-                    Verified Customer
-                  </span>
-                </div>
-                <div className="text-xs text-slate-500 mt-0.5 flex flex-wrap items-center gap-2 sm:gap-3">
-                  <span className="inline-flex items-center gap-1 truncate max-w-[180px] sm:max-w-none">
-                    <Mail className="h-3 w-3 text-slate-400 shrink-0" />
-                    <span className="truncate">{profileData?.email || storeUser?.email || 'No email attached'}</span>
-                  </span>
-                  {profileData?.phone && (
-                    <span className="inline-flex items-center gap-1 shrink-0">
-                      <Phone className="h-3 w-3 text-slate-400 shrink-0" />
-                      <span>+91 {profileData.phone}</span>
-                    </span>
-                  )}
-                </div>
-              </div>
+  const getOrderStatusMeta = (status: string) => {
+    switch (status) {
+      case 'CONFIRMED':
+        return { label: 'Order Confirmed', pillClass: 'bg-stone-800 text-white' };
+      case 'PROCESSING':
+        return { label: 'Preparing for Dispatch', pillClass: 'bg-stone-800 text-white' };
+      case 'SHIPPED':
+        return { label: 'Dispatched', pillClass: 'bg-stone-800 text-white' };
+      case 'DELIVERED':
+        return { label: 'Delivered', pillClass: 'bg-emerald-950 text-white' };
+      case 'CANCELLED':
+        return { label: 'Cancelled', pillClass: 'bg-stone-200 text-stone-700' };
+      case 'REFUNDED':
+        return { label: 'Refunded', pillClass: 'bg-stone-200 text-stone-700' };
+      case 'PENDING':
+      default:
+        return { label: 'Order Confirmed', pillClass: 'bg-stone-800 text-white' };
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-stone-50/50 py-6 sm:py-10 font-sans text-stone-900">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        
+        {/* Mobile Header / Quick Identity Banner (< lg screens) */}
+        <div className="lg:hidden mb-6 rounded-lg border border-stone-200 bg-white p-4 space-y-3.5">
+          <div className="flex items-center gap-3">
+            <div className="h-12 w-12 shrink-0 rounded-full border border-stone-200 bg-stone-100 flex items-center justify-center overflow-hidden">
+              {profileData?.avatarUrl && !avatarError ? (
+                <img
+                  src={profileData.avatarUrl}
+                  alt={displayName}
+                  referrerPolicy="no-referrer"
+                  onError={() => setAvatarError(true)}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <span className="font-bold text-stone-700 text-base select-none">
+                  {userInitials}
+                </span>
+              )}
             </div>
 
-            {/* Wallet & Coins Badges */}
-            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-              {/* TechnoWallet Cash Balance */}
-              <div className="flex items-center gap-2.5 rounded-xl border border-slate-200/80 bg-slate-50/80 px-3 py-2">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
-                  <Wallet className="h-4 w-4" />
-                </div>
-                <div>
-                  <div className="text-xs sm:text-sm font-bold text-slate-900 leading-tight">
-                    ₹{technoWallet.toFixed(2)}
-                  </div>
-                  <div className="text-[10px] font-medium text-slate-500 leading-tight">
-                    TechnoWallet
-                  </div>
-                </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <h1 className="text-base font-bold text-stone-900 truncate">{displayName}</h1>
+                <span className="inline-flex items-center gap-1 text-[11px] text-stone-500 font-normal">
+                  <ShieldCheck className="h-3.5 w-3.5 text-stone-500" />
+                  Verified Customer
+                </span>
               </div>
-
-              {/* Techno Coins */}
-              <div className="flex items-center gap-2.5 rounded-xl border border-slate-200/80 bg-slate-50/80 px-3 py-2">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-700">
-                  <Coins className="h-4 w-4" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-1 leading-tight">
-                    <span className="text-xs sm:text-sm font-bold text-slate-900">{technoPoints}</span>
-                    <span className="text-[10px] text-slate-400 font-medium">(₹{technoPoints})</span>
-                  </div>
-                  <div className="text-[10px] font-medium text-slate-500 leading-tight flex items-center gap-1">
-                    <span>Techno Coins</span>
-                    <button
-                      onClick={() => setIsTermsModalOpen(true)}
-                      type="button"
-                      className="text-slate-400 hover:text-slate-600 transition-colors"
-                      title="View Techno Coins Terms"
-                    >
-                      <HelpCircle className="h-2.5 w-2.5" />
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <p className="text-xs text-stone-500 truncate">{profileData?.email || storeUser?.email}</p>
             </div>
           </div>
 
-          {/* Navigation Tabs Bar */}
-          <div className="mt-4 pt-3.5 border-t border-slate-100 flex items-center justify-between gap-2">
-            <div className="flex flex-1 items-center gap-1 sm:gap-1.5 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {[
-                { id: 'orders', label: 'My Orders', count: userOrders.length, icon: ShoppingCart },
-                { id: 'notifications', label: 'Alerts', count: userNotifs.filter(n => !n.isRead).length > 0 ? userNotifs.filter(n => !n.isRead).length : null, icon: Bell, isNew: userNotifs.filter(n => !n.isRead).length > 0 },
-                { id: 'profile', label: 'Personal Info', count: null, icon: UserIcon },
-                { id: 'addresses', label: 'Addresses', count: addresses.length, icon: MapPin },
-                { id: 'points', label: 'Wallet & Coins', count: `₹${(technoWallet + technoPoints).toFixed(0)}`, icon: Wallet },
-                { id: 'payments', label: 'Saved Payments', count: null, icon: CreditCard },
-              ].map((tab: any) => {
-                const isActive = activeTab === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => setActiveTab(tab.id as any)}
-                    className={`flex items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-semibold transition-colors shrink-0 select-none ${
-                      isActive
-                        ? 'bg-slate-900 text-white shadow-xs'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                    }`}
-                  >
-                    <tab.icon className={`h-3.5 w-3.5 ${isActive ? 'text-white' : 'text-slate-500'}`} />
-                    <span>{tab.label}</span>
-                    {tab.count !== null && tab.count !== undefined && (
-                      <span
-                        className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
-                          isActive
-                            ? 'bg-white/20 text-white'
-                            : tab.isNew
-                            ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                            : 'bg-slate-200/80 text-slate-700'
-                        }`}
-                      >
-                        {tab.count}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
+          {/* Quick Balance Readout Mobile */}
+          <div className="grid grid-cols-2 gap-2 border-t border-stone-100 pt-3 text-xs">
+            <div className="rounded-md border border-stone-200 bg-stone-50/80 p-2.5">
+              <span className="text-[10px] text-stone-500 block uppercase font-medium">Wallet Balance</span>
+              <span className="font-semibold text-stone-900 font-mono text-sm">₹{technoWallet.toFixed(2)}</span>
             </div>
+            <div className="rounded-md border border-stone-200 bg-stone-50/80 p-2.5">
+              <span className="text-[10px] text-stone-500 block uppercase font-medium">Techno Coins</span>
+              <span className="font-semibold text-stone-900 font-mono text-sm">{technoPoints}</span>
+            </div>
+          </div>
 
-            <button
-              onClick={handleLogout}
-              type="button"
-              className="shrink-0 flex items-center gap-1.5 whitespace-nowrap rounded-lg border border-slate-200 bg-white hover:bg-rose-50 hover:border-rose-200 hover:text-rose-700 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors"
-            >
-              <LogOut className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Sign Out</span>
-            </button>
+          {/* Horizontal Navigation Tabs on Mobile */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pt-2 border-t border-stone-100 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {navigationTabs.map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={`flex items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium transition-colors shrink-0 ${
+                    isActive
+                      ? 'bg-stone-900 text-white'
+                      : 'border border-stone-200 bg-white text-stone-600 hover:bg-stone-50 hover:text-stone-900'
+                  }`}
+                >
+                  <tab.icon className="h-3.5 w-3.5" />
+                  <span>{tab.label}</span>
+                  {tab.count !== null && (
+                    <span className={`text-[10px] px-1 rounded font-mono ${isActive ? 'bg-white/20 text-white' : 'text-stone-500'}`}>
+                      {tab.count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        {/* Tab Contents */}
-        <div className="mt-8">
+        {/* 2-Column Dashboard Layout (Desktop) */}
+        <div className="lg:grid lg:grid-cols-12 lg:gap-8 items-start">
+          
+          {/* LEFT SIDEBAR (col-span-3) - Sticky on desktop */}
+          <aside className="hidden lg:block lg:col-span-3 lg:sticky lg:top-24 space-y-5">
+            {/* User Profile Card */}
+            <div className="rounded-lg border border-stone-200 bg-white p-5 space-y-4">
+              <div className="flex items-center gap-3.5">
+                <div className="h-14 w-14 shrink-0 rounded-full border border-stone-200 bg-stone-100 flex items-center justify-center overflow-hidden">
+                  {profileData?.avatarUrl && !avatarError ? (
+                    <img
+                      src={profileData.avatarUrl}
+                      alt={displayName}
+                      referrerPolicy="no-referrer"
+                      onError={() => setAvatarError(true)}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span className="font-bold text-stone-700 text-lg select-none">
+                      {userInitials}
+                    </span>
+                  )}
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-base font-bold text-stone-900 truncate leading-snug">
+                    {displayName}
+                  </h2>
+                  <div className="flex items-center gap-1 text-xs text-stone-500 mt-0.5">
+                    <ShieldCheck className="h-3.5 w-3.5 text-stone-500 shrink-0" />
+                    <span>Verified Customer</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Contact Details */}
+              <div className="pt-3 border-t border-stone-100 space-y-1.5 text-xs text-stone-500">
+                <div className="flex items-center gap-2 truncate">
+                  <Mail className="h-3.5 w-3.5 text-stone-400 shrink-0" />
+                  <span className="truncate">{profileData?.email || storeUser?.email || 'No email attached'}</span>
+                </div>
+                {profileData?.phone && (
+                  <div className="flex items-center gap-2">
+                    <Phone className="h-3.5 w-3.5 text-stone-400 shrink-0" />
+                    <span>+91 {profileData.phone}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Monochrome Wallet & Coins Badges */}
+              <div className="pt-3 border-t border-stone-100 space-y-2">
+                <div className="flex items-center justify-between text-xs p-2.5 rounded-md bg-stone-50 border border-stone-200/80">
+                  <div className="flex items-center gap-2 text-stone-600">
+                    <Wallet className="h-4 w-4 text-stone-700" />
+                    <span>Wallet Balance</span>
+                  </div>
+                  <span className="font-semibold text-stone-900 font-mono">₹{technoWallet.toFixed(2)}</span>
+                </div>
+
+                <div className="flex items-center justify-between text-xs p-2.5 rounded-md bg-stone-50 border border-stone-200/80">
+                  <div className="flex items-center gap-2 text-stone-600">
+                    <Coins className="h-4 w-4 text-stone-700" />
+                    <span className="flex items-center gap-1">
+                      Techno Coins
+                      <button
+                        type="button"
+                        onClick={() => setIsTermsModalOpen(true)}
+                        className="text-stone-400 hover:text-stone-600"
+                        title="View Terms"
+                      >
+                        <HelpCircle className="h-2.5 w-2.5" />
+                      </button>
+                    </span>
+                  </div>
+                  <span className="font-semibold text-stone-900 font-mono">
+                    {technoPoints} <span className="text-[10px] text-stone-500 font-sans font-normal">(₹{technoPoints})</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Vertical Flush Navigation */}
+            <div className="rounded-lg border border-stone-200 bg-white p-2">
+              <nav className="space-y-0.5">
+                {navigationTabs.map((tab) => {
+                  const isActive = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setActiveTab(tab.id as any)}
+                      className={`w-full flex items-center justify-between px-3 py-2.5 text-xs transition-colors text-left rounded-md ${
+                        isActive
+                          ? 'border-l-2 border-emerald-800 bg-stone-100/70 text-stone-900 font-semibold pl-2.5 rounded-l-none'
+                          : 'text-stone-600 hover:bg-stone-50 hover:text-stone-900'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <tab.icon className={`h-4 w-4 ${isActive ? 'text-stone-900' : 'text-stone-400'}`} />
+                        <span>{tab.label}</span>
+                      </div>
+                      {tab.count !== null && (
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono ${
+                          isActive
+                            ? 'bg-stone-200 text-stone-800 font-bold'
+                            : tab.isNew
+                            ? 'bg-rose-50 text-rose-700 font-bold border border-rose-200'
+                            : 'text-stone-500'
+                        }`}>
+                          {tab.count}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+
+                <div className="pt-2 border-t border-stone-100 mt-2">
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-stone-600 hover:bg-stone-50 hover:text-rose-700 rounded-md transition-colors text-left"
+                  >
+                    <LogOut className="h-4 w-4 text-stone-400" />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              </nav>
+            </div>
+          </aside>
+
+          {/* RIGHT MAIN CONTENT (col-span-9) */}
+          <main className="lg:col-span-9 space-y-6">
           {/* 0. My Orders & History Tab */}
           {activeTab === 'orders' && (
             <div className="space-y-6">
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm flex items-center justify-between">
+              <div className="rounded-lg border border-stone-200 bg-white p-4 sm:p-5 flex items-center justify-between">
                 <div>
-                  <h2 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
-                    <ShoppingCart className="h-5 w-5 text-emerald-700" /> My Orders & Purchase History
+                  <h2 className="text-base sm:text-lg font-bold text-stone-900 flex items-center gap-2">
+                    <ShoppingCart className="h-5 w-5 text-stone-700" /> Purchase History
                   </h2>
-                  <p className="text-xs text-slate-500 mt-0.5">Track your orders, view delivery progress, and check real-time shipment updates.</p>
+                  <p className="text-xs text-stone-500 mt-0.5">Track your orders, view delivery progress, and check real-time shipment updates.</p>
                 </div>
                 <button
                   onClick={fetchUserOrders}
                   disabled={isLoadingOrders}
-                  className="rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors flex items-center gap-1.5"
+                  className="rounded-md border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors flex items-center gap-1.5 disabled:opacity-50"
                 >
                   {isLoadingOrders ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Clock className="h-3.5 w-3.5" />}
-                  Refresh Orders
+                  <span>Refresh</span>
                 </button>
               </div>
 
               {userOrders.length === 0 ? (
-                <div className="rounded-2xl border border-slate-200 bg-white p-16 text-center shadow-sm">
-                  <Package className="mx-auto h-12 w-12 text-slate-300 mb-3" />
-                  <h3 className="text-base font-bold text-slate-800">No orders placed yet</h3>
-                  <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1 mb-6">
+                <div className="rounded-lg border border-stone-200 bg-white p-12 text-center">
+                  <Package className="mx-auto h-12 w-12 text-stone-300 mb-3" />
+                  <h3 className="text-base font-bold text-stone-800">No orders placed yet</h3>
+                  <p className="text-xs text-stone-500 max-w-sm mx-auto mt-1 mb-5">
                     Explore our vast collection of academic, competitive examination, and general books!
                   </p>
                   <Link
                     to="/catalog"
-                    className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-6 py-2.5 text-xs font-bold text-white hover:bg-emerald-800 shadow transition-all"
+                    className="inline-flex items-center gap-1.5 rounded-md bg-stone-900 px-5 py-2 text-xs font-semibold text-white hover:bg-stone-800 transition-colors"
                   >
-                    Browse Book Catalog <ChevronRight className="h-4 w-4" />
+                    Browse Catalog <ChevronRight className="h-4 w-4" />
                   </Link>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-5">
                   {userOrders.map((ord: any) => {
-                    const statusColor =
-                      ord.status === 'CONFIRMED' || ord.status === 'PROCESSING'
-                        ? 'bg-amber-50 text-amber-800 border-amber-200'
-                        : ord.status === 'SHIPPED'
-                        ? 'bg-sky-50 text-sky-800 border-sky-200'
-                        : ord.status === 'DELIVERED'
-                        ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                        : ord.status === 'CANCELLED'
-                        ? 'bg-rose-50 text-rose-800 border-rose-200'
-                        : 'bg-stone-50 text-stone-700 border-stone-200';
-
-                    const statusLabel =
-                      ord.status === 'CONFIRMED'
-                        ? 'Order Confirmed'
-                        : ord.status === 'PROCESSING'
-                        ? 'Packing & Procurement'
-                        : ord.status === 'SHIPPED'
-                        ? 'Dispatched (India Post)'
-                        : ord.status === 'DELIVERED'
-                        ? 'Delivered'
-                        : ord.status === 'CANCELLED'
-                        ? 'Cancelled / Rejected'
-                        : 'Order Confirmed';
+                    const statusMeta = getOrderStatusMeta(ord.status);
 
                     return (
-                      <div key={ord.id} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm overflow-hidden space-y-4">
-                        {/* Order Header */}
-                        <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
-                          <div>
-                            <div className="flex items-center gap-2.5 flex-wrap">
-                              <span className="text-base font-black text-slate-900">#{ord.orderNumber}</span>
-                              <span className={`rounded-full px-3 py-0.5 text-xs font-black border ${statusColor}`}>
-                                {statusLabel}
+                      <div key={ord.id} className="rounded-lg border border-stone-200 bg-white overflow-hidden shadow-xs">
+                        {/* 1. Order Meta Header */}
+                        <div className="bg-stone-50 border-b border-stone-200 px-4 sm:px-5 py-3 sm:py-3.5 flex flex-wrap items-center justify-between gap-3 text-xs">
+                          {/* Left: Placed date + Total */}
+                          <div className="flex items-center gap-2 sm:gap-4 flex-wrap text-stone-600">
+                            <div>
+                              <span className="text-stone-400 block text-[10px] uppercase tracking-wider font-medium">Order Placed</span>
+                              <span className="font-semibold text-stone-900 font-mono">
+                                {new Date(ord.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                               </span>
-                              {ord.isMerged && (
-                                <span className="rounded-full bg-blue-100 border border-blue-300 px-2.5 py-0.5 text-[11px] font-black text-blue-800 inline-flex items-center gap-1 shadow-xs">
-                                  <Link2 className="h-3 w-3 text-blue-700" /> Consolidated into Consignment #{ord.parentOrder?.orderNumber || ord.parentOrderId?.slice(0, 8)}
-                                  {ord.shippingRefunded > 0 && (
-                                    <span className="text-emerald-700 font-extrabold ml-1">· ₹{ord.shippingRefunded} refunded to TechnoWallet</span>
-                                  )}
-                                </span>
-                              )}
-                              {ord.childOrders && ord.childOrders.length > 0 && (
-                                <span className="rounded-full bg-emerald-100 border border-emerald-300 px-2.5 py-0.5 text-[11px] font-black text-emerald-800 inline-flex items-center gap-1 shadow-xs">
-                                  <Package className="h-3 w-3 text-emerald-700" /> Master Consignment ({ord.childOrders.length} Add-on Order{ord.childOrders.length > 1 ? 's' : ''} Merged)
-                                </span>
-                              )}
-                              {/* STORE TAKEAWAY BADGE COMMENTED OUT PER CLIENT REQUEST */}
-                              {/* {(ord.shippingMethod === 'SELF_PICKUP' || ord.shippingCarrier === 'STORE_TAKEAWAY') && (
-                                <span className="rounded-full px-2.5 py-0.5 text-[11px] font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-300 flex items-center gap-1">
-                                  <Store className="h-3 w-3 text-emerald-600" /> Store Takeaway
-                                </span>
-                              )} */}
                             </div>
-                            <p className="text-xs text-slate-500 mt-1 flex items-center gap-2">
-                              <span>Placed on: <b>{new Date(ord.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</b></span>
-                              <span>&bull;</span>
-                              <span>Payment: <b>{ord.paymentMethod?.toUpperCase() || 'PREPAID'}</b> ({ord.paymentStatus})</span>
-                            </p>
+                            <span className="text-stone-300 hidden sm:inline">|</span>
+                            <div>
+                              <span className="text-stone-400 block text-[10px] uppercase tracking-wider font-medium">Total</span>
+                              <span className="font-bold text-stone-900 font-mono text-sm sm:text-base">
+                                ₹{ord.totalAmount}
+                              </span>
+                            </div>
+                            {ord.paymentMethod && (
+                              <span className="hidden md:inline-block text-[11px] text-stone-500 bg-stone-200/60 px-2 py-0.5 rounded font-mono">
+                                {ord.paymentMethod.toUpperCase()}
+                              </span>
+                            )}
                           </div>
 
-                          <div className="text-right flex flex-col items-end">
-                            <span className="text-xs text-slate-400 block font-medium">Total Amount</span>
-                            <span className="text-lg font-black text-slate-900">₹{ord.totalAmount}</span>
-                            <button
-                              type="button"
-                              onClick={() => setHelpOrderModal(ord)}
-                              className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-800 transition-colors shadow-xs"
-                            >
-                              <HelpCircle className="h-3 w-3 text-blue-600" />
-                              <span>Need Help?</span>
-                            </button>
+                          {/* Right: Order ID + Solid Muted Status Pill */}
+                          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                            <div className="text-right">
+                              <span className="text-stone-400 block text-[10px] uppercase tracking-wider font-medium">Order #</span>
+                              <span className="font-mono font-bold text-stone-900">{ord.orderNumber}</span>
+                            </div>
+                            <span className={`rounded-md px-2.5 py-1 text-xs font-semibold tracking-wide ${statusMeta.pillClass}`}>
+                              {statusMeta.label}
+                            </span>
                           </div>
                         </div>
 
-                        {/* Items List */}
-                        <div className="divide-y divide-slate-100">
+                        {/* Consignment and Merged Notice (Neutral) */}
+                        {(ord.isMerged || (ord.childOrders && ord.childOrders.length > 0)) && (
+                          <div className="bg-stone-100/70 border-b border-stone-200 px-4 sm:px-5 py-2 flex flex-wrap items-center gap-2 text-xs text-stone-700">
+                            {ord.isMerged && (
+                              <span className="inline-flex items-center gap-1">
+                                <Link2 className="h-3.5 w-3.5 text-stone-500" />
+                                Consolidated into Consignment #{ord.parentOrder?.orderNumber || ord.parentOrderId?.slice(0, 8)}
+                                {ord.shippingRefunded > 0 && (
+                                  <span className="font-medium text-stone-900">· ₹{ord.shippingRefunded} refunded to Wallet</span>
+                                )}
+                              </span>
+                            )}
+                            {ord.childOrders && ord.childOrders.length > 0 && (
+                              <span className="inline-flex items-center gap-1">
+                                <Package className="h-3.5 w-3.5 text-stone-500" />
+                                Master Consignment ({ord.childOrders.length} Add-on Order{ord.childOrders.length > 1 ? 's' : ''} Merged)
+                              </span>
+                            )}
+                          </div>
+                        )}
+
+                        {/* 2. Order Items Body */}
+                        <div className="p-4 sm:p-5 divide-y divide-stone-100">
                           {ord.items?.map((item: any) => (
-                            <div key={item.id} className="py-3 flex items-center gap-4">
-                              <div className="h-16 w-12 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
+                            <div key={item.id} className="py-3.5 first:pt-0 last:pb-0 flex items-start gap-4 sm:gap-5">
+                              {/* 50%+ Larger Thumbnail */}
+                              <div className="w-16 h-24 sm:w-20 sm:h-28 rounded-md bg-stone-100 border border-stone-200 overflow-hidden shrink-0">
                                 <BookCover
                                   book={{
                                     id: item.book?.id || item.bookId,
@@ -704,269 +739,188 @@ export default function Profile() {
                                     images: item.book?.images,
                                     coverImage: item.book?.coverImage,
                                   }}
-                                  className="w-full h-full text-[6px]"
+                                  className="w-full h-full text-[8px]"
                                 />
                               </div>
-                              <div className="flex-1 min-w-0">
-                                <h4 className="text-xs font-bold text-slate-900 truncate">{item.book?.title || 'Book'}</h4>
-                                <p className="text-[11px] text-slate-500 mt-0.5">
-                                  Qty: <b>{item.quantity}</b> &times; ₹{item.priceAtPurchase}
-                                </p>
+
+                              {/* Book Title & Info */}
+                              <div className="flex-1 min-w-0 pr-2">
+                                <h4 className="text-base sm:text-lg font-semibold text-stone-900 leading-snug line-clamp-2">
+                                  {item.book?.title || 'Book Title'}
+                                </h4>
+                                {item.book?.author && (
+                                  <p className="text-xs text-stone-500 mt-1">by {item.book.author}</p>
+                                )}
+                                {item.book?.binding && (
+                                  <span className="inline-block mt-2 text-[10px] font-medium text-stone-600 bg-stone-100 px-2 py-0.5 rounded border border-stone-200/80">
+                                    {item.book.binding}
+                                  </span>
+                                )}
                               </div>
-                              <div className="text-right shrink-0">
-                                <span className="text-xs font-bold text-slate-900">₹{item.priceAtPurchase * item.quantity}</span>
+
+                              {/* Right Pricing Grid */}
+                              <div className="text-right shrink-0 whitespace-nowrap">
+                                <div className="text-base sm:text-lg font-semibold text-stone-900 font-mono">
+                                  ₹{item.priceAtPurchase * item.quantity}
+                                </div>
+                                <div className="text-xs text-stone-500 mt-0.5">
+                                  Qty: <span className="font-semibold text-stone-800">{item.quantity}</span>
+                                  {item.quantity > 1 && (
+                                    <span className="text-[11px] block text-stone-400">₹{item.priceAtPurchase} each</span>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           ))}
                         </div>
 
-                        {/* STORE PICKUP APPOINTMENT CARD DISABLED PER CLIENT REQUEST - RETAINED FOR FUTURE RE-ENABLING */}
-                        {false && (ord.shippingMethod === 'SELF_PICKUP' || ord.shippingCarrier === 'STORE_TAKEAWAY') && (
-                          <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 space-y-3">
-                            <div className="flex flex-wrap items-center justify-between gap-2">
-                              <p className="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
-                                <Store className="h-4 w-4 text-emerald-700" />
-                                Store Takeaway Desk (College Street Office)
-                              </p>
-                              <button
-                                type="button"
-                                onClick={() => generateAndPrintInvoice(ord)}
-                                className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-800 shadow-sm transition-colors"
-                              >
-                                <Download className="h-3.5 w-3.5" /> Download Tax Invoice
-                              </button>
+
+
+                        {/* Dispatch Status & Action Buttons Footer */}
+                        <div className="border-t border-stone-200 bg-stone-50/60 p-4 sm:p-5 space-y-3">
+                          {/* Top Status & Actions Row */}
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div className="space-y-0.5">
+                              {(ord.status === 'PENDING' || ord.status === 'CONFIRMED' || ord.status === 'PROCESSING') && (
+                                <>
+                                  <div className="text-sm font-semibold text-stone-900 flex items-center gap-1.5">
+                                    <Package className="h-4 w-4 text-stone-600" />
+                                    Preparing for Dispatch
+                                  </div>
+                                  <p className="text-xs text-stone-500">
+                                    Eligible for 100% refund cancellation strictly before courier handover.
+                                  </p>
+                                </>
+                              )}
+
+                              {ord.status === 'SHIPPED' && (
+                                <>
+                                  <div className="text-sm font-semibold text-stone-900 flex items-center gap-1.5">
+                                    <Truck className="h-4 w-4 text-stone-600" />
+                                    Dispatched & In-Transit
+                                  </div>
+                                  <p className="text-xs text-stone-500">
+                                    {ord.trackingNumber ? `Dispatched via India Post (${ord.trackingNumber}).` : 'Dispatched via courier partner.'} Dispatched orders cannot be cancelled.
+                                  </p>
+                                </>
+                              )}
+
+                              {ord.status === 'DELIVERED' && (() => {
+                                const deliveryTimestamp = ord.deliveredAt || ord.updatedAt || ord.createdAt;
+                                const deliveryDate = new Date(deliveryTimestamp);
+                                const daysSinceDelivery = Math.floor((Date.now() - deliveryDate.getTime()) / (1000 * 60 * 60 * 24));
+                                const isReplacementEligible = daysSinceDelivery <= 7;
+                                const replacementDaysRemaining = Math.max(0, 7 - daysSinceDelivery);
+
+                                return (
+                                  <>
+                                    <div className="text-sm font-semibold text-stone-900 flex items-center gap-1.5">
+                                      <CheckCircle2 className="h-4 w-4 text-emerald-700" />
+                                      Delivered on {deliveryDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                    </div>
+                                    <p className="text-xs text-stone-500">
+                                      {isReplacementEligible 
+                                        ? `7-day replacement window active (${replacementDaysRemaining === 0 ? 'expires today' : `${replacementDaysRemaining} day${replacementDaysRemaining > 1 ? 's' : ''} left`}).`
+                                        : 'Replacement window has ended for this order.'
+                                      }
+                                    </p>
+                                  </>
+                                );
+                              })()}
+
+                              {ord.status === 'CANCELLED' && (
+                                <>
+                                  <div className="text-sm font-semibold text-rose-800">
+                                    Order Cancelled
+                                  </div>
+                                  <p className="text-xs text-stone-500">
+                                    This order has been cancelled and closed.
+                                  </p>
+                                </>
+                              )}
                             </div>
 
-                            {ord.pickupStatus === 'SLOTS_OFFERED' && (() => {
-                              let slots: string[] = [];
-                              try {
-                                slots = typeof ord.pickupSlots === 'string' ? JSON.parse(ord.pickupSlots) : (ord.pickupSlots || []);
-                              } catch (_e) {
-                                slots = [];
-                              }
-                              const chosenSlot = selectedSlotsByOrder[ord.id] || slots[0] || '';
-
-                              return (
-                                <div className="rounded-xl border border-amber-300 bg-amber-50/70 p-3.5 space-y-2.5">
-                                  <div className="flex items-center gap-2">
-                                    <CalendarCheck className="h-4 w-4 text-amber-700 shrink-0" />
-                                    <p className="text-xs font-bold text-amber-950">
-                                      Action Required: Select Your Pickup Time Slot
-                                    </p>
-                                  </div>
-                                  <p className="text-[11px] text-amber-900 leading-relaxed">
-                                    The fulfillment desk has prepared your package and proposed the following appointment slots. Choose one to schedule your pickup:
-                                  </p>
-                                  <div className="space-y-1.5 pt-1">
-                                    {slots.map((s, idx) => (
-                                      <label
-                                        key={idx}
-                                        className={`flex cursor-pointer items-center gap-2.5 rounded-lg border p-2.5 text-xs transition-all ${
-                                          chosenSlot === s
-                                            ? 'border-emerald-600 bg-white font-bold text-emerald-950 shadow-xs'
-                                            : 'border-amber-200/80 bg-white/70 text-slate-700 hover:bg-white'
-                                        }`}
-                                      >
-                                        <input
-                                          type="radio"
-                                          name={`slot_${ord.id}`}
-                                          checked={chosenSlot === s}
-                                          onChange={() => setSelectedSlotsByOrder({ ...selectedSlotsByOrder, [ord.id]: s })}
-                                        />
-                                        <span>{s}</span>
-                                      </label>
-                                    ))}
-                                  </div>
-                                  <div className="pt-2 flex justify-end">
-                                    <button
-                                      type="button"
-                                      disabled={isConfirmingSlot === ord.id}
-                                      onClick={() => handleConfirmSlot(ord.id)}
-                                      className="rounded-xl bg-emerald-700 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-800 shadow transition-colors disabled:opacity-50 inline-flex items-center gap-1.5"
+                            {/* Secondary Action Buttons */}
+                            <div className="flex items-center gap-2 flex-wrap sm:shrink-0">
+                              {/* Replacement Link if eligible */}
+                              {ord.status === 'DELIVERED' && (() => {
+                                const deliveryTimestamp = ord.deliveredAt || ord.updatedAt || ord.createdAt;
+                                const daysSinceDelivery = Math.floor((Date.now() - new Date(deliveryTimestamp).getTime()) / (1000 * 60 * 60 * 24));
+                                if (daysSinceDelivery <= 7) {
+                                  return (
+                                    <a
+                                      href="https://docs.google.com/forms/d/e/1FAIpQLSdP7BBi2SNX67XU0xoBDzqiXSaL4nyBBIwDfVacG8M9kVR1RQ/viewform?usp=publish-editor"
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="inline-flex items-center gap-1.5 rounded-md border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors shadow-2xs"
                                     >
-                                      {isConfirmingSlot === ord.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
-                                      Confirm This Time Slot
-                                    </button>
-                                  </div>
-                                </div>
-                              );
-                            })()}
+                                      Request Replacement <ExternalLink className="h-3 w-3 text-stone-400" />
+                                    </a>
+                                  );
+                                }
+                                return null;
+                              })()}
 
-                            {ord.pickupStatus === 'SLOT_CONFIRMED' && (
-                              <div className="rounded-xl border border-emerald-200 bg-emerald-50/80 p-3.5 space-y-2">
-                                <div className="flex items-center gap-2">
-                                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-[10px] text-white font-bold">✓</span>
-                                  <p className="text-xs font-bold text-emerald-950">
-                                    Pickup Appointment Confirmed: <span className="font-extrabold underline">{ord.selectedPickupSlot}</span>
-                                  </p>
-                                </div>
-                                <p className="text-[11px] text-emerald-900 leading-relaxed">
-                                  Please present your <b>Official Tax Invoice</b> (click Download Tax Invoice above or bring printout) at our College Street dispatch desk during this appointed slot to collect your books.
-                                </p>
-                                <div className="text-[10px] text-emerald-800 border-t border-emerald-200/60 pt-2 space-y-0.5">
-                                  <p><b>Desk Location:</b> 90/6A, Mahatma Gandhi Rd, opp. Grace Cinema, Calcutta University, College Street, Kolkata 700007</p>
-                                  <p><b>Collector Name:</b> {ord.pickupName || ord.user?.name} (Mobile: +91 {ord.pickupPhone || ord.user?.phone})</p>
-                                </div>
-                              </div>
-                            )}
-
-                            {ord.pickupStatus === 'PENDING_SLOTS' && (
-                              <div className="rounded-xl border border-slate-200 bg-white p-3 text-xs text-slate-600 space-y-1">
-                                <p className="font-bold text-slate-800 flex items-center gap-1.5">
-                                  <Clock className="h-3.5 w-3.5 text-slate-400" /> Preparing Takeaway & Proposing Time Slots
-                                </p>
-                                <p className="text-[11px] text-slate-500 leading-relaxed">
-                                  Our team is packaging your books at our College Street facility. 3–4 pickup slots will be proposed here and in your Notification Center shortly.
-                                </p>
-                              </div>
-                            )}
-
-                            {ord.pickupStatus === 'COLLECTED' && (
-                              <div className="rounded-xl border border-slate-200 bg-white p-3 text-xs text-slate-700 flex items-center justify-between">
-                                <span className="font-bold flex items-center gap-1.5 text-emerald-800">
-                                  <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Books Collected from College Street Desk
-                                </span>
-                                <span className="text-[11px] text-slate-400">Order Completed</span>
-                              </div>
-                            )}
-
-                            {/* Pickup Note */}
-                            <p className="text-[10px] text-slate-500 leading-relaxed">
-                              * <b>Note:</b> For store self-pickups, please present your order confirmation or digital invoice at our College Street desk at your appointed time slot.
-                            </p>
-                          </div>
-                        )}
-
-                        {/* 7-Day Replacement & Return Policy Window */}
-                        {ord.status === 'DELIVERED' && (() => {
-                          const deliveryTimestamp = ord.deliveredAt || ord.updatedAt || ord.createdAt;
-                          const deliveryDate = new Date(deliveryTimestamp);
-                          const daysSinceDelivery = Math.floor((Date.now() - deliveryDate.getTime()) / (1000 * 60 * 60 * 24));
-                          const isReplacementEligible = daysSinceDelivery <= 7;
-                          const replacementDaysRemaining = Math.max(0, 7 - daysSinceDelivery);
-
-                          return isReplacementEligible ? (
-                            <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-4 space-y-2.5">
-                              <div className="flex flex-wrap items-center justify-between gap-3">
-                                <div className="flex items-start gap-2.5">
-                                  <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-emerald-600 text-white text-xs font-bold shadow-sm shrink-0 mt-0.5">
-                                    🔄
-                                  </span>
-                                  <div>
-                                    <div className="flex items-center gap-2">
-                                      <p className="text-xs font-black text-emerald-950">
-                                        7-Day Replacement Window Active
-                                      </p>
-                                      <span className="rounded-full bg-emerald-200/80 px-2 py-0.5 text-[10px] font-black text-emerald-900 uppercase tracking-wide">
-                                        {replacementDaysRemaining === 0 ? 'Expires today' : `${replacementDaysRemaining} day${replacementDaysRemaining > 1 ? 's' : ''} left`}
-                                      </span>
-                                    </div>
-                                    <p className="text-[11px] text-emerald-800 mt-0.5 leading-relaxed">
-                                      Delivered on <b>{deliveryDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</b>. Eligible for free replacement in case of transit damage, manufacturing defect, or wrong book.
-                                    </p>
-                                  </div>
-                                </div>
+                              {/* Pre-Dispatch Cancellation Button */}
+                              {(ord.status === 'PENDING' || ord.status === 'CONFIRMED' || ord.status === 'PROCESSING') && (
                                 <a
-                                  href="https://docs.google.com/forms/d/e/1FAIpQLSdP7BBi2SNX67XU0xoBDzqiXSaL4nyBBIwDfVacG8M9kVR1RQ/viewform?usp=publish-editor"
+                                  href={`https://wa.me/917479135626?text=Hi%20Techno%20World%20Books%2C%20I%20want%20to%20cancel%20my%20pre-dispatch%20order%20%23${ord.orderNumber}`}
                                   target="_blank"
                                   rel="noreferrer"
-                                  className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-700 px-4 py-2 text-xs font-extrabold text-white shadow hover:bg-emerald-800 transition-colors shrink-0"
+                                  className="inline-flex items-center gap-1.5 rounded-md border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors shadow-2xs"
                                 >
-                                  Request Replacement <ExternalLink className="h-3.5 w-3.5" />
+                                  Request Cancellation
                                 </a>
-                              </div>
-                              <div className="border-t border-emerald-200/60 pt-2 text-[10px] text-slate-500 leading-relaxed flex flex-wrap items-center justify-between gap-2">
-                                <span>⚠️ <b>Store Policy:</b> Replacements only — no monetary return refunds. Use Order <span className="font-mono font-bold text-slate-700">#{ord.orderNumber}</span> in the Google form.</span>
-                                <Link to="/refund-policy" className="font-bold text-emerald-700 hover:underline">Read Policy →</Link>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 flex items-center justify-between text-xs text-slate-500">
-                              <span className="flex items-center gap-1.5">
-                                <Clock className="h-3.5 w-3.5 text-slate-400" />
-                                <span>7-Day Replacement Window has ended for this order</span>
-                              </span>
+                              )}
+
+                              {/* Tracking Link */}
+                              {ord.trackingNumber && (
+                                <Link
+                                  to={`/track?trackingId=${ord.trackingNumber}`}
+                                  className="inline-flex items-center gap-1.5 rounded-md border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors shadow-2xs"
+                                >
+                                  <Truck className="h-3.5 w-3.5 text-stone-500" />
+                                  Track Shipment
+                                </Link>
+                              )}
+
+                              {/* Tax Invoice */}
+                              {ord.status !== 'CANCELLED' && (
+                                <button
+                                  type="button"
+                                  onClick={() => generateAndPrintInvoice(ord)}
+                                  className="inline-flex items-center gap-1.5 rounded-md border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors shadow-2xs"
+                                >
+                                  <Download className="h-3.5 w-3.5 text-stone-500" />
+                                  <span>Tax Invoice</span>
+                                </button>
+                              )}
+
+                              {/* Need Help */}
                               <button
                                 type="button"
                                 onClick={() => setHelpOrderModal(ord)}
-                                className="text-[11px] text-emerald-700 font-semibold hover:underline"
+                                className="inline-flex items-center gap-1.5 rounded-md border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors shadow-2xs"
                               >
                                 Need Help?
                               </button>
                             </div>
-                          );
-                        })()}
-
-                        {/* In-Transit Non-Cancellation Notice */}
-                        {ord.status === 'SHIPPED' && (
-                          <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-3.5 text-xs text-purple-950 space-y-1">
-                            <p className="font-bold flex items-center gap-1.5 text-purple-900">
-                              <Truck className="h-4 w-4 text-purple-700" /> Dispatched & In-Transit (Non-Cancellable):
-                            </p>
-                            <p className="text-[11px] text-purple-800 leading-relaxed">
-                              This parcel is with India Post / courier. As per terms, dispatched orders cannot be cancelled or refunded. Refusal of delivery at doorstep (RTO) is strictly non-refundable.
-                            </p>
                           </div>
-                        )}
 
-                        {/* Pre-Dispatch Cancellation Notice */}
-                        {(ord.status === 'PENDING' || ord.status === 'CONFIRMED' || ord.status === 'PROCESSING') && (
-                          <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-3.5 text-xs text-blue-950 flex flex-wrap items-center justify-between gap-3">
-                            <div className="space-y-0.5">
-                              <p className="font-bold text-blue-900 flex items-center gap-1.5">
-                                <Package className="h-4 w-4 text-blue-700" /> Preparing for Dispatch:
-                              </p>
-                              <p className="text-[11px] text-blue-800">
-                                Eligible for 100% refund cancellation strictly before courier handover.
-                              </p>
+                          {/* Subtle Shipping Address */}
+                          <div className="pt-2.5 border-t border-stone-200/70 text-xs text-stone-500 flex flex-wrap items-center justify-between gap-2">
+                            <div>
+                              <span className="font-medium text-stone-700">Ship to: </span>
+                              {ord.address ? (
+                                <span>{ord.address.fullName}, {ord.address.addressLine1}, {ord.address.city}, {ord.address.state} - {ord.address.pincode}</span>
+                              ) : (
+                                <span>Standard Delivery Address</span>
+                              )}
                             </div>
-                            <a
-                              href={`https://wa.me/917479135626?text=Hi%20Techno%20World%20Books%2C%20I%20want%20to%20cancel%20my%20pre-dispatch%20order%20%23${ord.orderNumber}`}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="rounded-lg border border-blue-300 bg-white px-3 py-1.5 text-xs font-bold text-blue-800 hover:bg-blue-100 transition shrink-0"
-                            >
-                              Request Cancellation
-                            </a>
-                          </div>
-                        )}
-
-
-                        {/* Delivery Address & Tracking ID Footer */}
-                        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100 text-xs">
-                          <div className="text-slate-600">
-                            <span className="font-bold text-slate-800">Delivery Address: </span>
-                            {ord.address ? (
-                              <span>{ord.address.fullName}, {ord.address.addressLine1}, {ord.address.city}, {ord.address.state} - {ord.address.pincode}</span>
-                            ) : (
-                              <span>Standard Delivery Address</span>
-                            )}
-                          </div>
-
-                          <div className="flex items-center gap-2 flex-wrap">
-                            {ord.status !== 'CANCELLED' && (
-                              <button
-                                type="button"
-                                onClick={() => generateAndPrintInvoice(ord)}
-                                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-bold text-slate-700 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-800 transition-colors shadow-xs"
-                              >
-                                <Download className="h-3.5 w-3.5 text-emerald-700" />
-                                <span>Tax Invoice (A4)</span>
-                              </button>
-                            )}
-
                             {ord.trackingNumber && (
-                              <div className="flex items-center gap-2">
-                                <span className="font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg flex items-center gap-1">
-                                  <Truck className="h-3.5 w-3.5 text-emerald-700" /> India Post: {ord.trackingNumber}
-                                </span>
-                                <Link
-                                  to={`/track?trackingId=${ord.trackingNumber}`}
-                                  className="rounded-lg bg-slate-900 text-white font-bold px-3 py-1 text-xs hover:bg-slate-800 flex items-center gap-1"
-                                >
-                                  Track <ExternalLink className="h-3 w-3" />
-                                </Link>
-                              </div>
+                              <span className="font-mono text-[11px] text-stone-400">
+                                India Post Ref: #{ord.trackingNumber}
+                              </span>
                             )}
                           </div>
                         </div>
@@ -1419,66 +1373,66 @@ export default function Profile() {
           {activeTab === 'points' && (
             <div className="space-y-6">
               {/* TechnoWallet Cash Balance Banner */}
-              <div className="rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs">
+              <div className="rounded-lg border border-stone-200 bg-white p-5 sm:p-6">
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <div className="flex items-center gap-3.5">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-md bg-stone-100 text-stone-700 border border-stone-200 shrink-0">
                       <Wallet className="h-5 w-5" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h2 className="text-lg font-bold text-slate-900">TechnoWallet Cash Balance</h2>
-                        <span className="rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-800">
+                        <h2 className="text-base font-bold text-stone-900">TechnoWallet Cash Balance</h2>
+                        <span className="rounded-full bg-stone-100 border border-stone-200 px-2 py-0.5 text-[10px] font-medium text-stone-600">
                           Direct Cash
                         </span>
                       </div>
-                      <p className="text-xs text-slate-500 mt-0.5">
+                      <p className="text-xs text-stone-500 mt-0.5">
                         Consolidated parcel delivery refunds & store credit with zero restrictions.
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs text-slate-500 block font-medium">Available Cash Balance</span>
-                    <span className="text-2xl sm:text-3xl font-bold text-slate-900">₹{technoWallet.toFixed(2)}</span>
+                    <span className="text-xs text-stone-500 block">Available Cash Balance</span>
+                    <span className="text-2xl sm:text-3xl font-bold text-stone-900 font-mono">₹{technoWallet.toFixed(2)}</span>
                   </div>
                 </div>
 
-                <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3 border-t border-slate-100 pt-4 text-xs">
-                  <div className="rounded-xl bg-slate-50 p-3 border border-slate-200/80">
-                    <p className="font-bold text-slate-900">⏳ No Expiry Date</p>
-                    <p className="text-[11px] text-slate-500 mt-1">Unlike promotional points, your TechnoWallet balance never expires.</p>
+                <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3 border-t border-stone-100 pt-4 text-xs">
+                  <div className="rounded-md bg-stone-50 p-3 border border-stone-200">
+                    <p className="font-semibold text-stone-900">No Expiry Date</p>
+                    <p className="text-[11px] text-stone-500 mt-1">Unlike promotional points, your TechnoWallet balance never expires.</p>
                   </div>
-                  <div className="rounded-xl bg-slate-50 p-3 border border-slate-200/80">
-                    <p className="font-bold text-slate-900">💯 100% Usable</p>
-                    <p className="text-[11px] text-slate-500 mt-1">Pay for any book or entire order. No minimum or maximum percentage limits.</p>
+                  <div className="rounded-md bg-stone-50 p-3 border border-stone-200">
+                    <p className="font-semibold text-stone-900">100% Usable</p>
+                    <p className="text-[11px] text-stone-500 mt-1">Pay for any book or entire order. No minimum or maximum percentage limits.</p>
                   </div>
-                  <div className="rounded-xl bg-slate-50 p-3 border border-slate-200/80">
-                    <p className="font-bold text-slate-900">⚡ Stackable</p>
-                    <p className="text-[11px] text-slate-500 mt-1">Combine wallet cash with Techno Points and coupon promo discounts freely.</p>
+                  <div className="rounded-md bg-stone-50 p-3 border border-stone-200">
+                    <p className="font-semibold text-stone-900">Stackable</p>
+                    <p className="text-[11px] text-stone-500 mt-1">Combine wallet cash with Techno Points and coupon promo discounts freely.</p>
                   </div>
                 </div>
               </div>
 
               {/* TechnoWallet Activity Ledger */}
               {pointsData?.walletTransactions && pointsData.walletTransactions.length > 0 && (
-                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                  <h3 className="text-sm font-extrabold text-slate-900 mb-4 flex items-center gap-2">
-                    <Wallet className="h-4 w-4 text-emerald-700" /> TechnoWallet Cash Transactions
+                <div className="rounded-lg border border-stone-200 bg-white p-5 sm:p-6">
+                  <h3 className="text-sm font-bold text-stone-900 mb-4 flex items-center gap-2">
+                    <Wallet className="h-4 w-4 text-stone-600" /> TechnoWallet Cash Transactions
                   </h3>
                   <div className="space-y-3">
                     {pointsData.walletTransactions.map((tx: any) => (
-                      <div key={tx.id} className="flex items-center justify-between border-b border-slate-100 pb-3 text-xs">
+                      <div key={tx.id} className="flex items-center justify-between border-b border-stone-100 pb-3 text-xs">
                         <div>
-                          <p className="font-bold text-slate-900">{tx.description}</p>
-                          <p className="text-slate-400 text-[11px] mt-0.5">
+                          <p className="font-medium text-stone-900">{tx.description}</p>
+                          <p className="text-stone-400 text-[11px] mt-0.5">
                             {new Date(tx.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                           </p>
                         </div>
                         <div className="text-right">
-                          <span className={`font-black text-sm ${tx.type === 'CREDIT' ? 'text-emerald-700' : 'text-slate-800'}`}>
+                          <span className={`font-semibold font-mono text-sm ${tx.type === 'CREDIT' ? 'text-emerald-800' : 'text-stone-800'}`}>
                             {tx.type === 'CREDIT' ? `+₹${Number(tx.amount).toFixed(2)}` : `-₹${Number(tx.amount).toFixed(2)}`}
                           </span>
-                          <span className="block text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full mt-0.5">
+                          <span className="block text-[10px] text-stone-500 mt-0.5">
                             {tx.status}
                           </span>
                         </div>
@@ -1489,44 +1443,47 @@ export default function Profile() {
               )}
 
               {/* Techno Points Loyalty Card */}
-              <div className="rounded-2xl border border-amber-200/80 bg-amber-50/50 p-5 sm:p-6 shadow-xs flex flex-wrap items-center justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <Coins className="h-6 w-6 text-amber-700" />
-                    <h2 className="text-lg font-black text-amber-950">Techno Points Reward Program</h2>
+              <div className="rounded-lg border border-stone-200 bg-white p-5 sm:p-6 flex flex-wrap items-center justify-between gap-4">
+                <div className="flex items-center gap-3.5">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-md bg-stone-100 text-stone-700 border border-stone-200 shrink-0">
+                    <Coins className="h-5 w-5" />
                   </div>
-                  <p className="text-xs text-amber-900/80 mt-1">
-                    Every ₹100 spent earns you 1 Techno Point (worth ₹1.00). Valid for 1 full year from issuance.
-                  </p>
+                  <div>
+                    <h2 className="text-base font-bold text-stone-900">Techno Points Reward Program</h2>
+                    <p className="text-xs text-stone-500 mt-0.5">
+                      Every ₹100 spent earns 1 Techno Point (worth ₹1.00). Valid for 1 full year from issuance.
+                    </p>
+                  </div>
                 </div>
                 <button
+                  type="button"
                   onClick={() => setIsTermsModalOpen(true)}
-                  className="rounded-xl border border-amber-400 bg-white px-4 py-2 text-xs font-bold text-amber-900 hover:bg-amber-50 shadow-sm"
+                  className="rounded-md border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors shadow-2xs"
                 >
-                  View Terms & 1-Year Expiry Rules
+                  View Terms & 1-Year Rules
                 </button>
               </div>
 
               {/* Points Transactions Ledger */}
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                <h3 className="text-sm font-extrabold text-slate-900 mb-4">Points Activity Ledger</h3>
+              <div className="rounded-lg border border-stone-200 bg-white p-5 sm:p-6">
+                <h3 className="text-sm font-bold text-stone-900 mb-4">Points Activity Ledger</h3>
                 {(!pointsData?.transactions || pointsData.transactions.length === 0) ? (
-                  <p className="text-xs text-slate-500">No point transactions recorded yet. Place an order to earn coins!</p>
+                  <p className="text-xs text-stone-500">No point transactions recorded yet. Place an order to earn coins.</p>
                 ) : (
                   <div className="space-y-3">
                     {pointsData.transactions.map((tx: any) => (
-                      <div key={tx.id} className="flex items-center justify-between border-b border-slate-100 pb-3 text-xs">
+                      <div key={tx.id} className="flex items-center justify-between border-b border-stone-100 pb-3 text-xs">
                         <div>
-                          <p className="font-bold text-slate-900">{tx.description}</p>
-                          <p className="text-slate-400 text-[11px] mt-0.5">
+                          <p className="font-medium text-stone-900">{tx.description}</p>
+                          <p className="text-stone-400 text-[11px] mt-0.5">
                             Issued on {new Date(tx.createdAt).toLocaleDateString('en-IN')} · Valid until {new Date(tx.expiresAt).toLocaleDateString('en-IN')}
                           </p>
                         </div>
                         <div className="text-right">
-                          <span className={`font-black text-sm ${tx.type === 'EARNED' ? 'text-emerald-700' : 'text-slate-800'}`}>
+                          <span className={`font-semibold font-mono text-sm ${tx.type === 'EARNED' ? 'text-emerald-800' : 'text-stone-800'}`}>
                             {tx.type === 'EARNED' ? `+${tx.points}` : `-${tx.points}`} Coins
                           </span>
-                          <span className="block text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full mt-0.5">
+                          <span className="block text-[10px] text-stone-500 mt-0.5">
                             {tx.status}
                           </span>
                         </div>
@@ -1537,8 +1494,9 @@ export default function Profile() {
               </div>
             </div>
           )}
-        </div>
+        </main>
       </div>
+    </div>
 
       {/* Address Edit / Add Modal */}
       {isAddAddressOpen && (
@@ -1738,51 +1696,74 @@ export default function Profile() {
 
       {/* Techno Points Terms & 1-Year Expiry Modal */}
       {isTermsModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-          <div className="w-full max-w-lg rounded-3xl bg-white shadow-2xl overflow-hidden border border-slate-200">
-            <div className="flex items-center justify-between border-b border-amber-200 bg-amber-50 px-6 py-5">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-400 text-slate-900 shadow">
-                  <Coins className="h-5 w-5" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/50 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+          <div className="w-full max-w-lg rounded-lg bg-white shadow-xl overflow-hidden border border-stone-200">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-stone-200 bg-stone-50 px-6 py-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-md bg-stone-100 text-stone-700 border border-stone-200 shrink-0">
+                  <Coins className="h-4.5 w-4.5" />
                 </div>
                 <div>
-                  <h3 className="font-extrabold text-amber-950 text-base">Techno Points Terms & Expiry</h3>
-                  <p className="text-xs text-amber-800">Official Customer Rewards Policy</p>
+                  <h3 className="font-bold text-stone-900 text-sm sm:text-base">Techno Points Terms & Rules</h3>
+                  <p className="text-xs text-stone-500">Official Customer Rewards &amp; Loyalty Guidelines</p>
                 </div>
               </div>
-              <button onClick={() => setIsTermsModalOpen(false)} className="p-1.5 text-slate-400 hover:bg-amber-100 rounded-lg">
+              <button
+                type="button"
+                onClick={() => setIsTermsModalOpen(false)}
+                className="rounded-md p-1.5 text-stone-400 hover:bg-stone-200/60 hover:text-stone-700 transition-colors"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="p-6 space-y-4 text-xs text-slate-700 leading-relaxed max-h-[75vh] overflow-y-auto">
-              <div className="rounded-xl bg-slate-50 p-3.5 border border-slate-200 space-y-1">
-                <p className="font-bold text-slate-900 text-sm">Reward Earning Formula</p>
-                <p>You earn <b>1 Techno Point</b> for every <b>₹100</b> net purchase value on all books across our bookstore.</p>
+            {/* Modal Body */}
+            <div className="p-6 space-y-3.5 text-xs text-stone-600 leading-relaxed max-h-[75vh] overflow-y-auto">
+              <div className="rounded-md bg-stone-50 p-4 border border-stone-200 space-y-1">
+                <p className="font-semibold text-stone-900 text-xs sm:text-sm">Reward Earning Formula</p>
+                <p className="text-stone-600">
+                  You earn <strong className="font-semibold text-stone-900">1 Techno Point</strong> for every <strong className="font-semibold text-stone-900">₹100</strong> net purchase value on all books across our catalog. Each point has an exact value of <strong className="font-semibold text-stone-900">₹1.00</strong>.
+                </p>
               </div>
 
-              <div className="rounded-xl bg-slate-50 p-3.5 border border-slate-200 space-y-1">
-                <p className="font-bold text-slate-900 text-sm">⏳ Return Window & Point Credit</p>
-                <p>Points are credited upon order placement and remain verified after the standard <b>7-day return period</b> concludes. If an order is returned or cancelled, corresponding awarded coins will be reversed.</p>
+              <div className="rounded-md bg-stone-50 p-4 border border-stone-200 space-y-1">
+                <p className="font-semibold text-stone-900 text-xs sm:text-sm">7-Day Replacement Window &amp; Point Verification</p>
+                <p className="text-stone-600">
+                  Points are credited upon order placement and confirmed after the standard <strong className="font-semibold text-stone-900">7-day replacement window</strong> concludes. Under store policy, delivered items qualify for <strong className="font-semibold text-stone-900">free replacement only</strong> (monetary return refunds are not offered post-delivery). If an order is cancelled prior to physical dispatch, corresponding points are reversed.
+                </p>
               </div>
 
-              <div className="rounded-xl bg-slate-50 p-3.5 border border-slate-200 space-y-1">
-                <p className="font-bold text-slate-900 text-sm">🗓️ 1-Year Expiry Guarantee</p>
-                <p>Every earned Techno Point is valid for exactly <b>365 days (1 year)</b> from the day it is credited to your account.</p>
+              <div className="rounded-md bg-stone-50 p-4 border border-stone-200 space-y-1">
+                <p className="font-semibold text-stone-900 text-xs sm:text-sm">365-Day Validity (1 Year Guarantee)</p>
+                <p className="text-stone-600">
+                  Every earned Techno Point remains valid for exactly <strong className="font-semibold text-stone-900">365 days (1 year)</strong> from the date of crediting to your account before expiring.
+                </p>
               </div>
 
-              <div className="rounded-xl bg-slate-50 p-3.5 border border-slate-200 space-y-1">
-                <p className="font-bold text-slate-900 text-sm">🛍️ Instant Redemption</p>
-                <p>Coins can be applied directly on the checkout screen to reduce your payable total amount (1 Point = ₹1.00).</p>
+              <div className="rounded-md bg-stone-50 p-4 border border-stone-200 space-y-1">
+                <p className="font-semibold text-stone-900 text-xs sm:text-sm">Direct Checkout Redemption</p>
+                <p className="text-stone-600">
+                  Points can be redeemed directly on the checkout screen to reduce your payable total amount with zero minimum threshold or complicated percentage limits (1 Point = ₹1.00).
+                </p>
               </div>
             </div>
 
-            <div className="border-t border-slate-200 bg-slate-50 px-6 py-4 flex justify-end">
-              <button
+            {/* Footer */}
+            <div className="border-t border-stone-200 bg-stone-50/60 px-6 py-3.5 flex items-center justify-between gap-3">
+              <Link
+                to="/refund-policy"
                 onClick={() => setIsTermsModalOpen(false)}
-                className="rounded-xl bg-slate-900 px-6 py-2.5 text-xs font-bold text-white hover:bg-slate-800 shadow"
+                className="text-xs font-medium text-stone-600 hover:text-stone-900 underline underline-offset-2"
               >
-                I Understand
+                Replacement Policy →
+              </Link>
+              <button
+                type="button"
+                onClick={() => setIsTermsModalOpen(false)}
+                className="rounded-md bg-stone-900 px-5 py-2 text-xs font-medium text-white hover:bg-stone-800 transition-colors shadow-2xs"
+              >
+                Understood
               </button>
             </div>
           </div>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
-import { Package, Truck, CheckCircle2, XCircle, Clock, ExternalLink, Store, CalendarCheck, Download, Loader2, Link2, HelpCircle, MessageSquare, Phone, Mail, X } from 'lucide-react';
+import { Package, Truck, CheckCircle2, ExternalLink, Download, Loader2, HelpCircle, MessageSquare, Phone, Mail, X } from 'lucide-react';
 import { orderService } from '@/services/api';
 import { formatINR } from '@/utils/helpers';
 import { downloadOrderInvoice } from '@/utils/generateInvoice';
@@ -8,22 +8,22 @@ import { toast } from 'sonner';
 import { useStore } from '@/store/StoreContext';
 import { BookCover } from '@/components/BookCover';
 
-const getStatusBadge = (status: string) => {
+const getOrderStatusMeta = (status: string) => {
   switch (status) {
-    case 'PENDING':
-      return <span className="bg-amber-50 text-amber-800 border border-amber-200 px-2.5 py-0.5 rounded-full text-xs font-semibold flex items-center gap-1.5"><Clock className="w-3 h-3"/> Pending</span>;
     case 'CONFIRMED':
     case 'PROCESSING':
-      return <span className="bg-amber-50 text-amber-800 border border-amber-200 px-2.5 py-0.5 rounded-full text-xs font-semibold flex items-center gap-1.5"><Package className="w-3 h-3"/> Processing</span>;
+      return { label: 'Processing', pillClass: 'bg-stone-800 text-white' };
     case 'SHIPPED':
-      return <span className="bg-sky-50 text-sky-800 border border-sky-200 px-2.5 py-0.5 rounded-full text-xs font-semibold flex items-center gap-1.5"><Truck className="w-3 h-3"/> Shipped</span>;
+      return { label: 'Dispatched', pillClass: 'bg-stone-800 text-white' };
     case 'DELIVERED':
-      return <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-0.5 rounded-full text-xs font-semibold flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3"/> Delivered</span>;
+      return { label: 'Delivered', pillClass: 'bg-emerald-950 text-white' };
     case 'CANCELLED':
+      return { label: 'Cancelled', pillClass: 'bg-stone-200 text-stone-700' };
     case 'REFUNDED':
-      return <span className="bg-rose-50 text-rose-800 border border-rose-200 px-2.5 py-0.5 rounded-full text-xs font-semibold flex items-center gap-1.5"><XCircle className="w-3 h-3"/> {status === 'CANCELLED' ? 'Cancelled' : 'Refunded'}</span>;
+      return { label: 'Refunded', pillClass: 'bg-stone-200 text-stone-700' };
+    case 'PENDING':
     default:
-      return <span className="bg-stone-50 text-stone-700 border border-stone-200 px-2.5 py-0.5 rounded-full text-xs font-semibold">{status}</span>;
+      return { label: 'Order Confirmed', pillClass: 'bg-stone-800 text-white' };
   }
 };
 
@@ -31,8 +31,6 @@ export default function MyOrders() {
   const { user } = useStore();
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedSlotsByOrder, setSelectedSlotsByOrder] = useState<{ [orderId: string]: string }>({});
-  const [isConfirmingSlot, setIsConfirmingSlot] = useState<string | null>(null);
   const [downloadingInvoiceId, setDownloadingInvoiceId] = useState<string | null>(null);
   const [helpOrderModal, setHelpOrderModal] = useState<any | null>(null);
 
@@ -50,34 +48,6 @@ export default function MyOrders() {
   useEffect(() => {
     loadOrders();
   }, []);
-
-  const handleConfirmSlot = async (orderId: string) => {
-    const order = orders.find(o => o.id === orderId);
-    let slots: string[] = [];
-    try {
-      slots = typeof order?.pickupSlots === 'string' ? JSON.parse(order.pickupSlots) : (order?.pickupSlots || []);
-    } catch (_e) {}
-
-    const chosen = selectedSlotsByOrder[orderId] || slots[0];
-    if (!chosen) {
-      return toast.error('Please select one of the proposed pickup time slots.');
-    }
-
-    setIsConfirmingSlot(orderId);
-    try {
-      const res = await orderService.confirmPickupSlot(orderId, chosen);
-      if (res.success) {
-        toast.success('Pickup appointment slot confirmed!');
-        loadOrders();
-      } else {
-        toast.error(res.message || 'Failed to confirm pickup slot');
-      }
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to confirm pickup slot');
-    } finally {
-      setIsConfirmingSlot(null);
-    }
-  };
 
   if (loading) {
     return <div className="p-12 text-center text-slate-500">Loading your orders...</div>;
@@ -97,328 +67,268 @@ export default function MyOrders() {
           </Link>
         </div>
       ) : (
-        <div className="space-y-4">
-          {orders.map((order) => (
-            <div key={order.id} className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-              <div className="flex flex-wrap justify-between items-start border-b border-slate-100 pb-4 mb-4 gap-4">
-                <div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-xs text-slate-500 font-medium">ORDER ID</p>
+        <div className="space-y-6">
+          {orders.map((order) => {
+            const statusInfo = getOrderStatusMeta(order.status);
+            return (
+              <div
+                key={order.id}
+                className="rounded-lg border border-stone-200 bg-white overflow-hidden shadow-xs hover:border-stone-300 transition-colors"
+              >
+                {/* 1. Distinct Contrasting Order Meta Header */}
+                <div className="bg-stone-50 border-b border-stone-200 px-4 py-3 sm:px-5 sm:py-3.5 flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-stone-600">
+                    <div>
+                      <span className="text-stone-500 font-medium">Order Placed: </span>
+                      <span className="font-semibold text-stone-800">
+                        {new Date(order.createdAt).toLocaleDateString('en-IN', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
+                      </span>
+                    </div>
+
+                    <span className="text-stone-300 hidden sm:inline">|</span>
+
+                    <div>
+                      <span className="text-stone-500 font-medium">Total: </span>
+                      <span className="font-bold text-stone-900 font-mono">
+                        {formatINR(order.totalAmount)}
+                      </span>
+                    </div>
+
                     {order.isMerged && (
-                      <span className="rounded-full bg-blue-100 text-blue-800 border border-blue-300 px-2.5 py-0.5 text-[10px] font-extrabold flex items-center gap-1 shadow-xs">
-                        <Link2 className="h-3 w-3 text-blue-700" /> Consolidated with #{order.parentOrder?.orderNumber || order.parentOrderId?.slice(0, 8)}
-                        {order.shippingRefunded > 0 && (
-                          <span className="text-emerald-700 font-bold ml-1">· ₹{order.shippingRefunded} refunded to TechnoWallet</span>
-                        )}
+                      <span className="rounded bg-stone-200/70 text-stone-800 px-2 py-0.5 text-[10px] font-medium flex items-center gap-1">
+                        Consolidated with #{order.parentOrder?.orderNumber || order.parentOrderId?.slice(0, 8)}
                       </span>
                     )}
+
                     {order.childOrders && order.childOrders.length > 0 && (
-                      <span className="rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 px-2.5 py-0.5 text-[10px] font-extrabold flex items-center gap-1 shadow-xs">
-                        <Package className="h-3 w-3 text-emerald-700" /> Master Consignment ({order.childOrders.length} Add-on{order.childOrders.length > 1 ? 's' : ''} Merged)
-                      </span>
-                    )}
-                    {(order.shippingMethod === 'SELF_PICKUP' || order.shippingCarrier === 'STORE_TAKEAWAY') && (
-                      <span className="rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 px-2 py-0.5 text-[10px] font-extrabold flex items-center gap-1">
-                        <Store className="h-3 w-3 text-emerald-700" /> Store Takeaway
+                      <span className="rounded bg-stone-200/70 text-stone-800 px-2 py-0.5 text-[10px] font-medium flex items-center gap-1">
+                        Master Consignment ({order.childOrders.length} Add-on{order.childOrders.length > 1 ? 's' : ''})
                       </span>
                     )}
                   </div>
-                  <p className="font-bold text-slate-900">{order.orderNumber}</p>
-                  <p className="text-xs text-slate-400 mt-1">{new Date(order.createdAt).toLocaleDateString()} at {new Date(order.createdAt).toLocaleTimeString()}</p>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono font-medium text-stone-500">
+                      #{order.orderNumber}
+                    </span>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium ${statusInfo.pillClass}`}>
+                      {statusInfo.label}
+                    </span>
+                  </div>
                 </div>
-                <div className="text-right flex flex-col items-end">
-                  <p className="text-xs text-slate-500 font-medium mb-1">TOTAL AMOUNT</p>
-                  <p className="font-bold text-slate-900">{formatINR(order.totalAmount)}</p>
-                  <div className="mt-1">{getStatusBadge(order.status)}</div>
-                  <div className="mt-2 flex flex-wrap items-center gap-1.5 justify-end">
-                    {order.status !== 'CANCELLED' && order.status !== 'REFUNDED' && (
+
+                {/* 2. Scaled-up Book Thumbnail & Order Items Body */}
+                <div className="p-4 sm:p-5 space-y-4">
+                  {order.items?.map((item: any) => (
+                    <div key={item.id} className="flex gap-4 sm:gap-5 items-start">
+                      {/* Scaled-up Book Cover Thumbnail */}
+                      <div className="h-24 w-16 sm:h-28 sm:w-20 shrink-0 bg-stone-100 rounded border border-stone-200 overflow-hidden shadow-2xs">
+                        <BookCover
+                          book={{
+                            id: item.book?.id || item.bookId,
+                            title: item.book?.title || 'Academic Book',
+                            coverUrl: item.book?.coverUrl,
+                            galleryUrls: item.book?.galleryUrls,
+                            images: item.book?.images,
+                            coverImage: item.book?.coverImage,
+                          }}
+                          className="w-full h-full text-[8px]"
+                        />
+                      </div>
+
+                      {/* Title & Metadata */}
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-base sm:text-lg font-semibold text-stone-900 line-clamp-2 leading-snug">
+                          {item.book?.title || 'Academic Book'}
+                        </h4>
+                        {item.book?.author && (
+                          <p className="text-xs text-stone-500 mt-1">by {item.book.author}</p>
+                        )}
+                        {item.book?.edition && (
+                          <p className="text-[11px] text-stone-400 mt-0.5">Edition: {item.book.edition}</p>
+                        )}
+                      </div>
+
+                      {/* Right Pricing Grid */}
+                      <div className="text-right shrink-0 whitespace-nowrap">
+                        <div className="text-base sm:text-lg font-semibold text-stone-900 font-mono">
+                          {formatINR(item.unitPrice * item.quantity)}
+                        </div>
+                        <div className="text-xs text-stone-500 mt-0.5">
+                          Qty: <span className="font-semibold text-stone-800">{item.quantity}</span>
+                          {item.quantity > 1 && (
+                            <span className="text-[11px] block text-stone-400">{formatINR(item.unitPrice)} each</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* 3. Dispatch Status & Action Buttons Footer */}
+                <div className="border-t border-stone-200 bg-stone-50/60 p-4 sm:p-5 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="space-y-0.5">
+                      {(order.status === 'PENDING' || order.status === 'CONFIRMED' || order.status === 'PROCESSING') && (
+                        <>
+                          <div className="text-sm font-semibold text-stone-900 flex items-center gap-1.5">
+                            <Package className="h-4 w-4 text-stone-600" />
+                            Preparing for Dispatch
+                          </div>
+                          <p className="text-xs text-stone-500">
+                            Eligible for 100% refund cancellation strictly before courier handover.
+                          </p>
+                        </>
+                      )}
+
+                      {order.status === 'SHIPPED' && (
+                        <>
+                          <div className="text-sm font-semibold text-stone-900 flex items-center gap-1.5">
+                            <Truck className="h-4 w-4 text-stone-600" />
+                            Dispatched &amp; In-Transit
+                          </div>
+                          <p className="text-xs text-stone-500">
+                            {order.trackingNumber ? `Dispatched via India Post (${order.trackingNumber}).` : 'Dispatched via courier partner.'} Dispatched orders cannot be cancelled.
+                          </p>
+                        </>
+                      )}
+
+                      {order.status === 'DELIVERED' && (() => {
+                        const deliveryTimestamp = order.deliveredAt || order.updatedAt || order.createdAt;
+                        const deliveryDate = new Date(deliveryTimestamp);
+                        const daysSinceDelivery = Math.floor((Date.now() - deliveryDate.getTime()) / (1000 * 60 * 60 * 24));
+                        const isReplacementEligible = daysSinceDelivery <= 7;
+                        const replacementDaysRemaining = Math.max(0, 7 - daysSinceDelivery);
+
+                        return (
+                          <>
+                            <div className="text-sm font-semibold text-stone-900 flex items-center gap-1.5">
+                              <CheckCircle2 className="h-4 w-4 text-emerald-700" />
+                              Delivered on {deliveryDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                            </div>
+                            <p className="text-xs text-stone-500">
+                              {isReplacementEligible 
+                                ? `7-day replacement window active (${replacementDaysRemaining === 0 ? 'expires today' : `${replacementDaysRemaining} day${replacementDaysRemaining > 1 ? 's' : ''} left`}).`
+                                : 'Replacement window has ended for this order.'
+                              }
+                            </p>
+                          </>
+                        );
+                      })()}
+
+                      {order.status === 'CANCELLED' && (
+                        <>
+                          <div className="text-sm font-semibold text-rose-800">
+                            Order Cancelled
+                          </div>
+                          <p className="text-xs text-stone-500">
+                            This order has been cancelled and closed.
+                          </p>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Secondary Action Buttons */}
+                    <div className="flex items-center gap-2 flex-wrap sm:shrink-0">
+                      {order.status === 'DELIVERED' && (() => {
+                        const deliveryTimestamp = order.deliveredAt || order.updatedAt || order.createdAt;
+                        const daysSinceDelivery = Math.floor((Date.now() - new Date(deliveryTimestamp).getTime()) / (1000 * 60 * 60 * 24));
+                        if (daysSinceDelivery <= 7) {
+                          return (
+                            <a
+                              href="https://docs.google.com/forms/d/e/1FAIpQLSdP7BBi2SNX67XU0xoBDzqiXSaL4nyBBIwDfVacG8M9kVR1RQ/viewform?usp=publish-editor"
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1.5 rounded-md border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors shadow-2xs"
+                            >
+                              Request Replacement <ExternalLink className="h-3 w-3 text-stone-400" />
+                            </a>
+                          );
+                        }
+                        return null;
+                      })()}
+
+                      {(order.status === 'PENDING' || order.status === 'CONFIRMED' || order.status === 'PROCESSING') && (
+                        <a
+                          href={`https://wa.me/917479135626?text=Hi%20Techno%20World%20Books%2C%20I%20want%20to%20cancel%20my%20pre-dispatch%20order%20%23${order.orderNumber}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1.5 rounded-md border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors shadow-2xs"
+                        >
+                          Request Cancellation
+                        </a>
+                      )}
+
+                      {order.trackingNumber && (
+                        <Link
+                          to={`/track?trackingId=${order.trackingNumber}`}
+                          className="inline-flex items-center gap-1.5 rounded-md border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors shadow-2xs"
+                        >
+                          <Truck className="h-3.5 w-3.5 text-stone-500" />
+                          Track Shipment
+                        </Link>
+                      )}
+
+                      {order.status !== 'CANCELLED' && order.status !== 'REFUNDED' && (
+                        <button
+                          type="button"
+                          disabled={downloadingInvoiceId === order.id}
+                          onClick={async () => {
+                            try {
+                              setDownloadingInvoiceId(order.id);
+                              await downloadOrderInvoice(order);
+                              toast.success('Invoice downloaded');
+                            } catch (err: any) {
+                              toast.error(err.message || 'Failed to download invoice');
+                            } finally {
+                              setDownloadingInvoiceId(null);
+                            }
+                          }}
+                          className="inline-flex items-center gap-1.5 rounded-md border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors shadow-2xs disabled:opacity-50"
+                        >
+                          {downloadingInvoiceId === order.id ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin text-stone-500" />
+                          ) : (
+                            <Download className="h-3.5 w-3.5 text-stone-500" />
+                          )}
+                          <span>Tax Invoice</span>
+                        </button>
+                      )}
+
                       <button
                         type="button"
-                        disabled={downloadingInvoiceId === order.id}
-                        onClick={async () => {
-                          try {
-                            setDownloadingInvoiceId(order.id);
-                            await downloadOrderInvoice(order);
-                            toast.success('Invoice downloaded');
-                          } catch (err: any) {
-                            toast.error(err.message || 'Failed to download invoice');
-                          } finally {
-                            setDownloadingInvoiceId(null);
-                          }
-                        }}
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-800 transition-colors shadow-xs disabled:opacity-50"
+                        onClick={() => setHelpOrderModal(order)}
+                        className="inline-flex items-center gap-1.5 rounded-md border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors shadow-2xs"
                       >
-                        {downloadingInvoiceId === order.id ? (
-                          <Loader2 className="h-3 w-3 animate-spin text-emerald-700" />
-                        ) : (
-                          <Download className="h-3 w-3 text-emerald-700" />
-                        )}
-                        <span>Tax Invoice</span>
+                        Need Help?
                       </button>
-                    )}
-
-                    <button
-                      type="button"
-                      onClick={() => setHelpOrderModal(order)}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-800 transition-colors shadow-xs"
-                    >
-                      <HelpCircle className="h-3 w-3 text-blue-600" />
-                      <span>Need Help?</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="space-y-3">
-                {order.items?.map((item: any) => (
-                  <div key={item.id} className="flex gap-4 items-center">
-                    <div className="w-12 h-16 bg-slate-100 rounded overflow-hidden flex-shrink-0 border border-slate-200">
-                      <BookCover
-                        book={{
-                          id: item.book?.id || item.bookId,
-                          title: item.book?.title || 'Academic Book',
-                          coverUrl: item.book?.coverUrl,
-                          galleryUrls: item.book?.galleryUrls,
-                          images: item.book?.images,
-                          coverImage: item.book?.coverImage,
-                        }}
-                        className="w-full h-full text-[6px]"
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm text-slate-800 line-clamp-1">{item.book?.title || 'Unknown Book'}</p>
-                      <p className="text-xs text-slate-500">Qty: {item.quantity}</p>
-                    </div>
-                    <div className="text-sm font-medium text-slate-700">
-                      {formatINR(item.unitPrice * item.quantity)}
                     </div>
                   </div>
-                ))}
-              </div>
 
-              {/* Store Self-Pickup Appointment & Official Invoice Card */}
-              {(order.shippingMethod === 'SELF_PICKUP' || order.shippingCarrier === 'STORE_TAKEAWAY') && (
-                <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50/80 p-4 space-y-3">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
-                      <Store className="h-4 w-4 text-emerald-700" />
-                      Store Takeaway Desk (College Street Office)
-                    </p>
-                    <button
-                      type="button"
-                      disabled={downloadingInvoiceId === order.id}
-                      onClick={async () => {
-                        try {
-                          setDownloadingInvoiceId(order.id);
-                          await downloadOrderInvoice(order);
-                          toast.success('Invoice downloaded');
-                        } catch (err: any) {
-                          toast.error(err.message || 'Failed to download invoice');
-                        } finally {
-                          setDownloadingInvoiceId(null);
-                        }
-                      }}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-800 shadow-sm transition-colors disabled:opacity-50"
-                    >
-                      {downloadingInvoiceId === order.id ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin text-white" />
+                  {/* Subtle Shipping Address */}
+                  <div className="pt-2.5 border-t border-stone-200/70 text-xs text-stone-500 flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <span className="font-medium text-stone-700">Ship to: </span>
+                      {order.address ? (
+                        <span>{order.address.fullName}, {order.address.addressLine1}, {order.address.city}, {order.address.state} - {order.address.pincode}</span>
                       ) : (
-                        <Download className="h-3.5 w-3.5" />
+                        <span>Standard Delivery Address</span>
                       )}
-                      <span>Download Tax Invoice</span>
-                    </button>
-                  </div>
-
-                  {order.pickupStatus === 'SLOTS_OFFERED' && (() => {
-                    let slots: string[] = [];
-                    try {
-                      slots = typeof order.pickupSlots === 'string' ? JSON.parse(order.pickupSlots) : (order.pickupSlots || []);
-                    } catch (_e) {
-                      slots = [];
-                    }
-                    const chosenSlot = selectedSlotsByOrder[order.id] || slots[0] || '';
-
-                    return (
-                      <div className="rounded-xl border border-amber-300 bg-amber-50/70 p-3.5 space-y-2.5">
-                        <div className="flex items-center gap-2">
-                          <CalendarCheck className="h-4 w-4 text-amber-700 shrink-0" />
-                          <p className="text-xs font-bold text-amber-950">
-                            Action Required: Select Your Pickup Time Slot
-                          </p>
-                        </div>
-                        <p className="text-[11px] text-amber-900 leading-relaxed">
-                          The fulfillment desk has proposed the following appointment slots. Choose one that fits your schedule:
-                        </p>
-                        <div className="space-y-1.5 pt-1">
-                          {slots.map((s, idx) => (
-                            <label
-                              key={idx}
-                              className={`flex cursor-pointer items-center gap-2.5 rounded-lg border p-2.5 text-xs transition-all ${
-                                chosenSlot === s
-                                  ? 'border-emerald-600 bg-white font-bold text-emerald-950 shadow-xs'
-                                  : 'border-amber-200/80 bg-white/70 text-slate-700 hover:bg-white'
-                              }`}
-                            >
-                              <input
-                                type="radio"
-                                name={`slot_${order.id}`}
-                                checked={chosenSlot === s}
-                                onChange={() => setSelectedSlotsByOrder({ ...selectedSlotsByOrder, [order.id]: s })}
-                              />
-                              <span>{s}</span>
-                            </label>
-                          ))}
-                        </div>
-                        <div className="pt-2 flex justify-end">
-                          <button
-                            type="button"
-                            disabled={isConfirmingSlot === order.id}
-                            onClick={() => handleConfirmSlot(order.id)}
-                            className="rounded-xl bg-emerald-700 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-800 shadow transition-colors disabled:opacity-50 inline-flex items-center gap-1.5"
-                          >
-                            {isConfirmingSlot === order.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
-                            Confirm This Time Slot
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })()}
-
-                  {order.pickupStatus === 'SLOT_CONFIRMED' && (
-                    <div className="rounded-xl border border-emerald-200 bg-emerald-50/80 p-3.5 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-[10px] text-white font-bold">✓</span>
-                        <p className="text-xs font-bold text-emerald-950">
-                          Pickup Appointment Confirmed: <span className="font-extrabold underline">{order.selectedPickupSlot}</span>
-                        </p>
-                      </div>
-                      <p className="text-[11px] text-emerald-900 leading-relaxed">
-                        Please present your <b>Official Tax Invoice</b> (click Download Tax Invoice above) at our College Street dispatch desk during this appointed slot to collect your books.
-                      </p>
-                      <div className="text-[10px] text-emerald-800 border-t border-emerald-200/60 pt-2 space-y-0.5">
-                        <p><b>Desk Location:</b> 90/6A, Mahatma Gandhi Rd, opp. Grace Cinema, Calcutta University, College Street, Kolkata 700007</p>
-                        <p><b>Collector Name:</b> {order.pickupName || order.user?.name} (Mobile: +91 {order.pickupPhone || order.user?.phone})</p>
-                      </div>
                     </div>
-                  )}
-
-                  {order.pickupStatus === 'PENDING_SLOTS' && (
-                    <div className="rounded-xl border border-slate-200 bg-white p-3 text-xs text-slate-600 space-y-1">
-                      <p className="font-bold text-slate-800 flex items-center gap-1.5">
-                        <Clock className="h-3.5 w-3.5 text-slate-400" /> Preparing Takeaway & Proposing Time Slots
-                      </p>
-                      <p className="text-[11px] text-slate-500 leading-relaxed">
-                        Our team is preparing your books. 3–4 pickup slots will be proposed here shortly.
-                      </p>
-                    </div>
-                  )}
-
-                  {order.pickupStatus === 'COLLECTED' && (
-                    <div className="rounded-xl border border-slate-200 bg-white p-3 text-xs text-slate-700 flex items-center justify-between">
-                      <span className="font-bold flex items-center gap-1.5 text-emerald-800">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Books Collected from College Street Desk
+                    {order.trackingNumber && (
+                      <span className="font-mono text-[11px] text-stone-400">
+                        India Post Ref: #{order.trackingNumber}
                       </span>
-                      <span className="text-[11px] text-slate-400">Order Completed</span>
-                    </div>
-                  )}
-
-                  {/* Pickup Note */}
-                  <p className="text-[10px] text-slate-500 leading-relaxed">
-                    * <b>Note:</b> For store self-pickups, please present your order confirmation or digital invoice at our College Street desk at your appointed time slot.
-                  </p>
-                </div>
-              )}
-
-              {/* 7-Day Replacement Window */}
-              {order.status === 'DELIVERED' && (() => {
-                const deliveryTimestamp = order.deliveredAt || order.updatedAt || order.createdAt;
-                const deliveryDate = new Date(deliveryTimestamp);
-                const daysSinceDelivery = Math.floor((Date.now() - deliveryDate.getTime()) / (1000 * 60 * 60 * 24));
-                const isReplacementEligible = daysSinceDelivery <= 7;
-                const replacementDaysRemaining = Math.max(0, 7 - daysSinceDelivery);
-
-                return isReplacementEligible ? (
-                  <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50/80 p-4 space-y-3">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="text-xs font-bold text-slate-900">7-Day Replacement Window Active</p>
-                          <span className="rounded-md bg-slate-200 px-2 py-0.5 text-[10px] font-bold text-slate-700">
-                            {replacementDaysRemaining === 0 ? 'Expires today' : `${replacementDaysRemaining} day${replacementDaysRemaining > 1 ? 's' : ''} left`}
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-slate-500 mt-0.5">
-                          Delivered on {deliveryDate.toLocaleDateString('en-IN')}. Eligible for complimentary replacement if defective or transit-damaged.
-                        </p>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <a
-                          href="https://docs.google.com/forms/d/e/1FAIpQLSdP7BBi2SNX67XU0xoBDzqiXSaL4nyBBIwDfVacG8M9kVR1RQ/viewform?usp=publish-editor"
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-3.5 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-emerald-800 transition-colors"
-                        >
-                          Fill Replacement Form <ExternalLink className="h-3.5 w-3.5" />
-                        </a>
-                        <a
-                          href={`https://wa.me/917479135626?text=Hello%20Techno%20World%2C%20I%20am%20sharing%20an%20unpacking%20video%20for%20order%20%23${order.orderNumber}.`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors"
-                        >
-                          Send Video on WhatsApp
-                        </a>
-                      </div>
-                    </div>
-
-                    <div className="rounded-lg border border-slate-200/80 bg-white p-3 text-[11px] text-slate-600 space-y-1">
-                      <p className="font-semibold text-slate-800">Replacement Guidelines:</p>
-                      <ul className="list-disc pl-4 space-y-0.5 text-[10px] text-slate-500">
-                        <li><b>Unboxing Video Required:</b> Please send continuous unboxing video to WhatsApp <b>+91 747 913 5626</b> with order <b>#{order.orderNumber}</b>.</li>
-                        <li><b>Quality Inspection:</b> Returned books are inspected upon arrival—must be free of pen/pencil markings, highlighting, torn pages, or modifications.</li>
-                        <li><b>Zero Delivery Charge:</b> Once verified by warehouse inspection, fresh replacement book is shipped with no additional courier fees.</li>
-                      </ul>
-                    </div>
-
-                    <p className="text-[10px] text-slate-400">
-                      Store policy: Complimentary replacements only (no monetary return refunds post-delivery). <Link to="/refund-policy" className="font-medium text-emerald-700 hover:underline">Read Policy →</Link>
-                    </p>
+                    )}
                   </div>
-                ) : (
-                  <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2 flex items-center justify-between text-xs text-slate-500">
-                    <span className="flex items-center gap-1.5"><Clock className="h-3.5 w-3.5" /> 7-Day Replacement Window has ended</span>
-                    <Link to="/help" className="text-[11px] text-emerald-700 font-semibold hover:underline">Help</Link>
-                  </div>
-                );
-              })()}
-
-              {/* In-Transit Non-Cancellation */}
-              {order.status === 'SHIPPED' && (
-                <div className="mt-4 rounded-xl border border-purple-200 bg-purple-50/50 p-3 text-xs text-purple-950">
-                  <p className="font-bold flex items-center gap-1.5 text-purple-900"><Truck className="h-4 w-4 text-purple-700" /> Dispatched & In-Transit (Non-Cancellable)</p>
-                  <p className="text-[11px] text-purple-800 mt-0.5">Dispatched orders cannot be cancelled or refunded. Doorstep refusal (RTO) is strictly non-refundable.</p>
                 </div>
-              )}
-
-              {/* Pre-Dispatch Cancellation */}
-              {(order.status === 'PENDING' || order.status === 'CONFIRMED' || order.status === 'PROCESSING') && (
-                <div className="mt-4 rounded-xl border border-blue-200 bg-blue-50/50 p-3 text-xs text-blue-950 flex flex-wrap items-center justify-between gap-2">
-                  <div>
-                    <p className="font-bold text-blue-900">Preparing for Dispatch</p>
-                    <p className="text-[11px] text-blue-800">Eligible for 100% refund cancellation before courier dispatch.</p>
-                  </div>
-                  <a
-                    href={`https://wa.me/917479135626?text=Hi%2C%20I%20want%20to%20cancel%20order%20%23${order.orderNumber}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rounded-lg border border-blue-300 bg-white px-3 py-1.5 text-xs font-bold text-blue-800 hover:bg-blue-100 transition"
-                  >
-                    Cancel Order
-                  </a>
-                </div>
-              )}
-            </div>
-          ))}
+              </div>
+            );
+          })}
         </div>
       )}
 
