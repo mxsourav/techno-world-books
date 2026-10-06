@@ -682,7 +682,7 @@ export default function Header() {
               )}
             </Link>
             {user ? (
-              <Link to="/profile" className="flex items-center gap-2 rounded-xl px-2.5 py-1.5 hover:bg-emerald-800 transition-all border border-emerald-700/50">
+              <Link to="/profile" className="flex items-center gap-2 rounded-xl px-2.5 py-1.5 border border-emerald-800/40 hover:bg-emerald-800/60 transition-all text-white">
                 <div className="relative h-7 w-7 shrink-0">
                   {(authUser?.avatarUrl || user?.avatarUrl) && !avatarError ? (
                     <img
@@ -690,18 +690,19 @@ export default function Header() {
                       alt={user.name}
                       referrerPolicy="no-referrer"
                       onError={() => setAvatarError(true)}
-                      className="h-7 w-7 rounded-lg object-cover border border-white/20 shadow-sm"
+                      className="h-7 w-7 rounded-full object-cover border border-white/15"
                     />
                   ) : (
-                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-400 text-xs font-black text-slate-900 shadow-sm">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-950/70 border border-white/10 text-xs font-semibold text-emerald-100">
                       {user.name?.[0]?.toUpperCase() || 'U'}
                     </div>
                   )}
                 </div>
                 <div className="hidden text-left md:block leading-tight">
-                  <span className="block max-w-[85px] truncate text-xs font-bold">{user.name.split(' ')[0]}</span>
-                  <span className="text-[10px] font-extrabold text-amber-300 flex items-center gap-0.5">
-                    🪙 {user.rewardPoints || 0} pts
+                  <span className="block max-w-[85px] truncate text-xs font-medium text-white">{user.name.split(' ')[0]}</span>
+                  <span className="text-[10px] font-medium text-emerald-200/70 flex items-center gap-1">
+                    <span>•</span>
+                    <span>{user.rewardPoints || 0} pts</span>
                   </span>
                 </div>
               </Link>

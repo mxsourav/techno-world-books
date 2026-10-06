@@ -459,8 +459,8 @@ export default function Profile() {
                   <h1 className="text-base sm:text-lg font-bold text-slate-900 truncate max-w-[220px] sm:max-w-md">
                     {displayName}
                   </h1>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 border border-emerald-200/80 shrink-0">
-                    <CheckCircle2 className="h-2.5 w-2.5 text-emerald-600" />
+                  <span className="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2.5 py-0.5 text-[10px] font-medium text-stone-600 border border-stone-200 shrink-0">
+                    <CheckCircle2 className="h-2.5 w-2.5 text-stone-500" />
                     Verified Customer
                   </span>
                 </div>
@@ -527,7 +527,7 @@ export default function Profile() {
             <div className="flex flex-1 items-center gap-1 sm:gap-1.5 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {[
                 { id: 'orders', label: 'My Orders', count: userOrders.length, icon: ShoppingCart },
-                { id: 'notifications', label: 'Alerts', count: userNotifs.filter(n => !n.isRead).length > 0 ? `${userNotifs.filter(n => !n.isRead).length} New` : null, icon: Bell, isNew: userNotifs.filter(n => !n.isRead).length > 0 },
+                { id: 'notifications', label: 'Alerts', count: userNotifs.filter(n => !n.isRead).length > 0 ? userNotifs.filter(n => !n.isRead).length : null, icon: Bell, isNew: userNotifs.filter(n => !n.isRead).length > 0 },
                 { id: 'profile', label: 'Personal Info', count: null, icon: UserIcon },
                 { id: 'addresses', label: 'Addresses', count: addresses.length, icon: MapPin },
                 { id: 'points', label: 'Wallet & Coins', count: `₹${(technoWallet + technoPoints).toFixed(0)}`, icon: Wallet },
@@ -553,7 +553,7 @@ export default function Profile() {
                           isActive
                             ? 'bg-white/20 text-white'
                             : tab.isNew
-                            ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                            ? 'bg-rose-50 text-rose-700 border border-rose-200'
                             : 'bg-slate-200/80 text-slate-700'
                         }`}
                       >
@@ -586,7 +586,7 @@ export default function Profile() {
                   <h2 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
                     <ShoppingCart className="h-5 w-5 text-emerald-700" /> My Orders & Purchase History
                   </h2>
-                  <p className="text-xs text-slate-500 mt-0.5">Track your orders, view delivery progress, and check admin status updates.</p>
+                  <p className="text-xs text-slate-500 mt-0.5">Track your orders, view delivery progress, and check real-time shipment updates.</p>
                 </div>
                 <button
                   onClick={fetchUserOrders}
@@ -616,17 +616,15 @@ export default function Profile() {
                 <div className="space-y-4">
                   {userOrders.map((ord: any) => {
                     const statusColor =
-                      ord.status === 'CONFIRMED'
-                        ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
-                        : ord.status === 'PROCESSING'
-                        ? 'bg-blue-100 text-blue-800 border-blue-300'
+                      ord.status === 'CONFIRMED' || ord.status === 'PROCESSING'
+                        ? 'bg-amber-50 text-amber-800 border-amber-200'
                         : ord.status === 'SHIPPED'
-                        ? 'bg-purple-100 text-purple-800 border-purple-300'
+                        ? 'bg-sky-50 text-sky-800 border-sky-200'
                         : ord.status === 'DELIVERED'
-                        ? 'bg-green-100 text-green-900 border-green-300'
+                        ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                         : ord.status === 'CANCELLED'
-                        ? 'bg-rose-100 text-rose-800 border-rose-300'
-                        : 'bg-amber-100 text-amber-800 border-amber-300';
+                        ? 'bg-rose-50 text-rose-800 border-rose-200'
+                        : 'bg-stone-50 text-stone-700 border-stone-200';
 
                     const statusLabel =
                       ord.status === 'CONFIRMED'
@@ -639,7 +637,7 @@ export default function Profile() {
                         ? 'Delivered'
                         : ord.status === 'CANCELLED'
                         ? 'Cancelled / Rejected'
-                        : 'Awaiting Admin Review';
+                        : 'Order Confirmed';
 
                     return (
                       <div key={ord.id} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm overflow-hidden space-y-4">
@@ -757,7 +755,7 @@ export default function Profile() {
                                     </p>
                                   </div>
                                   <p className="text-[11px] text-amber-900 leading-relaxed">
-                                    Admin has prepared your books and proposed the following appointment slots. Choose one to schedule your pickup:
+                                    The fulfillment desk has prepared your package and proposed the following appointment slots. Choose one to schedule your pickup:
                                   </p>
                                   <div className="space-y-1.5 pt-1">
                                     {slots.map((s, idx) => (
@@ -933,17 +931,6 @@ export default function Profile() {
                           </div>
                         )}
 
-                        {/* Tracking / Admin Notice Banner */}
-                        {ord.notes && (
-                          <div className="rounded-xl bg-slate-50 border border-slate-200 p-3.5 text-xs text-slate-700 space-y-1">
-                            <p className="font-bold text-slate-900 flex items-center gap-1.5">
-                              <AlertTriangle className="h-3.5 w-3.5 text-amber-600" /> Admin & Dispatch Updates:
-                            </p>
-                            <p className="text-[11px] text-slate-600 whitespace-pre-line font-mono bg-white p-2 rounded border border-slate-100">
-                              {ord.notes}
-                            </p>
-                          </div>
-                        )}
 
                         {/* Delivery Address & Tracking ID Footer */}
                         <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100 text-xs">
@@ -1088,13 +1075,13 @@ export default function Profile() {
             </div>
           )}
 
-          {/* 0.5 In-App Notifications & Admin Alerts Tab */}
+          {/* 0.5 In-App Notifications & Store Alerts Tab */}
           {activeTab === 'notifications' && (
             <div className="space-y-6">
               <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm flex items-center justify-between">
                 <div>
                   <h2 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
-                    <Bell className="h-5 w-5 text-emerald-700" /> In-App Notifications & Admin Alerts
+                    <Bell className="h-5 w-5 text-emerald-700" /> Order Updates & Store Notifications
                   </h2>
                   <p className="text-xs text-slate-500 mt-0.5">Live notices from the bookstore regarding order confirmations, stock delays, and delivery updates.</p>
                 </div>
@@ -1112,7 +1099,7 @@ export default function Profile() {
                 <div className="rounded-2xl border border-slate-200 bg-white p-16 text-center shadow-sm">
                   <Bell className="mx-auto h-12 w-12 text-slate-300 mb-3" />
                   <h3 className="text-base font-bold text-slate-800">No new notifications</h3>
-                  <p className="text-xs text-slate-500 mt-1">You will receive updates here whenever an admin reviews your orders.</p>
+                  <p className="text-xs text-slate-500 mt-1">You will receive updates here as your orders are processed and dispatched.</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -1770,7 +1757,7 @@ export default function Profile() {
 
             <div className="p-6 space-y-4 text-xs text-slate-700 leading-relaxed max-h-[75vh] overflow-y-auto">
               <div className="rounded-xl bg-slate-50 p-3.5 border border-slate-200 space-y-1">
-                <p className="font-bold text-slate-900 text-sm">🪙 Reward Earning Formula</p>
+                <p className="font-bold text-slate-900 text-sm">Reward Earning Formula</p>
                 <p>You earn <b>1 Techno Point</b> for every <b>₹100</b> net purchase value on all books across our bookstore.</p>
               </div>
 

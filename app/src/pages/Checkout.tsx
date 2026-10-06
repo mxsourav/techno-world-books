@@ -579,6 +579,8 @@ export default function Checkout() {
         const orderPayload = {
           items: items.map((i: any) => ({ bookId: i.bookId, quantity: i.quantity })),
           email: collectorEmail,
+          customerEmail: collectorEmail,
+          contactEmail: collectorEmail,
           shippingMethod: 'SELF_PICKUP',
           pickupName: collectorName,
           pickupPhone: collectorPhone,
@@ -763,6 +765,8 @@ export default function Checkout() {
         items: items.map((i: any) => ({ bookId: i.bookId, quantity: i.quantity })),
         addressId: address.id?.startsWith('addr_') ? undefined : address.id,
         email: userEmail,
+        customerEmail: userEmail,
+        contactEmail: userEmail,
         address: {
           fullName: resolvedAddressName,
           email: userEmail,

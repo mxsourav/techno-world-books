@@ -11,19 +11,19 @@ import { BookCover } from '@/components/BookCover';
 const getStatusBadge = (status: string) => {
   switch (status) {
     case 'PENDING':
-      return <span className="bg-amber-100 text-amber-800 px-2 py-1 rounded text-xs font-bold uppercase flex items-center gap-1"><Clock className="w-3 h-3"/> Pending</span>;
+      return <span className="bg-amber-50 text-amber-800 border border-amber-200 px-2.5 py-0.5 rounded-full text-xs font-semibold flex items-center gap-1.5"><Clock className="w-3 h-3"/> Pending</span>;
     case 'CONFIRMED':
     case 'PROCESSING':
-      return <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-bold uppercase flex items-center gap-1"><Package className="w-3 h-3"/> Processing</span>;
+      return <span className="bg-amber-50 text-amber-800 border border-amber-200 px-2.5 py-0.5 rounded-full text-xs font-semibold flex items-center gap-1.5"><Package className="w-3 h-3"/> Processing</span>;
     case 'SHIPPED':
-      return <span className="bg-indigo-100 text-indigo-800 px-2 py-1 rounded text-xs font-bold uppercase flex items-center gap-1"><Truck className="w-3 h-3"/> Shipped</span>;
+      return <span className="bg-sky-50 text-sky-800 border border-sky-200 px-2.5 py-0.5 rounded-full text-xs font-semibold flex items-center gap-1.5"><Truck className="w-3 h-3"/> Shipped</span>;
     case 'DELIVERED':
-      return <span className="bg-emerald-100 text-emerald-800 px-2 py-1 rounded text-xs font-bold uppercase flex items-center gap-1"><CheckCircle2 className="w-3 h-3"/> Delivered</span>;
+      return <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-0.5 rounded-full text-xs font-semibold flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3"/> Delivered</span>;
     case 'CANCELLED':
     case 'REFUNDED':
-      return <span className="bg-rose-100 text-rose-800 px-2 py-1 rounded text-xs font-bold uppercase flex items-center gap-1"><XCircle className="w-3 h-3"/> {status}</span>;
+      return <span className="bg-rose-50 text-rose-800 border border-rose-200 px-2.5 py-0.5 rounded-full text-xs font-semibold flex items-center gap-1.5"><XCircle className="w-3 h-3"/> {status === 'CANCELLED' ? 'Cancelled' : 'Refunded'}</span>;
     default:
-      return <span className="bg-slate-100 text-slate-800 px-2 py-1 rounded text-xs font-bold uppercase">{status}</span>;
+      return <span className="bg-stone-50 text-stone-700 border border-stone-200 px-2.5 py-0.5 rounded-full text-xs font-semibold">{status}</span>;
   }
 };
 
@@ -247,7 +247,7 @@ export default function MyOrders() {
                           </p>
                         </div>
                         <p className="text-[11px] text-amber-900 leading-relaxed">
-                          Admin has proposed the following appointment slots. Choose one that fits your schedule:
+                          The fulfillment desk has proposed the following appointment slots. Choose one that fits your schedule:
                         </p>
                         <div className="space-y-1.5 pt-1">
                           {slots.map((s, idx) => (
