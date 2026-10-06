@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router';
-import { MapPin, CreditCard, CheckCircle2, Smartphone, Landmark, Wallet, PartyPopper, Download, Tag, Loader2, ShieldCheck, AlertCircle, Truck, Sparkles, Package, Zap, Store, Clock, Building2, Info, CalendarCheck } from 'lucide-react';
+import { MapPin, CreditCard, CheckCircle2, Smartphone, Landmark, Wallet, PartyPopper, Download, Tag, Loader2, ShieldCheck, AlertCircle, Truck, Sparkles, Package, Zap, Store, Clock, Building2, Info, CalendarCheck, Gift } from 'lucide-react';
 import { formatINR } from '@/utils/helpers';
 import { useStore } from '@/store/StoreContext';
 import { useCartTotals } from '@/hooks/useCartTotals';
@@ -58,6 +58,9 @@ export default function Checkout() {
   const [customWallet, setCustomWallet] = useState<string>('');
 
   useEffect(() => {
+    const token = localStorage.getItem('tw_customer_token') || localStorage.getItem('tw_token');
+    if (!token && !user) return;
+
     profileService.getPoints().then((res: any) => {
       if (res?.success && res?.data) {
         const livePts = Number(res.data.technoPoints) || 0;
@@ -72,6 +75,9 @@ export default function Checkout() {
   }, [user?.id, activeStep]);
 
   useEffect(() => {
+    const token = localStorage.getItem('tw_customer_token') || localStorage.getItem('tw_token');
+    if (!token && !user) return;
+
     profileService.getAddresses().then((res: any) => {
       if (res.success && Array.isArray(res.data)) {
         setDbAddresses(res.data);
@@ -1362,20 +1368,17 @@ export default function Checkout() {
                     {effectiveDeliveryOptions.map((opt: any) => {
                       const methodId = opt.method || opt.id;
                       const isSelected = shippingMethod === methodId;
-                      const isExpress = methodId === 'EXPRESS_LOCAL';
                       const Icon = methodId === 'SPEED_POST' ? Zap : methodId === 'EXPRESS_LOCAL' ? Truck : Package;
                       return (
                         <label
                           key={methodId}
                           className={`relative flex cursor-pointer flex-col gap-2 rounded-xl border p-4 transition-all ${
                             isSelected 
-                              ? isExpress 
-                                ? 'border-purple-800 bg-purple-50 ring-1 ring-purple-800' 
-                                : 'border-emerald-500 bg-emerald-50 ring-1 ring-emerald-500'
+                              ? 'border-emerald-600 bg-emerald-50/70 ring-1 ring-emerald-600'
                               : 'border-slate-200 hover:border-slate-300'
                           }`}
                         >
-                          {isExpress && <div className="absolute inset-y-0 left-0 w-1.5 rounded-l-xl bg-gradient-to-b from-purple-800 to-purple-600" />}
+                          {isSelected && <div className="absolute inset-y-0 left-0 w-1.5 rounded-l-xl bg-emerald-700" />}
                           <div className="flex items-start justify-between gap-3 ml-1">
                             <div className="flex items-center gap-2">
                               <input
@@ -1383,11 +1386,11 @@ export default function Checkout() {
                                 name="shippingMethod"
                                 checked={isSelected}
                                 onChange={() => setShippingMethod(methodId)}
-                                className="mt-0.5"
+                                className="mt-0.5 accent-emerald-700"
                               />
                               <div>
-                                <p className={`text-sm font-bold flex items-center gap-1.5 ${isSelected && isExpress ? 'text-purple-900' : 'text-slate-800'}`}>
-                                  <Icon className={`h-4 w-4 ${isSelected && isExpress ? 'text-purple-700' : isSelected ? 'text-emerald-600' : 'text-slate-400'}`} />
+                                <p className={`text-sm font-bold flex items-center gap-1.5 ${isSelected ? 'text-emerald-950' : 'text-slate-800'}`}>
+                                  <Icon className={`h-4 w-4 ${isSelected ? 'text-emerald-700' : 'text-slate-400'}`} />
                                   {opt.label}
                                 </p>
                                 <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">{opt.description}</p>
@@ -1839,13 +1842,13 @@ export default function Checkout() {
             </div>
           )}
           {/* Techno Points Reward Preview */}
-          <div className="mt-4 rounded-xl border border-amber-200 bg-gradient-to-r from-amber-50 to-amber-100/60 p-3 flex items-center gap-3">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-400 text-xs font-black text-slate-900 shadow-sm shrink-0">
-              🪙
+          <div className="mt-4 rounded-xl border border-emerald-200/80 bg-emerald-50/70 p-3 flex items-center gap-3">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-700 text-xs font-bold text-white shadow-2xs shrink-0">
+              <Gift className="h-4 w-4" />
             </span>
             <div className="text-left">
-              <p className="text-xs font-extrabold text-amber-950">Earn {Math.floor(total / 100)} Techno Points</p>
-              <p className="text-[10px] text-amber-800 font-medium">1 Coin per ₹100 spent · Valid for 1 year upon delivery</p>
+              <p className="text-xs font-bold text-emerald-950">Earn {Math.floor(total / 100)} Techno Points</p>
+              <p className="text-[10px] text-emerald-800 font-medium">1 Point per ₹100 spent · Valid for 1 year upon delivery</p>
             </div>
           </div>
 
@@ -1853,7 +1856,7 @@ export default function Checkout() {
             <button
               type="button"
               onClick={handleProceedToDelivery}
-              className="mt-4 w-full rounded-xl bg-amber-400 py-3.5 text-sm font-extrabold text-slate-900 shadow hover:bg-amber-500 transition-colors"
+              className="mt-4 w-full rounded-xl bg-emerald-700 py-3.5 text-sm font-bold text-white shadow hover:bg-emerald-800 transition-colors cursor-pointer"
             >
               Continue to Delivery Method →
             </button>
@@ -1861,7 +1864,7 @@ export default function Checkout() {
             <button
               type="button"
               onClick={handleProceedToPayment}
-              className="mt-4 w-full rounded-xl bg-amber-400 py-3.5 text-sm font-extrabold text-slate-900 shadow hover:bg-amber-500 transition-colors"
+              className="mt-4 w-full rounded-xl bg-emerald-700 py-3.5 text-sm font-bold text-white shadow hover:bg-emerald-800 transition-colors cursor-pointer"
             >
               Continue to Payment →
             </button>
@@ -1869,7 +1872,7 @@ export default function Checkout() {
             <button
               disabled={isSubmitting || !isValid}
               onClick={handlePlaceOrder}
-              className="mt-4 w-full rounded-xl bg-amber-400 py-3.5 text-sm font-extrabold text-slate-900 shadow hover:bg-amber-500 disabled:opacity-50 transition-colors"
+              className="mt-4 w-full rounded-xl bg-emerald-700 py-3.5 text-sm font-bold text-white shadow hover:bg-emerald-800 disabled:opacity-50 transition-colors cursor-pointer"
             >
               {isSubmitting ? 'Processing...' : payment === 'cod' ? `Place Order · ${formatINR(total)}` : `Pay ${formatINR(total)} Securely`}
             </button>

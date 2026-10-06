@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { cmsService } from '@/services/api';
-import { Loader2 } from 'lucide-react';
 
 interface Banner {
   id: string;
@@ -48,15 +47,7 @@ export default function PromoBanners() {
     return () => { active = false; };
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex h-32 items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-emerald-600" />
-      </div>
-    );
-  }
-
-  if (banners.length === 0) return null;
+  if (loading || banners.length === 0) return null;
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-8 pb-12 sm:px-6">

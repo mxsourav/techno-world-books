@@ -122,7 +122,7 @@ export default function HomePopupAd() {
     <aside
       role="dialog"
       aria-label="Special offer notification"
-      className={`fixed bottom-5 left-4 z-40 max-w-[calc(100vw-32px)] sm:left-6 sm:right-auto sm:w-[340px] transition-all duration-300 ease-in-out ${
+      className={`hidden sm:block fixed bottom-5 left-4 z-40 max-w-[calc(100vw-32px)] sm:left-6 sm:right-auto sm:w-[340px] transition-all duration-300 ease-in-out ${
         isNearFooter
           ? 'opacity-0 translate-y-8 pointer-events-none'
           : 'opacity-100 translate-y-0 pointer-events-auto'

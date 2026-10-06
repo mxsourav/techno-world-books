@@ -61,16 +61,36 @@ const loadArray = <T,>(key: string): T[] => {
 // Coupons are now validated via the backend API — no hardcoded list needed
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
-  const [cart, setCart] = useState<CartItem[]>(() => { const raw = loadArray<any>('twb_cart'); return raw.map(i => ({ bookId: i.bookId || i.id, qty: i.qty || i.quantity || 1 })).filter(i => i.bookId && typeof i.bookId === 'string' && i.bookId.startsWith('c')); });
-  const [savedForLater, setSavedForLater] = useState<CartItem[]>(() => { const raw = loadArray<any>('twb_saved'); return raw.map(i => ({ bookId: i.bookId || i.id, qty: i.qty || i.quantity || 1 })).filter(i => i.bookId && typeof i.bookId === 'string' && i.bookId.startsWith('c')); });
-  const [wishlist, setWishlist] = useState<string[]>(() => { const raw = loadArray<any>('twb_wishlist'); return raw.map(i => typeof i === 'string' ? i : i.id || i.bookId).filter(id => typeof id === 'string' && id.startsWith('c')); });
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    const raw = loadArray<any>('twb_cart');
+    return raw
+      .map(i => ({ bookId: String(i.bookId || i.id || '').trim(), qty: Number(i.qty || i.quantity || 1) }))
+      .filter(i => i.bookId.length > 0 && i.qty > 0);
+  });
+  const [savedForLater, setSavedForLater] = useState<CartItem[]>(() => {
+    const raw = loadArray<any>('twb_saved');
+    return raw
+      .map(i => ({ bookId: String(i.bookId || i.id || '').trim(), qty: Number(i.qty || i.quantity || 1) }))
+      .filter(i => i.bookId.length > 0 && i.qty > 0);
+  });
+  const [wishlist, setWishlist] = useState<string[]>(() => {
+    const raw = loadArray<any>('twb_wishlist');
+    return raw
+      .map(i => String(typeof i === 'string' ? i : i.id || i.bookId || '').trim())
+      .filter(id => id.length > 0);
+  });
   const [orders, setOrders] = useState<Order[]>(() => loadArray('twb_orders'));
   const [user, setUser] = useState<User | null>(() => {
     return load<User | null>('twb_user', null);
   });
   const [addresses, setAddresses] = useState<Address[]>(() => loadArray('twb_addresses'));
   const [searchHistory, setSearchHistory] = useState<string[]>(() => loadArray('twb_history'));
-  const [recentlyViewed, setRecentlyViewed] = useState<string[]>(() => { const raw = loadArray<any>('twb_recent'); return raw.map(i => typeof i === 'string' ? i : i.id || i.bookId).filter(id => typeof id === 'string' && id.startsWith('c')); });
+  const [recentlyViewed, setRecentlyViewed] = useState<string[]>(() => {
+    const raw = loadArray<any>('twb_recent');
+    return raw
+      .map(i => String(typeof i === 'string' ? i : i.id || i.bookId || '').trim())
+      .filter(id => id.length > 0);
+  });
   const [coupon, setCoupon] = useState<string | null>(() => load('twb_coupon', null));
 
   useEffect(() => { localStorage.setItem('twb_cart', JSON.stringify(cart)); }, [cart]);

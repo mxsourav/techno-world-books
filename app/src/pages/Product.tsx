@@ -960,9 +960,9 @@ export default function Product() {
                     addToCart(book.id, 1);
                     navigate('/checkout');
                   }}
-                  className="flex items-center justify-center gap-2 rounded-lg bg-[#ffd814] hover:bg-[#f7ca00] active:bg-[#f0b800] border border-[#fcd200] py-3.5 px-4 text-sm font-extrabold text-slate-950 shadow-sm hover:shadow transition-all active:scale-[0.99]"
+                  className="flex items-center justify-center gap-2 rounded-lg bg-emerald-800 hover:bg-emerald-900 border border-emerald-900 py-3.5 px-4 text-sm font-bold text-white shadow-sm hover:shadow transition-all active:scale-[0.99] cursor-pointer"
                 >
-                  <Zap className="h-4 w-4 fill-slate-950 text-slate-950" />
+                  <Zap className="h-4 w-4 fill-white text-white" />
                   <span>Buy at {formatINR(price)}</span>
                 </button>
               </div>
@@ -1012,8 +1012,8 @@ export default function Product() {
                   {ratingsCount.toLocaleString('en-IN')} Ratings & {reviewsCount} Reviews
                 </span>
 
-                <span className="inline-flex items-center gap-1 text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
-                  <BadgeCheck className="h-3.5 w-3.5 text-blue-600" /> Techno World Assured
+                <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/70">
+                  <BadgeCheck className="h-3.5 w-3.5 text-emerald-600" /> Techno World Assured
                 </span>
               </div>
 
@@ -1039,18 +1039,18 @@ export default function Product() {
                 </p>
               </div>
 
-              {/* Special Offers Box (WOW! DEAL) */}
-              <div className="mt-4 rounded-xl bg-gradient-to-r from-blue-50/70 via-indigo-50/50 to-blue-50/70 p-3.5 border border-blue-100">
+              {/* Special Offers Box */}
+              <div className="mt-4 rounded-xl bg-emerald-50/70 p-3.5 border border-emerald-200/80">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="rounded bg-blue-600 px-2 py-0.5 text-[10px] font-black text-white uppercase tracking-wider">
-                      WOW! DEAL
+                    <span className="rounded bg-emerald-700 px-2 py-0.5 text-[10px] font-bold text-white uppercase tracking-wider">
+                      SPECIAL OFFER
                     </span>
-                    <span className="text-sm font-extrabold text-slate-900">
+                    <span className="text-sm font-bold text-slate-900">
                       Apply Promo Codes at Checkout
                     </span>
                   </div>
-                  <span className="text-xs font-bold text-blue-700">Save up to 50%</span>
+                  <span className="text-xs font-bold text-emerald-800">Save up to 50%</span>
                 </div>
                 <div className="mt-2 space-y-1 text-xs text-slate-600">
                   <p className="flex items-center gap-1.5">
@@ -1058,7 +1058,7 @@ export default function Product() {
                     <span><b>Universal Coupons:</b> Use active promo codes on Cart/Checkout.</span>
                   </p>
                   <p className="flex items-center gap-1.5">
-                    <Tag className="h-3.5 w-3.5 text-blue-600 shrink-0" />
+                    <Tag className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
                     <span><b>Fast Dispatch:</b> Ships within 24 hours from Techno World Warehouse.</span>
                   </p>
                 </div>

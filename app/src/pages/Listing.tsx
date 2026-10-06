@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
-import { ChevronRight, SlidersHorizontal, X } from 'lucide-react';
+import { ChevronRight, SlidersHorizontal, X, BookOpen } from 'lucide-react';
 
 import { formatINR } from '@/utils/helpers';
 import { bookService, categoryService } from '@/services/api';
@@ -290,10 +290,10 @@ export default function Listing() {
             </div>
           ) : filtered.length === 0 ? (
             <div className="rounded-xl border border-dashed border-slate-200 bg-white p-12 text-center">
-              <p className="text-4xl">📚</p>
+              <BookOpen className="mx-auto h-12 w-12 text-slate-300 stroke-[1.5]" />
               <p className="mt-3 font-bold text-slate-700">No books matched</p>
               <p className="mt-1 text-sm text-slate-500">Try clearing filters or a different search — title, author, ISBN, exam or university.</p>
-              <button onClick={clearAll} className="mt-4 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-bold text-white">Clear filters</button>
+              <button onClick={clearAll} className="mt-4 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-800 transition-colors cursor-pointer">Clear filters</button>
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">

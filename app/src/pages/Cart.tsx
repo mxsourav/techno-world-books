@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { Trash2, ShoppingBag, Tag, Truck, ArrowRight, Heart, Loader2 } from 'lucide-react';
+import { Trash2, ShoppingBag, Tag, Truck, ArrowRight, Heart, Loader2, AlertCircle } from 'lucide-react';
 import { formatINR } from '@/utils/helpers';
 import { useStore } from '@/store/StoreContext';
 import { BookCover } from '@/components/BookCover';
@@ -33,10 +33,10 @@ export default function Cart() {
   if (error) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-20 text-center text-slate-500">
-        <span className="text-4xl mb-4">⚠️</span>
+        <AlertCircle className="mx-auto h-12 w-12 text-rose-500 mb-3" />
         <h2 className="text-xl font-bold text-slate-700">Error Loading Cart</h2>
         <p className="text-sm mt-2">{error.message}</p>
-        <button onClick={() => window.location.reload()} className="mt-4 rounded-lg bg-emerald-600 px-6 py-2 font-bold text-white">Retry</button>
+        <button onClick={() => window.location.reload()} className="mt-4 rounded-lg bg-emerald-700 hover:bg-emerald-800 transition-colors px-6 py-2 font-bold text-white cursor-pointer">Retry</button>
       </div>
     );
   }

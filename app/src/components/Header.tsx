@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import {
   BookOpen, ShoppingCart, Heart, User, Menu, Search, Mic, MessageCircle,
-  History, TrendingUp, ChevronDown, LogOut, MapPin, Tag, Mail
+  History, TrendingUp, ChevronDown, LogOut, MapPin, Tag, Mail, Truck, FileText, HelpCircle
 } from 'lucide-react';
 import { POPULAR_SEARCHES } from '@/data/blog';
 import { CATEGORIES as WEBSITE_CATEGORIES } from '@/data/books';
@@ -590,10 +590,30 @@ export default function Header() {
                 </div>
                 <div className="mt-4 border-t border-slate-100 pt-3 space-y-0.5">
                   <p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">Quick Links</p>
-                  <SheetClose asChild><Link to="/search?publisher=Techno%20World%20Publications" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">🏢 Our Publications</Link></SheetClose>
-                  <SheetClose asChild><Link to="/track" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">📦 Track Order</Link></SheetClose>
-                  <SheetClose asChild><Link to="/blog" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">✍️ Blog & Book Lists</Link></SheetClose>
-                  <SheetClose asChild><Link to="/help" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">❓ Help Center</Link></SheetClose>
+                  <SheetClose asChild>
+                    <Link to="/search?publisher=Techno%20World%20Publications" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">
+                      <BookOpen className="h-4 w-4 text-emerald-700 shrink-0" />
+                      <span>Our Publications</span>
+                    </Link>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Link to="/track" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">
+                      <Truck className="h-4 w-4 text-emerald-700 shrink-0" />
+                      <span>Track Order</span>
+                    </Link>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Link to="/blog" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">
+                      <FileText className="h-4 w-4 text-emerald-700 shrink-0" />
+                      <span>Blog & Book Lists</span>
+                    </Link>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Link to="/help" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">
+                      <HelpCircle className="h-4 w-4 text-emerald-700 shrink-0" />
+                      <span>Help Center</span>
+                    </Link>
+                  </SheetClose>
                 </div>
               </nav>
               {user && (
@@ -657,7 +677,7 @@ export default function Header() {
                 : 'opacity-0 scale-95 translate-y-2 pointer-events-none absolute inset-0 flex items-center justify-center'
             }`}
           >
-            <SearchBar className="w-full rounded-full shadow-[0_12px_35px_rgba(0,0,0,0.6)] border-none ring-0" />
+            <SearchBar className="w-full rounded-full shadow-md border-none ring-0" />
           </div>
         </div>
 

@@ -1,5 +1,5 @@
 import { useEffect, Suspense, lazy } from 'react';
-import { Route, Routes, useLocation, Outlet } from 'react-router';
+import { Route, Routes, useLocation, Outlet, Navigate } from 'react-router';
 import { MessageCircle } from 'lucide-react';
 import { Toaster } from 'sonner';
 import { ToastSwipeHandler } from '@/components/common/ToastSwipeHandler';
@@ -14,7 +14,6 @@ const Product = lazy(() => import('@/pages/Product'));
 const Cart = lazy(() => import('@/pages/Cart'));
 const Checkout = lazy(() => import('@/pages/Checkout'));
 const Wishlist = lazy(() => import('@/pages/Wishlist'));
-const Account = lazy(() => import('@/pages/Account'));
 const Profile = lazy(() => import('@/pages/Profile'));
 const Track = lazy(() => import('@/pages/Track'));
 const BlogList = lazy(() => import('@/pages/Blog').then((m) => ({ default: m.BlogList })));
@@ -204,7 +203,7 @@ function CustomerStorefront() {
         <Route path="/order-success" element={<OrderSuccess />} />
         <Route path="/my-orders" element={<MyOrders />} />
         <Route path="/wishlist" element={<Wishlist />} />
-        <Route path="/account" element={<Account />} />
+        <Route path="/account" element={<Navigate to="/profile" replace />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/track" element={<Track />} />
         <Route path="/blog" element={<BlogList />} />

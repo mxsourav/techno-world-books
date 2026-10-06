@@ -106,7 +106,7 @@ export default function About() {
 
         {/* Visual Element */}
         <div className="relative group">
-          <div className="aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-emerald-800 to-teal-950 flex items-center justify-center p-8 text-white relative">
+          <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-md bg-gradient-to-br from-emerald-800 to-teal-950 flex items-center justify-center p-8 text-white relative">
             <div className="text-center space-y-4">
               <div className="text-6xl font-serif">❝</div>
               <p className="text-2xl font-serif italic max-w-md mx-auto leading-snug">
@@ -122,18 +122,18 @@ export default function About() {
               </div>
             </div>
           </div>
-          <div className="absolute inset-0 bg-emerald-900/5 rounded-3xl mix-blend-multiply transition-colors group-hover:bg-transparent"></div>
+          <div className="absolute inset-0 bg-emerald-900/5 rounded-2xl mix-blend-multiply transition-colors group-hover:bg-transparent"></div>
         </div>
       </div>
 
       {/* CAN'T FIND A BOOK? & SOURCING REQUEST FORM */}
       <div className="mb-20">
-        <div className="bg-gradient-to-br from-emerald-50 via-teal-50/40 to-white rounded-3xl p-6 sm:p-12 shadow-sm border border-emerald-100">
+        <div className="bg-gradient-to-br from-emerald-50 via-teal-50/40 to-white rounded-2xl p-6 sm:p-12 shadow-sm border border-emerald-100">
           <div className="max-w-3xl mb-8">
             <div className="inline-flex items-center gap-2 text-emerald-800 text-xs font-bold uppercase tracking-wider mb-2">
               <Sparkles className="h-4 w-4" /> Book Procurement & Sourcing
             </div>
-            <h2 className="text-3xl font-extrabold tracking-tight text-emerald-955 mb-3">
+            <h2 className="text-3xl font-extrabold tracking-tight text-emerald-950 mb-3">
               <CmsText contentKey="about.procurement_title" defaultText="Can't Find a Book? Request It Here" label="Sourcing Heading" />
             </h2>
             <p className="text-sm sm:text-base text-slate-700 leading-relaxed">

@@ -553,11 +553,11 @@ export default function Home() {
             {/* Search Bar */}
             <SearchBar
               id="home-hero-search"
-              className="mt-6 h-[48px] w-full min-w-0 shadow-[0_12px_35px_rgba(0,0,0,0.4)] sm:h-[54px] [&_button]:px-4 [&_input]:min-w-0 [&_input]:text-[12px] sm:[&_button]:px-8 sm:[&_input]:text-[14px]"
+              className="mt-6 h-[48px] w-full min-w-0 shadow-md sm:h-[54px] [&_button]:px-4 [&_input]:min-w-0 [&_input]:text-[12px] sm:[&_button]:px-8 sm:[&_input]:text-[14px]"
             />
 
             {/* Category Chips */}
-            <div className="relative mt-[18px] w-full min-w-0">
+            <div className="relative mt-4 w-full min-w-0">
               <div
                 className="hero-chip-container flex w-full min-w-0 flex-wrap items-center justify-start gap-2 overflow-visible"
               >
@@ -565,7 +565,7 @@ export default function Home() {
                   <button
                     key={tag}
                     onClick={() => navigate(`/search?q=${encodeURIComponent(tag)}`)}
-                    className="flex max-w-full items-center gap-1.5 rounded-[999px] px-[16px] py-[8px] text-[12px] text-[#F5F5F5] transition-all duration-250 ease-in-out whitespace-normal sm:text-[13px]"
+                    className="flex max-w-full items-center gap-1.5 rounded-full px-4 py-2 text-xs text-[#F5F5F5] transition-all duration-200 ease-in-out whitespace-normal cursor-pointer"
                     style={{
                       background: 'rgba(15,55,38,0.65)',
                       border: '1px solid rgba(255,255,255,0.12)',
@@ -582,7 +582,7 @@ export default function Home() {
             </div>
 
             {/* Offer Highlights Bar (White Card Look) */}
-            <div className="mt-[28px] w-full rounded-[20px] bg-[#f8f5ef] py-3 px-4 sm:px-6 shadow-[0_15px_40px_-15px_rgba(0,0,0,0.5)] flex flex-col md:flex-row items-stretch md:items-center justify-around border border-[#e5e0d8] gap-3.5 md:gap-0">
+            <div className="mt-7 w-full rounded-2xl bg-[#f8f5ef] py-3 px-4 sm:px-6 shadow-md flex flex-col md:flex-row items-stretch md:items-center justify-around border border-[#e5e0d8] gap-3.5 md:gap-0">
               <div className="flex items-center gap-3 px-2 sm:px-3">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-800 shadow-xs">
                   <BadgePercent className="h-5 w-5" strokeWidth={2} />
@@ -626,7 +626,7 @@ export default function Home() {
                     <CmsText contentKey="home.offer_3_title" defaultText="Techno Rewards" label="Offer 3 Title" />
                   </div>
                   <div className="text-slate-600 text-[11px] leading-tight mt-0.5 font-medium">
-                    <CmsText contentKey="home.offer_3_desc" defaultText="Earn 1 Techno Coin per ₹100 spent (excl. delivery)" label="Offer 3 Subtitle" />
+                    <CmsText contentKey="home.offer_3_desc" defaultText="Earn 1 Techno Point per ₹100 spent (excl. delivery)" label="Offer 3 Subtitle" />
                   </div>
                 </div>
               </div>
