@@ -18,11 +18,32 @@ const DEFAULT_STEPS = [
 export default function Track() {
   const { orders } = useStore();
   const [params] = useSearchParams();
-  const [input, setInput] = useState(params.get('id') ?? '');
-  const [lookup, setLookup] = useState(params.get('id') ?? '');
+  const initialId = (
+    params.get('id') ||
+    params.get('tracking') ||
+    params.get('trackingNumber') ||
+    params.get('orderId') ||
+    ''
+  ).trim();
+  const [input, setInput] = useState(initialId);
+  const [lookup, setLookup] = useState(initialId);
   const [loading, setLoading] = useState(false);
   const [liveTracking, setLiveTracking] = useState<any>(null);
   const [errorMsg, setErrorMsg] = useState('');
+
+  useEffect(() => {
+    const q = (
+      params.get('id') ||
+      params.get('tracking') ||
+      params.get('trackingNumber') ||
+      params.get('orderId') ||
+      ''
+    ).trim();
+    if (q && q !== lookup) {
+      setInput(q);
+      setLookup(q);
+    }
+  }, [params, lookup]);
 
   const localOrder = orders.find(
     (o) =>

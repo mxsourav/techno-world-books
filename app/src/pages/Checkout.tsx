@@ -1,12 +1,13 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router';
-import { MapPin, CreditCard, CheckCircle2, Smartphone, Landmark, Wallet, PartyPopper, Download, Tag, Loader2, ShieldCheck, AlertCircle, Truck, Sparkles, Package, Zap, Store, Clock, Building2, Info, CalendarCheck, Gift, Coins, Lock } from 'lucide-react';
+import { MapPin, CreditCard, CheckCircle2, Smartphone, Landmark, Wallet, Mail, Download, Tag, Loader2, ShieldCheck, AlertCircle, Truck, Sparkles, Package, Zap, Store, Clock, Building2, Info, CalendarCheck, Gift, Coins, Lock } from 'lucide-react';
 import { formatINR } from '@/utils/helpers';
 import { useStore } from '@/store/StoreContext';
 import { useCartTotals } from '@/hooks/useCartTotals';
 import type { Address, Order } from '@/types';
 import { toast } from 'sonner';
 import { shippingService, profileService, orderService, paymentService } from '@/services/api';
+import { downloadOrderInvoice } from '@/utils/generateInvoice';
 
 const PAYMENTS = [
   { id: 'upi', name: 'UPI', desc: 'GPay, PhonePe, Paytm & all UPI apps', icon: Smartphone },
@@ -382,47 +383,58 @@ export default function Checkout() {
     if (placed.courier === 'STORE_TAKEAWAY' || placed.trackingId?.startsWith('PICKUP-')) {
       return (
         <div className="mx-auto max-w-2xl px-4 py-14 text-center">
-          <PartyPopper className="mx-auto h-16 w-16 text-emerald-600" />
-          <h1 className="mt-4 text-2xl font-extrabold text-slate-900">Store Pickup Order Placed!</h1>
-          <p className="mt-2 text-sm text-slate-500">
-            Order <b className="text-slate-800">{placed.id}</b> · {placed.items?.length || 0} item(s) · {formatINR(placed.total)} · {placed.payment}
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-stone-900 text-white shadow-sm ring-4 ring-stone-100">
+            <Store className="h-6 w-6 text-stone-200" />
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-stone-900">Store Pickup Order Placed</h1>
+          <p className="mt-1.5 text-xs text-stone-500 font-medium">
+            Order <span className="font-mono font-semibold text-stone-800">#{placed.id}</span> &bull; {placed.items?.length || 0} item(s) &bull; <span className="font-semibold text-stone-900">{formatINR(placed.total)}</span> &bull; <span className="uppercase text-[11px] font-semibold text-stone-600">{placed.payment}</span>
           </p>
-          <div className="mt-6 rounded-xl border border-slate-200 bg-white p-5 text-left shadow-sm">
-            <p className="flex items-center gap-2 text-sm font-bold text-slate-800">
-              <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Store Takeaway Order Confirmed
-            </p>
-            <div className="mt-3 grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
-              <div>
-                <p className="text-xs text-slate-400 font-medium">Pickup Desk Location</p>
-                <p className="font-semibold text-slate-800">Techno World Books Dispatch Desk</p>
-                <p className="text-xs text-slate-600 leading-relaxed">
+          <div className="mt-6 rounded-2xl border border-stone-200/90 bg-white p-6 text-left shadow-xs">
+            <div className="flex items-center justify-between border-b border-stone-100 pb-3.5">
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-emerald-600" />
+                <span className="text-xs font-bold uppercase tracking-wider text-stone-900">Store Takeaway Confirmed</span>
+              </div>
+              <span className="text-[11px] font-medium text-stone-500">Ready for scheduling</span>
+            </div>
+            <div className="mt-4 grid gap-3.5 text-xs text-stone-600 sm:grid-cols-2">
+              <div className="rounded-xl border border-stone-200/80 bg-stone-50/50 p-3.5">
+                <p className="text-[11px] text-stone-400 font-medium">Pickup Desk Location</p>
+                <p className="mt-1 font-semibold text-stone-900">Techno World Books Dispatch Desk</p>
+                <p className="mt-1 text-stone-600 leading-relaxed text-[11px]">
                   90/6A, Mahatma Gandhi Rd, opp. Grace Cinema, College Street, Kolkata 700007
                 </p>
               </div>
-              <div>
-                <p className="text-xs text-slate-400 font-medium">Collector</p>
-                <p className="font-semibold text-slate-800">{placedAddrName}</p>
-                <p className="text-xs text-slate-600">{placedAddrPhone ? `+91 ${placedAddrPhone}` : 'Phone on record'}</p>
-                {placedAddrEmail && <p className="text-xs text-slate-400 mt-1">{placedAddrEmail}</p>}
+              <div className="rounded-xl border border-stone-200/80 bg-stone-50/50 p-3.5">
+                <p className="text-[11px] text-stone-400 font-medium">Collector</p>
+                <p className="mt-1 font-semibold text-stone-900">{placedAddrName}</p>
+                <p className="mt-1 text-stone-600 text-[11px]">{placedAddrPhone ? `+91 ${placedAddrPhone}` : 'Phone on record'}</p>
+                {placedAddrEmail && <p className="text-stone-400 text-[10.5px] mt-0.5">{placedAddrEmail}</p>}
               </div>
             </div>
-            <div className="mt-4 rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-xs text-emerald-900">
-              <p className="font-bold flex items-center gap-1.5">
-                <CalendarCheck className="h-4 w-4 text-emerald-700" /> Next Step: Choose Your Pickup Time Slot
+            <div className="mt-4 rounded-xl border border-stone-200/80 bg-stone-50/70 p-3.5 text-xs text-stone-700 leading-relaxed">
+              <p className="font-bold flex items-center gap-1.5 text-stone-900">
+                <CalendarCheck className="h-4 w-4 text-stone-700" /> Next Step: Choose Your Pickup Time Slot
               </p>
-              <p className="mt-1 text-emerald-800 leading-relaxed">
-                Our warehouse team is preparing your books and will send 3–4 time slots to your <b>Notification Center</b> and <b>Order Details</b>. Select your slot and bring your invoice (on mobile or printed) to collect your books.
+              <p className="mt-1 text-stone-600 text-[11.5px] leading-relaxed">
+                Our warehouse team is preparing your books and will send available time slots to your <b>Notification Center</b> and <b>Order Details</b>. Select your slot and bring your invoice to collect your books.
               </p>
             </div>
           </div>
-          <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Link to="/profile?tab=orders" className="rounded-xl bg-emerald-700 px-5 py-2.5 text-sm font-bold text-white hover:bg-emerald-800">
-              View Order & Pickup Slots
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+            <Link to="/profile?tab=orders" className="inline-flex items-center gap-2 rounded-xl bg-stone-900 px-5 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-stone-800">
+              View Order &amp; Pickup Slots
             </Link>
-            <button onClick={() => toast.success('Official Invoice will be available once appointment slot is confirmed.')} className="flex items-center gap-1.5 rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50">
-              <Download className="h-4 w-4" /> Download Invoice
+            <button
+              type="button"
+              onClick={() => downloadOrderInvoice(placed)}
+              className="inline-flex items-center gap-2 rounded-xl border border-stone-300 bg-white px-5 py-2.5 text-xs font-semibold text-stone-800 transition-colors hover:bg-stone-50 hover:border-stone-400"
+            >
+              <Download className="h-4 w-4 text-stone-500" />
+              <span>Download Tax Invoice</span>
             </button>
-            <Link to="/" className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50">
+            <Link to="/" className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-5 py-2.5 text-xs font-semibold text-stone-600 transition-colors hover:bg-stone-50">
               Continue Shopping
             </Link>
           </div>
@@ -432,30 +444,105 @@ export default function Checkout() {
 
     return (
       <div className="mx-auto max-w-2xl px-4 py-14 text-center">
-        <PartyPopper className="mx-auto h-16 w-16 text-amber-500" />
-        <h1 className="mt-4 text-2xl font-extrabold text-slate-900">Order placed successfully!</h1>
-        <p className="mt-2 text-sm text-slate-500">
-          Order <b className="text-slate-800">{placed.id}</b> · {placed.items?.length || 0} item(s) · {formatINR(placed.total)} · {placed.payment}
-        </p>
-        <div className="mt-6 rounded-xl border border-slate-200 bg-white p-5 text-left shadow-sm">
-          <p className="flex items-center gap-2 text-sm font-bold text-slate-800"><CheckCircle2 className="h-4 w-4 text-emerald-600" /> Order Confirmed & Receipt Sent via Email</p>
-          <div className="mt-3 grid gap-2.5 text-sm text-slate-600 sm:grid-cols-2">
-            <p className="flex items-center gap-1.5"><Truck className="h-4 w-4 text-slate-400 shrink-0" /> <span>Delivery Partner: <b className="text-slate-900">{placed.courier || 'India Post'}</b></span></p>
-            <p className="flex items-center gap-1.5"><Package className="h-4 w-4 text-slate-400 shrink-0" /> <span>Consignment No: <span className="rounded bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-800 border border-amber-200">Generated upon postal dispatch</span></span></p>
-            <p className="flex items-center gap-1.5"><Clock className="h-4 w-4 text-slate-400 shrink-0" /> <span>Expected Delivery: <b className="text-slate-900">{placedDeliveryDate}</b></span></p>
-            <p className="flex items-center gap-1.5"><Coins className="h-4 w-4 text-amber-600 shrink-0" /> <span>TechnoPoints Earned: <b className="text-emerald-700">+{Math.floor((placed.total || 0) / 100) * 5} pts</b></span></p>
-          </div>
-          <div className="mt-3.5 rounded-lg bg-slate-50 p-3 border border-slate-200 text-xs text-slate-600 leading-relaxed">
-            Official tracking details and your India Post barcode (AWB) will be automatically sent to <b>{placedAddrEmail || 'your email'}</b> as soon as our dispatch desk books the package.
-          </div>
-          <p className="mt-3 text-xs text-slate-400">Delivering to: {placedAddrName}{placedAddrLine ? `, ${placedAddrLine}` : ''}{placedAddrCity ? `, ${placedAddrCity}` : ''}{placedAddrPin ? ` — ${placedAddrPin}` : ''}</p>
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-stone-900 text-white shadow-sm ring-4 ring-stone-100">
+          <CheckCircle2 className="h-7 w-7 text-emerald-400 stroke-[2.2]" />
         </div>
-        <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <Link to={`/track?id=${placed.id}`} className="rounded-xl bg-emerald-700 px-5 py-2.5 text-sm font-bold text-white hover:bg-emerald-800">Track Order</Link>
-          <button onClick={() => toast.success('Invoice downloaded (PDF)')} className="flex items-center gap-1.5 rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50">
-            <Download className="h-4 w-4" /> Download Invoice
+        <h1 className="text-2xl font-bold tracking-tight text-stone-900">Order Placed Successfully</h1>
+        <p className="mt-1.5 text-xs text-stone-500 font-medium">
+          Order <span className="font-mono font-semibold text-stone-800">#{placed.id}</span> &bull; {placed.items?.length || 0} item(s) &bull; <span className="font-semibold text-stone-900">{formatINR(placed.total)}</span> &bull; <span className="uppercase text-[11px] font-semibold text-stone-600">{placed.payment}</span>
+        </p>
+
+        <div className="mt-6 rounded-2xl border border-stone-200/90 bg-white p-6 text-left shadow-xs">
+          <div className="flex items-center justify-between border-b border-stone-100 pb-3.5">
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-emerald-600" />
+              <span className="text-xs font-bold uppercase tracking-wider text-stone-900">Order Confirmed &amp; In Queue</span>
+            </div>
+            <span className="text-[11px] font-medium text-stone-500">Receipt emailed</span>
+          </div>
+
+          {/* Structured 4-Metric Grid (Clean layout, zero awkward text wrapping) */}
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="rounded-xl border border-stone-200/80 bg-stone-50/50 p-3.5">
+              <div className="flex items-center gap-1.5 text-[11px] font-medium text-stone-500">
+                <Truck className="h-3.5 w-3.5 text-stone-400 shrink-0" />
+                <span>Delivery Partner</span>
+              </div>
+              <p className="mt-1 text-xs font-semibold text-stone-900">
+                {placed.courier || 'India Post Speed Post'}
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-stone-200/80 bg-stone-50/50 p-3.5">
+              <div className="flex items-center gap-1.5 text-[11px] font-medium text-stone-500">
+                <Package className="h-3.5 w-3.5 text-stone-400 shrink-0" />
+                <span>Consignment / Tracking</span>
+              </div>
+              <p className="mt-1 text-xs font-semibold text-stone-900 font-mono">
+                {placed.trackingId || (
+                  <span className="font-sans text-[11px] text-stone-500 font-medium">Assigned upon postal dispatch</span>
+                )}
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-stone-200/80 bg-stone-50/50 p-3.5">
+              <div className="flex items-center gap-1.5 text-[11px] font-medium text-stone-500">
+                <Clock className="h-3.5 w-3.5 text-stone-400 shrink-0" />
+                <span>Estimated Delivery</span>
+              </div>
+              <p className="mt-1 text-xs font-semibold text-stone-900">
+                {placedDeliveryDate}
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-stone-200/80 bg-stone-50/50 p-3.5">
+              <div className="flex items-center gap-1.5 text-[11px] font-medium text-stone-500">
+                <Coins className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+                <span>TechnoPoints Earned</span>
+              </div>
+              <p className="mt-1 text-xs font-bold text-stone-900">
+                +{Math.floor((placed.total || 0) / 100) * 5} pts
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4 rounded-xl border border-stone-200/80 bg-stone-50/60 p-3.5 text-xs text-stone-600 leading-relaxed">
+            <div className="flex items-start gap-2.5">
+              <Mail className="h-4 w-4 text-stone-400 shrink-0 mt-0.5" />
+              <div className="text-[11.5px] leading-relaxed">
+                Official tracking details and your India Post postal barcode (AWB) will be automatically dispatched to <strong className="text-stone-900">{placedAddrEmail || 'your email'}</strong> once inspected and packed at College Street.
+              </div>
+            </div>
+          </div>
+
+          <p className="mt-4 border-t border-stone-100 pt-3 text-[11px] text-stone-500">
+            <span className="font-medium text-stone-600">Shipping to: </span>
+            {placedAddrName}{placedAddrLine ? `, ${placedAddrLine}` : ''}{placedAddrCity ? `, ${placedAddrCity}` : ''}{placedAddrPin ? ` — ${placedAddrPin}` : ''}
+          </p>
+        </div>
+
+        <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+          <Link
+            to={`/track?id=${placed.id}`}
+            className="inline-flex items-center gap-2 rounded-xl bg-stone-900 px-5 py-2.5 text-xs font-semibold text-white transition-colors hover:bg-stone-800"
+          >
+            <Truck className="h-4 w-4" />
+            <span>Track Consignment</span>
+          </Link>
+          <button
+            type="button"
+            onClick={() => downloadOrderInvoice(placed)}
+            className="inline-flex items-center gap-2 rounded-xl border border-stone-300 bg-white px-5 py-2.5 text-xs font-semibold text-stone-800 transition-colors hover:bg-stone-50 hover:border-stone-400"
+          >
+            <Download className="h-4 w-4 text-stone-500" />
+            <span>Download Tax Invoice</span>
           </button>
-          <Link to="/" className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50">Continue Shopping</Link>
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-5 py-2.5 text-xs font-semibold text-stone-600 transition-colors hover:bg-stone-50"
+          >
+            <span>Continue Shopping</span>
+          </Link>
         </div>
       </div>
     );

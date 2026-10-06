@@ -1064,43 +1064,113 @@ export default function Profile() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {userNotifs.map((notif: any) => (
-                    <div
-                      key={notif.id}
-                      className={`rounded-2xl border p-5 shadow-sm transition-all ${
-                        notif.isRead ? 'bg-white border-slate-200' : 'bg-emerald-50/50 border-emerald-200 shadow-md'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-start gap-3">
-                          <div className="h-9 w-9 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm shrink-0 mt-0.5">
-                            {notif.type?.includes('cancel') ? '❌' : notif.type?.includes('delay') ? '⏳' : notif.type?.includes('ship') ? '🚚' : '✅'}
-                          </div>
-                          <div>
-                            <h4 className="text-sm font-extrabold text-slate-900">{notif.title}</h4>
-                            <p className="text-xs text-slate-700 mt-1 whitespace-pre-line leading-relaxed">
-                              {notif.message}
-                            </p>
-                            <p className="text-[10px] text-slate-400 font-semibold mt-2">
-                              {new Date(notif.createdAt).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                            </p>
-                          </div>
-                        </div>
+                  {userNotifs.map((notif: any) => {
+                    const isDispatched =
+                      notif.type?.includes('ship') ||
+                      notif.title?.toLowerCase().includes('dispatch') ||
+                      notif.message?.toLowerCase().includes('dispatch');
 
-                        {!notif.isRead && (
-                          <button
-                            onClick={async () => {
-                              await profileService.markNotificationRead(notif.id);
-                              fetchUserNotifs();
-                            }}
-                            className="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 underline shrink-0"
-                          >
-                            Mark Read
-                          </button>
-                        )}
+                    const trackMatch = notif.message?.match(/(?:Tracking(?:\s*No)?|AWB|Consignment(?:\s*No)?)\s*[:#-]?\s*([A-Za-z0-9_-]+)/i);
+                    let rawTrack = trackMatch ? trackMatch[1].trim() : '';
+                    if (rawTrack.toLowerCase() === 'active' || rawTrack.toLowerCase().includes('generated')) {
+                      rawTrack = '';
+                    }
+                    const orderMatch = notif.title?.match(/#([A-Za-z0-9_-]+)/) || notif.message?.match(/#([A-Za-z0-9_-]+)/);
+                    const orderNum = orderMatch ? orderMatch[1].trim() : '';
+                    const trackTarget = rawTrack || orderNum;
+
+                    const isCancel = notif.type?.includes('cancel') || notif.title?.toLowerCase().includes('cancel');
+                    const isDelay = notif.type?.includes('delay') || notif.title?.toLowerCase().includes('delay');
+                    const isPoints = notif.type?.includes('point') || notif.title?.toLowerCase().includes('point');
+                    const isWallet = notif.type?.includes('wallet') || notif.title?.toLowerCase().includes('wallet');
+
+                    return (
+                      <div
+                        key={notif.id}
+                        className={`rounded-2xl border p-5 transition-all ${
+                          notif.isRead
+                            ? 'bg-white border-stone-200/90 shadow-xs'
+                            : 'bg-stone-50/80 border-stone-300 shadow-sm ring-1 ring-stone-900/5'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-start gap-3.5">
+                            <div className="h-9 w-9 rounded-xl bg-stone-100 border border-stone-200/90 text-stone-700 flex items-center justify-center shrink-0 mt-0.5">
+                              {isCancel ? (
+                                <X className="h-4 w-4 text-red-600" />
+                              ) : isDelay ? (
+                                <Clock className="h-4 w-4 text-amber-600" />
+                              ) : isDispatched ? (
+                                <Truck className="h-4 w-4 text-stone-800" />
+                              ) : isPoints ? (
+                                <Coins className="h-4 w-4 text-amber-600" />
+                              ) : isWallet ? (
+                                <Wallet className="h-4 w-4 text-stone-800" />
+                              ) : (
+                                <CheckCircle2 className="h-4 w-4 text-stone-800" />
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <h4 className="text-sm font-bold text-stone-900">{notif.title}</h4>
+                                {!notif.isRead && (
+                                  <span className="inline-block h-2 w-2 rounded-full bg-stone-900 shrink-0" title="Unread" />
+                                )}
+                              </div>
+                              <p className="text-xs text-stone-600 mt-1 whitespace-pre-line leading-relaxed">
+                                {notif.message}
+                              </p>
+
+                              {/* Dedicated Live Tracking Action for Dispatched Orders */}
+                              {isDispatched && trackTarget && (
+                                <div className="mt-3.5 flex flex-wrap items-center justify-between gap-2.5 rounded-xl border border-stone-200/90 bg-white p-3 shadow-2xs">
+                                  <div className="flex items-center gap-2 text-xs text-stone-600">
+                                    <Truck className="h-3.5 w-3.5 text-stone-400 shrink-0" />
+                                    <span>
+                                      {rawTrack ? (
+                                        <>Consignment ID: <strong className="font-mono text-stone-900 font-semibold">{rawTrack}</strong></>
+                                      ) : (
+                                        <>Order No: <strong className="font-mono text-stone-900 font-semibold">#{orderNum}</strong></>
+                                      )}
+                                    </span>
+                                  </div>
+                                  <Link
+                                    to={`/track?id=${encodeURIComponent(trackTarget)}`}
+                                    className="inline-flex items-center gap-1.5 rounded-lg bg-stone-900 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-stone-800"
+                                  >
+                                    <span>Track Live Consignment</span>
+                                    <ChevronRight className="h-3.5 w-3.5" />
+                                  </Link>
+                                </div>
+                              )}
+
+                              <p className="text-[11px] text-stone-400 font-medium mt-2.5">
+                                {new Date(notif.createdAt).toLocaleString('en-IN', {
+                                  day: 'numeric',
+                                  month: 'short',
+                                  year: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })}
+                              </p>
+                            </div>
+                          </div>
+
+                          {!notif.isRead && (
+                            <button
+                              onClick={async () => {
+                                await profileService.markNotificationRead(notif.id);
+                                fetchUserNotifs();
+                              }}
+                              className="text-xs font-semibold text-stone-500 hover:text-stone-900 underline underline-offset-2 shrink-0 transition-colors"
+                            >
+                              Mark Read
+                            </button>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
