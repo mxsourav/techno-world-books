@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router';
 import { MapPin, Phone, Globe, Camera } from 'lucide-react';
 import { useStore } from '@/store/StoreContext';
 import { useAuthStore } from '@/store/AuthStore';
@@ -26,8 +26,16 @@ export default function Footer() {
   const { user, logout: storeLogout } = useStore();
   const { logout: authLogout } = useAuthStore();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [isB2BModalOpen, setIsB2BModalOpen] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('b2b') === 'true' || params.get('quote') === 'true') {
+      setIsB2BModalOpen(true);
+    }
+  }, [location.search]);
 
   const handleLogout = () => {
     storeLogout();

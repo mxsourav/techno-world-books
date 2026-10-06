@@ -219,6 +219,9 @@ function CustomerStorefront() {
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/contact-us" element={<Contact />} />
+        <Route path="/b2b" element={<Navigate to="/?b2b=true" replace />} />
+        <Route path="/institutional" element={<Navigate to="/?b2b=true" replace />} />
+        <Route path="/institutional-sales" element={<Navigate to="/?b2b=true" replace />} />
         <Route path="*" element={<Listing />} />
       </Route>
     </Routes>

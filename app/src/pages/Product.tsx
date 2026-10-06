@@ -911,7 +911,8 @@ export default function Product() {
               </div>
             </div>
 
-            {/* Look Inside Preview Button */}
+            {/* Look Inside Preview Button (Disabled for now per user request) */}
+            {/*
             <button
               type="button"
               onClick={() => setIsSampleReaderOpen(true)}
@@ -920,6 +921,7 @@ export default function Product() {
               <BookOpen className="h-4 w-4 text-emerald-700" />
               <span>Look Inside · Preview Sample Pages</span>
             </button>
+            */}
 
             {/* Bottom Dual Action Buttons or Out of Stock Lead Capture */}
             {Boolean(book.stock !== undefined && book.stock <= 0) ? (
