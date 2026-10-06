@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router';
-import { MapPin, CreditCard, CheckCircle2, Smartphone, Landmark, Wallet, PartyPopper, Download, Tag, Loader2, ShieldCheck, AlertCircle, Truck, Sparkles, Package, Zap, Store, Clock, Building2, Info, CalendarCheck, Gift } from 'lucide-react';
+import { MapPin, CreditCard, CheckCircle2, Smartphone, Landmark, Wallet, PartyPopper, Download, Tag, Loader2, ShieldCheck, AlertCircle, Truck, Sparkles, Package, Zap, Store, Clock, Building2, Info, CalendarCheck, Gift, Coins, Lock } from 'lucide-react';
 import { formatINR } from '@/utils/helpers';
 import { useStore } from '@/store/StoreContext';
 import { useCartTotals } from '@/hooks/useCartTotals';
@@ -341,7 +341,7 @@ export default function Checkout() {
   if (error && (!items || items.length === 0)) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-20 text-center text-slate-500">
-        <span className="text-4xl mb-4">⚠️</span>
+        <AlertCircle className="mx-auto h-12 w-12 text-amber-500 mb-4" />
         <h2 className="text-xl font-bold text-slate-700">Error Loading Cart Data</h2>
         <p className="text-sm mt-2">{error.message}</p>
         <Link to="/cart" className="mt-4 inline-block rounded-lg bg-emerald-600 px-6 py-2 font-bold text-white">Back to Cart</Link>
@@ -427,13 +427,13 @@ export default function Checkout() {
         <div className="mt-6 rounded-xl border border-slate-200 bg-white p-5 text-left shadow-sm">
           <p className="flex items-center gap-2 text-sm font-bold text-slate-800"><CheckCircle2 className="h-4 w-4 text-emerald-600" /> Order Confirmed & Receipt Sent via Email</p>
           <div className="mt-3 grid gap-2.5 text-sm text-slate-600 sm:grid-cols-2">
-            <p>📦 Delivery Partner: <b className="text-slate-900">{placed.courier || 'India Post'}</b></p>
-            <p>📬 Consignment No: <span className="rounded bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-800 border border-amber-200">Generated upon postal dispatch</span></p>
-            <p>🚚 Expected Delivery: <b>{placedDeliveryDate}</b></p>
-            <p>🎁 TechnoPoints Earned: <b className="text-emerald-700">+{Math.floor((placed.total || 0) / 100) * 5} pts</b></p>
+            <p className="flex items-center gap-1.5"><Truck className="h-4 w-4 text-slate-400 shrink-0" /> <span>Delivery Partner: <b className="text-slate-900">{placed.courier || 'India Post'}</b></span></p>
+            <p className="flex items-center gap-1.5"><Package className="h-4 w-4 text-slate-400 shrink-0" /> <span>Consignment No: <span className="rounded bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-800 border border-amber-200">Generated upon postal dispatch</span></span></p>
+            <p className="flex items-center gap-1.5"><Clock className="h-4 w-4 text-slate-400 shrink-0" /> <span>Expected Delivery: <b className="text-slate-900">{placedDeliveryDate}</b></span></p>
+            <p className="flex items-center gap-1.5"><Coins className="h-4 w-4 text-amber-600 shrink-0" /> <span>TechnoPoints Earned: <b className="text-emerald-700">+{Math.floor((placed.total || 0) / 100) * 5} pts</b></span></p>
           </div>
           <div className="mt-3.5 rounded-lg bg-slate-50 p-3 border border-slate-200 text-xs text-slate-600 leading-relaxed">
-            ✉️ Official tracking details and your India Post barcode (AWB) will be automatically sent to <b>{placedAddrEmail || 'your email'}</b> as soon as our dispatch desk books the package.
+            Official tracking details and your India Post barcode (AWB) will be automatically sent to <b>{placedAddrEmail || 'your email'}</b> as soon as our dispatch desk books the package.
           </div>
           <p className="mt-3 text-xs text-slate-400">Delivering to: {placedAddrName}{placedAddrLine ? `, ${placedAddrLine}` : ''}{placedAddrCity ? `, ${placedAddrCity}` : ''}{placedAddrPin ? ` — ${placedAddrPin}` : ''}</p>
         </div>
@@ -451,8 +451,8 @@ export default function Checkout() {
   if (items?.length === 0) {
     return (
       <div className="mx-auto max-w-xl px-6 py-20 text-center">
-        <p className="text-4xl">🛒</p>
-        <h1 className="mt-3 text-xl font-bold">Nothing to checkout</h1>
+        <Package className="mx-auto h-12 w-12 text-slate-300 mb-3" />
+        <h1 className="text-xl font-bold text-slate-800">Nothing to checkout</h1>
         <Link to="/" className="mt-4 inline-block rounded-xl bg-emerald-700 px-6 py-3 text-sm font-bold text-white">Browse Books</Link>
       </div>
     );
@@ -1334,7 +1334,7 @@ export default function Checkout() {
                       <span className="rounded-md bg-emerald-700 px-2.5 py-1 text-xs font-black text-white">FREE</span>
                     </div>
                     <p className="text-[11px] text-slate-600 mt-2.5 border-t border-emerald-100 pt-2 leading-relaxed">
-                      📅 Once your order is placed, our warehouse team will prepare your books and offer <b>3 to 4 pickup time slots</b> in your Notification Center &amp; Order Details. Choose your preferred slot and collect your books!
+                      Once your order is placed, our warehouse team will prepare your books and offer <b>3 to 4 pickup time slots</b> in your Notification Center &amp; Order Details. Choose your preferred slot and collect your books!
                     </p>
                   </div>
 
@@ -1358,7 +1358,7 @@ export default function Checkout() {
                           Active Dispatch Consignment #{bundledWithOrderNumber}
                         </p>
                         <p className="text-emerald-800 mt-1 leading-relaxed text-xs">
-                          You already have an order scheduled for today&apos;s 2:00 PM dispatch batch for this delivery address{parentShippingMethod ? ` (currently via ${parentShippingMethod === 'EXPRESS_LOCAL' ? '⚡ Express' : parentShippingMethod === 'SPEED_POST' ? '🚀 Speed Post' : '📦 Standard Post'})` : ''}. You can join your active shipment for <b>FREE (₹0)</b>, or upgrade the entire parcel to a faster delivery service below{parentShippingCharge > 0 ? ` (your previously paid delivery fee of ${formatINR(parentShippingCharge)} is credited)` : ''}!
+                          You already have an order scheduled for today&apos;s 2:00 PM dispatch batch for this delivery address{parentShippingMethod ? ` (currently via ${parentShippingMethod === 'EXPRESS_LOCAL' ? 'Express' : parentShippingMethod === 'SPEED_POST' ? 'Speed Post' : 'Standard Post'})` : ''}. You can join your active shipment for <b>FREE (₹0)</b>, or upgrade the entire parcel to a faster delivery service below{parentShippingCharge > 0 ? ` (your previously paid delivery fee of ${formatINR(parentShippingCharge)} is credited)` : ''}!
                         </p>
                       </div>
                     </div>
@@ -1520,10 +1520,10 @@ export default function Checkout() {
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-1">
-                          <span className="text-xs font-bold text-slate-900 flex items-center gap-1">
-                            🪙 TechnoPoints
+                          <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                            <Coins className="h-3.5 w-3.5 text-amber-600" /> TechnoPoints
                           </span>
-                          <span className="rounded bg-amber-200 px-1.5 py-0.2 text-[10px] font-black text-amber-900">
+                          <span className="rounded bg-amber-100 border border-amber-200/60 px-1.5 py-0.2 text-[10px] font-bold text-amber-900">
                             {availablePoints} pts
                           </span>
                         </div>
@@ -1581,10 +1581,10 @@ export default function Checkout() {
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-1">
-                          <span className="text-xs font-bold text-slate-900 flex items-center gap-1">
-                            💳 TechnoWallet
+                          <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                            <Wallet className="h-3.5 w-3.5 text-emerald-700" /> TechnoWallet
                           </span>
-                          <span className="rounded bg-emerald-200 px-1.5 py-0.2 text-[10px] font-black text-emerald-900">
+                          <span className="rounded bg-emerald-100 border border-emerald-200/60 px-1.5 py-0.2 text-[10px] font-bold text-emerald-900">
                             ₹{Number(availableWallet || 0).toFixed(2)}
                           </span>
                         </div>
@@ -1630,8 +1630,10 @@ export default function Checkout() {
               {/* If order is completely paid with Rewards & Wallet */}
               {total === 0 ? (
                 <div className="my-3 rounded-xl border border-emerald-300 bg-emerald-50/90 p-4 text-center">
-                  <CheckCircle2 className="mx-auto h-8 w-8 text-emerald-600 mb-1" />
-                  <p className="text-sm font-extrabold text-emerald-950">🎉 Order 100% Covered by TechnoRewards & Wallet!</p>
+                  <p className="text-sm font-extrabold text-emerald-950 flex items-center justify-center gap-1.5">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                    <span>Order 100% Covered by TechnoRewards &amp; Wallet!</span>
+                  </p>
                   <p className="text-xs text-emerald-800 mt-1">
                     Zero out-of-pocket payable (₹0.00). No online payment required.
                   </p>
@@ -1693,7 +1695,7 @@ export default function Checkout() {
               <Sparkles className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
               <div>
                 <p className="font-extrabold text-emerald-950">
-                  🎉 Free Add-on Delivery Activated (₹0 Shipping)!
+                  Free Add-on Delivery Activated (₹0 Shipping)!
                 </p>
                 <p className="text-[11px] text-emerald-800 mt-0.5 leading-relaxed">
                   You already placed order <span className="font-bold font-mono">#{bundledWithOrderNumber}</span> in today&apos;s 2:00 PM dispatch batch for this same delivery address. This book will be bundled into your <b>same parcel</b> at <b>no extra delivery charge</b>!
@@ -1713,14 +1715,22 @@ export default function Checkout() {
 
           {/* Quick Rewards balance reminder */}
           {(availablePoints > 0 || availableWallet > 0) && (
-            <div className="mb-3 rounded-lg bg-gradient-to-r from-amber-50 to-emerald-50 border border-amber-200/70 p-2 text-xs flex items-center justify-between">
-              <span className="flex items-center gap-1 text-[11px] font-bold text-slate-700">
-                <Sparkles className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+            <div className="mb-3 rounded-lg bg-amber-50/60 border border-amber-200 p-2.5 text-xs flex items-center justify-between text-stone-800">
+              <span className="flex items-center gap-1.5 text-[11px] font-semibold text-amber-900">
+                <Sparkles className="h-3.5 w-3.5 text-amber-600 shrink-0" />
                 <span>Rewards available:</span>
               </span>
-              <span className="font-extrabold text-[11px] text-slate-800">
-                🪙 {Number(availablePoints || 0)} pts · 💳 ₹{Number(availableWallet || 0).toFixed(0)}
-              </span>
+              <div className="flex items-center gap-2.5 text-[11px] font-semibold text-stone-800">
+                <span className="flex items-center gap-1">
+                  <Coins className="h-3.5 w-3.5 text-amber-600 shrink-0" />
+                  <span>{Number(availablePoints || 0)} pts</span>
+                </span>
+                <span className="text-amber-300">·</span>
+                <span className="flex items-center gap-1">
+                  <Wallet className="h-3.5 w-3.5 text-emerald-700 shrink-0" />
+                  <span>₹{Number(availableWallet || 0).toFixed(0)}</span>
+                </span>
+              </div>
             </div>
           )}
 
@@ -1772,16 +1782,18 @@ export default function Checkout() {
             )}
             {pointsDiscount > 0 && (
               <div className="flex justify-between items-center text-amber-800">
-                <dt className="flex items-center gap-1 font-semibold text-xs">
-                  🪙 TechnoPoints ({pointsUsed} pts)
+                <dt className="flex items-center gap-1.5 font-semibold text-xs">
+                  <Coins className="h-3.5 w-3.5 text-amber-600 shrink-0" />
+                  <span>TechnoPoints ({pointsUsed} pts)</span>
                 </dt>
                 <dd className="font-bold text-amber-900">− {formatINR(pointsDiscount)}</dd>
               </div>
             )}
             {walletDiscount > 0 && (
               <div className="flex justify-between items-center text-emerald-700">
-                <dt className="flex items-center gap-1 font-semibold text-xs">
-                  💳 TechnoWallet Cash
+                <dt className="flex items-center gap-1.5 font-semibold text-xs">
+                  <Wallet className="h-3.5 w-3.5 text-emerald-700 shrink-0" />
+                  <span>TechnoWallet Cash</span>
                 </dt>
                 <dd className="font-bold text-emerald-800">− {formatINR(walletDiscount)}</dd>
               </div>
@@ -1806,14 +1818,14 @@ export default function Checkout() {
             </div>
 
             {fulfillmentMode === 'PICKUP' ? (
-              <div className="rounded-lg bg-emerald-50/80 border border-emerald-200 p-2 text-[11px] text-emerald-900 flex items-center gap-1.5">
-                <Store className="h-3.5 w-3.5 text-emerald-700 shrink-0" />
-                <span>Store Takeaway · College Street Desk · <b>Appointed Slot</b></span>
+              <div className="rounded-lg bg-stone-50 border border-stone-200 p-2.5 text-[11px] text-stone-600 flex items-center gap-2">
+                <Store className="h-4 w-4 text-stone-500 shrink-0" />
+                <span>Store Takeaway · College Street Desk · <b className="text-stone-800">Appointed Slot</b></span>
               </div>
             ) : isShippingCalculated && (
-              <div className="rounded-lg bg-emerald-50/80 border border-emerald-200 p-2 text-[11px] text-emerald-900 flex items-center gap-1.5">
-                <Truck className="h-3.5 w-3.5 text-emerald-700 shrink-0" />
-                <span>{deliveryOptions?.find((o: any) => (o.method || o.id) === (selectedShippingMethod || shippingMethod))?.label || shippingZone} · Est. <b>{estimatedTransitDays}</b></span>
+              <div className="rounded-lg bg-stone-50 border border-stone-200 p-2.5 text-[11px] text-stone-600 flex items-center gap-2">
+                <Truck className="h-4 w-4 text-stone-500 shrink-0" />
+                <span>{deliveryOptions?.find((o: any) => (o.method || o.id) === (selectedShippingMethod || shippingMethod))?.label || shippingZone} · Est. <b className="text-stone-800">{estimatedTransitDays}</b></span>
               </div>
             )}
 
@@ -1842,13 +1854,11 @@ export default function Checkout() {
             </div>
           )}
           {/* Techno Points Reward Preview */}
-          <div className="mt-4 rounded-xl border border-emerald-200/80 bg-emerald-50/70 p-3 flex items-center gap-3">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-700 text-xs font-bold text-white shadow-2xs shrink-0">
-              <Gift className="h-4 w-4" />
-            </span>
+          <div className="mt-4 rounded-lg border border-stone-200 bg-white p-3 flex items-center gap-3">
+            <Gift className="h-5 w-5 text-emerald-800 shrink-0" />
             <div className="text-left">
-              <p className="text-xs font-bold text-emerald-950">Earn {Math.floor(total / 100)} Techno Points</p>
-              <p className="text-[10px] text-emerald-800 font-medium">1 Point per ₹100 spent · Valid for 1 year upon delivery</p>
+              <p className="text-xs font-semibold text-stone-900">Earn {Math.floor(total / 100)} Techno Points</p>
+              <p className="text-[10px] text-stone-500 font-medium">1 Point per ₹100 spent · Valid for 1 year upon delivery</p>
             </div>
           </div>
 
@@ -1877,7 +1887,10 @@ export default function Checkout() {
               {isSubmitting ? 'Processing...' : payment === 'cod' ? `Place Order · ${formatINR(total)}` : `Pay ${formatINR(total)} Securely`}
             </button>
           )}
-          <p className="mt-2 text-center text-[11px] text-slate-400">🔒 256-bit SSL encrypted · PCI-DSS compliant · Razorpay Verified</p>
+          <p className="mt-2 text-center text-[11px] text-slate-400 flex items-center justify-center gap-1.5">
+            <Lock className="h-3 w-3 text-slate-400 shrink-0" />
+            <span>256-bit SSL encrypted · PCI-DSS compliant · Razorpay Verified</span>
+          </p>
         </aside>
       </div>
     </div>

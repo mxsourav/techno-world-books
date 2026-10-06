@@ -28,6 +28,7 @@ import {
   Package,
   Download,
   MessageSquare,
+  Lock,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/AuthStore';
 import { useStore } from '@/store/StoreContext';
@@ -456,13 +457,13 @@ export default function Profile() {
 
           {/* Quick Balance Readout Mobile */}
           <div className="grid grid-cols-2 gap-2 border-t border-stone-100 pt-3 text-xs">
-            <div className="rounded-md border border-stone-200 bg-stone-50/80 p-2.5">
-              <span className="text-[10px] text-stone-500 block uppercase font-medium">Wallet Balance</span>
-              <span className="font-semibold text-stone-900 font-mono text-sm">₹{technoWallet.toFixed(2)}</span>
+            <div className="rounded-lg border border-emerald-200/60 bg-emerald-50/50 p-2.5 shadow-2xs">
+              <span className="text-[10px] text-emerald-800/80 block uppercase font-medium">Wallet Balance</span>
+              <span className="font-semibold text-emerald-950 font-mono text-sm">₹{technoWallet.toFixed(2)}</span>
             </div>
-            <div className="rounded-md border border-stone-200 bg-stone-50/80 p-2.5">
-              <span className="text-[10px] text-stone-500 block uppercase font-medium">Techno Coins</span>
-              <span className="font-semibold text-stone-900 font-mono text-sm">{technoPoints}</span>
+            <div className="rounded-lg border border-amber-200/60 bg-amber-50/50 p-2.5 shadow-2xs">
+              <span className="text-[10px] text-amber-800/80 block uppercase font-medium">Techno Coins</span>
+              <span className="font-semibold text-amber-950 font-mono text-sm">{technoPoints}</span>
             </div>
           </div>
 
@@ -543,33 +544,33 @@ export default function Profile() {
                 )}
               </div>
 
-              {/* Monochrome Wallet & Coins Badges */}
+              {/* Wallet & Coins Quick Cards with Muted Tints */}
               <div className="pt-3 border-t border-stone-100 space-y-2">
-                <div className="flex items-center justify-between text-xs p-2.5 rounded-md bg-stone-50 border border-stone-200/80">
-                  <div className="flex items-center gap-2 text-stone-600">
-                    <Wallet className="h-4 w-4 text-stone-700" />
-                    <span>Wallet Balance</span>
+                <div className="flex items-center justify-between text-xs p-2.5 rounded-lg bg-emerald-50/50 border border-emerald-200/60 shadow-2xs">
+                  <div className="flex items-center gap-2 text-emerald-800">
+                    <Wallet className="h-4 w-4 text-emerald-700 shrink-0" />
+                    <span className="font-medium">Wallet Balance</span>
                   </div>
-                  <span className="font-semibold text-stone-900 font-mono">₹{technoWallet.toFixed(2)}</span>
+                  <span className="font-semibold text-emerald-950 font-mono">₹{technoWallet.toFixed(2)}</span>
                 </div>
 
-                <div className="flex items-center justify-between text-xs p-2.5 rounded-md bg-stone-50 border border-stone-200/80">
-                  <div className="flex items-center gap-2 text-stone-600">
-                    <Coins className="h-4 w-4 text-stone-700" />
-                    <span className="flex items-center gap-1">
+                <div className="flex items-center justify-between text-xs p-2.5 rounded-lg bg-amber-50/50 border border-amber-200/60 shadow-2xs">
+                  <div className="flex items-center gap-2 text-amber-800">
+                    <Coins className="h-4 w-4 text-amber-600 shrink-0" />
+                    <span className="flex items-center gap-1 font-medium">
                       Techno Coins
                       <button
                         type="button"
                         onClick={() => setIsTermsModalOpen(true)}
-                        className="text-stone-400 hover:text-stone-600"
+                        className="text-amber-500 hover:text-amber-700 transition-colors"
                         title="View Terms"
                       >
                         <HelpCircle className="h-2.5 w-2.5" />
                       </button>
                     </span>
                   </div>
-                  <span className="font-semibold text-stone-900 font-mono">
-                    {technoPoints} <span className="text-[10px] text-stone-500 font-sans font-normal">(₹{technoPoints})</span>
+                  <span className="font-semibold text-amber-950 font-mono">
+                    {technoPoints} <span className="text-[10px] text-amber-700/80 font-sans font-normal">(₹{technoPoints})</span>
                   </span>
                 </div>
               </div>
@@ -1066,8 +1067,16 @@ export default function Profile() {
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-start gap-3">
-                          <div className="h-9 w-9 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm shrink-0 mt-0.5">
-                            {notif.type?.includes('cancel') ? '❌' : notif.type?.includes('delay') ? '⏳' : notif.type?.includes('ship') ? '🚚' : '✅'}
+                          <div className="h-9 w-9 rounded-lg bg-stone-100 border border-stone-200 text-stone-700 flex items-center justify-center shrink-0 mt-0.5">
+                            {notif.type?.includes('cancel') ? (
+                              <X className="h-4 w-4 text-rose-600" />
+                            ) : notif.type?.includes('delay') ? (
+                              <Clock className="h-4 w-4 text-amber-600" />
+                            ) : notif.type?.includes('ship') ? (
+                              <Truck className="h-4 w-4 text-sky-600" />
+                            ) : (
+                              <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                            )}
                           </div>
                           <div>
                             <h4 className="text-sm font-extrabold text-slate-900">{notif.title}</h4>
@@ -1300,8 +1309,9 @@ export default function Profile() {
                         {addr.postOffice ? <span>PO: <b className="text-slate-800">{addr.postOffice}</b> · </span> : null}
                         {addr.city}, {addr.state} — <b>{addr.pincode}</b>
                       </p>
-                      <p className="text-xs text-slate-500 mt-2">
-                        📞 Mobile: <span className="font-semibold text-slate-700">+91 {addr.phone}</span>
+                      <p className="text-xs text-slate-500 mt-2 flex items-center gap-1">
+                        <Phone className="h-3 w-3 text-slate-400 shrink-0" />
+                        <span>Mobile: <span className="font-semibold text-slate-700">+91 {addr.phone}</span></span>
                       </p>
                     </div>
                   ))}
@@ -1373,40 +1383,40 @@ export default function Profile() {
           {activeTab === 'points' && (
             <div className="space-y-6">
               {/* TechnoWallet Cash Balance Banner */}
-              <div className="rounded-lg border border-stone-200 bg-white p-5 sm:p-6">
+              <div className="rounded-lg border border-emerald-200/60 bg-emerald-50/50 p-5 sm:p-6 shadow-2xs">
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <div className="flex items-center gap-3.5">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-md bg-stone-100 text-stone-700 border border-stone-200 shrink-0">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-emerald-700 border border-emerald-200/80 shrink-0 shadow-2xs">
                       <Wallet className="h-5 w-5" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h2 className="text-base font-bold text-stone-900">TechnoWallet Cash Balance</h2>
-                        <span className="rounded-full bg-stone-100 border border-stone-200 px-2 py-0.5 text-[10px] font-medium text-stone-600">
+                        <h2 className="text-base font-bold text-emerald-950">TechnoWallet Cash Balance</h2>
+                        <span className="rounded-full bg-emerald-100/80 border border-emerald-200 px-2 py-0.5 text-[10px] font-semibold text-emerald-800">
                           Direct Cash
                         </span>
                       </div>
-                      <p className="text-xs text-stone-500 mt-0.5">
+                      <p className="text-xs text-emerald-800/80 mt-0.5">
                         Consolidated parcel delivery refunds & store credit with zero restrictions.
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs text-stone-500 block">Available Cash Balance</span>
-                    <span className="text-2xl sm:text-3xl font-bold text-stone-900 font-mono">₹{technoWallet.toFixed(2)}</span>
+                    <span className="text-xs text-emerald-800/80 block">Available Cash Balance</span>
+                    <span className="text-2xl sm:text-3xl font-bold text-emerald-950 font-mono">₹{technoWallet.toFixed(2)}</span>
                   </div>
                 </div>
 
-                <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3 border-t border-stone-100 pt-4 text-xs">
-                  <div className="rounded-md bg-stone-50 p-3 border border-stone-200">
+                <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3 border-t border-emerald-200/50 pt-4 text-xs">
+                  <div className="rounded-md bg-white/80 p-3 border border-emerald-200/60">
                     <p className="font-semibold text-stone-900">No Expiry Date</p>
                     <p className="text-[11px] text-stone-500 mt-1">Unlike promotional points, your TechnoWallet balance never expires.</p>
                   </div>
-                  <div className="rounded-md bg-stone-50 p-3 border border-stone-200">
+                  <div className="rounded-md bg-white/80 p-3 border border-emerald-200/60">
                     <p className="font-semibold text-stone-900">100% Usable</p>
                     <p className="text-[11px] text-stone-500 mt-1">Pay for any book or entire order. No minimum or maximum percentage limits.</p>
                   </div>
-                  <div className="rounded-md bg-stone-50 p-3 border border-stone-200">
+                  <div className="rounded-md bg-white/80 p-3 border border-emerald-200/60">
                     <p className="font-semibold text-stone-900">Stackable</p>
                     <p className="text-[11px] text-stone-500 mt-1">Combine wallet cash with Techno Points and coupon promo discounts freely.</p>
                   </div>
@@ -1443,14 +1453,19 @@ export default function Profile() {
               )}
 
               {/* Techno Points Loyalty Card */}
-              <div className="rounded-lg border border-stone-200 bg-white p-5 sm:p-6 flex flex-wrap items-center justify-between gap-4">
+              <div className="rounded-lg border border-amber-200/60 bg-amber-50/50 p-5 sm:p-6 flex flex-wrap items-center justify-between gap-4 shadow-2xs">
                 <div className="flex items-center gap-3.5">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-md bg-stone-100 text-stone-700 border border-stone-200 shrink-0">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-amber-600 border border-amber-200/80 shrink-0 shadow-2xs">
                     <Coins className="h-5 w-5" />
                   </div>
                   <div>
-                    <h2 className="text-base font-bold text-stone-900">Techno Points Reward Program</h2>
-                    <p className="text-xs text-stone-500 mt-0.5">
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-base font-bold text-amber-950">Techno Points Reward Program</h2>
+                      <span className="rounded-full bg-amber-100/80 border border-amber-200 px-2 py-0.5 text-[10px] font-semibold text-amber-800">
+                        {technoPoints} Coins
+                      </span>
+                    </div>
+                    <p className="text-xs text-amber-800/80 mt-0.5">
                       Every ₹100 spent earns 1 Techno Point (worth ₹1.00). Valid for 1 full year from issuance.
                     </p>
                   </div>
@@ -1669,8 +1684,9 @@ export default function Profile() {
                 />
               </div>
 
-              <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-[11px] text-amber-900">
-                🔒 Stored as a reference preference only. External card/UPI debit processing remains dormant until live payment gateway credentials are deployed.
+              <div className="rounded-lg bg-amber-50/60 border border-amber-200 p-3 text-[11px] text-amber-900 flex items-start gap-2">
+                <Lock className="h-3.5 w-3.5 text-amber-700 shrink-0 mt-0.5" />
+                <span>Stored as a reference preference only. External card/UPI debit processing remains dormant until live payment gateway credentials are deployed.</span>
               </div>
 
               <div className="flex items-center justify-end gap-2.5 border-t border-slate-200 pt-4">
