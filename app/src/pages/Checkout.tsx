@@ -18,7 +18,7 @@ const PAYMENTS = [
 const INDIAN_STATES = ['West Bengal', 'Maharashtra', 'Delhi', 'Karnataka', 'Tamil Nadu', 'Uttar Pradesh', 'Telangana', 'Gujarat', 'Rajasthan', 'Kerala', 'Bihar', 'Madhya Pradesh', 'Punjab', 'Odisha', 'Assam', 'Other'];
 
 export default function Checkout() {
-  const { user, login, addresses: storeAddresses, addAddress, clearCart, applyCoupon, clearCoupon } = useStore();
+  const { cart, user, login, addresses: storeAddresses, addAddress, clearCart, applyCoupon, clearCoupon } = useStore();
   const [fulfillmentMode, setFulfillmentMode] = useState<'DELIVERY' | 'PICKUP'>('DELIVERY');
   void setFulfillmentMode; // Retained for future re-enabling of store pickup
   const [dbAddresses, setDbAddresses] = useState<any[]>([]);
@@ -177,8 +177,21 @@ export default function Checkout() {
     };
   }, [fulfillmentMode, pickupForm, user, selectedAddressObj, form]);
 
-  const parsedPointsInput = customPoints.trim() === '' ? (usePoints ? availablePoints : 0) : Math.max(0, parseInt(customPoints, 10) || 0);
-  const effectivePointsUsed = usePoints ? Math.min(parsedPointsInput, availablePoints) : 0;
+  // 15% Subtotal margin guardrail for TechnoPoints (coins)
+  // Max coins allowed is 15% of book subtotal, up to user's point balance
+  // TechnoWallet cash remains 100% usable with 0 restrictions
+  const cartSubtotal = useMemo(() => {
+    return (cart || []).reduce((acc: number, item: any) => {
+      const price = Number(item.price || item.unitPrice || (item as any).book?.price || 0);
+      const qty = Number(item.qty || (item as any).quantity || 1);
+      return acc + (price * qty);
+    }, 0);
+  }, [cart]);
+
+  const maxAllowedPoints = Math.min(availablePoints, Math.floor(cartSubtotal * 0.15));
+
+  const parsedPointsInput = customPoints.trim() === '' ? (usePoints ? maxAllowedPoints : 0) : Math.max(0, parseInt(customPoints, 10) || 0);
+  const effectivePointsUsed = usePoints ? Math.min(parsedPointsInput, maxAllowedPoints) : 0;
 
   const parsedWalletInput = customWallet.trim() === '' ? (useWallet ? availableWallet : 0) : Math.max(0, parseFloat(customWallet) || 0);
   const effectiveWalletUsed = useWallet ? Math.min(parsedWalletInput, availableWallet) : 0;
@@ -1508,12 +1521,12 @@ export default function Checkout() {
                       <input
                         type="checkbox"
                         checked={usePoints}
-                        disabled={availablePoints <= 0}
+                        disabled={maxAllowedPoints <= 0}
                         onChange={(e) => {
                           const checked = e.target.checked;
                           setUsePoints(checked);
                           if (checked && !customPoints) {
-                            setCustomPoints(String(availablePoints));
+                            setCustomPoints(String(maxAllowedPoints));
                           }
                         }}
                         className="mt-0.5 h-4 w-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500"
@@ -1538,17 +1551,17 @@ export default function Checkout() {
                             <input
                               type="number"
                               min="0"
-                              max={availablePoints}
+                              max={maxAllowedPoints}
                               value={customPoints}
                               onChange={(e) => setCustomPoints(e.target.value)}
-                              placeholder={`Max ${availablePoints}`}
+                              placeholder={`Max ${maxAllowedPoints}`}
                               className="w-full rounded-lg border border-amber-300 bg-white px-2.5 py-1 text-xs font-bold text-slate-900 outline-none focus:ring-2 focus:ring-amber-500/20"
                             />
                             <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-slate-400">pts</span>
                           </div>
                           <button
                             type="button"
-                            onClick={() => setCustomPoints(String(availablePoints))}
+                            onClick={() => setCustomPoints(String(maxAllowedPoints))}
                             className="rounded-lg bg-amber-200 px-2 py-1 text-[11px] font-extrabold text-amber-950 hover:bg-amber-300 transition-colors shrink-0"
                           >
                             Max

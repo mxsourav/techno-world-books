@@ -1052,7 +1052,7 @@ export default function Product() {
                       Apply Promo Codes at Checkout
                     </span>
                   </div>
-                  <span className="text-xs font-bold text-emerald-800">Save up to 50%</span>
+                  <span className="text-xs font-bold text-emerald-800">Save up to 50%*</span>
                 </div>
                 <div className="mt-2 space-y-1 text-xs text-slate-600">
                   <p className="flex items-center gap-1.5">
@@ -1062,6 +1062,9 @@ export default function Product() {
                   <p className="flex items-center gap-1.5">
                     <Tag className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
                     <span><b>Fast Dispatch:</b> Ships within 24 hours from Techno World Warehouse.</span>
+                  </p>
+                  <p className="text-[10px] text-slate-500 pt-1 border-t border-emerald-100">
+                    *Includes coupon codes and promotional discounts on selected category books. Subject to terms &amp; conditions.
                   </p>
                 </div>
               </div>

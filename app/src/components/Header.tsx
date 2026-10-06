@@ -704,7 +704,7 @@ export default function Header() {
             {user ? (
               <Link to="/profile" className="flex items-center gap-2 rounded-xl px-2.5 py-1.5 border border-emerald-800/40 hover:bg-emerald-800/60 transition-all text-white">
                 <div className="relative h-7 w-7 shrink-0">
-                  {(authUser?.avatarUrl || user?.avatarUrl) && !avatarError ? (
+                  {(authUser?.avatarUrl || user?.avatarUrl) && !(authUser?.avatarUrl || user?.avatarUrl)?.includes('unsplash') && !avatarError ? (
                     <img
                       src={(authUser?.avatarUrl || user?.avatarUrl) ?? undefined}
                       alt={user.name}
@@ -713,7 +713,7 @@ export default function Header() {
                       className="h-7 w-7 rounded-full object-cover border border-white/15"
                     />
                   ) : (
-                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-950/70 border border-white/10 text-xs font-semibold text-emerald-100">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-800 border border-white/20 text-xs font-bold text-white shadow-xs">
                       {user.name?.[0]?.toUpperCase() || 'U'}
                     </div>
                   )}

@@ -162,10 +162,10 @@ export default function HomePopupAd() {
             </span>
           </div>
           <p className="mt-1 truncate text-xs font-bold text-zinc-900 dark:text-zinc-100">
-            <CmsText contentKey="popup.headline" defaultText="Book Sale · Up to 60% Off" label="Offer Popup Headline" />
+            <CmsText contentKey="popup.headline" defaultText="Book Sale · Up to 60% Off*" label="Offer Popup Headline" />
           </p>
-          <p className="truncate text-[11px] text-zinc-500 dark:text-zinc-400">
-            <CmsText contentKey="popup.subtext" defaultText="Swipe left or right to dismiss" label="Offer Popup Subtext" />
+          <p className="truncate text-[10px] text-zinc-500 dark:text-zinc-400">
+            <CmsText contentKey="popup.subtext" defaultText="*Includes coupon codes on selected category books" label="Offer Popup Subtext" />
           </p>
         </div>
 

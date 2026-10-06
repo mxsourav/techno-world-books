@@ -217,12 +217,15 @@ export default function Footer() {
       {/* Developer Credits Strip (AquaNexus Server Style) */}
       <div className="border-t border-white/[0.06]">
         <div className="mx-auto max-w-7xl px-3 sm:px-6 py-2.5 flex flex-col lg:flex-row items-center justify-between gap-2.5">
-          <div className="flex flex-col items-center lg:items-start gap-0.5 text-center lg:text-left">
+          <div className="flex flex-col items-center lg:items-start gap-1 text-center lg:text-left">
             <span className="text-[11px] font-bold tracking-[0.08em] text-slate-400 uppercase">
               © {new Date().getFullYear()} Techno World Books. All rights reserved.
             </span>
             <span className="text-[10px] font-semibold tracking-wider text-slate-600 uppercase">
               Official Online Bookstore • College Street, Kolkata
+            </span>
+            <span className="text-[10px] text-slate-500 max-w-xl leading-normal">
+              *Promotional discounts, including &apos;Up to 50%/60% Off&apos;, include applicable coupon codes and promotional discounts on selected category books. Subject to terms &amp; conditions.
             </span>
           </div>
 

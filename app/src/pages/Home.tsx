@@ -488,7 +488,7 @@ export default function Home() {
             <div className="inline-flex items-center gap-2 rounded-full bg-[#0a2e1f] border border-[#D4A017] px-3.5 py-1.5 mb-5 shadow-sm max-w-full">
               <Tag className="h-3.5 w-3.5 text-[#D4A017] shrink-0" />
               <span className="text-[11px] sm:text-[13px] font-medium text-[#D4A017] truncate sm:whitespace-normal">
-                <CmsText contentKey="home.hero_badge" defaultText="Grand Book Sale — Up to 60% off 10,000+ titles" label="Hero Sale Badge" />
+                <CmsText contentKey="home.hero_badge" defaultText="Grand Book Sale — Up to 60% off* 10,000+ titles" label="Hero Sale Badge" />
               </span>
             </div>
 

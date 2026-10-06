@@ -152,6 +152,7 @@ export function useCartTotals(
     discount, 
     pointsUsed: Number(pricing?.pointsUsed || 0),
     pointsDiscount: Number(pricing?.pointsDiscount || 0),
+    maxPointsAllowed: pricing?.maxPointsAllowed !== undefined ? Number(pricing.maxPointsAllowed) : undefined,
     walletUsed: Number(pricing?.walletUsed || 0),
     walletDiscount: Number(pricing?.walletDiscount || 0),
     userPointsBalance: pricing?.userPointsBalance !== undefined ? Number(pricing.userPointsBalance) : undefined,
