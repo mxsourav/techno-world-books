@@ -551,7 +551,7 @@ export default function Home() {
                   <BadgePercent className="h-4 w-4" strokeWidth={2} />
                 </div>
                 <div>
-                  <div className="font-serif font-bold text-stone-900 text-[13px] leading-tight">
+                  <div className="font-sans font-bold text-stone-900 text-[13px] leading-tight tracking-tight">
                     <CmsText contentKey="home.offer_1_title" defaultText="STUDENT15 — 15% off" label="Offer 1 Title" />
                   </div>
                   <div className="text-stone-600 text-[11px] leading-tight mt-0.5 font-medium">
@@ -568,7 +568,7 @@ export default function Home() {
                   <Truck className="h-4 w-4" strokeWidth={2} />
                 </div>
                 <div>
-                  <div className="font-serif font-bold text-stone-900 text-[13px] leading-tight">
+                  <div className="font-sans font-bold text-stone-900 text-[13px] leading-tight tracking-tight">
                     <CmsText contentKey="home.offer_2_title" defaultText="Free Delivery" label="Offer 2 Title" />
                   </div>
                   <div className="text-stone-600 text-[11px] leading-tight mt-0.5 font-medium">
@@ -585,7 +585,7 @@ export default function Home() {
                   <Gift className="h-4 w-4" strokeWidth={2} />
                 </div>
                 <div>
-                  <div className="font-serif font-bold text-stone-900 text-[13px] leading-tight">
+                  <div className="font-sans font-bold text-stone-900 text-[13px] leading-tight tracking-tight">
                     <CmsText contentKey="home.offer_3_title" defaultText="Techno Rewards" label="Offer 3 Title" />
                   </div>
                   <div className="text-stone-600 text-[11px] leading-tight mt-0.5 font-medium">
