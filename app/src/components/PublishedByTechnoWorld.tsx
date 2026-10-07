@@ -70,7 +70,7 @@ export default function PublishedByTechnoWorld() {
               <Link
                 key={book.id || book.slug}
                 to={`/book/${book.slug}`}
-                className="group relative flex flex-col overflow-hidden rounded-md bg-[#132219] border border-stone-800 transition-all duration-200 hover:-translate-y-0.5 hover:border-stone-700 hover:shadow-md"
+                className="group relative flex flex-col overflow-hidden rounded-md bg-[#132219] border border-stone-800 transition-colors duration-200 hover:border-emerald-700/60"
               >
                 {/* Compact Cover Image */}
                 <div className="relative aspect-[3/4.2] w-full overflow-hidden bg-slate-800 flex items-center justify-center">
@@ -79,7 +79,7 @@ export default function PublishedByTechnoWorld() {
                       src={coverSrc}
                       alt={book.title}
                       loading="lazy"
-                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      className="h-full w-full object-cover"
                       onError={(e) => {
                         e.currentTarget.style.display = 'none';
                         if (e.currentTarget.parentElement) {
