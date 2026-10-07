@@ -129,14 +129,13 @@ export default function Product() {
       });
     }
 
-    // If only 1 item and no preview PDF, provide academic TOC & sample preview simulation
-    if (items.length === 1 && !book?.previewPdfUrl) {
-      items.push(
-        { type: 'contents', title: 'Contents / Syllabus', subtitle: 'Table of Contents' },
-        { type: 'sample1', title: 'Unit I Sample Page', subtitle: 'Reading Comprehension' },
-        { type: 'sample2', title: 'Unit II Practice MCQs', subtitle: 'Verbal Ability & Practice' },
-        { type: 'back', title: 'Back Cover', subtitle: 'Features & Syllabus' }
-      );
+    // Always ensure at least the Front Cover is present
+    if (items.length === 0) {
+      items.push({
+        type: 'cover',
+        title: 'Front Cover',
+        subtitle: 'Official Edition',
+      });
     }
 
     return items;
@@ -725,85 +724,93 @@ export default function Product() {
             
             {/* Gallery Container */}
             <div className="w-full min-w-0 overflow-hidden rounded-lg border border-stone-200 bg-white p-2 shadow-xs sm:p-3">
-              <div className="flex min-w-0 flex-col gap-3 sm:grid sm:grid-cols-[80px_minmax(0,1fr)] sm:gap-4">
+              <div className={`flex min-w-0 flex-col gap-3 ${galleryItems.length > 1 ? 'sm:grid sm:grid-cols-[80px_minmax(0,1fr)] sm:gap-4' : ''}`}>
                 
                 {/* Vertical Thumbnail Strip */}
-                <div className="order-2 flex w-full min-w-0 flex-row gap-2.5 overflow-x-auto overscroll-x-contain touch-auto sm:touch-pan-x pb-1 pr-1 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:order-1 sm:max-h-[460px] sm:flex-col sm:overflow-y-auto sm:overflow-x-hidden sm:pb-0">
-                  {galleryItems.map((item, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => selectGalleryImage(idx)}
-                      className={`relative w-16 shrink-0 snap-start rounded-md border p-1 text-left transition-all overflow-hidden sm:w-auto ${
-                        activeImageIndex === idx
-                          ? 'border-stone-900 ring-1 ring-stone-900/10 bg-stone-50 shadow-xs'
-                          : 'border-stone-200 hover:border-stone-400 bg-white'
-                      }`}
-                      style={{ aspectRatio: '3 / 4.2' }}
-                    >
-                      {item.imageUrl ? (
-                        <div className="w-full h-full flex items-center justify-center bg-white p-0.5 rounded overflow-hidden">
-                          <img
-                            src={getImageUrl(item.imageUrl)}
-                            alt={item.title}
-                            className="w-full h-full object-contain rounded"
-                            loading="lazy"
-                          />
-                        </div>
-                      ) : item.type === 'pdf' ? (
-                        <div className="w-full h-full bg-rose-50 border border-rose-200 rounded p-1 flex flex-col items-center justify-center text-center">
-                          <BookOpen className="h-4 w-4 text-rose-600 mb-0.5" />
-                          <span className="text-[7px] font-bold text-rose-800 leading-tight">PDF Preview</span>
-                        </div>
-                      ) : idx === 0 ? (
-                        <BookCover book={book} className="w-full h-full text-[6px]" />
-                      ) : (
-                        <div className="w-full h-full bg-slate-50 border border-slate-200 rounded p-1 flex flex-col justify-between text-[7px] text-slate-600 leading-tight">
-                          <span className="font-bold text-slate-800 line-clamp-1">{item.title}</span>
-                          <div className="space-y-0.5 opacity-60">
-                            <div className="h-1 bg-slate-300 rounded w-full" />
-                            <div className="h-1 bg-slate-300 rounded w-4/5" />
-                            <div className="h-1 bg-slate-300 rounded w-2/3" />
+                {galleryItems.length > 1 && (
+                  <div className="order-2 flex w-full min-w-0 flex-row gap-2.5 overflow-x-auto overscroll-x-contain touch-auto sm:touch-pan-x pb-1 pr-1 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:order-1 sm:max-h-[460px] sm:flex-col sm:overflow-y-auto sm:overflow-x-hidden sm:pb-0">
+                    {galleryItems.map((item, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => selectGalleryImage(idx)}
+                        className={`relative w-16 shrink-0 snap-start rounded-md border p-1 text-left transition-all overflow-hidden sm:w-auto ${
+                          activeImageIndex === idx
+                            ? 'border-stone-900 ring-1 ring-stone-900/10 bg-stone-50 shadow-xs'
+                            : 'border-stone-200 hover:border-stone-400 bg-white'
+                        }`}
+                        style={{ aspectRatio: '3 / 4.2' }}
+                      >
+                        {item.imageUrl ? (
+                          <div className="w-full h-full flex items-center justify-center bg-white p-0.5 rounded overflow-hidden">
+                            <img
+                              src={getImageUrl(item.imageUrl)}
+                              alt={item.title}
+                              className="w-full h-full object-contain rounded"
+                              loading="lazy"
+                            />
                           </div>
-                          <span className="text-[6px] text-emerald-700 font-bold">{idx === 1 ? 'TOC' : `p.${idx * 14}`}</span>
-                        </div>
-                      )}
-                    </button>
-                  ))}
-                </div>
+                        ) : item.type === 'pdf' ? (
+                          <div className="w-full h-full bg-rose-50 border border-rose-200 rounded p-1 flex flex-col items-center justify-center text-center">
+                            <BookOpen className="h-4 w-4 text-rose-600 mb-0.5" />
+                            <span className="text-[7px] font-bold text-rose-800 leading-tight">PDF Preview</span>
+                          </div>
+                        ) : idx === 0 ? (
+                          <BookCover book={book} className="w-full h-full text-[6px]" />
+                        ) : (
+                          <div className="w-full h-full bg-slate-50 border border-slate-200 rounded p-1 flex flex-col justify-between text-[7px] text-slate-600 leading-tight">
+                            <span className="font-bold text-slate-800 line-clamp-1">{item.title}</span>
+                            <div className="space-y-0.5 opacity-60">
+                              <div className="h-1 bg-slate-300 rounded w-full" />
+                              <div className="h-1 bg-slate-300 rounded w-4/5" />
+                              <div className="h-1 bg-slate-300 rounded w-2/3" />
+                            </div>
+                            <span className="text-[6px] text-emerald-700 font-bold">{idx === 1 ? 'TOC' : `p.${idx * 14}`}</span>
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
 
                 {/* Main Active Preview Canvas */}
                 <div
-                  className="order-1 relative flex h-[360px] min-w-0 w-full items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-slate-50/80 p-2 select-none sm:order-2 sm:h-[440px] sm:p-3"
+                  className={`order-1 relative flex h-[370px] min-w-0 w-full items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-slate-50/80 p-3 select-none sm:order-2 sm:h-[450px] ${
+                    galleryItems.length > 1 ? 'px-10 sm:px-12' : 'px-4 sm:px-6'
+                  }`}
                   onTouchStart={handleGalleryTouchStart}
                   onTouchEnd={handleGalleryTouchEnd}
                 >
 
-                  <button
-                    type="button"
-                    onClick={() => moveGallery(-1)}
-                    disabled={activeImageIndex === 0}
-                    aria-label="Previous product preview"
-                    className="absolute left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-600 shadow-md transition hover:bg-white hover:text-emerald-700 disabled:pointer-events-none disabled:opacity-30"
-                  >
-                    <ChevronLeft className="h-5 w-5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => moveGallery(1)}
-                    disabled={activeImageIndex === galleryItems.length - 1}
-                    aria-label="Next product preview"
-                    className="absolute right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-600 shadow-md transition hover:bg-white hover:text-emerald-700 disabled:pointer-events-none disabled:opacity-30"
-                  >
-                    <ChevronRight className="h-5 w-5" />
-                  </button>
+                  {galleryItems.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => moveGallery(-1)}
+                        disabled={activeImageIndex === 0}
+                        aria-label="Previous product preview"
+                        className="absolute left-2 sm:left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-600 shadow-md transition hover:bg-white hover:text-emerald-700 disabled:pointer-events-none disabled:opacity-30"
+                      >
+                        <ChevronLeft className="h-5 w-5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => moveGallery(1)}
+                        disabled={activeImageIndex === galleryItems.length - 1}
+                        aria-label="Next product preview"
+                        className="absolute right-2 sm:right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-600 shadow-md transition hover:bg-white hover:text-emerald-700 disabled:pointer-events-none disabled:opacity-30"
+                      >
+                        <ChevronRight className="h-5 w-5" />
+                      </button>
+                    </>
+                  )}
                   
                   {/* Floating Action Buttons: Wishlist & Share */}
                   <div className="absolute right-3 top-3 z-10 flex flex-col gap-2">
                     <button
                       type="button"
                       onClick={() => toggleWishlist(book.id)}
-                      className={`flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-md border border-slate-100 transition-transform active:scale-95 ${
+                      className={`flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-white shadow-md border border-slate-100 transition-transform active:scale-95 ${
                         isWishlisted(book.id) ? 'text-rose-600' : 'text-slate-500 hover:text-rose-600'
                       }`}
                       title="Add to Wishlist"
@@ -813,7 +820,7 @@ export default function Product() {
                     <button
                       type="button"
                       onClick={handleShare}
-                      className="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-md border border-slate-100 text-slate-500 hover:text-emerald-700 transition-transform active:scale-95"
+                      className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-white shadow-md border border-slate-100 text-slate-500 hover:text-emerald-700 transition-transform active:scale-95"
                       title="Share book link"
                     >
                       <Share2 className="h-4 w-4" />
@@ -825,7 +832,7 @@ export default function Product() {
                         const shareMsg = encodeURIComponent(`Take a look at "${book.title}" on Techno World Books: `);
                         window.open(`https://api.whatsapp.com/send?text=${shareMsg}${shareUrl}`, '_blank');
                       }}
-                      className="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-md border border-slate-100 text-slate-500 hover:text-emerald-700 transition-transform active:scale-95 cursor-pointer"
+                      className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-white shadow-md border border-slate-100 text-slate-500 hover:text-emerald-700 transition-transform active:scale-95 cursor-pointer"
                       title="Share on WhatsApp"
                     >
                       <MessageSquare className="h-4 w-4" />
@@ -846,7 +853,7 @@ export default function Product() {
                       />
                     </div>
                   ) : galleryItems[activeImageIndex]?.imageUrl ? (
-                    <div className="h-[334px] w-auto max-w-full aspect-[3/4.2] drop-shadow-xl transition-all duration-300 sm:h-[400px] flex items-center justify-center">
+                    <div className="h-[310px] sm:h-[375px] w-auto max-w-full aspect-[3/4.2] drop-shadow-xl transition-all duration-300 flex items-center justify-center mx-auto">
                       <img
                         src={getImageUrl(galleryItems[activeImageIndex].imageUrl)}
                         alt={galleryItems[activeImageIndex].title}
@@ -855,12 +862,12 @@ export default function Product() {
                       />
                     </div>
                   ) : activeImageIndex === 0 ? (
-                    <div className="h-[334px] w-auto max-w-full aspect-[3/4.2] drop-shadow-xl transition-all duration-300 sm:h-[400px]">
-                      <BookCover book={book} className="text-xl" />
+                    <div className="h-[310px] sm:h-[375px] w-auto max-w-full aspect-[3/4.2] drop-shadow-xl transition-all duration-300 flex items-center justify-center mx-auto">
+                      <BookCover book={book} className="w-full h-full text-base sm:text-xl drop-shadow-md" />
                     </div>
                   ) : (
                     /* Sample Page / Contents Sheet Simulation */
-                    <div className="flex h-full min-h-0 w-full max-w-[280px] min-w-0 flex-col justify-between rounded-lg border border-slate-200 bg-white p-4 text-xs text-slate-800 shadow-lg sm:h-full sm:p-5">
+                    <div className="flex h-full min-h-0 w-full max-w-[280px] min-w-0 flex-col justify-between rounded-lg border border-slate-200 bg-white p-4 text-xs text-slate-800 shadow-lg sm:h-full sm:p-5 mx-auto">
                       <div>
                         <div className="flex min-w-0 items-center justify-between gap-2 border-b pb-2 mb-3">
                           <span className="min-w-0 truncate font-extrabold text-slate-900 text-sm">
@@ -1049,28 +1056,28 @@ export default function Product() {
               </div>
 
               {/* Special Offers Box */}
-              <div className="mt-4 rounded-lg bg-stone-50 p-3.5 border border-stone-200">
+              <div className="mt-4 rounded-lg bg-blue-50/70 p-3.5 border border-blue-200/90 shadow-2xs">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="rounded bg-stone-900 px-2 py-0.5 text-[10px] font-semibold text-white uppercase tracking-wider">
+                    <span className="rounded bg-blue-600 px-2 py-0.5 text-[10px] font-bold text-white uppercase tracking-wider">
                       SPECIAL OFFER
                     </span>
-                    <span className="text-xs font-bold text-stone-900">
+                    <span className="text-xs font-bold text-blue-950">
                       Apply Promo Codes at Checkout
                     </span>
                   </div>
-                  <span className="text-xs font-semibold text-emerald-900">Save up to 50%*</span>
+                  <span className="text-xs font-bold text-blue-700">Save up to 50%*</span>
                 </div>
-                <div className="mt-2 space-y-1 text-xs text-stone-600">
+                <div className="mt-2 space-y-1 text-xs text-blue-950/85">
                   <p className="flex items-center gap-1.5">
-                    <Tag className="h-3.5 w-3.5 text-stone-500 shrink-0" />
+                    <Tag className="h-3.5 w-3.5 text-blue-600 shrink-0" />
                     <span><b>Universal Coupons:</b> Use active promo codes on Cart/Checkout.</span>
                   </p>
                   <p className="flex items-center gap-1.5">
-                    <Tag className="h-3.5 w-3.5 text-stone-500 shrink-0" />
+                    <Tag className="h-3.5 w-3.5 text-blue-600 shrink-0" />
                     <span><b>Fast Dispatch:</b> Ships within 24 hours from Techno World Warehouse.</span>
                   </p>
-                  <p className="text-[10px] text-stone-500 pt-1 border-t border-stone-200">
+                  <p className="text-[10px] text-blue-800/70 pt-1 border-t border-blue-200/70">
                     *Includes coupon codes and promotional discounts on selected category books. Subject to terms &amp; conditions.
                   </p>
                 </div>
@@ -1491,46 +1498,6 @@ export default function Product() {
                 </div>
               )}
             </div>
-
-            {/* Bottom Action Bar (Flipkart Style) */}
-            {Boolean(book.stock !== undefined && book.stock <= 0) ? (
-              <div className="pt-2">
-                <button
-                  type="button"
-                  onClick={() => setIsNotifyModalOpen(true)}
-                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-600 hover:bg-amber-700 py-3.5 px-6 text-sm font-bold text-white shadow-sm transition-all cursor-pointer"
-                >
-                  <Bell className="h-4 w-4" />
-                  <span>Notify Me When In Stock</span>
-                </button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-4 pt-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    addToCart(book.id, 1);
-                    toast.success('Added to your cart');
-                  }}
-                  className="flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white py-3.5 px-6 text-sm font-bold text-slate-800 shadow-sm transition-all hover:bg-slate-50 hover:border-slate-400 active:scale-[0.99]"
-                >
-                  <ShoppingCart className="h-4 w-4 text-slate-700" />
-                  <span>Add to cart</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    addToCart(book.id, 1);
-                    navigate('/checkout');
-                  }}
-                  className="flex items-center justify-center gap-2 rounded-lg bg-[#ffd814] hover:bg-[#f7ca00] active:bg-[#f0b800] border border-[#fcd200] py-3.5 px-6 text-sm font-extrabold text-slate-950 shadow-sm hover:shadow transition-all active:scale-[0.99]"
-                >
-                  <Zap className="h-4 w-4 fill-slate-950 text-slate-950" />
-                  <span>Buy at {formatINR(price)}</span>
-                </button>
-              </div>
-            )}
 
           </div>
 
