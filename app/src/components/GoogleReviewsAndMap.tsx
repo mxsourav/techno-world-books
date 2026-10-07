@@ -249,15 +249,15 @@ export const GoogleReviewsAndMap: React.FC = () => {
   const GOOGLE_MAPS_IFRAME_SRC = 'https://maps.google.com/maps?q=Techno+World,+YMCA+Building,+Mahatma+Gandhi+Rd,+College+Street,+Kolkata&hl=en&z=16&output=embed';
 
   return (
-    <section className="relative w-full border-t border-slate-200/80 bg-gradient-to-b from-slate-50 via-white to-slate-100/60 py-10 sm:py-14">
+    <section className="relative w-full border-t border-stone-200 bg-[#FBFBF9] py-10 sm:py-14">
       <div className="mx-auto max-w-7xl px-3 sm:px-6 space-y-8">
         
         {/* TOP GOOGLE REPUTATION HEADER */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 rounded-3xl bg-white p-6 sm:p-8 shadow-sm border border-slate-200/80">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 rounded-lg bg-white p-6 sm:p-8 shadow-xs border border-stone-200">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               {/* Google Brand Logo */}
-              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-bold text-slate-700">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-stone-100 border border-stone-200 text-xs font-semibold text-stone-700">
                 <svg className="h-4 w-4" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                   <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
@@ -267,39 +267,39 @@ export const GoogleReviewsAndMap: React.FC = () => {
                 <span>Google Verified Reviews</span>
               </div>
 
-              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
-                <CheckCircle2 className="h-3.5 w-3.5 text-slate-600" />
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-700 bg-stone-100 px-2.5 py-1 rounded-md border border-stone-200">
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-800" />
                 Customer Ratings & Feedback
               </span>
             </div>
 
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+            <h2 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-stone-900">
               Trusted by 16,000+ Readers Across India
             </h2>
-            <p className="text-sm text-slate-600 max-w-2xl leading-relaxed">
+            <p className="text-sm text-stone-600 max-w-2xl leading-relaxed">
               Serving generations of students, professors, and book lovers at College Street, Kolkata and delivering across 27,000+ pincodes nationwide.
             </p>
           </div>
 
           {/* Google Star Rating Summary Box */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200/90 shrink-0">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-stone-50 p-4 sm:p-5 rounded-lg border border-stone-200 shrink-0">
             <div className="flex items-center gap-3">
-              <div className="text-4xl sm:text-5xl font-black text-slate-900 leading-none">
+              <div className="text-4xl sm:text-5xl font-bold text-stone-900 leading-none">
                 4.4
               </div>
               <div className="space-y-1">
-                <div className="flex items-center gap-0.5 text-[#fbbc04]">
+                <div className="flex items-center gap-0.5 text-[#D4A017]">
                   {[...Array(4)].map((_, i) => (
                     <Star key={i} className="h-4 w-4 fill-current" />
                   ))}
                   <div className="relative">
-                    <Star className="h-4 w-4 text-slate-300" />
+                    <Star className="h-4 w-4 text-stone-300" />
                     <div className="absolute inset-0 overflow-hidden w-1/2">
-                      <Star className="h-4 w-4 text-[#fbbc04] fill-current" />
+                      <Star className="h-4 w-4 text-[#D4A017] fill-current" />
                     </div>
                   </div>
                 </div>
-                <p className="text-xs font-extrabold text-slate-800">
+                <p className="text-xs font-bold text-stone-900">
                   16,057+ Google Reviews
                 </p>
                 <p className="text-[11px] text-slate-500">
@@ -336,7 +336,7 @@ export const GoogleReviewsAndMap: React.FC = () => {
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
             {[
               { id: 'ALL', label: 'All Reviews (16K+)' },
-              { id: 'FIVE_STAR', label: '★★★★★ 5-Star Reviews' },
+              { id: 'FIVE_STAR', label: '5-Star Reviews' },
               { id: 'COMPETITIVE', label: 'Competitive & College Street' },
               { id: 'DELIVERY', label: 'Fast Online Delivery' },
             ].map((tab) => (
@@ -344,10 +344,10 @@ export const GoogleReviewsAndMap: React.FC = () => {
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveFilter(tab.id as any)}
-                className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
+                className={`rounded-md px-3.5 py-1.5 text-xs font-semibold transition cursor-pointer ${
                   activeFilter === tab.id
-                    ? 'bg-emerald-700 text-white shadow-xs'
-                    : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                    ? 'bg-emerald-800 text-white shadow-xs'
+                    : 'bg-white border border-stone-200 text-stone-600 hover:bg-stone-50'
                 }`}
               >
                 {tab.label}
@@ -362,7 +362,7 @@ export const GoogleReviewsAndMap: React.FC = () => {
             <button
               type="button"
               onClick={scrollLeft}
-              className="h-8 w-8 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 transition shadow-xs"
+              className="h-8 w-8 rounded-full border border-stone-200 bg-white flex items-center justify-center text-stone-600 hover:bg-stone-100 hover:text-stone-900 hover:border-stone-400 transition-colors shadow-xs"
               aria-label="Scroll reviews left"
             >
               <ChevronLeft className="h-4 w-4" />
@@ -370,7 +370,7 @@ export const GoogleReviewsAndMap: React.FC = () => {
             <button
               type="button"
               onClick={scrollRight}
-              className="h-8 w-8 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 transition shadow-xs"
+              className="h-8 w-8 rounded-full border border-stone-200 bg-white flex items-center justify-center text-stone-600 hover:bg-stone-100 hover:text-stone-900 hover:border-stone-400 transition-colors shadow-xs"
               aria-label="Scroll reviews right"
             >
               <ChevronRight className="h-4 w-4" />
@@ -408,36 +408,36 @@ export const GoogleReviewsAndMap: React.FC = () => {
             {displayReviews.map((rev, index) => (
               <div
                 key={`${rev.id}-${index}`}
-                className="w-[300px] sm:w-[350px] shrink-0 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col justify-between"
+                className="w-[300px] sm:w-[350px] shrink-0 rounded-lg border border-stone-200 bg-white p-5 shadow-xs flex flex-col justify-between"
               >
                 <div className="space-y-3">
                   {/* Header: Avatar, Name & Google Verified Icon */}
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
                       <div
-                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white text-sm font-bold shadow-xs ${rev.avatarBg}`}
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-stone-800 text-stone-100 text-xs font-bold"
                       >
                         {rev.name.charAt(0)}
                       </div>
                       <div className="min-w-0">
-                        <div className="flex items-center gap-1">
-                          <span className="text-xs sm:text-sm font-bold text-slate-900 truncate">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs sm:text-sm font-semibold text-stone-900 truncate">
                             {rev.name}
                           </span>
                           {rev.isLocalGuide && (
-                            <span className="text-[10px] bg-amber-100 text-amber-800 font-semibold px-1.5 py-0.2 rounded shrink-0">
+                            <span className="text-[10px] bg-stone-100 text-stone-700 border border-stone-200 font-semibold px-1.5 py-0.2 rounded-md shrink-0">
                               Local Guide
                             </span>
                           )}
                         </div>
-                        <div className="text-[11px] text-slate-400">
+                        <div className="text-[11px] text-stone-500">
                           {rev.reviewsCount ? `${rev.reviewsCount} reviews • ` : ''}{rev.date}
                         </div>
                       </div>
                     </div>
 
                     {/* Google G small badge */}
-                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-50 border border-slate-100 shadow-2xs">
+                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-stone-50 border border-stone-200">
                       <svg className="h-3.5 w-3.5" viewBox="0 0 24 24">
                         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                         <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
@@ -449,32 +449,32 @@ export const GoogleReviewsAndMap: React.FC = () => {
 
                   {/* Stars and Tag */}
                   <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-0.5 text-[#fbbc04]">
+                    <div className="flex items-center gap-0.5 text-[#D4A017]">
                       {[...Array(rev.rating)].map((_, i) => (
                         <Star key={i} className="h-3.5 w-3.5 fill-current" />
                       ))}
                     </div>
                     {rev.highlightTag && (
-                      <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200/60 px-2 py-0.5 rounded-full">
+                      <span className="text-[10px] font-semibold text-stone-700 bg-stone-100 border border-stone-200 px-2 py-0.5 rounded-md">
                         {rev.highlightTag}
                       </span>
                     )}
                   </div>
 
                   {/* Review Text */}
-                  <p className="text-xs sm:text-sm text-slate-700 leading-relaxed line-clamp-4">
-                    "{rev.comment}"
+                  <p className="text-xs sm:text-sm text-stone-700 leading-relaxed line-clamp-4">
+                    &ldquo;{rev.comment}&rdquo;
                   </p>
                 </div>
 
                 {/* Footer: Helpful & Verified */}
-                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-                  <span className="flex items-center gap-1 text-slate-500">
-                    <ThumbsUp className="h-3 w-3" />
+                <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-500">
+                  <span className="flex items-center gap-1">
+                    <ThumbsUp className="h-3 w-3 text-stone-400" />
                     <span>{rev.helpfulCount} helpful</span>
                   </span>
-                  <span className="flex items-center gap-1 text-emerald-700 font-semibold">
-                    <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+                  <span className="flex items-center gap-1 text-emerald-800 font-semibold">
+                    <CheckCircle2 className="h-3 w-3 text-emerald-800" />
                     Verified on Google
                   </span>
                 </div>
@@ -484,7 +484,7 @@ export const GoogleReviewsAndMap: React.FC = () => {
         </div>
 
         {/* PHYSICAL STORE SHOWCASE & INTERACTIVE GOOGLE MAP */}
-        <div className="rounded-3xl bg-white border border-slate-200/90 shadow-sm overflow-hidden">
+        <div className="rounded-lg bg-white border border-stone-200 shadow-xs overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
             
             {/* LEFT: STORE PROFILE & CONTACT CARD (5 cols) */}
@@ -492,37 +492,36 @@ export const GoogleReviewsAndMap: React.FC = () => {
               <div className="space-y-4">
                 {/* Store Header with Google Badge */}
                 <div className="space-y-1.5">
-                  <div className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-md">
-                    <Store className="h-3.5 w-3.5 text-emerald-700" />
+                  <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-700 bg-stone-100 px-2.5 py-0.5 rounded-md border border-stone-200">
+                    <Store className="h-3.5 w-3.5 text-emerald-850" />
                     <span>Flagship Physical Store</span>
                   </div>
-                  <h3 className="text-xl sm:text-2xl font-black text-slate-900">
+                  <h3 className="font-serif text-xl sm:text-2xl font-bold text-stone-900">
                     Techno World
                   </h3>
-                  <p className="text-xs font-bold text-slate-500">
+                  <p className="text-xs font-semibold text-stone-500">
                     টেকনো ওয়ার্ল্ড • Publisher & Distributor
                   </p>
                 </div>
 
                 {/* Real Store Photo Banner from Google Maps card */}
-                <div className="relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-900 h-44 sm:h-48 group shadow-xs">
+                <div className="relative rounded-md overflow-hidden border border-stone-200 bg-stone-900 h-44 sm:h-48 group shadow-xs">
                   <img
                     src="/google-store-card.png"
                     alt="Techno World College Street Bookstore Front"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     loading="lazy"
                     onError={(e: any) => {
-                      // Fallback if image fails to load
                       e.target.style.display = 'none';
                     }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent flex items-end p-3.5 text-white">
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/20 to-transparent flex items-end p-3.5 text-white">
                     <div className="flex items-center justify-between w-full text-xs">
                       <span className="font-semibold flex items-center gap-1">
-                        <MapPin className="h-3.5 w-3.5 text-emerald-400" />
+                        <MapPin className="h-3.5 w-3.5 text-stone-300" />
                         College Street, Kolkata
                       </span>
-                      <span className="bg-emerald-500/90 text-white font-bold text-[10px] px-2 py-0.5 rounded-full backdrop-blur-xs">
+                      <span className="bg-stone-900/90 text-stone-100 border border-stone-700 font-semibold text-[10px] px-2 py-0.5 rounded-md">
                         Open Now • 10 AM - 7:30 PM
                       </span>
                     </div>
@@ -530,15 +529,15 @@ export const GoogleReviewsAndMap: React.FC = () => {
                 </div>
 
                 {/* Key Store Information List */}
-                <div className="space-y-3 pt-2 text-xs sm:text-sm text-slate-700">
+                <div className="space-y-3 pt-2 text-xs sm:text-sm text-stone-700">
                   {/* Address */}
                   <div className="flex items-start gap-3">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-700 mt-0.5">
-                      <MapPin className="h-4 w-4 text-emerald-700" />
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-stone-200 bg-stone-50 text-stone-700 mt-0.5">
+                      <MapPin className="h-4 w-4 text-stone-600" />
                     </div>
                     <div>
-                      <p className="font-bold text-slate-900">Store Address</p>
-                      <p className="text-slate-600 text-xs leading-relaxed">
+                      <p className="font-semibold text-stone-900">Store Address</p>
+                      <p className="text-stone-600 text-xs leading-relaxed">
                         YMCA Building, 90/6A Mahatma Gandhi Rd, opp. Grace Cinema, Calcutta University, College Street, Kolkata, West Bengal 700007
                       </p>
                     </div>
@@ -546,27 +545,27 @@ export const GoogleReviewsAndMap: React.FC = () => {
 
                   {/* Hours */}
                   <div className="flex items-start gap-3">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-700 mt-0.5">
-                      <Clock className="h-4 w-4 text-emerald-700" />
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-stone-200 bg-stone-50 text-stone-700 mt-0.5">
+                      <Clock className="h-4 w-4 text-stone-600" />
                     </div>
                     <div>
-                      <p className="font-bold text-slate-900">Opening Hours</p>
-                      <p className="text-slate-600 text-xs">
-                        Monday – Sunday: <span className="font-semibold text-slate-800">10:00 AM – 7:30 PM</span>
+                      <p className="font-semibold text-stone-900">Opening Hours</p>
+                      <p className="text-stone-600 text-xs">
+                        Monday – Sunday: <span className="font-semibold text-stone-900">10:00 AM – 7:30 PM</span>
                       </p>
                     </div>
                   </div>
 
                   {/* Phone */}
                   <div className="flex items-start gap-3">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-700 mt-0.5">
-                      <Phone className="h-4 w-4 text-emerald-700" />
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-stone-200 bg-stone-50 text-stone-700 mt-0.5">
+                      <Phone className="h-4 w-4 text-stone-600" />
                     </div>
                     <div>
-                      <p className="font-bold text-slate-900">Telephone / Order Desk</p>
+                      <p className="font-semibold text-stone-900">Telephone / Order Desk</p>
                       <a
                         href="tel:+913322196115"
-                        className="text-emerald-700 hover:text-emerald-800 font-semibold text-xs hover:underline"
+                        className="text-stone-800 hover:text-stone-950 font-semibold text-xs hover:underline"
                       >
                         +91 33 2219 6115 / 033 2219 6115
                       </a>
@@ -576,12 +575,12 @@ export const GoogleReviewsAndMap: React.FC = () => {
               </div>
 
               {/* Action Buttons for Directions & Call */}
-              <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center gap-2.5">
+              <div className="pt-3 border-t border-stone-100 flex flex-wrap items-center gap-2.5">
                 <a
                   href={GOOGLE_DIRECTIONS_URL}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex-1 min-w-[140px] inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-4 py-3 text-xs sm:text-sm font-bold text-white hover:bg-emerald-800 transition shadow-sm"
+                  className="flex-1 min-w-[140px] inline-flex items-center justify-center gap-2 rounded-md bg-emerald-800 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-emerald-900 transition-colors shadow-xs"
                 >
                   <Navigation className="h-4 w-4" />
                   <span>Get Directions</span>
@@ -589,9 +588,9 @@ export const GoogleReviewsAndMap: React.FC = () => {
 
                 <a
                   href="tel:+913322196115"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-3 text-xs sm:text-sm font-bold text-slate-800 hover:bg-slate-50 transition shadow-2xs"
+                  className="inline-flex items-center justify-center gap-2 rounded-md border border-stone-300 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-stone-800 hover:bg-stone-50 transition-colors shadow-xs"
                 >
-                  <Phone className="h-4 w-4 text-slate-600" />
+                  <Phone className="h-4 w-4 text-stone-600" />
                   <span>Call Store</span>
                 </a>
 
@@ -599,17 +598,17 @@ export const GoogleReviewsAndMap: React.FC = () => {
                   href="https://wa.me/917479135626?text=Hi%20Techno%20World,%20I%20want%20to%20inquire%20about%20a%20book"
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-3 text-xs sm:text-sm font-bold text-emerald-800 hover:bg-emerald-100 transition"
+                  className="inline-flex items-center justify-center gap-1.5 rounded-md border border-stone-300 bg-white px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-stone-800 hover:bg-stone-50 transition-colors"
                   title="WhatsApp Support"
                 >
-                  <MessageCircle className="h-4 w-4 text-emerald-600" />
+                  <MessageCircle className="h-4 w-4 text-emerald-800" />
                   <span className="hidden sm:inline">WhatsApp</span>
                 </a>
               </div>
             </div>
 
             {/* RIGHT: INTERACTIVE EMBEDDED GOOGLE MAP (7 cols) */}
-            <div className="lg:col-span-7 bg-slate-100 border-t lg:border-t-0 lg:border-l border-slate-200 relative min-h-[360px] sm:min-h-[440px]">
+            <div className="lg:col-span-7 bg-stone-100 border-t lg:border-t-0 lg:border-l border-stone-200 relative min-h-[360px] sm:min-h-[440px]">
               <iframe
                 title="Techno World Location on Google Maps"
                 src={GOOGLE_MAPS_IFRAME_SRC}
@@ -625,7 +624,7 @@ export const GoogleReviewsAndMap: React.FC = () => {
                   href={GOOGLE_MAPS_SEARCH_URL}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-white/95 px-3 py-1.5 text-xs font-bold text-slate-800 shadow-md hover:bg-white hover:text-emerald-700 transition backdrop-blur-xs border border-slate-200"
+                  className="inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-1.5 text-xs font-semibold text-stone-800 shadow-sm hover:bg-stone-50 transition-colors border border-stone-200"
                 >
                   <span>View Larger Map</span>
                   <ExternalLink className="h-3 w-3" />
@@ -633,14 +632,14 @@ export const GoogleReviewsAndMap: React.FC = () => {
               </div>
 
               {/* Map Footer Overlay with Rating summary */}
-              <div className="absolute bottom-3 left-3 right-3 z-10 bg-white/95 backdrop-blur-md rounded-xl p-3 border border-slate-200/90 shadow-md flex items-center justify-between gap-3 text-xs">
+              <div className="absolute bottom-3 left-3 right-3 z-10 bg-white rounded-md p-3 border border-stone-200 shadow-md flex items-center justify-between gap-3 text-xs">
                 <div className="flex items-center gap-2 min-w-0">
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-stone-200 bg-stone-50 text-stone-700">
                     <MapPin className="h-4 w-4" />
                   </div>
                   <div className="min-w-0">
-                    <p className="font-bold text-slate-900 truncate">Opp. Grace Cinema, College Street</p>
-                    <p className="text-[11px] text-slate-500 truncate">Calcutta University Campus Area</p>
+                    <p className="font-semibold text-stone-900 truncate">Opp. Grace Cinema, College Street</p>
+                    <p className="text-[11px] text-stone-500 truncate">Calcutta University Campus Area</p>
                   </div>
                 </div>
 
@@ -648,7 +647,7 @@ export const GoogleReviewsAndMap: React.FC = () => {
                   href={GOOGLE_DIRECTIONS_URL}
                   target="_blank"
                   rel="noreferrer"
-                  className="shrink-0 font-bold text-emerald-700 hover:text-emerald-800 hover:underline inline-flex items-center gap-1"
+                  className="shrink-0 font-semibold text-emerald-800 hover:text-emerald-950 hover:underline inline-flex items-center gap-1"
                 >
                   <span>Navigate</span>
                   <Navigation className="h-3 w-3" />

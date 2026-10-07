@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router';
 import { MessageCircle, Package, RotateCcw, CreditCard, Truck, Ticket, ChevronDown, Phone } from 'lucide-react';
 import { toast } from 'sonner';
+import SEOHead from '@/components/SEOHead';
 
 const FAQS = [
   { q: 'How long does delivery take?', a: 'Metro cities: 1–3 days. Rest of India: 3–7 days. Remote pincodes via India Post may take up to 7–10 days. Enter your pincode on any product page for an exact estimate.' },
@@ -25,74 +26,79 @@ export default function Help() {
 
   return (
     <div className="mx-auto max-w-4xl px-3 py-8 sm:px-6">
-      <h1 className="text-2xl font-extrabold text-slate-900 sm:text-3xl">Help Center</h1>
-      <p className="mt-1 text-sm text-slate-500">We're here 9 AM – 9 PM, 7 days a week.</p>
+      <SEOHead
+        title="Help Center & Customer FAQs | Techno World Books"
+        description="Get help with your book order, delivery tracking, 7-day replacement requests, payment issues, and answers to common questions about Techno World Books."
+        canonicalUrl="/help"
+      />
+      <h1 className="font-serif text-2xl font-bold text-stone-900 sm:text-3xl">Help Center</h1>
+      <p className="mt-1 text-sm text-stone-500">We're here 9 AM – 9 PM, 7 days a week.</p>
 
       {/* contact cards */}
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
-        <a href="https://wa.me/917479135626?text=Hi%20Techno%20World%20Books!%20I%20need%20assistance." target="_blank" rel="noreferrer" className="flex items-center gap-3 rounded-xl bg-emerald-600 p-4 text-white shadow-sm hover:bg-emerald-500">
+        <a href="https://wa.me/917479135626?text=Hi%20Techno%20World%20Books!%20I%20need%20assistance." target="_blank" rel="noreferrer" className="flex items-center gap-3 rounded-lg bg-emerald-800 p-4 text-white shadow-xs hover:bg-emerald-900 transition-colors">
           <MessageCircle className="h-7 w-7" />
-          <span><b className="block text-sm">WhatsApp Chat</b><span className="text-xs opacity-90">+91 74791 35626 — fast reply</span></span>
+          <span><b className="block text-sm font-semibold">WhatsApp Chat</b><span className="text-xs opacity-90">+91 74791 35626 — fast reply</span></span>
         </a>
-        <button onClick={() => toast.success('Live chat connected! An agent will join shortly.')} className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm border border-slate-100 hover:shadow-md text-left">
-          <MessageCircle className="h-7 w-7 text-emerald-700" />
-          <span><b className="block text-sm text-slate-800">Live Chat</b><span className="text-xs text-slate-500">Chat with a support agent</span></span>
+        <button onClick={() => toast.success('Live chat connected! An agent will join shortly.')} className="flex items-center gap-3 rounded-lg bg-white p-4 shadow-xs border border-stone-200 hover:border-stone-300 text-left transition-colors">
+          <MessageCircle className="h-7 w-7 text-stone-700" />
+          <span><b className="block text-sm font-semibold text-stone-800">Live Chat</b><span className="text-xs text-stone-500">Chat with a support agent</span></span>
         </button>
-        <a href="tel:03322196115" className="flex items-center gap-3 rounded-xl border border-slate-100 bg-white p-4 shadow-sm hover:shadow-md">
-          <Phone className="h-7 w-7 text-emerald-700" />
-          <span><b className="block text-sm text-slate-800">033 2219 6115</b><span className="text-xs text-slate-500">Store Landline, 9 AM – 8 PM</span></span>
+        <a href="tel:03322196115" className="flex items-center gap-3 rounded-lg border border-stone-200 bg-white p-4 shadow-xs hover:border-stone-300 transition-colors">
+          <Phone className="h-7 w-7 text-stone-700" />
+          <span><b className="block text-sm font-semibold text-stone-800">033 2219 6115</b><span className="text-xs text-stone-500">Store Landline, 9 AM – 8 PM</span></span>
         </a>
       </div>
 
-      <Link to="/track" className="mt-4 flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 p-4 hover:bg-emerald-100">
-        <span className="flex items-center gap-3 text-sm font-bold text-emerald-900"><Package className="h-5 w-5" /> Where is my order?</span>
-        <span className="text-xs font-bold text-emerald-700">Track now →</span>
+      <Link to="/track" className="mt-4 flex items-center justify-between rounded-lg border border-stone-200 bg-stone-50 p-4 hover:bg-stone-100 transition-colors">
+        <span className="flex items-center gap-3 text-sm font-semibold text-stone-900"><Package className="h-5 w-5 text-stone-600" /> Where is my order?</span>
+        <span className="text-xs font-semibold text-stone-700">Track now →</span>
       </Link>
 
       {/* topics */}
-      <h2 className="mt-8 text-lg font-extrabold text-slate-900">Browse by topic</h2>
+      <h2 className="mt-8 font-serif text-lg font-bold text-stone-900">Browse by topic</h2>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
         {TOPICS.map((t) => (
-          <button key={t.t} onClick={() => toast.info(`Opening ${t.t} guide…`)} className="flex items-center gap-3 rounded-xl border border-slate-100 bg-white p-4 text-left shadow-sm hover:shadow-md">
-            <t.icon className="h-6 w-6 shrink-0 text-emerald-700" />
-            <span><b className="block text-sm text-slate-800">{t.t}</b><span className="text-xs text-slate-500">{t.d}</span></span>
+          <button key={t.t} onClick={() => toast.info(`Opening ${t.t} guide…`)} className="flex items-center gap-3 rounded-lg border border-stone-200 bg-white p-4 text-left shadow-xs hover:border-stone-300 transition-colors">
+            <t.icon className="h-6 w-6 shrink-0 text-stone-700" />
+            <span><b className="block text-sm font-semibold text-stone-800">{t.t}</b><span className="text-xs text-stone-500">{t.d}</span></span>
           </button>
         ))}
       </div>
 
       {/* FAQs */}
-      <h2 className="mt-8 text-lg font-extrabold text-slate-900">Frequently asked questions</h2>
-      <div className="mt-3 divide-y divide-slate-100 rounded-xl border border-slate-100 bg-white shadow-sm">
+      <h2 className="mt-8 font-serif text-lg font-bold text-stone-900">Frequently asked questions</h2>
+      <div className="mt-3 divide-y divide-stone-200 rounded-lg border border-stone-200 bg-white shadow-xs">
         {FAQS.map((f, i) => (
           <div key={i}>
             <button onClick={() => setOpen(open === i ? null : i)} className="flex w-full items-center justify-between gap-3 p-4 text-left">
-              <span className="text-sm font-bold text-slate-800">{f.q}</span>
-              <ChevronDown className={`h-4 w-4 shrink-0 text-slate-400 transition ${open === i ? 'rotate-180' : ''}`} />
+              <span className="text-sm font-semibold text-stone-800">{f.q}</span>
+              <ChevronDown className={`h-4 w-4 shrink-0 text-stone-400 transition ${open === i ? 'rotate-180' : ''}`} />
             </button>
-            {open === i && <p className="px-4 pb-4 text-sm leading-relaxed text-slate-600">{f.a}</p>}
+            {open === i && <p className="px-4 pb-4 text-sm leading-relaxed text-stone-600">{f.a}</p>}
           </div>
         ))}
       </div>
 
       {/* ticket */}
-      <h2 className="mt-8 flex items-center gap-2 text-lg font-extrabold text-slate-900"><Ticket className="h-5 w-5 text-emerald-700" /> Raise a support ticket</h2>
-      <div className="mt-3 rounded-xl border border-slate-100 bg-white p-5 shadow-sm">
+      <h2 className="mt-8 flex items-center gap-2 font-serif text-lg font-bold text-stone-900"><Ticket className="h-5 w-5 text-stone-700" /> Raise a support ticket</h2>
+      <div className="mt-3 rounded-lg border border-stone-200 bg-white p-5 shadow-xs">
         <input
           value={ticket.subject}
           onChange={(e) => setTicket({ ...ticket, subject: e.target.value })}
           placeholder="Subject (e.g. Order TWB12345678 not delivered)"
-          className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-emerald-500"
+          className="w-full rounded-md border border-stone-300 px-3 py-2.5 text-sm outline-none focus:border-stone-500"
         />
         <textarea
           value={ticket.msg}
           onChange={(e) => setTicket({ ...ticket, msg: e.target.value })}
           placeholder="Describe your issue…"
           rows={4}
-          className="mt-3 w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-emerald-500"
+          className="mt-3 w-full rounded-md border border-stone-300 px-3 py-2.5 text-sm outline-none focus:border-stone-500"
         />
         <button
           onClick={() => { if (!ticket.subject) return toast.error('Add a subject'); toast.success(`Ticket #T${Math.floor(Math.random() * 90000 + 10000)} created — we'll reply within 4 hours.`); setTicket({ subject: '', msg: '' }); }}
-          className="mt-3 rounded-xl bg-emerald-700 px-6 py-2.5 text-sm font-bold text-white hover:bg-emerald-800"
+          className="mt-3 rounded-md bg-emerald-800 px-6 py-2.5 text-sm font-semibold text-white hover:bg-emerald-900 transition-colors"
         >
           Submit Ticket
         </button>

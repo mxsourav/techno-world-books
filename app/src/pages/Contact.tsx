@@ -6,6 +6,7 @@ import { contactService } from '@/services/api';
 import { useStore } from '@/store/StoreContext';
 import { CmsText } from '@/components/common/CmsText';
 import GoogleReviewsAndMap from '@/components/GoogleReviewsAndMap';
+import SEOHead from '@/components/SEOHead';
 
 export default function Contact() {
   const [searchParams] = useSearchParams();
@@ -58,6 +59,11 @@ export default function Contact() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+      <SEOHead
+        title="Contact Us — Customer Support & College Street Store | Techno World Books"
+        description="Contact Techno World Books Kolkata. Visit our flagship store at 90/6A Mahatma Gandhi Rd, College Street, or reach us via phone, WhatsApp, or message for online order assistance."
+        canonicalUrl="/contact"
+      />
       <div className="border-b border-slate-200 pb-6 mb-8">
         <div className="flex items-center gap-2 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-2">
           <Phone className="h-4 w-4" /> Get in Touch
@@ -77,14 +83,14 @@ export default function Contact() {
       <div className="grid gap-8 lg:grid-cols-12">
         {/* Store Information & Direct Support */}
         <div className="space-y-6 lg:col-span-5">
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
-            <h2 className="text-base font-extrabold text-slate-900">College Street Storefront</h2>
+          <div className="rounded-lg border border-stone-200 bg-white p-6 shadow-xs space-y-4">
+            <h2 className="font-serif text-base font-bold text-stone-900">College Street Storefront</h2>
             
-            <div className="flex items-start gap-3 text-sm text-slate-700">
-              <MapPin className="h-5 w-5 text-emerald-700 shrink-0 mt-0.5" />
+            <div className="flex items-start gap-3 text-sm text-stone-700">
+              <MapPin className="h-5 w-5 text-emerald-800 shrink-0 mt-0.5" />
               <div>
-                <p className="font-bold text-slate-900">Techno World Books</p>
-                <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                <p className="font-semibold text-stone-900">Techno World Books</p>
+                <p className="text-xs text-stone-600 mt-1 leading-relaxed">
                   <CmsText
                     contentKey="footer.address"
                     defaultText="90/6A, Mahatma Gandhi Rd, opp. Grace Cinema, Calcutta University, College Street, Kolkata, West Bengal 700007"
@@ -94,56 +100,56 @@ export default function Contact() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 text-sm text-slate-700 pt-2 border-t border-slate-100">
-              <Phone className="h-5 w-5 text-emerald-700 shrink-0" />
+            <div className="flex items-center gap-3 text-sm text-stone-700 pt-2 border-t border-stone-100">
+              <Phone className="h-5 w-5 text-stone-700 shrink-0" />
               <div>
-                <p className="text-xs text-slate-500 font-medium">Store Landline (9:00 AM – 8:00 PM)</p>
-                <span className="font-bold text-slate-900 hover:text-emerald-700">
+                <p className="text-xs text-stone-500 font-medium">Store Landline (9:00 AM – 8:00 PM)</p>
+                <span className="font-semibold text-stone-900 hover:text-emerald-800">
                   <CmsText contentKey="footer.phone" defaultText="033 2219 6115" label="Store Landline" />
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 text-sm text-slate-700 pt-2 border-t border-slate-100">
-              <MessageSquare className="h-5 w-5 text-emerald-600 shrink-0" />
+            <div className="flex items-center gap-3 text-sm text-stone-700 pt-2 border-t border-stone-100">
+              <MessageSquare className="h-5 w-5 text-stone-700 shrink-0" />
               <div>
                 <div className="flex items-center gap-1.5">
-                  <p className="text-xs text-slate-500 font-medium">WhatsApp Support</p>
-                  <span className="rounded bg-emerald-100 px-1.5 py-0.2 text-[9px] font-extrabold text-emerald-800">24/7 FASTEST</span>
+                  <p className="text-xs text-stone-500 font-medium">WhatsApp Support</p>
+                  <span className="rounded-md bg-stone-200 px-1.5 py-0.5 text-[9px] font-semibold text-stone-700">24/7 FASTEST</span>
                 </div>
-                <a href="https://wa.me/917479135626" target="_blank" rel="noreferrer" className="font-bold text-slate-900 hover:text-emerald-700">
+                <a href="https://wa.me/917479135626" target="_blank" rel="noreferrer" className="font-semibold text-stone-900 hover:text-emerald-800 font-mono">
                   +91 747 913 5626
                 </a>
-                <p className="text-[10px] text-slate-400">Usually replies within hours</p>
+                <p className="text-[10px] text-stone-400">Usually replies within hours</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 text-sm text-slate-700 pt-2 border-t border-slate-100">
-              <Mail className="h-5 w-5 text-emerald-700 shrink-0" />
+            <div className="flex items-center gap-3 text-sm text-stone-700 pt-2 border-t border-stone-100">
+              <Mail className="h-5 w-5 text-stone-700 shrink-0" />
               <div>
-                <p className="text-xs text-slate-500 font-medium">Customer Support Email</p>
-                <a href="mailto:support@technoworldbooks.in" className="font-bold text-slate-900 hover:text-emerald-700">
+                <p className="text-xs text-stone-500 font-medium">Customer Support Email</p>
+                <a href="mailto:support@technoworldbooks.in" className="font-semibold text-stone-900 hover:text-emerald-800">
                   support@technoworldbooks.in
                 </a>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 text-sm text-slate-700 pt-2 border-t border-slate-100">
-              <Clock className="h-5 w-5 text-emerald-700 shrink-0" />
+            <div className="flex items-center gap-3 text-sm text-stone-700 pt-2 border-t border-stone-100">
+              <Clock className="h-5 w-5 text-stone-700 shrink-0" />
               <div>
-                <p className="text-xs text-slate-500 font-medium">Store & Support Hours</p>
-                <p className="font-bold text-slate-900">Mon &ndash; Sat: 9:00 AM &ndash; 8:00 PM</p>
-                <p className="text-[11px] text-slate-400">Sunday Closed (WhatsApp active)</p>
+                <p className="text-xs text-stone-500 font-medium">Store & Support Hours</p>
+                <p className="font-semibold text-stone-900">Mon &ndash; Sat: 9:00 AM &ndash; 8:00 PM</p>
+                <p className="text-[11px] text-stone-400">Sunday Closed (WhatsApp active)</p>
               </div>
             </div>
           </div>
 
           {/* Replacement Assistance */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 space-y-2.5 shadow-xs">
-            <p className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-              <HelpCircle className="h-4 w-4 text-emerald-700" /> Book Replacement Assistance
+          <div className="rounded-lg border border-stone-200 bg-white p-5 space-y-2.5 shadow-xs">
+            <p className="text-xs font-semibold text-stone-900 uppercase tracking-wider flex items-center gap-1.5">
+              <HelpCircle className="h-4 w-4 text-emerald-800" /> Book Replacement Assistance
             </p>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <p className="text-xs text-stone-600 leading-relaxed">
               If your received books are damaged, defective, or misprinted, please send an unboxing video to WhatsApp <b>+91 747 913 5626</b> and submit our replacement form within 7 days of delivery.
             </p>
             <div className="flex flex-wrap items-center gap-3 pt-1">
@@ -151,7 +157,7 @@ export default function Contact() {
                 href="https://docs.google.com/forms/d/e/1FAIpQLSdP7BBi2SNX67XU0xoBDzqiXSaL4nyBBIwDfVacG8M9kVR1RQ/viewform?usp=publish-editor"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 hover:underline"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-800 hover:underline"
               >
                 Open Replacement Form <ExternalLink className="h-3.5 w-3.5" />
               </a>
@@ -159,7 +165,7 @@ export default function Contact() {
                 href="https://wa.me/917479135626"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-emerald-700"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-700 hover:text-emerald-800"
               >
                 Chat on WhatsApp &rarr;
               </a>
@@ -169,19 +175,19 @@ export default function Contact() {
 
         {/* Message Form */}
         <div className="lg:col-span-7">
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
-            <h2 className="text-xl font-bold text-slate-900 mb-1">Send us a Message</h2>
-            <p className="text-xs text-slate-500 mb-6">
+          <div className="rounded-lg border border-stone-200 bg-white p-6 sm:p-8 shadow-xs">
+            <h2 className="font-serif text-xl font-bold text-stone-900 mb-1">Send us a Message</h2>
+            <p className="text-xs text-stone-500 mb-6">
               Have a question about books, order delivery, or bulk publications? Fill out this form and our team will get back to you promptly.
             </p>
 
             {orderNumber && (
-              <div className="mb-4 rounded-xl bg-emerald-50 border border-emerald-200 p-3 text-xs text-emerald-900 flex items-center justify-between">
+              <div className="mb-4 rounded-md bg-stone-50 border border-stone-200 p-3 text-xs text-stone-800 flex items-center justify-between">
                 <span>Inquiry linked to Order: <b className="font-mono">#{orderNumber}</b></span>
                 <button
                   type="button"
                   onClick={() => setOrderNumber('')}
-                  className="text-[11px] text-emerald-700 hover:underline font-bold"
+                  className="text-[11px] text-stone-600 hover:text-stone-900 underline font-medium"
                 >
                   Clear Order ID
                 </button>
@@ -189,10 +195,10 @@ export default function Contact() {
             )}
 
             {submitted ? (
-              <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-8 text-center space-y-3">
-                <CheckCircle2 className="h-12 w-12 text-emerald-600 mx-auto" />
-                <h3 className="text-lg font-extrabold text-emerald-950">Thank you! Your Message Has Been Sent.</h3>
-                <p className="text-xs text-emerald-800 max-w-md mx-auto leading-relaxed">
+              <div className="rounded-lg bg-stone-50 border border-stone-200 p-8 text-center space-y-3">
+                <CheckCircle2 className="h-10 w-10 text-emerald-800 mx-auto" />
+                <h3 className="font-serif text-lg font-bold text-stone-900">Thank you! Your Message Has Been Sent.</h3>
+                <p className="text-xs text-stone-600 max-w-md mx-auto leading-relaxed">
                   Your inquiry has been successfully registered in our customer care system. A confirmation email has been dispatched to <b>{email}</b>, and our College Street team will reply shortly.
                 </p>
                 <div className="pt-3">
@@ -202,7 +208,7 @@ export default function Contact() {
                       setSubmitted(false);
                       setMessage('');
                     }}
-                    className="rounded-xl bg-emerald-700 px-5 py-2 text-xs font-bold text-white hover:bg-emerald-800 shadow transition-colors"
+                    className="rounded-md bg-emerald-800 px-5 py-2 text-xs font-semibold text-white hover:bg-emerald-900 transition-colors"
                   >
                     Send Another Message
                   </button>
@@ -212,50 +218,50 @@ export default function Contact() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Your Name *</label>
+                    <label className="block text-xs font-semibold text-stone-700 mb-1">Your Name *</label>
                     <input
                       type="text"
                       required
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="e.g. Rahul Sen"
-                      className="w-full rounded-lg border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-emerald-500"
+                      className="w-full rounded-md border border-stone-300 px-3.5 py-2.5 text-sm outline-none focus:border-stone-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Email Address *</label>
+                    <label className="block text-xs font-semibold text-stone-700 mb-1">Email Address *</label>
                     <input
                       type="email"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@example.com"
-                      className="w-full rounded-lg border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-emerald-500"
+                      className="w-full rounded-md border border-stone-300 px-3.5 py-2.5 text-sm outline-none focus:border-stone-500"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Order ID (if applicable)</label>
+                  <label className="block text-xs font-semibold text-stone-700 mb-1">Order ID (if applicable)</label>
                   <input
                     type="text"
                     value={orderNumber}
                     onChange={(e) => setOrderNumber(e.target.value)}
                     placeholder="e.g. TW-20260904-1234"
-                    className="w-full rounded-lg border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-emerald-500 font-mono"
+                    className="w-full rounded-md border border-stone-300 px-3.5 py-2.5 text-sm outline-none focus:border-stone-500 font-mono"
                   />
-                  <p className="text-[11px] text-slate-400 mt-1">If your query is about an existing order, include the order number above.</p>
+                  <p className="text-[11px] text-stone-400 mt-1">If your query is about an existing order, include the order number above.</p>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Message or Query *</label>
+                  <label className="block text-xs font-semibold text-stone-700 mb-1">Message or Query *</label>
                   <textarea
                     rows={5}
                     required
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder="How can we assist you regarding our books, publications, or orders?"
-                    className="w-full rounded-lg border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-emerald-500"
+                    className="w-full rounded-md border border-stone-300 px-3.5 py-2.5 text-sm outline-none focus:border-stone-500"
                   />
                 </div>
 
@@ -263,7 +269,7 @@ export default function Contact() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-7 py-3 text-sm font-bold text-white hover:bg-emerald-700 transition-colors shadow-sm disabled:opacity-50"
+                    className="inline-flex items-center gap-2 rounded-md bg-emerald-800 px-7 py-3 text-sm font-semibold text-white hover:bg-emerald-900 transition-colors shadow-xs disabled:opacity-50"
                   >
                     {loading ? (
                       <>

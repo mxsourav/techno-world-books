@@ -1,9 +1,15 @@
 import { Link } from 'react-router';
 import { Shield } from 'lucide-react';
+import SEOHead from '@/components/SEOHead';
 
 export default function PrivacyPolicy() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
+      <SEOHead
+        title="Privacy Policy | Techno World Books"
+        description="Learn how Techno World Books protects and handles your personal data, customer orders, and transaction security under Indian data protection regulations."
+        canonicalUrl="/privacy-policy"
+      />
       {/* Header */}
       <div className="border-b border-slate-200 pb-6 mb-8">
         <div className="flex items-center gap-2 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-2">

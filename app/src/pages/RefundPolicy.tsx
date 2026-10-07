@@ -1,55 +1,61 @@
 import { Link } from 'react-router';
 import { RefreshCw, ExternalLink, ShieldCheck, Phone } from 'lucide-react';
+import SEOHead from '@/components/SEOHead';
 
 export default function RefundPolicy() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
+      <SEOHead
+        title="Cancellation & Replacement Policy | Techno World Books"
+        description="Official 7-day replacement policy, damaged book replacement process, and pre-dispatch cancellation guidelines for Techno World Books."
+        canonicalUrl="/refund-policy"
+      />
       {/* Header */}
-      <div className="border-b border-slate-200 pb-6 mb-8">
-        <div className="flex items-center gap-2 text-slate-600 text-xs font-semibold uppercase tracking-wider mb-2">
-          <ShieldCheck className="h-4 w-4 text-emerald-700" /> Official Bookstore Guidelines
+      <div className="border-b border-stone-200 pb-6 mb-8">
+        <div className="flex items-center gap-2 text-stone-600 text-xs font-semibold uppercase tracking-wider mb-2">
+          <ShieldCheck className="h-4 w-4 text-emerald-800" /> Official Bookstore Guidelines
         </div>
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Cancellation, Replacement & Refund Policy</h1>
-        <p className="text-sm text-slate-500 mt-2">
+        <h1 className="font-serif text-3xl font-bold text-stone-900 tracking-tight">Cancellation, Replacement & Refund Policy</h1>
+        <p className="text-sm text-stone-500 mt-2">
           Techno World Books &bull; Kolkata, India &bull; Updated September 2026
         </p>
       </div>
 
       {/* Core Principles Overview Cards (Clean, professional neutral styling) */}
       <div className="grid gap-4 sm:grid-cols-3 mb-10">
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs">
-          <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Pre-Dispatch</p>
-          <p className="text-sm font-bold text-slate-900 mb-1.5">100% Order Cancellation</p>
-          <p className="text-xs text-slate-600 leading-relaxed">
+        <div className="rounded-lg border border-stone-200 bg-white p-5 shadow-xs">
+          <p className="text-xs font-semibold uppercase tracking-wider text-stone-400 mb-1">Pre-Dispatch</p>
+          <p className="text-sm font-semibold text-stone-900 mb-1.5">100% Order Cancellation</p>
+          <p className="text-xs text-stone-600 leading-relaxed">
             Full refund is promptly issued if an order is cancelled prior to physical dispatch from our Kolkata warehouse.
           </p>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs">
-          <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Delivered Orders</p>
-          <p className="text-sm font-bold text-slate-900 mb-1.5">7-Day Free Replacement</p>
-          <p className="text-xs text-slate-600 leading-relaxed">
+        <div className="rounded-lg border border-stone-200 bg-white p-5 shadow-xs">
+          <p className="text-xs font-semibold uppercase tracking-wider text-stone-400 mb-1">Delivered Orders</p>
+          <p className="text-sm font-semibold text-stone-900 mb-1.5">7-Day Free Replacement</p>
+          <p className="text-xs text-stone-600 leading-relaxed">
             Defective or transit-damaged books qualify for a complimentary replacement copy within 7 calendar days of delivery.
           </p>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs">
-          <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Fulfillment Policy</p>
-          <p className="text-sm font-bold text-slate-900 mb-1.5">Replacement-Only System</p>
-          <p className="text-xs text-slate-600 leading-relaxed">
+        <div className="rounded-lg border border-stone-200 bg-white p-5 shadow-xs">
+          <p className="text-xs font-semibold uppercase tracking-wider text-stone-400 mb-1">Fulfillment Policy</p>
+          <p className="text-sm font-semibold text-stone-900 mb-1.5">Replacement-Only System</p>
+          <p className="text-xs text-stone-600 leading-relaxed">
             We operate on a replacement-only policy for delivered items. Dispatched transit refusals (RTO) are non-refundable.
           </p>
         </div>
       </div>
 
       {/* Replacement Help Banner */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900 text-white p-6 sm:p-8 mb-10 shadow-sm">
+      <div className="rounded-lg border border-stone-800 bg-[#0B1710] text-white p-6 sm:p-8 mb-10 shadow-xs">
         <div className="max-w-2xl space-y-3">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-800 border border-slate-700 px-3 py-1 text-xs font-medium text-emerald-400">
-            <RefreshCw className="h-3.5 w-3.5 text-emerald-400" /> Replacement Support Desk
+          <span className="inline-flex items-center gap-1.5 rounded-md bg-stone-900 border border-stone-800 px-3 py-1 text-xs font-medium text-emerald-300">
+            <RefreshCw className="h-3.5 w-3.5 text-emerald-300" /> Replacement Support Desk
           </span>
-          <h2 className="text-xl sm:text-2xl font-bold text-white">Need a Replacement for a Delivered Book?</h2>
-          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+          <h2 className="font-serif text-xl sm:text-2xl font-bold text-white">Need a Replacement for a Delivered Book?</h2>
+          <p className="text-xs sm:text-sm text-stone-300 leading-relaxed">
             To ensure genuine requests are handled swiftly, please record an unboxing video when opening your package and submit our online form within 7 days of receiving your order.
           </p>
           <div className="flex flex-wrap items-center gap-3 pt-2">
@@ -57,7 +63,7 @@ export default function RefundPolicy() {
               href="https://docs.google.com/forms/d/e/1FAIpQLSdP7BBi2SNX67XU0xoBDzqiXSaL4nyBBIwDfVacG8M9kVR1RQ/viewform?usp=publish-editor"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-xs sm:text-sm font-bold text-white hover:bg-emerald-500 transition-colors shadow-xs"
+              className="inline-flex items-center gap-2 rounded-md bg-emerald-800 px-5 py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-emerald-900 transition-colors shadow-xs"
             >
               Fill Online Replacement Form <ExternalLink className="h-4 w-4" />
             </a>
@@ -65,9 +71,9 @@ export default function RefundPolicy() {
               href="https://wa.me/917479135626?text=Hello%20Techno%20World%2C%20I%20would%20like%20to%20submit%20an%20unpacking%20video%20for%20book%20replacement."
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-200 hover:bg-slate-700 transition-colors"
+              className="inline-flex items-center gap-2 rounded-md border border-stone-800 bg-stone-900 px-4 py-2.5 text-xs sm:text-sm font-semibold text-stone-200 hover:bg-stone-800 transition-colors"
             >
-              <Phone className="h-4 w-4 text-emerald-400" /> WhatsApp Video: +91 747 913 5626
+              <Phone className="h-4 w-4 text-emerald-300" /> WhatsApp Video: +91 747 913 5626
             </a>
           </div>
         </div>

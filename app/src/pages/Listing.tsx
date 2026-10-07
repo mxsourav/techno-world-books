@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
-import { ChevronRight, SlidersHorizontal, X, BookOpen } from 'lucide-react';
+import { ChevronRight, SlidersHorizontal, X, BookOpen, SearchX, AlertCircle } from 'lucide-react';
 
 import { formatINR } from '@/utils/helpers';
 import { bookService, categoryService } from '@/services/api';
@@ -176,11 +176,15 @@ export default function Listing() {
   if (error) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 text-center">
-        <div className="flex flex-col items-center justify-center text-slate-500 py-20">
-          <span className="text-4xl mb-4">{error.status === 404 ? '🔍' : '⚠️'}</span>
-          <h2 className="text-xl font-bold text-slate-700">{error.status === 404 ? 'Not Found' : 'Error'}</h2>
-          <p className="text-sm mt-2">{error.message}</p>
-          <button onClick={() => window.location.reload()} className="mt-4 rounded-lg bg-emerald-600 px-6 py-2 font-bold text-white">Retry</button>
+        <div className="flex flex-col items-center justify-center text-stone-500 py-16">
+          {error.status === 404 ? (
+            <SearchX className="h-12 w-12 text-stone-400 mb-3 stroke-[1.5]" />
+          ) : (
+            <AlertCircle className="h-12 w-12 text-stone-400 mb-3 stroke-[1.5]" />
+          )}
+          <h2 className="text-xl font-bold text-stone-800">{error.status === 404 ? 'No Books Found' : 'Error Loading Books'}</h2>
+          <p className="text-sm mt-2 text-stone-600 max-w-md">{error.message}</p>
+          <button onClick={() => window.location.reload()} className="mt-4 rounded-md bg-stone-900 px-6 py-2 text-xs font-semibold text-white hover:bg-stone-800 transition-colors cursor-pointer">Retry</button>
         </div>
       </div>
     );
@@ -228,7 +232,7 @@ export default function Listing() {
   );
 
   return (
-    <div className="mx-auto max-w-7xl px-3 py-4 sm:px-6">
+    <div className="mx-auto max-w-7xl px-3 py-6 sm:px-6">
       <SEOHead
         title={pageTitle}
         description={pageDescription}
@@ -237,32 +241,32 @@ export default function Listing() {
         structuredData={[breadcrumbJsonLd, itemListJsonLd]}
       />
       {/* breadcrumbs */}
-      <nav className="mb-3 flex items-center gap-1 text-xs text-slate-500">
-        <Link to="/" className="hover:text-emerald-700">Home</Link>
+      <nav className="mb-3 flex items-center gap-1 text-xs text-stone-500">
+        <Link to="/" className="hover:text-emerald-800 transition-colors">Home</Link>
         <ChevronRight className="h-3 w-3" />
         {catObj ? (
-          <span className="font-semibold text-slate-700">{catObj.name}</span>
+          <span className="font-semibold text-stone-800">{catObj.name}</span>
         ) : (
-          <span className="font-semibold text-slate-700">Search: "{query}"</span>
+          <span className="font-semibold text-stone-800">Search: "{query}"</span>
         )}
       </nav>
 
-      <div className="mb-4 flex items-center justify-between gap-3">
+      <div className="mb-5 flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-extrabold text-slate-900 sm:text-2xl">
+          <h1 className="font-serif text-2xl font-bold text-stone-900 tracking-tight sm:text-3xl">
             {catObj ? catObj.name : publisherQuery ? `Books by ${publisherQuery}` : `Results for "${query}"`}
           </h1>
-          <p className="text-xs text-slate-500">{filtered.length} book{filtered.length !== 1 ? 's' : ''} found</p>
+          <p className="text-xs text-stone-500 mt-0.5">{filtered.length} book{filtered.length !== 1 ? 's' : ''} found</p>
         </div>
         <div className="flex items-center gap-2">
           <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
-            <SheetTrigger className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 md:hidden">
+            <SheetTrigger className="flex items-center gap-1.5 rounded-md border border-stone-300 bg-white px-3 py-2 text-xs font-semibold text-stone-700 md:hidden">
               <SlidersHorizontal className="h-3.5 w-3.5" /> Filters
             </SheetTrigger>
             <SheetContent side="left" className="w-80 overflow-auto p-5">{Filters}</SheetContent>
           </Sheet>
           <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
-            <SelectTrigger className="w-36 bg-white text-xs"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-36 rounded-md border-stone-300 bg-white text-xs"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="relevance">Relevance</SelectItem>
               <SelectItem value="price-low">Price: Low → High</SelectItem>
@@ -276,7 +280,7 @@ export default function Listing() {
       </div>
 
       <div className="flex gap-6">
-        <aside className="hidden w-56 shrink-0 rounded-xl border border-slate-100 bg-white p-5 shadow-sm md:block md:self-start md:sticky md:top-36">
+        <aside className="hidden w-56 shrink-0 rounded-lg border border-stone-200 bg-white p-5 shadow-xs md:block md:self-start md:sticky md:top-36">
           {Filters}
         </aside>
         <div className="flex-1">
@@ -289,11 +293,11 @@ export default function Listing() {
               ))}
             </div>
           ) : filtered.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-slate-200 bg-white p-12 text-center">
-              <BookOpen className="mx-auto h-12 w-12 text-slate-300 stroke-[1.5]" />
-              <p className="mt-3 font-bold text-slate-700">No books matched</p>
-              <p className="mt-1 text-sm text-slate-500">Try clearing filters or a different search — title, author, ISBN, exam or university.</p>
-              <button onClick={clearAll} className="mt-4 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-800 transition-colors cursor-pointer">Clear filters</button>
+            <div className="rounded-lg border border-dashed border-stone-300 bg-white p-12 text-center">
+              <BookOpen className="mx-auto h-12 w-12 text-stone-300 stroke-[1.5]" />
+              <p className="mt-3 font-semibold text-stone-800">No books matched</p>
+              <p className="mt-1 text-sm text-stone-500">Try clearing filters or a different search — title, author, ISBN, exam or university.</p>
+              <button onClick={clearAll} className="mt-4 rounded-md bg-emerald-800 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-900 transition-colors shadow-xs cursor-pointer">Clear filters</button>
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">

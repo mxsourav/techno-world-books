@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router';
-import { BadgePercent, Truck, Gift, ArrowRight, Trophy, Flame, TrendingUp, Sparkle, Stethoscope, Settings, GraduationCap, Library, BookOpen, Quote, Languages, Globe2, Gem, Heart, Clock, Tag } from 'lucide-react';
+import { BadgePercent, Truck, Gift, ArrowRight, Trophy, Flame, TrendingUp, Sparkle, Stethoscope, Settings, GraduationCap, Library, BookOpen, Quote, Languages, Globe2, Gem, Heart, Clock, Tag, AlertCircle } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 
 import { bookService, heroService, getImageUrl } from '@/services/api';
@@ -221,7 +221,7 @@ export default function Home() {
   // const featuredBook = books.find((b) => b.featured) || books[0];
 
   return (
-    <div className="w-full min-w-0 max-w-full overflow-x-hidden bg-slate-50 selection:bg-emerald-500/30">
+    <div className="w-full min-w-0 max-w-full overflow-x-hidden bg-[#FBFBFA] selection:bg-emerald-900/20">
       <SEOHead
         title="Techno World Books — Buy Academic, School & College Books Online"
         description="Every book India reads, one search away. Fast delivery across India on genuine textbooks, reference materials, and publications from College Street, Kolkata."
@@ -493,55 +493,25 @@ export default function Home() {
             </div>
 
             {/* Main Heading */}
-            <h1
-              className="font-bold drop-shadow-md max-w-[800px]"
-              style={{
-                fontFamily: "'Playfair Display', Georgia, serif",
-                fontSize: "clamp(1.8rem, 5vw, 3.75rem)",
-                lineHeight: "1.15",
-                letterSpacing: "-0.01em"
-              }}
-            >
+            <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white max-w-[800px] leading-[1.12]">
               <span className="block">
                 <CmsText
                   contentKey="home.hero_title_1"
                   defaultText="Every book India reads,"
                   label="Hero Heading Line 1"
-                  style={{
-                    backgroundImage: "linear-gradient(to bottom, #FFFFFF 0%, #B8C4BE 100%)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    filter: "drop-shadow(0px 4px 8px rgba(0,0,0,0.8))"
-                  }}
                 />
               </span>
-              <span className="block mt-1">
+              <span className="block mt-1 text-[#D4A017]">
                 <CmsText
                   contentKey="home.hero_title_2"
                   defaultText="one search away."
                   label="Hero Heading Line 2"
-                  style={{
-                    backgroundImage: "linear-gradient(to bottom, #FFE885 0%, #E6A300 100%)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    filter: "drop-shadow(0px 5px 10px rgba(0,0,0,0.9))"
-                  }}
                 />
               </span>
             </h1>
 
             {/* Description */}
-            <p
-              className="mt-4 font-normal drop-shadow"
-              style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: "clamp(0.95rem, 2.5vw, 1.05rem)",
-                lineHeight: "1.55",
-                color: "rgba(255, 255, 255, 0.85)",
-                maxWidth: "520px",
-                textAlign: "left"
-              }}
-            >
+            <p className="mt-4 text-sm sm:text-base text-stone-300 max-w-[540px] leading-relaxed">
               <CmsText
                 contentKey="home.hero_desc"
                 defaultText="From academic textbooks to bestselling fiction, get genuine books delivered straight to your doorstep with guaranteed lowest prices."
@@ -553,7 +523,7 @@ export default function Home() {
             {/* Search Bar */}
             <SearchBar
               id="home-hero-search"
-              className="mt-6 h-[48px] w-full min-w-0 shadow-md sm:h-[54px] [&_button]:px-4 [&_input]:min-w-0 [&_input]:text-[12px] sm:[&_button]:px-8 sm:[&_input]:text-[14px]"
+              className="mt-6 h-[48px] w-full min-w-0 shadow-sm sm:h-[52px] [&_button]:px-4 [&_input]:min-w-0 [&_input]:text-[12px] sm:[&_button]:px-8 sm:[&_input]:text-[14px]"
             />
 
             {/* Category Chips */}
@@ -565,16 +535,9 @@ export default function Home() {
                   <button
                     key={tag}
                     onClick={() => navigate(`/search?q=${encodeURIComponent(tag)}`)}
-                    className="flex max-w-full items-center gap-1.5 rounded-full px-4 py-2 text-xs text-[#F5F5F5] transition-all duration-200 ease-in-out whitespace-normal cursor-pointer"
-                    style={{
-                      background: 'rgba(15,55,38,0.65)',
-                      border: '1px solid rgba(255,255,255,0.12)',
-                      backdropFilter: 'blur(8px)'
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = '#0E5A3A'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(15,55,38,0.65)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+                    className="flex max-w-full items-center gap-1.5 rounded-md border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-stone-200 transition-colors hover:bg-white/20 hover:text-white cursor-pointer"
                   >
-                    <TrendingUp className="h-3.5 w-3.5 text-emerald-300" />
+                    <TrendingUp className="h-3 w-3 text-[#D4A017]" />
                     {tag}
                   </button>
                 ))}
@@ -582,50 +545,50 @@ export default function Home() {
             </div>
 
             {/* Offer Highlights Bar (White Card Look) */}
-            <div className="mt-7 w-full rounded-2xl bg-[#f8f5ef] py-3 px-4 sm:px-6 shadow-md flex flex-col md:flex-row items-stretch md:items-center justify-around border border-[#e5e0d8] gap-3.5 md:gap-0">
+            <div className="mt-7 w-full rounded-lg bg-[#FAF8F5] py-3 px-4 sm:px-6 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-around border border-stone-200/90 gap-3.5 md:gap-0">
               <div className="flex items-center gap-3 px-2 sm:px-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-800 shadow-xs">
-                  <BadgePercent className="h-5 w-5" strokeWidth={2} />
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-stone-100 text-stone-700 shadow-2xs">
+                  <BadgePercent className="h-4 w-4" strokeWidth={2} />
                 </div>
                 <div>
-                  <div className="font-bold text-slate-900 text-[13px] leading-tight">
+                  <div className="font-serif font-bold text-stone-900 text-[13px] leading-tight">
                     <CmsText contentKey="home.offer_1_title" defaultText="STUDENT15 — 15% off" label="Offer 1 Title" />
                   </div>
-                  <div className="text-slate-600 text-[11px] leading-tight mt-0.5 font-medium">
+                  <div className="text-stone-600 text-[11px] leading-tight mt-0.5 font-medium">
                     <CmsText contentKey="home.offer_1_desc" defaultText="For students on exam & academic books" label="Offer 1 Subtitle" />
                   </div>
                 </div>
               </div>
 
-              <div className="hidden md:block w-px h-8 bg-slate-200"></div>
-              <div className="block md:hidden h-px w-full bg-slate-200/80"></div>
+              <div className="hidden md:block w-px h-8 bg-stone-200"></div>
+              <div className="block md:hidden h-px w-full bg-stone-200"></div>
 
               <div className="flex items-center gap-3 px-2 sm:px-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800 shadow-xs">
-                  <Truck className="h-5 w-5" strokeWidth={2} />
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-stone-100 text-stone-700 shadow-2xs">
+                  <Truck className="h-4 w-4" strokeWidth={2} />
                 </div>
                 <div>
-                  <div className="font-bold text-slate-900 text-[13px] leading-tight">
+                  <div className="font-serif font-bold text-stone-900 text-[13px] leading-tight">
                     <CmsText contentKey="home.offer_2_title" defaultText="Free Delivery" label="Offer 2 Title" />
                   </div>
-                  <div className="text-slate-600 text-[11px] leading-tight mt-0.5 font-medium">
+                  <div className="text-stone-600 text-[11px] leading-tight mt-0.5 font-medium">
                     <CmsText contentKey="home.offer_2_desc" defaultText="On all orders above ₹999 across India" label="Offer 2 Subtitle" />
                   </div>
                 </div>
               </div>
 
-              <div className="hidden md:block w-px h-8 bg-slate-200"></div>
-              <div className="block md:hidden h-px w-full bg-slate-200/80"></div>
+              <div className="hidden md:block w-px h-8 bg-stone-200"></div>
+              <div className="block md:hidden h-px w-full bg-stone-200"></div>
 
               <div className="flex items-center gap-3 px-2 sm:px-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-800 shadow-xs">
-                  <Gift className="h-5 w-5" strokeWidth={2} />
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-stone-100 text-stone-700 shadow-2xs">
+                  <Gift className="h-4 w-4" strokeWidth={2} />
                 </div>
                 <div>
-                  <div className="font-bold text-slate-900 text-[13px] leading-tight">
+                  <div className="font-serif font-bold text-stone-900 text-[13px] leading-tight">
                     <CmsText contentKey="home.offer_3_title" defaultText="Techno Rewards" label="Offer 3 Title" />
                   </div>
-                  <div className="text-slate-600 text-[11px] leading-tight mt-0.5 font-medium">
+                  <div className="text-stone-600 text-[11px] leading-tight mt-0.5 font-medium">
                     <CmsText contentKey="home.offer_3_desc" defaultText="Earn 1 Techno Point per ₹100 spent (excl. delivery)" label="Offer 3 Subtitle" />
                   </div>
                 </div>
@@ -642,29 +605,29 @@ export default function Home() {
       <PublishedByTechnoWorld />
 
       {error ? (
-        <div className="flex flex-col items-center justify-center py-20 px-4 text-slate-500 text-center">
-          <span className="text-4xl mb-4">⚠️</span>
-          <h2 className="text-lg font-bold text-slate-700">Failed to load books</h2>
-          <p className="text-sm max-w-xs">We couldn't reach the server. Please try again later.</p>
-          <button onClick={() => window.location.reload()} className="mt-4 rounded-lg bg-emerald-600 px-6 py-2 font-bold text-white">Retry</button>
+        <div className="flex flex-col items-center justify-center py-20 px-4 text-stone-500 text-center">
+          <AlertCircle className="h-10 w-10 text-stone-400 mb-3" />
+          <h2 className="text-lg font-serif font-bold text-stone-800">Failed to load books</h2>
+          <p className="text-sm text-stone-500 max-w-xs mt-1">We couldn't reach the server. Please try again later.</p>
+          <button onClick={() => window.location.reload()} className="mt-4 rounded-md bg-emerald-800 hover:bg-emerald-900 px-6 py-2 text-xs font-semibold text-white transition-colors">Retry</button>
         </div>
       ) : !loading && books.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 px-4 text-slate-500 text-center">
-          <span className="text-4xl mb-4">📚</span>
-          <h2 className="text-lg font-bold text-slate-700">No books available</h2>
-          <p className="text-sm">Check back later for new arrivals.</p>
+        <div className="flex flex-col items-center justify-center py-20 px-4 text-stone-500 text-center">
+          <BookOpen className="h-10 w-10 text-stone-400 mb-3" />
+          <h2 className="text-lg font-serif font-bold text-stone-800">No books available</h2>
+          <p className="text-sm text-stone-500 mt-1">Check back later for new arrivals.</p>
         </div>
       ) : (
         <>
           {/* PUBLISHERS */}
           <section className="mx-auto max-w-7xl px-3 py-6 sm:px-6">
-            <h2 className="mb-3 text-lg font-bold text-slate-900 sm:text-xl">Shop by Publisher</h2>
+            <h2 className="mb-3 text-lg font-serif font-bold text-stone-900 sm:text-xl">Shop by Publisher</h2>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {PUBLISHERS.map((p) => (
                 <Link
                   key={p}
                   to={`/search?q=${encodeURIComponent(p)}`}
-                  className="rounded-xl border border-slate-200 bg-white px-4 py-5 text-center text-sm font-bold text-slate-700 shadow-sm transition hover:border-emerald-300 hover:text-emerald-800"
+                  className="rounded-lg border border-stone-200 bg-white px-4 py-5 text-center text-sm font-semibold text-stone-700 shadow-xs transition hover:border-stone-400 hover:text-stone-900"
                 >
                   {p}
                 </Link>
@@ -763,17 +726,17 @@ export default function Home() {
 
           {/* EXAM ZONE BANNER */}
           <section className="mx-auto max-w-7xl px-3 py-5 sm:px-6">
-            <div className="flex flex-col items-start justify-between gap-4 rounded-2xl bg-gradient-to-r from-indigo-900 to-violet-800 p-5 text-white sm:flex-row sm:items-center sm:p-8">
+            <div className="flex flex-col items-start justify-between gap-4 rounded-lg border border-stone-800 bg-[#0B1710] p-5 text-white sm:flex-row sm:items-center sm:p-8 shadow-xs">
               <div className="min-w-0">
-                <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-violet-300"><Trophy className="h-4 w-4" /> Exam Zone</p>
-                <h3 className="mt-1 text-lg font-extrabold sm:text-2xl leading-snug">
+                <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-emerald-300"><Trophy className="h-4 w-4" /> Exam Zone</p>
+                <h3 className="font-serif mt-1 text-lg font-bold sm:text-2xl leading-snug text-white">
                   <CmsText
                     contentKey="home.exam_zone_title"
                     defaultText="NEET · JEE · UPSC · GATE · SSC — all prep books in one place"
                     label="Exam Zone Heading"
                   />
                 </h3>
-                <p className="mt-1 text-xs sm:text-sm text-violet-200">
+                <p className="mt-1 text-xs sm:text-sm text-stone-300">
                   <CmsText
                     contentKey="home.exam_zone_desc"
                     defaultText="Previous year papers, toppers' booklists and combo packs at the best prices."
@@ -781,7 +744,7 @@ export default function Home() {
                   />
                 </p>
               </div>
-              <Link to="/category/competitive-exams" className="flex shrink-0 items-center gap-2 rounded-xl bg-amber-400 px-5 py-3 text-sm font-extrabold text-slate-900 hover:bg-amber-300 w-full sm:w-auto justify-center sm:justify-start">
+              <Link to="/category/competitive-exams" className="flex shrink-0 items-center gap-2 rounded-md bg-emerald-800 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-900 transition-colors w-full sm:w-auto justify-center sm:justify-start">
                 Shop Exam Books <ArrowRight className="h-4 w-4" />
               </Link>
             </div>

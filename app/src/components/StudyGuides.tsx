@@ -33,10 +33,10 @@ export default function StudyGuides() {
     <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:py-16">
       
       <div className="mb-6 sm:mb-10">
-        <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+        <h2 className="font-serif text-2xl font-bold tracking-tight text-stone-900 sm:text-3xl">
           Book Lists & Study Guides
         </h2>
-        <p className="mt-2 sm:mt-4 text-sm sm:text-lg text-slate-600">
+        <p className="mt-1 sm:mt-2 text-sm sm:text-base text-stone-500">
           Editorial recommendations from Techno World Books.
         </p>
       </div>
@@ -46,7 +46,7 @@ export default function StudyGuides() {
           <Link 
             key={idx} 
             to={guide.link}
-            className="group relative flex h-40 flex-col justify-end overflow-hidden rounded-2xl bg-slate-900 sm:h-48"
+            className="group relative flex h-40 flex-col justify-end overflow-hidden rounded-lg bg-stone-900 border border-stone-800 sm:h-48"
           >
             {/* Background Image */}
             <div className="absolute inset-0">
@@ -54,15 +54,15 @@ export default function StudyGuides() {
                 src={guide.image} 
                 alt={guide.title} 
                 loading="lazy"
-                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/60 to-transparent" />
             </div>
 
             {/* Content */}
             <div className="relative p-5 sm:p-6">
-              <h3 className="text-lg font-bold text-white sm:text-xl">{guide.title}</h3>
-              <p className="mt-1 text-sm text-slate-300">{guide.description}</p>
+              <h3 className="font-serif text-lg font-bold text-white sm:text-xl">{guide.title}</h3>
+              <p className="mt-1 text-xs sm:text-sm text-stone-300">{guide.description}</p>
               
               <div className="mt-3 flex items-center gap-2 text-xs font-semibold text-emerald-400 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-2">
                 Explore Collection <ArrowRight className="h-4 w-4" />

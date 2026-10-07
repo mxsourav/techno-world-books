@@ -173,14 +173,14 @@ export function InstitutionalModal({ isOpen, onClose }: InstitutionalModalProps)
       aria-labelledby="b2b-modal-title"
     >
       <div
-        className="relative w-full max-w-2xl rounded-2xl border border-stone-200 bg-white p-5 sm:p-8 text-stone-900 shadow-2xl animate-in zoom-in-95 duration-200 max-h-[92vh] overflow-y-auto"
+        className="relative w-full max-w-2xl rounded-lg border border-stone-200 bg-white p-5 sm:p-8 text-stone-900 shadow-xl animate-in zoom-in-95 duration-200 max-h-[92vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-5 right-5 p-1.5 rounded-full text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors cursor-pointer"
+          className="absolute top-5 right-5 p-1.5 rounded-md text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors cursor-pointer"
           aria-label="Close dialog"
         >
           <X className="h-5 w-5" />

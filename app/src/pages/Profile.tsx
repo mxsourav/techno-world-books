@@ -27,6 +27,7 @@ import {
   Package,
   Download,
   MessageSquare,
+  Lock,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/AuthStore';
 import { useStore } from '@/store/StoreContext';
@@ -35,6 +36,7 @@ import { generateAndPrintInvoice } from '@/utils/generateInvoice';
 import { toast } from 'sonner';
 import { GoogleSignInButton } from '@/components/GoogleSignInButton';
 import { BookCover } from '@/components/BookCover';
+import SEOHead from '@/components/SEOHead';
 
 export default function Profile() {
   const { logout: authLogout, accessToken } = useAuthStore();
@@ -317,18 +319,23 @@ export default function Profile() {
   if (!loading && !isLoggedIn) {
     return (
       <div className="mx-auto max-w-md px-6 py-24 text-center">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-800 shadow">
+        <SEOHead
+          title="Account Login | Techno World Books"
+          description="Sign in to your Techno World Books account."
+          noIndex={true}
+        />
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-xl bg-stone-100 border border-stone-200 text-stone-800 shadow-xs">
           <UserIcon className="h-8 w-8" />
         </div>
-        <h1 className="mt-4 text-2xl font-extrabold text-slate-900">Account Access Required</h1>
-        <p className="mt-2 text-sm text-slate-500">
+        <h1 className="mt-4 text-2xl font-serif font-bold text-stone-900">Account Access Required</h1>
+        <p className="mt-2 text-sm text-stone-500">
           Sign in to view your profile, manage delivery addresses, and track your Techno Points loyalty coins.
         </p>
 
         <div className="mt-8 space-y-4">
           <GoogleSignInButton onSuccess={fetchFullProfile} width={320} />
           
-          <Link to="/" className="block text-xs font-semibold text-slate-500 hover:text-slate-800">
+          <Link to="/" className="block text-xs font-semibold text-stone-500 hover:text-stone-800">
             Back to Bookstore
           </Link>
         </div>
@@ -343,14 +350,19 @@ export default function Profile() {
 
     return (
       <div className="mx-auto max-w-md px-6 py-24 text-center">
+        <SEOHead
+          title="Account Profile | Techno World Books"
+          description="Account profile."
+          noIndex={true}
+        />
         <div
-          className={`mx-auto flex h-16 w-16 items-center justify-center rounded-2xl shadow ${
-            isSessionExpired ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'
+          className={`mx-auto flex h-16 w-16 items-center justify-center rounded-xl border border-stone-200 shadow-xs ${
+            isSessionExpired ? 'bg-rose-50 text-rose-700' : 'bg-amber-50 text-amber-700'
           }`}
         >
           <AlertTriangle className="h-8 w-8" />
         </div>
-        <h1 className="mt-4 text-2xl font-extrabold text-slate-900">
+        <h1 className="mt-4 text-2xl font-serif font-bold text-stone-900">
           {isSessionExpired ? 'Session Expired' : 'Profile Unavailable'}
         </h1>
         <p className="mt-2 text-sm text-slate-500">
@@ -428,6 +440,11 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen bg-stone-50/50 py-6 sm:py-10 font-sans text-stone-900">
+      <SEOHead
+        title="My Profile & Account | Techno World Books"
+        description="Manage your customer account and addresses."
+        noIndex={true}
+      />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
         {/* Mobile Header / Quick Identity Banner (< lg screens) */}
@@ -939,22 +956,22 @@ export default function Profile() {
 
               {/* Need Help? Order Support Modal */}
               {helpOrderModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
-                  <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl space-y-4 border border-slate-100">
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
+                  <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl space-y-4 border border-stone-200">
+                    <div className="flex items-center justify-between border-b border-stone-100 pb-3">
                       <div className="flex items-center gap-2.5">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-md bg-stone-100 text-stone-700">
                           <HelpCircle className="h-5 w-5" />
                         </div>
                         <div>
-                          <h3 className="text-base font-extrabold text-slate-900">Need Help with Order?</h3>
-                          <p className="text-xs text-slate-500 font-mono">Order #{helpOrderModal.orderNumber}</p>
+                          <h3 className="text-base font-serif font-bold text-stone-900">Need Help with Order?</h3>
+                          <p className="text-xs text-stone-500 font-mono">Order #{helpOrderModal.orderNumber}</p>
                         </div>
                       </div>
                       <button
                         type="button"
                         onClick={() => setHelpOrderModal(null)}
-                        className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+                        className="rounded-md p-1.5 text-stone-400 hover:bg-stone-100 hover:text-stone-600 transition-colors"
                       >
                         <X className="h-5 w-5" />
                       </button>
@@ -968,36 +985,36 @@ export default function Profile() {
                         )}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="group flex items-start gap-3.5 rounded-xl border border-emerald-200 bg-emerald-50/70 p-3.5 hover:bg-emerald-100/70 hover:border-emerald-300 transition-all"
+                        className="group flex items-start gap-3.5 rounded-lg border border-stone-200 bg-stone-50/70 p-3.5 hover:bg-stone-100/70 hover:border-stone-300 transition-all"
                       >
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-emerald-800 text-white shadow-xs">
                           <MessageSquare className="h-5 w-5" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
-                            <p className="text-sm font-bold text-emerald-950">WhatsApp 24/7 (Faster Support)</p>
-                            <span className="rounded-full bg-emerald-200 px-2 py-0.5 text-[10px] font-black text-emerald-900">24/7</span>
+                            <p className="text-sm font-semibold text-stone-900">WhatsApp 24/7 (Faster Support)</p>
+                            <span className="rounded-md bg-stone-200 px-2 py-0.5 text-[10px] font-semibold text-stone-800">24/7</span>
                           </div>
-                          <p className="text-xs text-emerald-800 font-semibold mt-0.5">+91 747 913 5626</p>
-                          <p className="text-[11px] text-emerald-700/90 mt-1">Usually replies within minutes for order updates, changes & delivery tracking.</p>
+                          <p className="text-xs text-stone-700 font-mono font-medium mt-0.5">+91 747 913 5626</p>
+                          <p className="text-[11px] text-stone-600 mt-1">Usually replies within minutes for order updates, changes & delivery tracking.</p>
                         </div>
                       </a>
 
                       {/* Option 2: Call Support 9am to 8pm */}
                       <a
                         href="tel:+917479135626"
-                        className="group flex items-start gap-3.5 rounded-xl border border-blue-200 bg-blue-50/70 p-3.5 hover:bg-blue-100/70 hover:border-blue-300 transition-all"
+                        className="group flex items-start gap-3.5 rounded-lg border border-stone-200 bg-stone-50/70 p-3.5 hover:bg-stone-100/70 hover:border-stone-300 transition-all"
                       >
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-stone-800 text-white shadow-xs">
                           <Phone className="h-5 w-5" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
-                            <p className="text-sm font-bold text-blue-950">Call Support Desk</p>
-                            <span className="rounded-full bg-blue-200 px-2 py-0.5 text-[10px] font-black text-blue-900">9 AM – 8 PM</span>
+                            <p className="text-sm font-semibold text-stone-900">Call Support Desk</p>
+                            <span className="rounded-md bg-stone-200 px-2 py-0.5 text-[10px] font-semibold text-stone-800">9 AM – 8 PM</span>
                           </div>
-                          <p className="text-xs text-blue-800 font-semibold mt-0.5">+91 747 913 5626 / 033 2219 6115</p>
-                          <p className="text-[11px] text-blue-700/90 mt-1">Direct phone assistance from our College Street office team (Usually replies within hours).</p>
+                          <p className="text-xs text-stone-700 font-mono font-medium mt-0.5">+91 747 913 5626 / 033 2219 6115</p>
+                          <p className="text-[11px] text-stone-600 mt-1">Direct phone assistance from our College Street office team (Usually replies within hours).</p>
                         </div>
                       </a>
 
@@ -1005,18 +1022,18 @@ export default function Profile() {
                       <Link
                         to={`/contact?orderId=${encodeURIComponent(helpOrderModal.orderNumber)}&name=${encodeURIComponent(storeUser?.name || profileData?.name || '')}&email=${encodeURIComponent(storeUser?.email || profileData?.email || '')}`}
                         onClick={() => setHelpOrderModal(null)}
-                        className="group flex items-start gap-3.5 rounded-xl border border-slate-200 bg-slate-50 p-3.5 hover:bg-slate-100 hover:border-slate-300 transition-all"
+                        className="group flex items-start gap-3.5 rounded-lg border border-stone-200 bg-stone-50/70 p-3.5 hover:bg-stone-100/70 hover:border-stone-300 transition-all"
                       >
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-800 text-white shadow-sm">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-stone-800 text-white shadow-xs">
                           <Mail className="h-5 w-5" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
-                            <p className="text-sm font-bold text-slate-900">Fill Help &amp; Support Form</p>
-                            <span className="text-[10px] font-bold text-slate-500 bg-slate-200/80 px-2 py-0.5 rounded-full">Auto-prefilled</span>
+                            <p className="text-sm font-semibold text-stone-900">Fill Help &amp; Support Form</p>
+                            <span className="text-[10px] font-semibold text-stone-700 bg-stone-200 px-2 py-0.5 rounded-md">Auto-prefilled</span>
                           </div>
-                          <p className="text-xs text-slate-600 mt-0.5">Submit an official inquiry with your order details prefilled.</p>
-                          <p className="text-[11px] text-slate-500 mt-1">Saves directly to system & sends confirmation to your email.</p>
+                          <p className="text-xs text-stone-600 mt-0.5">Submit an official inquiry with your order details prefilled.</p>
+                          <p className="text-[11px] text-stone-500 mt-1">Saves directly to system & sends confirmation to your email.</p>
                         </div>
                       </Link>
                     </div>
@@ -1025,7 +1042,7 @@ export default function Profile() {
                       <button
                         type="button"
                         onClick={() => setHelpOrderModal(null)}
-                        className="w-full rounded-xl border border-slate-200 bg-white py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50"
+                        className="w-full rounded-md border border-stone-200 bg-white py-2.5 text-xs font-semibold text-stone-700 hover:bg-stone-50 transition-colors"
                       >
                         Close
                       </button>
@@ -1039,17 +1056,17 @@ export default function Profile() {
           {/* 0.5 In-App Notifications & Store Alerts Tab */}
           {activeTab === 'notifications' && (
             <div className="space-y-6">
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm flex items-center justify-between">
+              <div className="rounded-lg border border-stone-200 bg-white p-6 shadow-xs flex items-center justify-between">
                 <div>
-                  <h2 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
-                    <Bell className="h-5 w-5 text-emerald-700" /> Order Updates & Store Notifications
+                  <h2 className="text-lg font-serif font-bold text-stone-900 flex items-center gap-2">
+                    <Bell className="h-5 w-5 text-emerald-800" /> Order Updates & Store Notifications
                   </h2>
-                  <p className="text-xs text-slate-500 mt-0.5">Live notices from the bookstore regarding order confirmations, stock delays, and delivery updates.</p>
+                  <p className="text-xs text-stone-500 mt-0.5">Live notices from the bookstore regarding order confirmations, stock delays, and delivery updates.</p>
                 </div>
                 <button
                   onClick={fetchUserNotifs}
                   disabled={isLoadingNotifs}
-                  className="rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors flex items-center gap-1.5"
+                  className="rounded-md border border-stone-200 bg-stone-50 px-3.5 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-100 transition-colors flex items-center gap-1.5"
                 >
                   {isLoadingNotifs ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Clock className="h-3.5 w-3.5" />}
                   Refresh Alerts
@@ -1057,10 +1074,10 @@ export default function Profile() {
               </div>
 
               {userNotifs.length === 0 ? (
-                <div className="rounded-2xl border border-slate-200 bg-white p-16 text-center shadow-sm">
-                  <Bell className="mx-auto h-12 w-12 text-slate-300 mb-3" />
-                  <h3 className="text-base font-bold text-slate-800">No new notifications</h3>
-                  <p className="text-xs text-slate-500 mt-1">You will receive updates here as your orders are processed and dispatched.</p>
+                <div className="rounded-lg border border-stone-200 bg-white p-16 text-center shadow-xs">
+                  <Bell className="mx-auto h-12 w-12 text-stone-300 mb-3" />
+                  <h3 className="text-base font-serif font-bold text-stone-900">No new notifications</h3>
+                  <p className="text-xs text-stone-500 mt-1">You will receive updates here as your orders are processed and dispatched.</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -1087,10 +1104,10 @@ export default function Profile() {
                     return (
                       <div
                         key={notif.id}
-                        className={`rounded-2xl border p-5 transition-all ${
+                        className={`rounded-lg border p-5 transition-all ${
                           notif.isRead
                             ? 'bg-white border-stone-200/90 shadow-xs'
-                            : 'bg-stone-50/80 border-stone-300 shadow-sm ring-1 ring-stone-900/5'
+                            : 'bg-stone-50/80 border-stone-300 shadow-xs ring-1 ring-stone-900/5'
                         }`}
                       >
                         <div className="flex items-start justify-between gap-3">
@@ -1178,12 +1195,12 @@ export default function Profile() {
 
           {/* 1. Personal Information Tab */}
           {activeTab === 'profile' && (
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+            <div className="rounded-lg border border-stone-200 bg-white p-6 sm:p-8 shadow-xs">
               <div className="max-w-xl">
-                <h2 className="text-lg font-extrabold text-slate-900 flex items-center gap-2">
-                  <UserIcon className="h-5 w-5 text-emerald-700" /> Personal Information
+                <h2 className="text-lg font-serif font-bold text-stone-900 flex items-center gap-2">
+                  <UserIcon className="h-5 w-5 text-emerald-800" /> Personal Information
                 </h2>
-                <p className="text-xs text-slate-500 mt-0.5">Manage your profile photo, display name, and contact details.</p>
+                <p className="text-xs text-stone-500 mt-0.5">Manage your profile photo, display name, and contact details.</p>
 
                 <form onSubmit={handleUpdateProfile} className="mt-6 space-y-5">
                   {/* Round Profile Photo Field */}
@@ -1305,36 +1322,36 @@ export default function Profile() {
                     });
                     setIsAddAddressOpen(true);
                   }}
-                  className="flex items-center gap-1.5 rounded-xl bg-emerald-700 px-4 py-2.5 text-xs font-bold text-white hover:bg-emerald-800 shadow-sm transition-all"
+                  className="flex items-center gap-1.5 rounded-md bg-emerald-800 px-4 py-2.5 text-xs font-semibold text-white hover:bg-emerald-900 shadow-xs transition-colors"
                 >
                   <Plus className="h-4 w-4" /> Add New Address
                 </button>
               </div>
 
               {addresses.length === 0 ? (
-                <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center text-slate-500 shadow-sm">
-                  <MapPin className="mx-auto h-12 w-12 text-slate-300 mb-3" />
-                  <p className="font-bold text-slate-700">No saved addresses yet.</p>
-                  <p className="text-xs text-slate-500 mt-1">Add your address to enjoy one-click Speed Post deliveries.</p>
+                <div className="rounded-lg border border-stone-200 bg-white p-12 text-center text-stone-500 shadow-xs">
+                  <MapPin className="mx-auto h-12 w-12 text-stone-300 mb-3" />
+                  <p className="font-bold text-stone-800">No saved addresses yet.</p>
+                  <p className="text-xs text-stone-500 mt-1">Add your address to enjoy one-click Speed Post deliveries.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {addresses.map((addr) => (
                     <div
                       key={addr.id}
-                      className={`relative rounded-2xl border p-5 bg-white shadow-sm transition-all ${
-                        addr.isDefault ? 'border-emerald-500 ring-2 ring-emerald-500/10' : 'border-slate-200'
+                      className={`relative rounded-lg border p-5 bg-white shadow-xs transition-all ${
+                        addr.isDefault ? 'border-emerald-800 ring-1 ring-emerald-800/15' : 'border-stone-200'
                       }`}
                     >
                       <div className="flex items-center justify-between gap-2 mb-2">
                         <div className="flex items-center gap-2">
-                          <span className="font-extrabold text-slate-900 text-sm">{addr.fullName}</span>
-                          <span className="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600 uppercase">
+                          <span className="font-bold text-stone-900 text-sm">{addr.fullName}</span>
+                          <span className="rounded bg-stone-100 border border-stone-200 px-2 py-0.5 text-[10px] font-semibold text-stone-700 uppercase">
                             {addr.type || 'HOME'}
                           </span>
                           {addr.isDefault && (
-                            <span className="rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 flex items-center gap-1">
-                              <CheckCircle2 className="h-3 w-3" /> Default
+                            <span className="rounded bg-stone-100 border border-stone-200 text-stone-800 text-[10px] font-semibold px-2 py-0.5 flex items-center gap-1">
+                              <CheckCircle2 className="h-3 w-3 text-emerald-800" /> Default
                             </span>
                           )}
                         </div>
@@ -1357,14 +1374,14 @@ export default function Profile() {
                               });
                               setIsAddAddressOpen(true);
                             }}
-                            className="p-1.5 text-slate-400 hover:text-emerald-700 rounded-lg hover:bg-slate-100"
+                            className="p-1.5 text-stone-400 hover:text-emerald-800 rounded-md hover:bg-stone-100 transition-colors"
                             title="Edit Address"
                           >
                             <Edit3 className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => handleDeleteAddress(addr.id)}
-                            className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50"
+                            className="p-1.5 text-stone-400 hover:text-rose-600 rounded-md hover:bg-rose-50 transition-colors"
                             title="Delete Address"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -1372,13 +1389,14 @@ export default function Profile() {
                         </div>
                       </div>
 
-                      <p className="text-xs text-slate-600 leading-relaxed">
+                      <p className="text-xs text-stone-600 leading-relaxed">
                         {addr.addressLine1}{addr.addressLine2 ? `, ${addr.addressLine2}` : ''}<br />
-                        {addr.postOffice ? <span>PO: <b className="text-slate-800">{addr.postOffice}</b> · </span> : null}
-                        {addr.city}, {addr.state} — <b>{addr.pincode}</b>
+                        {addr.postOffice ? <span>PO: <b className="text-stone-800">{addr.postOffice}</b> · </span> : null}
+                        {addr.city}, {addr.state} — <b className="text-stone-800">{addr.pincode}</b>
                       </p>
-                      <p className="text-xs text-slate-500 mt-2">
-                        📞 Mobile: <span className="font-semibold text-slate-700">+91 {addr.phone}</span>
+                      <p className="text-xs text-stone-500 mt-2 flex items-center gap-1.5">
+                        <Phone className="h-3 w-3 text-stone-400" />
+                        <span>Mobile: <span className="font-semibold text-stone-700">+91 {addr.phone}</span></span>
                       </p>
                     </div>
                   ))}
@@ -1392,9 +1410,9 @@ export default function Profile() {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-lg font-extrabold text-slate-900">Saved Payment Preferences</h2>
-                  <p className="text-xs text-slate-500">
-                    Saved UPI handles and card preferences. <span className="text-amber-700 font-semibold">(External payment processing currently dormant until Razorpay live keys are configured).</span>
+                  <h2 className="text-lg font-serif font-bold text-stone-900">Saved Payment Preferences</h2>
+                  <p className="text-xs text-stone-500">
+                    Saved UPI handles and card preferences. <span className="text-amber-800 font-medium">(External payment processing currently dormant until Razorpay live keys are configured).</span>
                   </p>
                 </div>
                 <button
@@ -1408,34 +1426,34 @@ export default function Profile() {
                     });
                     setIsAddPaymentOpen(true);
                   }}
-                  className="flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white hover:bg-slate-800 shadow-sm transition-all"
+                  className="flex items-center gap-1.5 rounded-md bg-stone-900 px-4 py-2.5 text-xs font-semibold text-white hover:bg-stone-800 shadow-xs transition-colors"
                 >
                   <Plus className="h-4 w-4" /> Save Payment Preference
                 </button>
               </div>
 
               {paymentMethods.length === 0 ? (
-                <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center text-slate-500 shadow-sm">
-                  <CreditCard className="mx-auto h-12 w-12 text-slate-300 mb-3" />
-                  <p className="font-bold text-slate-700">No payment methods saved.</p>
-                  <p className="text-xs text-slate-500 mt-1">You can save your preferred UPI VPA for faster reference during checkout.</p>
+                <div className="rounded-lg border border-stone-200 bg-white p-12 text-center text-stone-500 shadow-xs">
+                  <CreditCard className="mx-auto h-12 w-12 text-stone-300 mb-3" />
+                  <p className="font-bold text-stone-800">No payment methods saved.</p>
+                  <p className="text-xs text-stone-500 mt-1">You can save your preferred UPI VPA for faster reference during checkout.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {paymentMethods.map((pm) => (
-                    <div key={pm.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm flex items-center justify-between">
+                    <div key={pm.id} className="rounded-lg border border-stone-200 bg-white p-5 shadow-xs flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-800 font-bold text-xs border border-emerald-200">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-md bg-stone-100 text-stone-800 font-semibold text-xs border border-stone-200">
                           {pm.type === 'UPI' ? 'UPI' : 'CARD'}
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-slate-900">{pm.maskedData}</p>
-                          <p className="text-xs text-slate-500">{pm.provider || 'UPI VPA'} · Dormant Mode</p>
+                          <p className="text-sm font-semibold text-stone-900">{pm.maskedData}</p>
+                          <p className="text-xs text-stone-500">{pm.provider || 'UPI VPA'} · Dormant Mode</p>
                         </div>
                       </div>
                       <button
                         onClick={() => handleDeletePayment(pm.id)}
-                        className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50"
+                        className="p-1.5 text-stone-400 hover:text-rose-600 rounded-md hover:bg-rose-50 transition-colors"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -1577,13 +1595,13 @@ export default function Profile() {
 
       {/* Address Edit / Add Modal */}
       {isAddAddressOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-          <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl overflow-hidden border border-slate-200">
-            <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 bg-slate-50">
-              <h3 className="font-bold text-slate-900 text-base">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/50 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+          <div className="w-full max-w-lg rounded-lg bg-white shadow-xl overflow-hidden border border-stone-200">
+            <div className="flex items-center justify-between border-b border-stone-200 px-6 py-4 bg-stone-50">
+              <h3 className="font-serif font-bold text-stone-900 text-base">
                 {editingAddress ? 'Edit Saved Address' : 'Add New Delivery Address'}
               </h3>
-              <button onClick={() => setIsAddAddressOpen(false)} className="p-1.5 text-slate-400 hover:bg-slate-200 rounded-lg">
+              <button onClick={() => setIsAddAddressOpen(false)} className="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-200/60 rounded-md transition-colors">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -1591,41 +1609,41 @@ export default function Profile() {
             <form onSubmit={handleSaveAddress} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Full Name</label>
+                  <label className="block text-xs font-semibold text-stone-700 mb-1">Full Name</label>
                   <input
                     type="text"
                     value={addressForm.fullName}
                     onChange={(e) => setAddressForm({ ...addressForm, fullName: e.target.value })}
-                    className="w-full rounded-lg border border-slate-300 p-2.5 text-xs font-semibold outline-none focus:border-emerald-500"
+                    className="w-full rounded-md border border-stone-200 p-2.5 text-xs font-medium text-stone-900 outline-none focus:border-stone-400 focus:ring-1 focus:ring-stone-400"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Mobile Number</label>
+                  <label className="block text-xs font-semibold text-stone-700 mb-1">Mobile Number</label>
                   <input
                     type="text"
                     value={addressForm.phone}
                     onChange={(e) => setAddressForm({ ...addressForm, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })}
-                    className="w-full rounded-lg border border-slate-300 p-2.5 text-xs font-semibold outline-none focus:border-emerald-500"
+                    className="w-full rounded-md border border-stone-200 p-2.5 text-xs font-medium text-stone-900 outline-none focus:border-stone-400 focus:ring-1 focus:ring-stone-400"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Street Address / House No</label>
+                <label className="block text-xs font-semibold text-stone-700 mb-1">Street Address / House No</label>
                 <input
                   type="text"
                   value={addressForm.addressLine1}
                   onChange={(e) => setAddressForm({ ...addressForm, addressLine1: e.target.value })}
                   placeholder="e.g. 32/8 Beadon Street, College Para"
-                  className="w-full rounded-lg border border-slate-300 p-2.5 text-xs font-semibold outline-none focus:border-emerald-500"
+                  className="w-full rounded-md border border-stone-200 p-2.5 text-xs font-medium text-stone-900 outline-none focus:border-stone-400 focus:ring-1 focus:ring-stone-400"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-stone-700 mb-1">
                   Local Post Office Name <span className="text-rose-600">* (Required for postal delivery)</span>
                 </label>
                 <input
@@ -1633,40 +1651,40 @@ export default function Profile() {
                   value={addressForm.postOffice}
                   onChange={(e) => setAddressForm({ ...addressForm, postOffice: e.target.value })}
                   placeholder="e.g. Beadon Street Sub Post Office (S.O), Bowbazar SO"
-                  className="w-full rounded-lg border border-slate-300 p-2.5 text-xs font-semibold outline-none focus:border-emerald-500"
+                  className="w-full rounded-md border border-stone-200 p-2.5 text-xs font-medium text-stone-900 outline-none focus:border-stone-400 focus:ring-1 focus:ring-stone-400"
                   required
                 />
               </div>
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">PIN Code</label>
+                  <label className="block text-xs font-semibold text-stone-700 mb-1">PIN Code</label>
                   <input
                     type="text"
                     value={addressForm.pincode}
                     onChange={(e) => setAddressForm({ ...addressForm, pincode: e.target.value.replace(/\D/g, '').slice(0, 6) })}
                     placeholder="733202"
-                    className="w-full rounded-lg border border-slate-300 p-2.5 text-xs font-semibold outline-none focus:border-emerald-500"
+                    className="w-full rounded-md border border-stone-200 p-2.5 text-xs font-medium text-stone-900 outline-none focus:border-stone-400 focus:ring-1 focus:ring-stone-400"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">City / District</label>
+                  <label className="block text-xs font-semibold text-stone-700 mb-1">City / District</label>
                   <input
                     type="text"
                     value={addressForm.city}
                     onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })}
-                    className="w-full rounded-lg border border-slate-300 p-2.5 text-xs font-semibold outline-none focus:border-emerald-500"
+                    className="w-full rounded-md border border-stone-200 p-2.5 text-xs font-medium text-stone-900 outline-none focus:border-stone-400 focus:ring-1 focus:ring-stone-400"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">State</label>
+                  <label className="block text-xs font-semibold text-stone-700 mb-1">State</label>
                   <input
                     type="text"
                     value={addressForm.state}
                     onChange={(e) => setAddressForm({ ...addressForm, state: e.target.value })}
-                    className="w-full rounded-lg border border-slate-300 p-2.5 text-xs font-semibold outline-none focus:border-emerald-500"
+                    className="w-full rounded-md border border-stone-200 p-2.5 text-xs font-medium text-stone-900 outline-none focus:border-stone-400 focus:ring-1 focus:ring-stone-400"
                     required
                   />
                 </div>
@@ -1674,7 +1692,7 @@ export default function Profile() {
 
               <div className="flex items-center gap-4 pt-2">
                 {['HOME', 'WORK', 'OTHER'].map(t => (
-                  <label key={t} className="flex items-center gap-1.5 text-xs font-bold text-slate-700 cursor-pointer">
+                  <label key={t} className="flex items-center gap-1.5 text-xs font-semibold text-stone-700 cursor-pointer">
                     <input
                       type="radio"
                       name="addrType"
@@ -1686,18 +1704,18 @@ export default function Profile() {
                 ))}
               </div>
 
-              <div className="flex items-center justify-end gap-2.5 border-t border-slate-200 pt-4 mt-4">
+              <div className="flex items-center justify-end gap-2.5 border-t border-stone-200 pt-4 mt-4">
                 <button
                   type="button"
                   onClick={() => setIsAddAddressOpen(false)}
-                  className="rounded-lg border border-slate-300 px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100"
+                  className="rounded-md border border-stone-200 px-4 py-2 text-xs font-semibold text-stone-700 hover:bg-stone-50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={addressSaving}
-                  className="rounded-lg bg-emerald-700 px-5 py-2 text-xs font-bold text-white hover:bg-emerald-800 shadow"
+                  className="rounded-md bg-emerald-800 px-5 py-2 text-xs font-semibold text-white hover:bg-emerald-900 shadow-xs transition-colors"
                 >
                   {addressSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Save Address'}
                 </button>
@@ -1709,22 +1727,22 @@ export default function Profile() {
 
       {/* Payment Preference Modal (Dormant) */}
       {isAddPaymentOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden border border-slate-200">
-            <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 bg-slate-50">
-              <h3 className="font-bold text-slate-900 text-base">Save Payment Preference</h3>
-              <button onClick={() => setIsAddPaymentOpen(false)} className="p-1.5 text-slate-400 hover:bg-slate-200 rounded-lg">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/50 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+          <div className="w-full max-w-md rounded-lg bg-white shadow-xl overflow-hidden border border-stone-200">
+            <div className="flex items-center justify-between border-b border-stone-200 px-6 py-4 bg-stone-50">
+              <h3 className="font-serif font-bold text-stone-900 text-base">Save Payment Preference</h3>
+              <button onClick={() => setIsAddPaymentOpen(false)} className="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-200/60 rounded-md transition-colors">
                 <X className="h-5 w-5" />
               </button>
             </div>
 
             <form onSubmit={handleSavePayment} className="p-6 space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Payment Type</label>
+                <label className="block text-xs font-semibold text-stone-700 mb-1">Payment Type</label>
                 <select
                   value={paymentForm.type}
                   onChange={(e) => setPaymentForm({ ...paymentForm, type: e.target.value })}
-                  className="w-full rounded-lg border border-slate-300 p-2.5 text-xs font-semibold outline-none focus:border-emerald-500"
+                  className="w-full rounded-md border border-stone-200 p-2.5 text-xs font-medium text-stone-900 outline-none focus:border-stone-400 focus:ring-1 focus:ring-stone-400"
                 >
                   <option value="UPI">UPI (Google Pay, PhonePe, Paytm)</option>
                   <option value="CARD">Card Reference</option>
@@ -1733,7 +1751,7 @@ export default function Profile() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-stone-700 mb-1">
                   {paymentForm.type === 'UPI' ? 'UPI ID / VPA' : 'Card Masked Number'}
                 </label>
                 <input
@@ -1741,27 +1759,28 @@ export default function Profile() {
                   value={paymentForm.maskedData}
                   onChange={(e) => setPaymentForm({ ...paymentForm, maskedData: e.target.value })}
                   placeholder={paymentForm.type === 'UPI' ? 'yourname@okhdfcbank' : '•••• •••• •••• 4242'}
-                  className="w-full rounded-lg border border-slate-300 p-2.5 text-xs font-semibold outline-none focus:border-emerald-500"
+                  className="w-full rounded-md border border-stone-200 p-2.5 text-xs font-medium text-stone-900 outline-none focus:border-stone-400 focus:ring-1 focus:ring-stone-400"
                   required
                 />
               </div>
 
-              <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-[11px] text-amber-900">
-                🔒 Stored as a reference preference only. External card/UPI debit processing remains dormant until live payment gateway credentials are deployed.
+              <div className="rounded-md bg-stone-50 border border-stone-200 p-3 text-[11px] text-stone-700 flex items-start gap-2">
+                <Lock className="h-3.5 w-3.5 text-stone-500 shrink-0 mt-0.5" />
+                <span>Stored as a reference preference only. External card/UPI debit processing remains dormant until live payment gateway credentials are deployed.</span>
               </div>
 
-              <div className="flex items-center justify-end gap-2.5 border-t border-slate-200 pt-4">
+              <div className="flex items-center justify-end gap-2.5 border-t border-stone-200 pt-4">
                 <button
                   type="button"
                   onClick={() => setIsAddPaymentOpen(false)}
-                  className="rounded-lg border border-slate-300 px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100"
+                  className="rounded-md border border-stone-200 px-4 py-2 text-xs font-semibold text-stone-700 hover:bg-stone-50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={paymentSaving}
-                  className="rounded-lg bg-slate-900 px-5 py-2 text-xs font-bold text-white hover:bg-slate-800 shadow"
+                  className="rounded-md bg-stone-900 px-5 py-2 text-xs font-semibold text-white hover:bg-stone-800 shadow-xs transition-colors"
                 >
                   {paymentSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Save Preference'}
                 </button>

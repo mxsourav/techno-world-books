@@ -41,10 +41,10 @@ export default function HeroFeaturedBooks() {
 
   if (AUTO_FEATURED_BOOKS && loading) {
     return (
-      <div className="relative flex min-h-[300px] w-full items-center justify-center overflow-hidden rounded-xl border border-emerald-500/30 bg-gradient-to-br from-emerald-900/80 to-emerald-950/80 p-6 shadow-2xl backdrop-blur-xl sm:p-8">
-        <div className="flex flex-col items-center gap-4 text-emerald-200">
-          <Loader2 className="h-8 w-8 animate-spin" />
-          <p className="text-sm font-bold">Loading Featured Books...</p>
+      <div className="relative flex min-h-[300px] w-full items-center justify-center overflow-hidden rounded-lg border border-stone-800 bg-[#0B2518] p-6 shadow-sm sm:p-8">
+        <div className="flex flex-col items-center gap-3 text-stone-300">
+          <Loader2 className="h-6 w-6 animate-spin text-stone-400" />
+          <p className="text-xs font-semibold tracking-wider uppercase text-stone-400">Loading Featured Books...</p>
         </div>
       </div>
     );
@@ -60,44 +60,44 @@ export default function HeroFeaturedBooks() {
 
   return (
     <div 
-      className="relative w-full overflow-hidden rounded-xl border border-emerald-500/30 bg-gradient-to-br from-emerald-900/80 to-emerald-950/80 p-6 shadow-2xl backdrop-blur-xl transition-all duration-500 hover:shadow-emerald-900/80 sm:p-8"
+      className="relative w-full overflow-hidden rounded-lg border border-stone-800 bg-[#0B2518] p-6 shadow-sm transition-colors sm:p-8"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="absolute right-4 top-4 rounded-md bg-amber-400 px-3 py-1 text-xs font-bold text-slate-900 shadow-sm shadow-amber-400/20">
+      <div className="absolute right-4 top-4 rounded-md border border-stone-700 bg-stone-900/90 px-2.5 py-0.5 text-xs font-semibold text-stone-200 shadow-xs">
         Featured
       </div>
 
       <div className="flex flex-col gap-8 sm:flex-row sm:items-center">
         {/* Book Cover */}
-        <div className="group relative shrink-0 overflow-hidden rounded-xl bg-slate-100 shadow-xl h-48 w-32 mx-auto sm:mx-0 sm:h-[260px] sm:w-[180px]">
+        <div className="group relative shrink-0 overflow-hidden rounded-md border border-stone-800 bg-stone-900 shadow-xs h-48 w-32 mx-auto sm:mx-0 sm:h-[260px] sm:w-[180px]">
           <img 
             src={activeBook.cover} 
             alt={activeBook.title} 
             key={activeBook.id}
-            className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-110 animate-in fade-in"
+            className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 animate-in fade-in"
             loading="lazy"
           />
         </div>
 
         {/* Book Details */}
-        <div className="flex-1 space-y-4 text-white pl-2">
+        <div className="flex-1 space-y-4 text-white pl-1 sm:pl-2">
           <div key={`${activeBook.id}-details`} className="animate-in fade-in duration-700">
-            <h3 className="text-2xl font-black leading-tight tracking-tight sm:text-3xl line-clamp-2 text-white">
+            <h3 className="text-2xl font-bold leading-tight tracking-tight sm:text-3xl line-clamp-2 text-white">
               {activeBook.title}
             </h3>
-            <p className="mt-2 text-sm text-emerald-100 sm:text-base">
-              by <span className="font-bold text-amber-300">{activeBook.author}</span> • {activeBook.publisher}
+            <p className="mt-2 text-sm text-stone-300 sm:text-base">
+              by <span className="font-semibold text-white">{activeBook.author}</span> • <span className="text-stone-400">{activeBook.publisher}</span>
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
-            <div className="flex items-center text-amber-400">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center text-[#D4A017]">
               <Star className="h-4 w-4 fill-current" />
-              <span className="ml-1 text-sm font-bold">{activeBook.rating}</span>
+              <span className="ml-1 text-sm font-semibold">{activeBook.rating}</span>
             </div>
-            <span className="text-emerald-400/50">•</span>
-            <p className="text-xl font-black text-amber-400">
+            <span className="text-stone-600">•</span>
+            <p className="text-xl font-bold text-white">
               {typeof activeBook.price === 'number' ? `₹${activeBook.price}` : activeBook.price}
             </p>
           </div>
@@ -108,14 +108,14 @@ export default function HeroFeaturedBooks() {
                 href={activeBook.pdf} 
                 target="_blank" 
                 rel="noreferrer"
-                className="flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-white/20"
+                className="flex items-center gap-2 rounded-md border border-stone-700 bg-stone-900/60 px-4 py-2 text-sm font-semibold text-stone-200 transition-colors hover:bg-stone-900 hover:text-white"
               >
-                <FileText className="h-4 w-4" /> Read Preview
+                <FileText className="h-4 w-4 text-stone-400" /> Read Preview
               </a>
             )}
             <Link 
               to={shopNowLink}
-              className="flex items-center gap-2 rounded-xl bg-amber-400 px-5 py-2.5 text-sm font-extrabold text-slate-900 transition-colors hover:bg-amber-300"
+              className="flex items-center gap-2 rounded-md bg-white px-5 py-2 text-sm font-semibold text-stone-950 transition-colors hover:bg-stone-100 shadow-xs"
             >
               <ShoppingBag className="h-4 w-4" /> Shop Now
             </Link>
@@ -124,14 +124,14 @@ export default function HeroFeaturedBooks() {
       </div>
 
       {/* Manual Controls & Pagination */}
-      <div className="mt-6 flex items-center justify-between border-t border-emerald-700/50 pt-5">
+      <div className="mt-6 flex items-center justify-between border-t border-stone-800/80 pt-5">
         <div className="flex gap-2">
           {featuredBooks.map((_, idx) => (
             <button
               key={idx}
               onClick={() => setCurrentIndex(idx)}
-              className={`h-2 rounded-full transition-all duration-300 ${
-                idx === currentIndex ? 'w-8 bg-amber-400' : 'w-2 bg-emerald-700 hover:bg-emerald-500'
+              className={`h-1.5 rounded transition-all duration-300 ${
+                idx === currentIndex ? 'w-6 bg-stone-200' : 'w-2 bg-stone-700 hover:bg-stone-500'
               }`}
               aria-label={`Go to slide ${idx + 1}`}
             />
@@ -140,17 +140,17 @@ export default function HeroFeaturedBooks() {
         <div className="flex gap-2">
           <button 
             onClick={prev}
-            className="flex h-9 w-9 items-center justify-center rounded-md bg-emerald-800 text-emerald-200 transition-colors hover:bg-emerald-700 hover:text-white"
+            className="flex h-8 w-8 items-center justify-center rounded-md border border-stone-800 bg-stone-900 text-stone-300 transition-colors hover:bg-stone-800 hover:text-white cursor-pointer"
             aria-label="Previous book"
           >
-            <ChevronLeft className="h-5 w-5" />
+            <ChevronLeft className="h-4 w-4" />
           </button>
           <button 
             onClick={next}
-            className="flex h-9 w-9 items-center justify-center rounded-md bg-emerald-800 text-emerald-200 transition-colors hover:bg-emerald-700 hover:text-white"
+            className="flex h-8 w-8 items-center justify-center rounded-md border border-stone-800 bg-stone-900 text-stone-300 transition-colors hover:bg-stone-800 hover:text-white cursor-pointer"
             aria-label="Next book"
           >
-            <ChevronRight className="h-5 w-5" />
+            <ChevronRight className="h-4 w-4" />
           </button>
         </div>
       </div>

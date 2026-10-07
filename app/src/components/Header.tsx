@@ -137,50 +137,44 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) { onClose(); setStep('phone'); setOtp(''); } }}>
-      <DialogContent className="sm:max-w-[425px] p-0 overflow-hidden bg-white border-0 shadow-2xl rounded-2xl">
+      <DialogContent className="sm:max-w-[420px] p-0 overflow-hidden bg-white border border-stone-200 shadow-lg rounded-lg">
         {/* Decorative Header with Brand Logo */}
-        <div className="relative bg-gradient-to-br from-emerald-800 to-emerald-950 px-6 py-8 text-center overflow-hidden flex flex-col items-center justify-center">
-          <svg className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <path d="M0,100 C30,60 70,60 100,100 L100,0 L0,0 Z" fill="currentColor" className="text-white" />
-            <circle cx="80" cy="20" r="15" fill="currentColor" className="text-white" />
-            <circle cx="20" cy="80" r="25" fill="currentColor" className="text-white" />
-          </svg>
-          
+        <div className="relative bg-[#0B2518] px-6 py-8 text-center overflow-hidden flex flex-col items-center justify-center border-b border-stone-800">
           <div className="relative z-10 flex flex-col items-center">
             <DialogTitle className="sr-only">Sign In to Techno World Books</DialogTitle>
             <img
               src="/techno_world.png"
               alt="Techno World Books Logo"
-              className="h-12 sm:h-14 w-auto object-contain brightness-0 invert drop-shadow-md"
+              className="h-12 sm:h-14 w-auto object-contain brightness-0 invert drop-shadow-sm"
             />
           </div>
         </div>
 
         {isPreviewMode && (
-          <div className="bg-amber-500/15 border-b border-amber-500/30 px-4 py-2 text-center">
-            <p className="text-[11px] font-bold text-amber-900">
+          <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2 text-center">
+            <p className="text-[11px] font-semibold text-amber-900">
               Live Preview Mode · User authentication is disabled for preview safety
             </p>
           </div>
         )}
 
-        <div className="px-8 py-6">
+        <div className="px-7 py-6">
           {/* Primary Google Sign-In */}
           <div className="flex flex-col items-center justify-center mb-3">
             <GoogleSignInButton onSuccess={onClose} width={300} />
           </div>
 
-          <div className="relative text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest before:absolute before:left-0 before:top-1/2 before:h-px before:w-[30%] before:bg-slate-200 after:absolute after:right-0 after:top-1/2 after:h-px after:w-[30%] after:bg-slate-200 my-4">
+          <div className="relative text-center text-[10px] font-bold text-stone-400 uppercase tracking-widest before:absolute before:left-0 before:top-1/2 before:h-px before:w-[28%] before:bg-stone-200 after:absolute after:right-0 after:top-1/2 after:h-px after:w-[28%] after:bg-stone-200 my-4">
             OR SIGN IN WITH
           </div>
 
           {/* Method Tabs */}
-          <div className="flex rounded-xl bg-slate-100 p-1 mb-5">
+          <div className="flex rounded-md bg-stone-100 p-1 mb-5 border border-stone-200">
             <button
               type="button"
               onClick={() => setLoginTab('email')}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-bold rounded-lg transition-all ${
-                loginTab === 'email' ? 'bg-white text-emerald-800 shadow-sm' : 'text-slate-500 hover:text-slate-800'
+              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold rounded transition-all ${
+                loginTab === 'email' ? 'bg-white text-stone-900 shadow-xs' : 'text-stone-500 hover:text-stone-800'
               }`}
             >
               <Mail className="h-3.5 w-3.5" /> Email Sign In
@@ -188,8 +182,8 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
             <button
               type="button"
               onClick={() => setLoginTab('phone')}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-bold rounded-lg transition-all ${
-                loginTab === 'phone' ? 'bg-white text-emerald-800 shadow-sm' : 'text-slate-500 hover:text-slate-800'
+              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold rounded transition-all ${
+                loginTab === 'phone' ? 'bg-white text-stone-900 shadow-xs' : 'text-stone-500 hover:text-stone-800'
               }`}
             >
               <MessageCircle className="h-3.5 w-3.5" /> Mobile OTP
@@ -199,18 +193,18 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
           {loginTab === 'email' ? (
             <div className="space-y-4">
               <div>
-                <label className="block text-[11px] font-bold text-slate-500 mb-2 uppercase tracking-widest">
+                <label className="block text-[11px] font-semibold text-stone-600 mb-1.5 uppercase tracking-wider">
                   Email Address
                 </label>
-                <div className="flex items-center gap-2.5 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-3 overflow-hidden focus-within:ring-2 focus-within:ring-emerald-500/20 focus-within:border-emerald-500 transition-all">
-                  <Mail className="h-4 w-4 text-slate-400 shrink-0" />
+                <div className="flex items-center gap-2.5 rounded-md border border-stone-300 bg-white px-3 py-2.5 overflow-hidden focus-within:ring-1 focus-within:ring-stone-900 focus-within:border-stone-900 transition-colors">
+                  <Mail className="h-4 w-4 text-stone-400 shrink-0" />
                   <input
                     type="email"
                     value={emailInput}
                     onChange={(e) => setEmailInput(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter') handleEmailLogin(); }}
                     placeholder="Enter your email address"
-                    className="w-full bg-transparent text-sm font-semibold text-slate-800 outline-none placeholder:text-slate-400 placeholder:font-normal"
+                    className="w-full bg-transparent text-sm text-stone-900 outline-none placeholder:text-stone-400"
                     autoFocus
                   />
                 </div>
@@ -219,24 +213,24 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
               <button 
                 onClick={() => handleEmailLogin()} 
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3.5 text-sm font-bold text-white shadow-md shadow-emerald-600/20 hover:bg-emerald-500 hover:shadow-lg hover:-translate-y-0.5 transition-all active:translate-y-0 disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 rounded-md bg-emerald-800 py-3 text-sm font-semibold text-white hover:bg-emerald-900 transition-colors shadow-xs disabled:opacity-50 cursor-pointer"
               >
                 <Mail className="h-4 w-4" /> {loading ? 'Signing in...' : 'Sign In with Email'}
               </button>
             </div>
           ) : step === 'phone' ? (
-            <div className="space-y-5">
+            <div className="space-y-4">
               <div>
-                <label className="block text-[11px] font-bold text-slate-500 mb-2 uppercase tracking-widest">Mobile Number</label>
-                <div className="flex items-center gap-0 rounded-xl border border-slate-200 bg-slate-50 overflow-hidden focus-within:ring-2 focus-within:ring-emerald-500/20 focus-within:border-emerald-500 transition-all">
-                  <div className="bg-slate-100 px-3.5 py-3 border-r border-slate-200 flex items-center justify-center">
-                    <span className="text-sm font-bold text-slate-600">+91</span>
+                <label className="block text-[11px] font-semibold text-stone-600 mb-1.5 uppercase tracking-wider">Mobile Number</label>
+                <div className="flex items-center gap-0 rounded-md border border-stone-300 bg-white overflow-hidden focus-within:ring-1 focus-within:ring-stone-900 focus-within:border-stone-900 transition-colors">
+                  <div className="bg-stone-50 px-3 py-2.5 border-r border-stone-200 flex items-center justify-center">
+                    <span className="text-sm font-semibold text-stone-700">+91</span>
                   </div>
                   <input
                     value={phone}
                     onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                     placeholder="Enter 10-digit number"
-                    className="w-full bg-transparent px-4 py-3 text-sm font-semibold text-slate-800 outline-none placeholder:text-slate-400 placeholder:font-normal"
+                    className="w-full bg-transparent px-3 py-2.5 text-sm text-stone-900 outline-none placeholder:text-stone-400"
                     inputMode="numeric"
                   />
                 </div>
@@ -244,28 +238,28 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
               
               <button 
                 onClick={sendOtp} 
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3.5 text-sm font-bold text-white shadow-md shadow-emerald-600/20 hover:bg-emerald-500 hover:shadow-lg hover:-translate-y-0.5 transition-all active:translate-y-0"
+                className="w-full flex items-center justify-center gap-2 rounded-md bg-emerald-800 py-3 text-sm font-semibold text-white hover:bg-emerald-900 transition-colors shadow-xs cursor-pointer"
               >
                 <MessageCircle className="h-4 w-4" /> Send OTP Securely
               </button>
             </div>
           ) : (
-            <div className="space-y-6 text-center">
-              <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 mb-2">
-                <MessageCircle className="h-6 w-6" />
+            <div className="space-y-5 text-center">
+              <div className="inline-flex h-11 w-11 items-center justify-center rounded-md bg-stone-100 text-stone-800 border border-stone-200 mb-1">
+                <MessageCircle className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-sm font-medium text-slate-800">Enter the verification code sent to</p>
-                <p className="text-sm font-extrabold text-emerald-700 mt-1">+91 {phone}</p>
+                <p className="text-sm font-medium text-stone-700">Enter the verification code sent to</p>
+                <p className="text-sm font-bold text-stone-900 mt-0.5">+91 {phone}</p>
               </div>
               
-              <div className="flex justify-center pt-2">
+              <div className="flex justify-center pt-1">
                 <InputOTP maxLength={4} value={otp} onChange={setOtp} className="gap-2">
                   <InputOTPGroup className="gap-2">
-                    <InputOTPSlot index={0} className="w-12 h-14 text-lg font-bold rounded-xl border-slate-200" />
-                    <InputOTPSlot index={1} className="w-12 h-14 text-lg font-bold rounded-xl border-slate-200" />
-                    <InputOTPSlot index={2} className="w-12 h-14 text-lg font-bold rounded-xl border-slate-200" />
-                    <InputOTPSlot index={3} className="w-12 h-14 text-lg font-bold rounded-xl border-slate-200" />
+                    <InputOTPSlot index={0} className="w-11 h-12 text-lg font-bold rounded-md border-stone-300" />
+                    <InputOTPSlot index={1} className="w-11 h-12 text-lg font-bold rounded-md border-stone-300" />
+                    <InputOTPSlot index={2} className="w-11 h-12 text-lg font-bold rounded-md border-stone-300" />
+                    <InputOTPSlot index={3} className="w-11 h-12 text-lg font-bold rounded-md border-stone-300" />
                   </InputOTPGroup>
                 </InputOTP>
               </div>
@@ -274,13 +268,13 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
                 <button 
                   onClick={verify} 
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3.5 text-sm font-bold text-white shadow-md shadow-emerald-600/20 hover:bg-emerald-500 hover:-translate-y-0.5 transition-all active:translate-y-0 disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-2 rounded-md bg-emerald-800 py-3 text-sm font-semibold text-white hover:bg-emerald-900 transition-colors shadow-xs disabled:opacity-50 cursor-pointer"
                 >
                   {loading ? 'Verifying...' : 'Verify & Login'}
                 </button>
               </div>
               
-              <button onClick={() => setStep('phone')} className="text-xs font-bold text-slate-500 hover:text-emerald-700 transition-colors">
+              <button onClick={() => setStep('phone')} className="text-xs font-semibold text-stone-500 hover:text-stone-900 transition-colors">
                 ← Change mobile number
               </button>
             </div>
@@ -351,9 +345,9 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
 
   return (
     <div ref={ref} id={id} className={`relative ${className}`}>
-      <div className="flex items-stretch rounded-full bg-white shadow-md h-10 sm:h-11 w-full overflow-hidden border border-slate-200/80 hover:border-emerald-500 focus-within:border-emerald-600 transition-colors">
+      <div className="flex items-stretch rounded-md bg-white shadow-xs h-10 sm:h-11 w-full overflow-hidden border border-stone-300 focus-within:border-stone-900 transition-colors">
         <div className="flex-1 flex items-center bg-transparent pl-3 sm:pl-4 min-w-0">
-          <Search className="h-4 w-4 shrink-0 text-slate-400" />
+          <Search className="h-4 w-4 shrink-0 text-stone-400" />
           <input
             value={q}
             autoFocus={autoFocus}
@@ -361,23 +355,23 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
             onFocus={() => setOpen(true)}
             onKeyDown={(e) => e.key === 'Enter' && submit()}
             placeholder="Search by title, author, ISBN, exam, university…"
-            className="w-full bg-transparent text-xs sm:text-sm text-slate-800 outline-none placeholder:text-slate-400 self-stretch px-2.5 sm:px-3"
+            className="w-full bg-transparent text-xs sm:text-sm text-stone-900 outline-none placeholder:text-stone-400 self-stretch px-2.5 sm:px-3"
           />
-          <button onClick={voice} aria-label="Voice search" className="shrink-0 text-slate-400 hover:text-emerald-700 mx-1.5 sm:mx-2">
+          <button onClick={voice} aria-label="Voice search" className="shrink-0 text-stone-400 hover:text-stone-700 mx-1.5 sm:mx-2 cursor-pointer">
             <Mic className="h-4 w-4" />
           </button>
         </div>
-        <button onClick={() => submit()} aria-label="Submit search" className="flex shrink-0 items-center justify-center px-4 sm:px-6 bg-[#0a2e1f] text-white hover:bg-emerald-800 transition-colors">
+        <button onClick={() => submit()} aria-label="Submit search" className="flex shrink-0 items-center justify-center px-4 sm:px-6 bg-[#0B2518] text-white hover:bg-[#071910] transition-colors cursor-pointer">
           <Search className="h-4 w-4" />
         </button>
       </div>
       {open && (
-        <div className="absolute left-0 right-0 top-full z-[60] mt-2 max-h-[calc(100dvh-160px)] sm:max-h-96 overflow-y-auto overscroll-contain rounded-2xl border border-slate-100 bg-white py-2 shadow-2xl">
+        <div className="absolute left-0 right-0 top-full z-[60] mt-1.5 max-h-[calc(100dvh-160px)] sm:max-h-96 overflow-y-auto overscroll-contain rounded-md border border-stone-200 bg-white py-1.5 shadow-md">
           {q.trim().length > 1 ? (
             loading ? (
-              <div className="px-4 py-3 text-center text-sm text-slate-500">Loading...</div>
+              <div className="px-4 py-3 text-center text-xs text-stone-500">Loading...</div>
             ) : suggestions.length === 0 ? (
-              <div className="px-4 py-3 text-center text-sm text-slate-500">No books found</div>
+              <div className="px-4 py-3 text-center text-xs text-stone-500">No books found</div>
             ) : (
               <>
                 {suggestions.map((b) => {
@@ -398,9 +392,9 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
                     <button
                       key={b.id}
                       onClick={() => { addSearchToHistory(b.title); setOpen(false); setQ(''); navigate(`/book/${b.slug}`); }}
-                      className="group flex w-full items-center gap-3.5 px-3.5 py-2 text-left hover:bg-emerald-50/80 transition-colors border-b border-slate-50 last:border-0"
+                      className="group flex w-full items-center gap-3.5 px-3.5 py-2 text-left hover:bg-stone-50 transition-colors border-b border-stone-100 last:border-0"
                     >
-                      <div className="relative h-12 w-9 shrink-0 overflow-hidden rounded bg-white border border-slate-200/90 shadow-xs flex items-center justify-center p-0.5">
+                      <div className="relative h-12 w-9 shrink-0 overflow-hidden rounded bg-stone-50 border border-stone-200 shadow-2xs flex items-center justify-center p-0.5">
                         {coverSrc ? (
                           <img
                             src={coverSrc}
@@ -412,24 +406,24 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
                             }}
                           />
                         ) : (
-                          <BookOpen className="h-4 w-4 text-emerald-600" />
+                          <BookOpen className="h-4 w-4 text-emerald-800" />
                         )}
                       </div>
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-xs sm:text-sm font-semibold text-slate-900 group-hover:text-emerald-800 transition-colors">
+                        <span className="block truncate text-xs sm:text-sm font-semibold text-stone-900 group-hover:text-emerald-900 transition-colors">
                           {b.title}
                         </span>
-                        <span className="block truncate text-[11px] text-slate-500 mt-0.5">
+                        <span className="block truncate text-[11px] text-stone-500 mt-0.5">
                           {b.author && b.author !== 'Unknown' ? <span>{b.author}</span> : null}
                           {b.author && b.author !== 'Unknown' && b.category ? <span> • </span> : null}
-                          {b.category ? <span className="text-slate-400">{b.category}</span> : null}
+                          {b.category ? <span className="text-stone-400">{b.category}</span> : null}
                         </span>
                       </span>
                       {b.price !== undefined && (
                         <span className="shrink-0 text-right pl-2">
-                          <span className="block text-xs sm:text-sm font-bold text-slate-900">₹{b.price}</span>
+                          <span className="block text-xs sm:text-sm font-bold text-stone-900">₹{b.price}</span>
                           {b.mrp && Number(b.mrp) > Number(b.price) && (
-                            <span className="block text-[10px] text-slate-400 line-through">₹{b.mrp}</span>
+                            <span className="block text-[10px] text-stone-400 line-through">₹{b.mrp}</span>
                           )}
                         </span>
                       )}
@@ -440,20 +434,20 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
                   <button
                     key={`author-${author}`}
                     onClick={() => submit(author)}
-                    className="flex w-full items-center gap-3 px-4 py-2 text-left hover:bg-emerald-50 border-t border-slate-50 transition-colors"
+                    className="flex w-full items-center gap-3 px-4 py-2 text-left hover:bg-stone-50 border-t border-stone-100 transition-colors"
                   >
-                    <User className="h-4 w-4 shrink-0 text-amber-500" />
-                    <span className="truncate text-sm font-medium text-slate-700">Author: {author}</span>
+                    <User className="h-4 w-4 shrink-0 text-stone-500" />
+                    <span className="truncate text-xs font-medium text-stone-700">Author: {author}</span>
                   </button>
                 ))}
                 {Array.from(new Set(suggestions.map(b => b.category).filter(Boolean))).map(cat => (
                   <button
                     key={`cat-${cat}`}
                     onClick={() => submit(cat)}
-                    className="flex w-full items-center gap-3 px-4 py-2 text-left hover:bg-emerald-50 border-t border-slate-50 transition-colors"
+                    className="flex w-full items-center gap-3 px-4 py-2 text-left hover:bg-stone-50 border-t border-stone-100 transition-colors"
                   >
-                    <Tag className="h-4 w-4 shrink-0 text-blue-500" />
-                    <span className="truncate text-sm font-medium text-slate-700">Category: {cat}</span>
+                    <Tag className="h-4 w-4 shrink-0 text-stone-500" />
+                    <span className="truncate text-xs font-medium text-stone-700">Category: {cat}</span>
                   </button>
                 ))}
               </>
@@ -462,20 +456,20 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
             <>
               {searchHistory.length > 0 && (
                 <div className="px-4 pb-1 pt-1">
-                  <p className="mb-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">Recent searches</p>
+                  <p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-stone-400">Recent searches</p>
                   {searchHistory.slice(0, 4).map((h) => (
-                    <button key={h} onClick={() => submit(h)} className="flex w-full items-center gap-2 py-1.5 text-sm text-slate-600 hover:text-emerald-700">
-                      <History className="h-3.5 w-3.5 text-slate-300" /> {h}
+                    <button key={h} onClick={() => submit(h)} className="flex w-full items-center gap-2 py-1.5 text-xs text-stone-600 hover:text-stone-900">
+                      <History className="h-3.5 w-3.5 text-stone-400" /> {h}
                     </button>
                   ))}
                 </div>
               )}
               <div className="px-4 pb-1 pt-1">
-                <p className="mb-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">Popular right now</p>
+                <p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-stone-400">Popular right now</p>
                 <div className="flex flex-wrap gap-1.5">
                   {POPULAR_SEARCHES.slice(0, 6).map((p) => (
-                    <button key={p} onClick={() => submit(p)} className="flex items-center gap-1 rounded-full border border-slate-200 px-2.5 py-1 text-xs text-slate-600 hover:border-emerald-300 hover:bg-emerald-50">
-                      <TrendingUp className="h-3 w-3 text-emerald-600" /> {p}
+                    <button key={p} onClick={() => submit(p)} className="flex items-center gap-1 rounded-md border border-stone-200 bg-stone-50 px-2 py-0.5 text-xs text-stone-700 hover:border-stone-300 hover:bg-stone-100 transition-colors">
+                      <TrendingUp className="h-3 w-3 text-emerald-800" /> {p}
                     </button>
                   ))}
                 </div>
@@ -581,36 +575,36 @@ export default function Header() {
                 <div className="space-y-0.5">
                   {categories.map((c: any) => (
                     <SheetClose key={c.slug} asChild>
-                      <Link to={`/category/${c.slug}`} className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">
-                        {c.icon && <span className="text-emerald-700">{c.icon}</span>}
+                      <Link to={`/category/${c.slug}`} className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-stone-700 hover:bg-stone-100 hover:text-stone-900 transition-colors">
+                        {c.icon && <span className="text-stone-600">{c.icon}</span>}
                         <span>{c.name}</span>
                       </Link>
                     </SheetClose>
                   ))}
                 </div>
-                <div className="mt-4 border-t border-slate-100 pt-3 space-y-0.5">
-                  <p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">Quick Links</p>
+                <div className="mt-4 border-t border-stone-100 pt-3 space-y-0.5">
+                  <p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-stone-400">Quick Links</p>
                   <SheetClose asChild>
-                    <Link to="/search?publisher=Techno%20World%20Publications" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">
-                      <BookOpen className="h-4 w-4 text-emerald-700 shrink-0" />
+                    <Link to="/search?publisher=Techno%20World%20Publications" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-stone-700 hover:bg-stone-100 hover:text-stone-900 transition-colors">
+                      <BookOpen className="h-4 w-4 text-emerald-800 shrink-0" />
                       <span>Our Publications</span>
                     </Link>
                   </SheetClose>
                   <SheetClose asChild>
-                    <Link to="/track" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">
-                      <Truck className="h-4 w-4 text-emerald-700 shrink-0" />
+                    <Link to="/track" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-stone-700 hover:bg-stone-100 hover:text-stone-900 transition-colors">
+                      <Truck className="h-4 w-4 text-emerald-800 shrink-0" />
                       <span>Track Order</span>
                     </Link>
                   </SheetClose>
                   <SheetClose asChild>
-                    <Link to="/blog" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">
-                      <FileText className="h-4 w-4 text-emerald-700 shrink-0" />
+                    <Link to="/blog" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-stone-700 hover:bg-stone-100 hover:text-stone-900 transition-colors">
+                      <FileText className="h-4 w-4 text-emerald-800 shrink-0" />
                       <span>Blog & Book Lists</span>
                     </Link>
                   </SheetClose>
                   <SheetClose asChild>
-                    <Link to="/help" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors">
-                      <HelpCircle className="h-4 w-4 text-emerald-700 shrink-0" />
+                    <Link to="/help" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-stone-700 hover:bg-stone-100 hover:text-stone-900 transition-colors">
+                      <HelpCircle className="h-4 w-4 text-emerald-800 shrink-0" />
                       <span>Help Center</span>
                     </Link>
                   </SheetClose>
@@ -677,13 +671,13 @@ export default function Header() {
                 : 'opacity-0 scale-95 translate-y-2 pointer-events-none absolute inset-0 flex items-center justify-center'
             }`}
           >
-            <SearchBar className="w-full rounded-full shadow-md border-none ring-0" />
+            <SearchBar className="w-full shadow-xs" />
           </div>
         </div>
 
-        {/* Desktop Sticky Search Bar (Expands Left-to-Right from round shape into pill on scroll) */}
+        {/* Desktop Sticky Search Bar */}
         <div
-          className={`hidden md:block rounded-full transition-all duration-500 ease-in-out origin-left ${
+          className={`hidden md:block transition-all duration-500 ease-in-out origin-left ${
             isScrolled
               ? 'flex-1 max-w-xl lg:max-w-2xl opacity-100 mx-3 lg:mx-6 pointer-events-auto overflow-visible'
               : 'flex-none max-w-0 opacity-0 pointer-events-none mx-0 overflow-hidden'
@@ -695,25 +689,25 @@ export default function Header() {
         {/* Right Section (Fixed width matches Left, ml-auto pushes it to right edge) */}
         <div className="flex w-auto md:w-[220px] lg:w-[260px] shrink-0 items-center justify-end ml-auto">
           <nav className="flex shrink-0 items-center gap-2 sm:gap-4">
-            <Link to="/cart" className="relative rounded-lg p-1.5 hover:bg-emerald-800 md:p-2" aria-label="Cart">
-              <ShoppingCart className="h-5 w-5 sm:h-7 sm:w-7" />
+            <Link to="/cart" className="relative rounded-md p-1.5 hover:bg-emerald-800/80 md:p-2 transition-colors" aria-label="Cart">
+              <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6" />
               {cartCount > 0 && (
-                <span className="absolute right-0 top-0 flex h-3.5 w-3.5 sm:h-4 sm:w-4 items-center justify-center rounded-full bg-amber-400 text-[9px] sm:text-[10px] font-bold text-slate-900">{cartCount}</span>
+                <span className="absolute right-0 top-0 flex h-3.5 w-3.5 sm:h-4 sm:w-4 items-center justify-center rounded-full bg-[#D4A017] text-[9px] sm:text-[10px] font-bold text-stone-900">{cartCount}</span>
               )}
             </Link>
             {user ? (
-              <Link to="/profile" className="flex items-center gap-2 rounded-xl px-2.5 py-1.5 border border-emerald-800/40 hover:bg-emerald-800/60 transition-all text-white">
-                <div className="relative h-7 w-7 shrink-0">
+              <Link to="/profile" className="flex items-center gap-2 rounded-md px-2.5 py-1.5 border border-emerald-800/60 hover:bg-emerald-800/60 transition-colors text-white">
+                <div className="relative h-6 w-6 shrink-0">
                   {(authUser?.avatarUrl || user?.avatarUrl) && !(authUser?.avatarUrl || user?.avatarUrl)?.includes('unsplash') && !avatarError ? (
                     <img
                       src={(authUser?.avatarUrl || user?.avatarUrl) ?? undefined}
                       alt={user.name}
                       referrerPolicy="no-referrer"
                       onError={() => setAvatarError(true)}
-                      className="h-7 w-7 rounded-full object-cover border border-white/15"
+                      className="h-6 w-6 rounded-full object-cover border border-white/20"
                     />
                   ) : (
-                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-800 border border-white/20 text-xs font-bold text-white shadow-xs">
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-900 border border-white/20 text-[11px] font-bold text-white shadow-xs">
                       {user.name?.[0]?.toUpperCase() || 'U'}
                     </div>
                   )}
@@ -735,21 +729,21 @@ export default function Header() {
                   }
                   setLoginOpen(true);
                 }}
-                className="flex items-center gap-1 rounded-lg px-2 py-1.5 hover:bg-emerald-800"
+                className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 hover:bg-emerald-800/80 transition-colors cursor-pointer"
               >
-                <User className="h-5 w-5 sm:h-7 sm:w-7" />
-                <span className="hidden text-sm font-bold md:block">Login</span>
+                <User className="h-5 w-5 sm:h-6 sm:w-6" />
+                <span className="hidden text-sm font-semibold md:block">Login</span>
               </button>
             )}
             {user && (
-              <button onClick={logout} title="Logout" className="hidden rounded-lg p-1.5 hover:bg-emerald-800 md:block">
+              <button onClick={logout} title="Logout" className="hidden rounded-md p-1.5 hover:bg-emerald-800/80 md:block transition-colors cursor-pointer">
                 <LogOut className="h-5 w-5" />
               </button>
             )}
-            <Link to="/wishlist" className="relative hidden rounded-lg p-1.5 hover:bg-emerald-800 md:block md:p-2" aria-label="Wishlist">
-              <Heart className="h-5 w-5 sm:h-7 sm:w-7" />
+            <Link to="/wishlist" className="relative hidden rounded-md p-1.5 hover:bg-emerald-800/80 md:block md:p-2 transition-colors" aria-label="Wishlist">
+              <Heart className="h-5 w-5 sm:h-6 sm:w-6" />
               {wishlist?.length > 0 && (
-                <span className="absolute right-0 top-0 flex h-3.5 w-3.5 sm:h-4 sm:w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] sm:text-[10px] font-bold">{wishlist?.length}</span>
+                <span className="absolute right-0 top-0 flex h-3.5 w-3.5 sm:h-4 sm:w-4 items-center justify-center rounded-full bg-rose-600 text-[9px] sm:text-[10px] font-bold text-white">{wishlist?.length}</span>
               )}
             </Link>
           </nav>
@@ -757,24 +751,24 @@ export default function Header() {
       </div>
 
       {/* category strip */}
-      <nav className="hidden border-t border-white/5 bg-[#0a2e1f] md:block">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 py-1">
+      <nav className="hidden border-t border-white/10 bg-[#071F15] md:block">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 py-1.5">
           <div className="flex flex-1 min-w-0 items-center overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            <div className="flex items-center gap-0.5 sm:gap-1 shrink-0 pr-4">
+            <div className="flex items-center gap-1 shrink-0 pr-4">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="mr-1.5 flex shrink-0 items-center gap-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-semibold text-emerald-300 hover:bg-white/10 hover:text-white transition-colors cursor-pointer outline-none">
+                  <button className="mr-1.5 flex shrink-0 items-center gap-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-semibold text-emerald-200 hover:bg-white/10 hover:text-white transition-colors cursor-pointer outline-none">
                     <ChevronDown className="h-3.5 w-3.5 text-emerald-400" /> Shop by category
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-60 max-h-96 overflow-y-auto bg-[#061d13] border border-emerald-800/80 text-emerald-100 p-1.5 shadow-2xl z-50">
-                  <div className="px-2 py-1.5 text-[11px] font-bold text-emerald-400 uppercase tracking-wider border-b border-emerald-900/60 mb-1">
+                <DropdownMenuContent align="start" className="w-60 max-h-96 overflow-y-auto bg-[#071F15] border border-emerald-900/80 text-emerald-100 p-1.5 shadow-lg rounded-md z-50">
+                  <div className="px-2 py-1.5 text-[10px] font-bold text-emerald-400 uppercase tracking-wider border-b border-emerald-900/60 mb-1">
                     All Categories
                   </div>
                   {(categories?.length ? categories : WEBSITE_CATEGORIES).map((c: any) => (
                     <DropdownMenuItem key={c.slug || c.id} asChild className="focus:bg-emerald-800 focus:text-white rounded-md cursor-pointer text-xs py-1.5 px-2">
                       <Link to={`/category/${c.slug}`} className="flex items-center gap-2 w-full">
-                        <span className="text-emerald-400 text-sm">📚</span>
+                        <BookOpen className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
                         <span>{c.name}</span>
                       </Link>
                     </DropdownMenuItem>
@@ -786,17 +780,17 @@ export default function Header() {
                 <Link
                   key={c.slug || c.id}
                   to={`/category/${c.slug}`}
-                  className="whitespace-nowrap rounded-full px-2 lg:px-2.5 py-0.5 text-xs text-emerald-100 transition hover:bg-white/10 hover:text-white shrink-0"
+                  className="whitespace-nowrap rounded-md px-2 lg:px-2.5 py-0.5 text-xs text-emerald-100/90 transition hover:bg-white/10 hover:text-white shrink-0"
                 >
                   {(c.name || '').replace(' Books', '')}
                 </Link>
               ))}
             </div>
           </div>
-          <div className="flex shrink-0 items-center gap-2 pl-4 border-l border-white/10 ml-2">
-            <Link to="/search?publisher=Techno%20World%20Publications" className="whitespace-nowrap rounded-full px-3 py-1 text-xs font-bold text-emerald-100 transition-colors hover:bg-white/10 hover:text-white">Our Publications</Link>
-            <Link to="/about" className="whitespace-nowrap rounded-full px-3 py-1 text-xs font-bold text-emerald-100 transition-colors hover:bg-white/10 hover:text-white">About</Link>
-            <Link to="/blog" className="whitespace-nowrap rounded-full px-3 py-1 text-xs font-bold text-amber-300 transition-colors hover:bg-white/10">Blog</Link>
+          <div className="flex shrink-0 items-center gap-1 pl-4 border-l border-white/10 ml-2">
+            <Link to="/search?publisher=Techno%20World%20Publications" className="whitespace-nowrap rounded-md px-2.5 py-0.5 text-xs font-semibold text-emerald-100/90 transition-colors hover:bg-white/10 hover:text-white">Our Publications</Link>
+            <Link to="/about" className="whitespace-nowrap rounded-md px-2.5 py-0.5 text-xs font-semibold text-emerald-100/90 transition-colors hover:bg-white/10 hover:text-white">About</Link>
+            <Link to="/blog" className="whitespace-nowrap rounded-md px-2.5 py-0.5 text-xs font-semibold text-[#D4A017] transition-colors hover:bg-white/10">Blog</Link>
           </div>
         </div>
       </nav>
