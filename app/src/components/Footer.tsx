@@ -46,10 +46,10 @@ export default function Footer() {
 
   return (
     <footer className="mt-8 border-t border-stone-800 bg-[#0B1710] text-stone-300">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-3 sm:px-6 py-8 md:grid-cols-12 md:gap-8">
+      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-3 sm:px-6 py-8 md:grid-cols-12 md:gap-6 lg:gap-8">
         
         {/* Col 1: Address (Takes more space) */}
-        <div className="space-y-3 md:col-span-5 lg:col-span-4">
+        <div className="col-span-2 space-y-3 md:col-span-12 lg:col-span-3">
           <div className="flex items-start gap-2 text-sm leading-relaxed text-stone-400">
             <MapPin className="mt-1 h-4 w-4 shrink-0 text-stone-500" />
             <p>
@@ -73,11 +73,12 @@ export default function Footer() {
         </div>
 
         {/* Col 2: Useful Links */}
-        <div className="md:col-span-2 lg:col-span-3 lg:pl-10">
+        <div className="col-span-1 md:col-span-3 lg:col-span-2">
           <h3 className="mb-2.5 text-xs font-bold uppercase tracking-wider text-stone-100">Useful Links</h3>
           <ul className="space-y-1.5 text-sm text-stone-400">
             <li><Link to="/about" className="hover:text-white transition-colors">About Us</Link></li>
             <li><Link to="/contact" className="hover:text-white transition-colors">Contact Us</Link></li>
+            <li><Link to="/track" className="hover:text-white transition-colors">Track Order</Link></li>
             <li>
               <button
                 type="button"
@@ -87,19 +88,26 @@ export default function Footer() {
                 Bulk & Institutional Sales
               </button>
             </li>
-            <li><Link to="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
-            <li><Link to="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
-            <li><Link to="/shipping-policy" className="hover:text-white transition-colors">Shipping Policy</Link></li>
           </ul>
         </div>
 
-        {/* Col 3: Policy & Account */}
-        <div className="md:col-span-3 lg:col-span-2">
-          <h3 className="mb-2.5 text-xs font-bold uppercase tracking-wider text-stone-100">Policy & Account</h3>
+        {/* Col 3: Policies */}
+        <div className="col-span-1 md:col-span-3 lg:col-span-3">
+          <h3 className="mb-2.5 text-xs font-bold uppercase tracking-wider text-stone-100">Policies</h3>
+          <ul className="space-y-1.5 text-sm text-stone-400">
+            <li><Link to="/shipping-policy" className="hover:text-white transition-colors">Shipping Policy</Link></li>
+            <li><Link to="/refund-policy" className="hover:text-white transition-colors">Replacement & Refund Policy</Link></li>
+            <li><Link to="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+            <li><Link to="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
+          </ul>
+        </div>
+
+        {/* Col 4: My Account */}
+        <div className="col-span-1 md:col-span-3 lg:col-span-2">
+          <h3 className="mb-2.5 text-xs font-bold uppercase tracking-wider text-stone-100">My Account</h3>
           <ul className="space-y-1.5 text-sm text-stone-400">
             <li><Link to="/profile" className="hover:text-white transition-colors">My Account</Link></li>
             <li><Link to="/checkout" className="hover:text-white transition-colors">Checkout</Link></li>
-            <li><Link to="/refund-policy" className="hover:text-white transition-colors">Replacement & Refund Policy</Link></li>
             <li>
               {user ? (
                 <button
@@ -116,8 +124,8 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* Col 4: Follow Us */}
-        <div className="md:col-span-2 lg:col-span-3">
+        {/* Col 5: Follow Us */}
+        <div className="col-span-1 md:col-span-3 lg:col-span-2">
           <h3 className="mb-2.5 text-xs font-bold uppercase tracking-wider text-stone-100">Follow Us</h3>
           <ul className="space-y-2 text-sm text-stone-400">
             <li>

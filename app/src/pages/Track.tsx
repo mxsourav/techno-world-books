@@ -300,17 +300,34 @@ export default function Track() {
             <div className="mt-4 flex gap-3 overflow-x-auto border-t border-dashed border-slate-200 pt-4">
               {matchedOrder.items.map((i: any, idx: number) => {
                 const b = BOOKS.find((x) => x.id === (i.bookId || i.id) || x.slug === i.slug);
-                return b ? (
-                  <Link key={idx} to={`/book/${b.slug}`} className="w-20 shrink-0">
-                    <BookCover book={b} className="text-[6px]" />
-                    <p className="mt-1 line-clamp-2 text-[11px] font-semibold text-slate-700">{b.title}</p>
+                const bookObj: any = {
+                  id: i.bookId || i.id || b?.id,
+                  title: i.title || b?.title || 'Academic Book',
+                  slug: i.slug || b?.slug || '',
+                  author: i.author || b?.author || 'Techno World Editorial Board',
+                  coverUrl: i.coverUrl || i.book?.coverUrl || b?.coverUrl,
+                  coverImage: i.coverImage || i.coverUrl || i.book?.coverUrl || b?.coverImage,
+                  category: i.category || b?.category,
+                  publisher: i.publisher || b?.publisher,
+                };
+                const bookSlug = bookObj.slug;
+                const content = (
+                  <div className="w-20 shrink-0 text-center group">
+                    <div className="h-28 w-20 rounded bg-stone-100 overflow-hidden border border-stone-200/80 shadow-2xs group-hover:border-stone-400 transition-colors">
+                      <BookCover book={bookObj} className="w-full h-full text-[6px]" />
+                    </div>
+                    <p className="mt-1 line-clamp-2 text-[11px] font-semibold text-slate-700 group-hover:text-emerald-800 transition-colors">
+                      {bookObj.title}
+                    </p>
+                  </div>
+                );
+                return bookSlug ? (
+                  <Link key={idx} to={`/book/${bookSlug}`} className="shrink-0">
+                    {content}
                   </Link>
                 ) : (
-                  <div key={idx} className="w-20 shrink-0 text-center">
-                    <div className="h-24 rounded bg-slate-100 flex items-center justify-center text-xs text-slate-400">
-                      Book
-                    </div>
-                    <p className="mt-1 line-clamp-2 text-[11px] font-semibold text-slate-700">{i.title || 'Book Item'}</p>
+                  <div key={idx} className="shrink-0">
+                    {content}
                   </div>
                 );
               })}

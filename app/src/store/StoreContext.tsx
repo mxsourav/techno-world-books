@@ -231,7 +231,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     setOrders((o) => [order, ...o]);
     setCart([]);
     setCoupon(null);
-    if (user) setUser({ ...user, rewardPoints: user.rewardPoints + Math.floor(order.total / 100) * 5 });
+    if (user) setUser({ ...user, rewardPoints: user.rewardPoints + Math.floor((order.subtotal || order.total || 0) / 100) });
     return order;
   }, [user]);
 

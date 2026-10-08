@@ -159,6 +159,7 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
         if (typeof fetchFn === 'function') {
           const res: any = await fetchFn();
           const list = res?.data || res || [];
+          console.log("Fetched list: ", list)
           if (Array.isArray(list) && list.length > 0) {
             setCategoryOptions((prev) => {
               const combined = [...prev];

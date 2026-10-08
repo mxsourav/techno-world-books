@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
-import { Star, Building2, ArrowRight, BookOpen } from 'lucide-react';
-import { bookService, getImageUrl } from '@/services/api';
+import { Star, Building2, ArrowRight } from 'lucide-react';
+import { bookService } from '@/services/api';
+import { BookCover } from '@/components/BookCover';
 import { useAutoFeaturedBooks } from '@/hooks/useAutoFeaturedBooks';
 import type { Book } from '@/types';
 
@@ -63,40 +64,20 @@ export default function PublishedByTechnoWorld() {
         {/* Compact, Sleek Book Cards Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
           {displayBooks.slice(0, 6).map((book: any) => {
-            const coverSrc = getImageUrl(book.coverUrl || book.coverImage || book.cover || book.coverDataUrl);
             const bookPrice = book.price === 'On Request' || book.price === undefined ? 'On Request' : `₹${book.price}`;
 
             return (
               <Link
                 key={book.id || book.slug}
                 to={`/book/${book.slug}`}
-                className="group relative flex flex-col overflow-hidden rounded-md bg-[#132219] border border-stone-800 transition-all duration-200 hover:-translate-y-0.5 hover:border-stone-700 hover:shadow-md"
+                className="group relative flex flex-col overflow-hidden rounded-md bg-[#132219] border border-stone-800 transition-colors duration-200 hover:border-emerald-700/60"
               >
                 {/* Compact Cover Image */}
-                <div className="relative aspect-[3/4.2] w-full overflow-hidden bg-slate-800 flex items-center justify-center">
-                  {coverSrc ? (
-                    <img
-                      src={coverSrc}
-                      alt={book.title}
-                      loading="lazy"
-                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                        if (e.currentTarget.parentElement) {
-                          e.currentTarget.parentElement.classList.add('bg-slate-800', 'flex', 'items-center', 'justify-center');
-                          e.currentTarget.parentElement.innerHTML = '<div class="text-emerald-400 text-xs font-bold p-2 text-center">Techno World</div>';
-                        }
-                      }}
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center justify-center p-3 text-center text-slate-500">
-                      <BookOpen className="h-6 w-6 text-slate-600 mb-1" />
-                      <span className="text-[10px] font-bold text-slate-400">Techno World</span>
-                    </div>
-                  )}
+                <div className="relative aspect-[3/4.2] w-full overflow-hidden bg-slate-900">
+                  <BookCover book={book} className="w-full h-full" />
 
                   {book.edition && (
-                    <span className="absolute top-1.5 left-1.5 bg-black/75 backdrop-blur-xs text-[9px] font-extrabold text-emerald-300 px-1.5 py-0.5 rounded shadow">
+                    <span className="absolute top-1.5 left-1.5 z-30 bg-black/75 backdrop-blur-xs text-[9px] font-extrabold text-emerald-300 px-1.5 py-0.5 rounded shadow">
                       {book.edition}
                     </span>
                   )}

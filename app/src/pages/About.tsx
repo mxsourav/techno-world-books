@@ -101,7 +101,7 @@ export default function About() {
             Welcome to Techno World Books, your trusted academic and general bookstore rooted in the heart of College Street, Kolkata—India's legendary destination for books, higher education, and scholarship. Our mission is to make quality books accessible, affordable, and readily available to readers, students, medical & engineering aspirants, educators, and researchers nationwide.
           </p>
           <p>
-            Whether you're preparing for competitive exams (NEET, JEE, UPSC, WBCS), pursuing university degrees, building your professional library, or simply searching for your next great read, our experienced College Street team is here to assist you with genuine editions and dependable delivery.
+            Whether you're preparing for competitive exams (NEET, JEE, UPSC, WBCS), pursuing university degrees, building your professional library, or simply searching for your next great read, our experienced team is here to assist you with genuine editions and dependable delivery.
           </p>
           <div>
             <span className="inline-flex items-center gap-2 rounded-md bg-stone-100 px-3.5 py-1.5 text-xs font-semibold text-stone-800 border border-stone-200">

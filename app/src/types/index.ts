@@ -74,6 +74,7 @@ export interface Order {
   subtotal: number;
   shipping: number;
   discount: number;
+  pointsEarned?: number;
   payment: string;
   address: Address;
   status: 'Placed' | 'Packed' | 'Shipped' | 'Out for Delivery' | 'Delivered';

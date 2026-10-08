@@ -40,6 +40,13 @@ export interface BookPresetConfig {
     height: string;
     matrix: string;
   };
+  pageBlockOverlay?: {
+    left: string;
+    top: string;
+    width: string;
+    height: string;
+    clipPath: string;
+  };
   shadow: {
     contact: {
       left: string;
@@ -115,34 +122,41 @@ export const BOOK_PRESETS: Record<BookPresetId, BookPresetConfig> = {
       height: '75.18%',
       matrix: 'matrix3d(0.905179, -0.072358, 0, -0.001003, 0, 1.0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)',
     },
+    pageBlockOverlay: {
+      left: '77.62%',
+      top: '9.46%',
+      width: '10.47%',
+      height: '82.99%',
+      clipPath: 'polygon(0% 0%, 100% 2.15%, 100% 96.73%, 0% 100%)',
+    },
     shadow: {
       diffuse: {
         left: '61.5%',
-        top: '72.0%',
+        top: '74.5%',
         width: '24.5%',
         height: '9.0%',
-        angle: '14.0deg',
+        angle: '6.5deg',
       },
       contact: {
         left: '63.4%',
-        top: '70.3%',
+        top: '76.2%',
         width: '18.0%',
-        height: '2.0%',
-        angle: '16.0deg',
+        height: '2.5%',
+        angle: '6.0deg',
       },
       pageBlock: {
         left: '80.8%',
         top: '79.2%',
         width: '3.4%',
-        height: '1.8%',
-        angle: '-22.5deg',
+        height: '2.0%',
+        angle: '-21.0deg',
       },
       pageBlockCast: {
         left: '80.5%',
-        top: '77.0%',
+        top: '77.2%',
         width: '4.8%',
         height: '3.8%',
-        angle: '14.0deg',
+        angle: '9.0deg',
       },
     },
   },
@@ -188,34 +202,41 @@ export const BOOK_PRESETS: Record<BookPresetId, BookPresetConfig> = {
       height: '74.29%',
       matrix: 'matrix3d(0.902811, -0.067066, 0, -0.000938, 0, 1.0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)',
     },
+    pageBlockOverlay: {
+      left: '82.69%',
+      top: '8.72%',
+      width: '9.42%',
+      height: '82.22%',
+      clipPath: 'polygon(0% 0%, 100% 1.93%, 100% 97.60%, 0% 100%)',
+    },
     shadow: {
       diffuse: {
-        left: '61.5%',
-        top: '72.5%',
+        left: '61.8%',
+        top: '74.8%',
         width: '25.0%',
         height: '8.5%',
-        angle: '12.5deg',
+        angle: '6.0deg',
       },
       contact: {
         left: '63.5%',
-        top: '71.2%',
+        top: '76.3%',
         width: '19.8%',
-        height: '2.0%',
-        angle: '13.2deg',
+        height: '2.5%',
+        angle: '5.8deg',
       },
       pageBlock: {
         left: '82.9%',
         top: '79.2%',
         width: '2.8%',
-        height: '1.8%',
-        angle: '-20.4deg',
+        height: '2.0%',
+        angle: '-20.0deg',
       },
       pageBlockCast: {
         left: '82.5%',
         top: '77.2%',
         width: '4.5%',
         height: '3.6%',
-        angle: '13.0deg',
+        angle: '9.0deg',
       },
     },
   },
@@ -261,26 +282,33 @@ export const BOOK_PRESETS: Record<BookPresetId, BookPresetConfig> = {
       height: '75.79%',
       matrix: 'matrix3d(0.905803, -0.090424, 0, -0.001148, 0, 1.0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)',
     },
+    pageBlockOverlay: {
+      left: '76.81%',
+      top: '7.88%',
+      width: '6.65%',
+      height: '83.54%',
+      clipPath: 'polygon(0% 0%, 100% 1.81%, 100% 98.15%, 0% 100%)',
+    },
     shadow: {
       diffuse: {
         left: '61.5%',
         top: '74.5%',
         width: '21.0%',
-        height: '7.5%',
-        angle: '7.0deg',
+        height: '8.0%',
+        angle: '6.0deg',
       },
       contact: {
         left: '63.4%',
-        top: '75.7%',
-        width: '15.2%',
-        height: '2.0%',
-        angle: '7.0deg',
+        top: '75.8%',
+        width: '15.5%',
+        height: '2.5%',
+        angle: '6.2deg',
       },
       pageBlock: {
         left: '78.1%',
         top: '79.0%',
-        width: '2.2%',
-        height: '1.8%',
+        width: '2.4%',
+        height: '2.0%',
         angle: '-21.0deg',
       },
       pageBlockCast: {
@@ -288,7 +316,7 @@ export const BOOK_PRESETS: Record<BookPresetId, BookPresetConfig> = {
         top: '77.2%',
         width: '4.0%',
         height: '3.5%',
-        angle: '12.0deg',
+        angle: '9.0deg',
       },
     },
   },

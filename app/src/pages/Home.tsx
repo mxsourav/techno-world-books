@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router';
-import { BadgePercent, Truck, Gift, ArrowRight, Trophy, Flame, TrendingUp, Sparkle, Stethoscope, Settings, GraduationCap, Library, BookOpen, Quote, Languages, Globe2, Gem, Heart, Clock, Tag, AlertCircle } from 'lucide-react';
+import { BadgePercent, Truck, Gift, ArrowRight, Trophy, TrendingUp, BookOpen, Tag, AlertCircle } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 
 import { bookService, heroService, getImageUrl } from '@/services/api';
@@ -18,9 +18,29 @@ import { CmsText } from '@/components/common/CmsText';
 import { useCms } from '@/context/CmsContext';
 import { BOOKS as FALLBACK_BOOKS } from '@/data/books';
 
+
 const PUBLISHERS = ['NCERT', 'Arihant Publications', 'McGraw Hill', 'Elsevier', 'Penguin', 'Ananda Publishers', 'MTG Learning Media', 'Dhanpat Rai'];
 
 import { BOOK_PRESETS, type BookPresetId } from '@/types/hero';
+
+// Add the image URL for each home-page book-row icon here.
+const BOOK_ROW_ICON_URLS = {
+  recommended: '',
+  competitive: '',
+  nonFiction: '',
+  medical: '',
+  engineering: '',
+  bengali: '',
+  fiction: '',
+  school: '',
+  university: '',
+  bestsellers: '',
+  trending: '',
+  newReleases: '',
+  recentlyViewed: '',
+  international: '',
+  rare: '',
+} as const;
 
 export default function Home() {
   const { recentlyViewed } = useStore();
@@ -463,6 +483,53 @@ export default function Home() {
                   />
                 </div>
               )}
+
+              {/* Photorealistic Page Block Shading & Paper Texture Depth Layer */}
+              {activePreset.pageBlockOverlay && (
+                <div
+                  className="absolute pointer-events-none select-none z-15 overflow-hidden"
+                  style={{
+                    left: activePreset.pageBlockOverlay.left,
+                    top: activePreset.pageBlockOverlay.top,
+                    width: activePreset.pageBlockOverlay.width,
+                    height: activePreset.pageBlockOverlay.height,
+                    clipPath: activePreset.pageBlockOverlay.clipPath,
+                  }}
+                >
+                  {/* 1. Vertical Ambient Occlusion & Lamp Falloff (warmer highlight at top, dark amber/brown deepening towards desk contact) */}
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      background: 'linear-gradient(180deg, rgba(255, 230, 175, 0.22) 0%, rgba(190, 145, 95, 0.08) 18%, rgba(65, 42, 18, 0.32) 55%, rgba(25, 14, 5, 0.65) 82%, rgba(8, 4, 1, 0.88) 100%)',
+                      mixBlendMode: 'multiply',
+                    }}
+                  />
+                  {/* 2. Cover Board Overhang Crease Shadow (left edge where cover board projects past pages) */}
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      background: 'linear-gradient(90deg, rgba(8, 4, 1, 0.88) 0%, rgba(15, 8, 3, 0.50) 18%, rgba(25, 12, 5, 0.18) 45%, transparent 75%)',
+                      mixBlendMode: 'multiply',
+                    }}
+                  />
+                  {/* 3. Paper Texture & Subtle Page Leaf Edge Striations (Vertical individual page lines) */}
+                  <div
+                    className="absolute inset-0 opacity-50"
+                    style={{
+                      backgroundImage: 'repeating-linear-gradient(90deg, rgba(30, 16, 5, 0.30) 0px, rgba(30, 16, 5, 0.30) 1px, transparent 1px, transparent 3px)',
+                      mixBlendMode: 'multiply',
+                    }}
+                  />
+                  {/* 4. Directional Warm Room Lamp Ambient Sheen */}
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(255, 215, 130, 0.25) 0%, transparent 45%, rgba(0, 0, 0, 0.35) 100%)',
+                      mixBlendMode: 'overlay',
+                    }}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -551,7 +618,7 @@ export default function Home() {
                   <BadgePercent className="h-4 w-4" strokeWidth={2} />
                 </div>
                 <div>
-                  <div className="font-serif font-bold text-stone-900 text-[13px] leading-tight">
+                  <div className="font-sans font-bold text-stone-900 text-[13px] leading-tight tracking-tight">
                     <CmsText contentKey="home.offer_1_title" defaultText="STUDENT15 — 15% off" label="Offer 1 Title" />
                   </div>
                   <div className="text-stone-600 text-[11px] leading-tight mt-0.5 font-medium">
@@ -568,7 +635,7 @@ export default function Home() {
                   <Truck className="h-4 w-4" strokeWidth={2} />
                 </div>
                 <div>
-                  <div className="font-serif font-bold text-stone-900 text-[13px] leading-tight">
+                  <div className="font-sans font-bold text-stone-900 text-[13px] leading-tight tracking-tight">
                     <CmsText contentKey="home.offer_2_title" defaultText="Free Delivery" label="Offer 2 Title" />
                   </div>
                   <div className="text-stone-600 text-[11px] leading-tight mt-0.5 font-medium">
@@ -585,7 +652,7 @@ export default function Home() {
                   <Gift className="h-4 w-4" strokeWidth={2} />
                 </div>
                 <div>
-                  <div className="font-serif font-bold text-stone-900 text-[13px] leading-tight">
+                  <div className="font-sans font-bold text-stone-900 text-[13px] leading-tight tracking-tight">
                     <CmsText contentKey="home.offer_3_title" defaultText="Techno Rewards" label="Offer 3 Title" />
                   </div>
                   <div className="text-stone-600 text-[11px] leading-tight mt-0.5 font-medium">
@@ -637,7 +704,7 @@ export default function Home() {
 
           {/* 1. Recommended For You */}
           <BookRow 
-            icon={<Heart className="h-5 w-5 text-rose-500" />} 
+            iconUrl={BOOK_ROW_ICON_URLS.recommended}
             title="Recommended For You" 
             contentKey="home.section_recommended"
             books={recommended} 
@@ -646,7 +713,7 @@ export default function Home() {
 
           {/* 2. Competitive Exam Section (Placed directly after Recommended as requested) */}
           <BookRow 
-            icon={<Trophy className="h-5 w-5 text-violet-500" />} 
+            iconUrl={BOOK_ROW_ICON_URLS.competitive}
             title="Competitive Exam Books" 
             contentKey="home.section_competitive"
             books={byCategory(t('home.section_competitive', 'Competitive Exam Books'), 'competitive-exams')} 
@@ -656,7 +723,7 @@ export default function Home() {
 
           {/* 3. Non-Fiction Section (Placed directly after as requested) */}
           <BookRow 
-            icon={<Quote className="h-5 w-5 text-indigo-500" />} 
+            iconUrl={BOOK_ROW_ICON_URLS.nonFiction}
             title="Non-Fiction Books" 
             contentKey="home.section_non_fiction"
             books={byCategory(t('home.section_non_fiction', 'Non-Fiction Books'), 'non-fiction')} 
@@ -666,7 +733,7 @@ export default function Home() {
 
           {/* 4. Medical & Healthcare Books */}
           <BookRow 
-            icon={<Stethoscope className="h-5 w-5 text-blue-500" />} 
+            iconUrl={BOOK_ROW_ICON_URLS.medical}
             title="Medical & Healthcare Books" 
             contentKey="home.section_medical"
             books={byCategory(t('home.section_medical', 'Medical & Healthcare Books'), 'medical')} 
@@ -676,7 +743,7 @@ export default function Home() {
 
           {/* 5. Engineering & Technology Books */}
           <BookRow 
-            icon={<Settings className="h-5 w-5 text-slate-600" />} 
+            iconUrl={BOOK_ROW_ICON_URLS.engineering}
             title="Engineering & Technology Books" 
             contentKey="home.section_engineering"
             books={byCategory(t('home.section_engineering', 'Engineering & Technology Books'), 'engineering')} 
@@ -686,7 +753,7 @@ export default function Home() {
 
           {/* 6. Bengali Story Books */}
           <BookRow 
-            icon={<Languages className="h-5 w-5 text-rose-500" />} 
+            iconUrl={BOOK_ROW_ICON_URLS.bengali}
             title="Bengali Story Books" 
             contentKey="home.section_bengali"
             books={byCategory(t('home.section_bengali', 'Bengali Story Books'), 'bengali')} 
@@ -696,7 +763,7 @@ export default function Home() {
 
           {/* 7. Fiction & Novels */}
           <BookRow 
-            icon={<BookOpen className="h-5 w-5 text-amber-600" />} 
+            iconUrl={BOOK_ROW_ICON_URLS.fiction}
             title="Fiction & Novels" 
             contentKey="home.section_fiction"
             books={byCategory(t('home.section_fiction', 'Fiction & Novels'), 'fiction')} 
@@ -706,7 +773,7 @@ export default function Home() {
 
           {/* 8. NCERT & School Books */}
           <BookRow 
-            icon={<Library className="h-5 w-5 text-pink-500" />} 
+            iconUrl={BOOK_ROW_ICON_URLS.school}
             title="School Books (NCERT / ICSE)" 
             contentKey="home.section_school"
             books={byCategory(t('home.section_school', 'School Books (NCERT / ICSE)'), 'school')} 
@@ -716,7 +783,7 @@ export default function Home() {
 
           {/* 9. University Books */}
           <BookRow 
-            icon={<GraduationCap className="h-5 w-5 text-emerald-600" />} 
+            iconUrl={BOOK_ROW_ICON_URLS.university}
             title="University & College Books" 
             contentKey="home.section_university"
             books={byCategory(t('home.section_university', 'University & College Books'), 'university')} 
@@ -752,7 +819,7 @@ export default function Home() {
 
           {/* Best Sellers */}
           <BookRow 
-            icon={<Flame className="h-5 w-5 text-orange-500" />} 
+            iconUrl={BOOK_ROW_ICON_URLS.bestsellers}
             title="Best Sellers" 
             contentKey="home.section_bestsellers"
             books={bestsellers} 
@@ -762,7 +829,7 @@ export default function Home() {
 
           {/* Trending Now */}
           <BookRow 
-            icon={<TrendingUp className="h-5 w-5 text-emerald-500" />} 
+            iconUrl={BOOK_ROW_ICON_URLS.trending}
             title="Trending Now" 
             contentKey="home.section_trending"
             books={trending} 
@@ -771,7 +838,7 @@ export default function Home() {
 
           {/* New Releases */}
           <BookRow 
-            icon={<Sparkle className="h-5 w-5 text-amber-500" />} 
+            iconUrl={BOOK_ROW_ICON_URLS.newReleases}
             title="New Releases" 
             contentKey="home.section_new_releases"
             books={newReleases} 
@@ -782,7 +849,7 @@ export default function Home() {
 
           {(recent.length > 0 || loading) && (
             <BookRow 
-              icon={<Clock className="h-5 w-5 text-slate-500" />} 
+              iconUrl={BOOK_ROW_ICON_URLS.recentlyViewed}
               title="Recently Viewed" 
               books={recent} 
               loading={loading} 
@@ -791,7 +858,7 @@ export default function Home() {
 
           {/* International Books */}
           <BookRow 
-            icon={<Globe2 className="h-5 w-5 text-teal-500" />} 
+            iconUrl={BOOK_ROW_ICON_URLS.international}
             title="International Books" 
             contentKey="home.section_international"
             books={byCategory(t('home.section_international', 'International Books'), 'international')} 
@@ -801,7 +868,7 @@ export default function Home() {
 
           {/* Rare & Collector's Editions */}
           <BookRow 
-            icon={<Gem className="h-5 w-5 text-amber-500" />} 
+            iconUrl={BOOK_ROW_ICON_URLS.rare}
             title="Rare & Collector's Editions" 
             contentKey="home.section_rare"
             books={byCategory(t('home.section_rare', 'Rare & Collector\'s Editions'), 'rare')} 

@@ -845,7 +845,7 @@ export default function Profile() {
                                     <p className="text-xs text-stone-500">
                                       {isReplacementEligible 
                                         ? `7-day replacement window active (${replacementDaysRemaining === 0 ? 'expires today' : `${replacementDaysRemaining} day${replacementDaysRemaining > 1 ? 's' : ''} left`}).`
-                                        : 'Replacement window has ended for this order.'
+                                        : '7-day replacement window has closed for this order.'
                                       }
                                     </p>
                                   </>
@@ -877,12 +877,20 @@ export default function Profile() {
                                       target="_blank"
                                       rel="noreferrer"
                                       className="inline-flex items-center gap-1.5 rounded-md border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors shadow-2xs"
+                                      title="Replacement claim active within 7 days of delivery"
                                     >
                                       Request Replacement <ExternalLink className="h-3 w-3 text-stone-400" />
                                     </a>
                                   );
                                 }
-                                return null;
+                                return (
+                                  <span
+                                    className="inline-flex items-center gap-1 rounded-md border border-stone-200 bg-stone-50 px-2.5 py-1 text-[11px] font-medium text-stone-400 cursor-not-allowed select-none"
+                                    title="The 7-day replacement window has concluded"
+                                  >
+                                    Replacement Window Closed
+                                  </span>
+                                );
                               })()}
 
                               {/* Pre-Dispatch Cancellation Button */}

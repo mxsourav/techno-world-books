@@ -28,7 +28,7 @@ export function BookCard({ book }: { book: Book }) {
   const pct = discountPct(book);
   const wish = isWishlisted(book.id);
   return (
-    <div className="group relative flex w-40 shrink-0 flex-col rounded-xl border border-slate-100 bg-white p-3 shadow-sm transition hover:shadow-lg sm:w-48">
+    <div className="group relative flex w-40 shrink-0 flex-col rounded-xl border border-slate-200/80 bg-white p-3 shadow-2xs transition-colors hover:border-slate-300 sm:w-48">
       <button
         onClick={() => toggleWishlist(book.id)}
         aria-label="Add to wishlist"
@@ -36,18 +36,22 @@ export function BookCard({ book }: { book: Book }) {
       >
         <Heart className={`h-4 w-4 ${wish ? 'fill-rose-500' : ''}`} />
       </button>
-      {book.edition && (
-        <span className="absolute left-3 top-4 z-10 rounded-md bg-emerald-700 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white shadow-sm">
-          {book.edition}
-        </span>
-      )}
       <Link to={`/book/${book.slug}`} className="block">
-        <BookCover book={book} className="text-sm transition-transform duration-300 group-hover:-translate-y-1" />
+        <BookCover book={book} className="text-sm" />
         <div className="mt-3 flex-1">
-          <h3 className="line-clamp-2 min-h-[2.5em] text-sm font-semibold leading-tight text-slate-800 group-hover:text-emerald-800">
+          <h3 className="line-clamp-2 min-h-[2.5em] text-sm font-semibold leading-tight text-slate-800 group-hover:text-emerald-800 transition-colors">
             {book.title}
           </h3>
-          <p className="mt-0.5 line-clamp-1 text-xs text-slate-500">{book.author}</p>
+          <div className="mt-0.5 flex items-center justify-between gap-1">
+            <p className="line-clamp-1 text-xs text-slate-500">
+              {book.author && !book.author.toLowerCase().includes('unknown') ? book.author : book.publisher || 'Academic Edition'}
+            </p>
+            {book.edition && (
+              <span className="shrink-0 text-[10px] font-semibold text-slate-400">
+                {book.edition}
+              </span>
+            )}
+          </div>
           <div className="mt-1 flex items-center gap-1.5">
             <span className="flex items-center gap-0.5 rounded bg-emerald-700 px-1.5 py-0.5 text-[11px] font-bold text-white">
               {book.rating} <Star className="h-2.5 w-2.5 fill-white" />
@@ -103,6 +107,7 @@ export function BookCardSkeleton() {
 export function BookRow({ 
   title, 
   icon, 
+  iconUrl,
   books, 
   viewAllLink, 
   loading,
@@ -110,6 +115,7 @@ export function BookRow({
 }: { 
   title: string; 
   icon?: React.ReactNode; 
+  iconUrl?: string;
   books: Book[]; 
   viewAllLink?: string; 
   loading?: boolean;
@@ -156,7 +162,11 @@ export function BookRow({
     <section className="mx-auto max-w-7xl px-3 py-5 sm:px-6">
       <div className="mb-4 flex items-end justify-between">
         <h2 className="flex items-center gap-2 text-lg font-bold text-slate-900 sm:text-xl">
-          {icon}
+          {iconUrl ? (
+            <img src={iconUrl} alt="" aria-hidden="true" className="h-5 w-5 object-contain" />
+          ) : (
+            icon
+          )}
           {contentKey ? (
             <CmsText contentKey={contentKey} defaultText={title} label={title} />
           ) : (

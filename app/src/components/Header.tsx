@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import {
   BookOpen, ShoppingCart, Heart, User, Menu, Search, Mic, MessageCircle,
@@ -535,6 +535,15 @@ export default function Header() {
     categoryService.getCategories().then((res: any) => setCategories(res.data)).catch(() => {});
   }, []);
 
+  const validCategories = useMemo(() => {
+    return (categories?.length ? categories : WEBSITE_CATEGORIES)
+      .filter((c: any) => {
+        const slug = (c.slug || '').toLowerCase();
+        const name = (c.name || '').toLowerCase();
+        return slug !== 'techno-world' && !name.includes('our publication');
+      });
+  }, [categories]);
+
   return (
     <header className="sticky top-0 z-40 w-full max-w-full bg-[#0a2e1f] text-white shadow-md transition-colors duration-300">
       {/* top strip */}
@@ -752,23 +761,23 @@ export default function Header() {
 
       {/* category strip */}
       <nav className="hidden border-t border-white/10 bg-[#071F15] md:block">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 py-1.5">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 py-1.5 gap-2">
           <div className="flex flex-1 min-w-0 items-center overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            <div className="flex items-center gap-1 shrink-0 pr-4">
+            <div className="flex items-center gap-1 shrink-0">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="mr-1.5 flex shrink-0 items-center gap-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-semibold text-emerald-200 hover:bg-white/10 hover:text-white transition-colors cursor-pointer outline-none">
+                  <button className="mr-2 flex shrink-0 items-center gap-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-semibold text-emerald-200 hover:bg-white/10 hover:text-white transition-colors cursor-pointer outline-none">
                     <ChevronDown className="h-3.5 w-3.5 text-emerald-400" /> Shop by category
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-60 max-h-96 overflow-y-auto bg-[#071F15] border border-emerald-900/80 text-emerald-100 p-1.5 shadow-lg rounded-md z-50">
-                  <div className="px-2 py-1.5 text-[10px] font-bold text-emerald-400 uppercase tracking-wider border-b border-emerald-900/60 mb-1">
+                <DropdownMenuContent align="start" className="w-60 max-h-96 overflow-y-auto bg-emerald-950/80 backdrop-blur-md border border-emerald-300/20 text-emerald-50 p-1.5 shadow-xl shadow-emerald-950/30 rounded-lg z-50">
+                  <div className="px-2 py-1.5 text-[10px] font-bold text-emerald-200 uppercase tracking-wider border-b border-emerald-300/20 mb-1">
                     All Categories
                   </div>
                   {(categories?.length ? categories : WEBSITE_CATEGORIES).map((c: any) => (
-                    <DropdownMenuItem key={c.slug || c.id} asChild className="focus:bg-emerald-800 focus:text-white rounded-md cursor-pointer text-xs py-1.5 px-2">
+                    <DropdownMenuItem key={c.slug || c.id} asChild className="focus:bg-white/15 focus:text-white rounded-md cursor-pointer text-xs py-1.5 px-2">
                       <Link to={`/category/${c.slug}`} className="flex items-center gap-2 w-full">
-                        <BookOpen className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                        <BookOpen className="h-3.5 w-3.5 text-emerald-200 shrink-0" />
                         <span>{c.name}</span>
                       </Link>
                     </DropdownMenuItem>
@@ -776,7 +785,7 @@ export default function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {(categories?.length ? categories : WEBSITE_CATEGORIES).map((c: any) => (
+              {validCategories.slice(0, 8).map((c: any) => (
                 <Link
                   key={c.slug || c.id}
                   to={`/category/${c.slug}`}
@@ -787,7 +796,8 @@ export default function Header() {
               ))}
             </div>
           </div>
-          <div className="flex shrink-0 items-center gap-1 pl-4 border-l border-white/10 ml-2">
+
+          <div className="flex shrink-0 items-center gap-1.5 pl-4 border-l border-white/10 ml-2">
             <Link to="/search?publisher=Techno%20World%20Publications" className="whitespace-nowrap rounded-md px-2.5 py-0.5 text-xs font-semibold text-emerald-100/90 transition-colors hover:bg-white/10 hover:text-white">Our Publications</Link>
             <Link to="/about" className="whitespace-nowrap rounded-md px-2.5 py-0.5 text-xs font-semibold text-emerald-100/90 transition-colors hover:bg-white/10 hover:text-white">About</Link>
             <Link to="/blog" className="whitespace-nowrap rounded-md px-2.5 py-0.5 text-xs font-semibold text-[#D4A017] transition-colors hover:bg-white/10">Blog</Link>

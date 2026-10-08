@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import { Truck, Zap, Package } from 'lucide-react';
+import { Truck, Zap, Package, Mail, Phone } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 
 export default function ShippingPolicy() {
@@ -72,31 +72,20 @@ export default function ShippingPolicy() {
 
         {/* Section 2 */}
         <section className="space-y-3">
-          <h2 className="text-base font-bold text-slate-900">2. Cash on Delivery (COD) Handling Fee</h2>
-          <p>
-            Cash on Delivery is available across most serviceable Indian pincodes for eligible book values. An additional handling fee of <b>₹20</b> is appended to the order total at checkout to cover courier cash processing.
-          </p>
-          <p className="text-xs text-slate-500">
-            Please keep exact change ready upon arrival of the delivery executive.
-          </p>
-        </section>
-
-        {/* Section 3 */}
-        <section className="space-y-3">
-          <h2 className="text-base font-bold text-slate-900">3. Non-Refundable Delivery Refusal & RTO Policy</h2>
+          <h2 className="text-base font-bold text-slate-900">2. Non-Refundable Delivery Refusal & RTO Policy</h2>
           <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs text-slate-700 space-y-1.5">
             <p className="font-bold text-slate-900">
               Refusal of Delivery Notice:
             </p>
             <p className="leading-relaxed">
-              Once an order has been dispatched from our College Street warehouse, it cannot be recalled or cancelled. If a customer refuses to accept the parcel from the postal carrier or courier agent, leading to an RTO (Return to Origin), <b>no refund will be provided</b>.
+              Once an order has been dispatched from our fulfillment warehouse, it cannot be recalled or cancelled. If a customer refuses to accept the parcel from the postal carrier or courier agent, leading to an RTO (Return to Origin), <b>no refund will be provided</b>.
             </p>
           </div>
         </section>
 
-        {/* Section 4 */}
+        {/* Section 3 */}
         <section className="space-y-3">
-          <h2 className="text-base font-bold text-slate-900">4. Tracking Your Parcel</h2>
+          <h2 className="text-base font-bold text-slate-900">3. Tracking Your Parcel</h2>
           <p>
             Immediately upon dispatch, you will receive an automated email notification with your official <b>India Post tracking number</b> (e.g. <code>EB...IN</code> for Speed Post or parcel article code) or courier partner details.
           </p>
@@ -107,6 +96,50 @@ export default function ShippingPolicy() {
             </Link>
             .
           </p>
+        </section>
+
+        {/* Section 4 */}
+        <section className="space-y-3">
+          <h2 className="text-base font-bold text-slate-900">4. Undelivered or Lost Packages</h2>
+          <p>
+            If your package is delayed, missing, or marked as delivered but not received:
+          </p>
+          <ul className="list-disc list-inside space-y-1.5 text-slate-700 pl-2">
+            <li>Please wait <b>24–48 hours</b> after the expected delivery date.</li>
+            <li>Contact us at <a href="mailto:support@technoworldbooks.in" className="font-semibold text-emerald-700 hover:underline">support@technoworldbooks.in</a> with your order number for assistance.</li>
+          </ul>
+        </section>
+
+        {/* Section 5 */}
+        <section className="space-y-3">
+          <h2 className="text-base font-bold text-slate-900">5. Incorrect Shipping Address</h2>
+          <p className="leading-relaxed text-slate-700">
+            Please ensure your shipping details are accurate. We are not responsible for orders delivered to the wrong address due to incorrect information provided during checkout.
+          </p>
+        </section>
+
+        {/* Section 7 */}
+        <section className="space-y-3 rounded-xl border border-emerald-900/10 bg-emerald-50/40 p-5">
+          <h2 className="text-base font-bold text-emerald-950">Shipping Support &amp; Queries</h2>
+          <p className="text-xs text-emerald-900/80">
+            If you have any questions or concerns regarding your shipment, feel free to reach our customer support team:
+          </p>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 pt-2 text-xs font-medium text-slate-800">
+            <a
+              href="mailto:support@technoworldbooks.in"
+              className="inline-flex items-center gap-2 rounded-lg bg-white px-3.5 py-2 border border-stone-200 text-stone-800 hover:border-emerald-600 hover:text-emerald-700 transition-colors shadow-2xs"
+            >
+              <Mail className="h-3.5 w-3.5 text-emerald-700" />
+              <span>Email: support@technoworldbooks.in</span>
+            </a>
+            <a
+              href="tel:+917479135626"
+              className="inline-flex items-center gap-2 rounded-lg bg-white px-3.5 py-2 border border-stone-200 text-stone-800 hover:border-emerald-600 hover:text-emerald-700 transition-colors shadow-2xs"
+            >
+              <Phone className="h-3.5 w-3.5 text-emerald-700" />
+              <span>Phone: +91 747 913 5626</span>
+            </a>
+          </div>
         </section>
       </div>
 
