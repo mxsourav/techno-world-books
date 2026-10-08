@@ -59,10 +59,10 @@ function ScrollToTop() {
   return null;
 }
 
-// Funciton to keep the server alive by pinging the backend every 14 minutes to prevent Render free-tier sleep
+// Periodic health check ping to ensure backend connectivity
 function KeepAlivePing() {
   useEffect(() => {
-    // Ping backend every 14 minutes to prevent Render free-tier sleep
+    // Ping backend health check periodically
     const interval = setInterval(() => {
       const baseUrl = import.meta.env.VITE_API_URL?.replace(/\/api\/v1\/?$/, '') || (import.meta.env.PROD ? 'https://api.technoworldbooks.in' : 'http://localhost:5000');
       fetch(`${baseUrl}/health`).catch(() => {});

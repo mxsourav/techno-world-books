@@ -521,7 +521,7 @@ export default function Checkout() {
             <div className="flex items-start gap-2.5">
               <Mail className="h-4 w-4 text-stone-400 shrink-0 mt-0.5" />
               <div className="text-[11.5px] leading-relaxed">
-                Official tracking details and your India Post postal barcode (AWB) will be automatically dispatched to <strong className="text-stone-900">{placedAddrEmail || 'your email'}</strong> once inspected and packed at College Street.
+                Official tracking details and your India Post postal barcode (AWB) will be automatically dispatched to <strong className="text-stone-900">{placedAddrEmail || 'your email'}</strong> once inspected and packed at our fulfillment facility.
               </div>
             </div>
           </div>

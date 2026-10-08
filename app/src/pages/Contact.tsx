@@ -46,7 +46,7 @@ export default function Contact() {
 
       if (res.success) {
         setSubmitted(true);
-        toast.success('Your message has been received! Our College Street team will reply within 24 hours.');
+        toast.success('Your message has been received! Our customer support team will reply within 24 hours.');
       } else {
         toast.error(res.message || 'Failed to submit message.');
       }
@@ -199,7 +199,7 @@ export default function Contact() {
                 <CheckCircle2 className="h-10 w-10 text-emerald-800 mx-auto" />
                 <h3 className="font-serif text-lg font-bold text-stone-900">Thank you! Your Message Has Been Sent.</h3>
                 <p className="text-xs text-stone-600 max-w-md mx-auto leading-relaxed">
-                  Your inquiry has been successfully registered in our customer care system. A confirmation email has been dispatched to <b>{email}</b>, and our College Street team will reply shortly.
+                  Your inquiry has been successfully registered in our customer care system. A confirmation email has been dispatched to <b>{email}</b>, and our customer support team will reply shortly.
                 </p>
                 <div className="pt-3">
                   <button

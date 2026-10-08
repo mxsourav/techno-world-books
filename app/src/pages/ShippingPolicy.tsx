@@ -78,7 +78,7 @@ export default function ShippingPolicy() {
               Refusal of Delivery Notice:
             </p>
             <p className="leading-relaxed">
-              Once an order has been dispatched from our College Street warehouse, it cannot be recalled or cancelled. If a customer refuses to accept the parcel from the postal carrier or courier agent, leading to an RTO (Return to Origin), <b>no refund will be provided</b>.
+              Once an order has been dispatched from our fulfillment warehouse, it cannot be recalled or cancelled. If a customer refuses to accept the parcel from the postal carrier or courier agent, leading to an RTO (Return to Origin), <b>no refund will be provided</b>.
             </p>
           </div>
         </section>
@@ -122,7 +122,7 @@ export default function ShippingPolicy() {
         <section className="space-y-3 rounded-xl border border-emerald-900/10 bg-emerald-50/40 p-5">
           <h2 className="text-base font-bold text-emerald-950">Shipping Support &amp; Queries</h2>
           <p className="text-xs text-emerald-900/80">
-            If you have any questions or concerns regarding your shipment, feel free to reach our College Street support team:
+            If you have any questions or concerns regarding your shipment, feel free to reach our customer support team:
           </p>
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 pt-2 text-xs font-medium text-slate-800">
             <a
