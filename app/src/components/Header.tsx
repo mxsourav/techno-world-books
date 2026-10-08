@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import {
   BookOpen, ShoppingCart, Heart, User, Menu, Search, Mic, MessageCircle,
@@ -535,6 +535,18 @@ export default function Header() {
     categoryService.getCategories().then((res: any) => setCategories(res.data)).catch(() => {});
   }, []);
 
+  const validCategories = useMemo(() => {
+    return (categories?.length ? categories : WEBSITE_CATEGORIES)
+      .filter((c: any) => {
+        const slug = (c.slug || '').toLowerCase();
+        const name = (c.name || '').toLowerCase();
+        return slug !== 'techno-world' && !name.includes('our publication');
+      });
+  }, [categories]);
+
+  const visibleCategories = validCategories.slice(0, 7);
+  const moreCategories = validCategories.slice(7);
+
   return (
     <header className="sticky top-0 z-40 w-full max-w-full bg-[#0a2e1f] text-white shadow-md transition-colors duration-300">
       {/* top strip */}
@@ -751,49 +763,63 @@ export default function Header() {
       </div>
 
       {/* category strip */}
-      <nav className="hidden border-t border-white/10 bg-[#071F15] md:block">
+      <nav className="hidden border-t border-white/10 bg-[#071F15] md:block overflow-hidden">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 py-1.5">
-          <div className="flex flex-1 min-w-0 items-center overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            <div className="flex items-center gap-1 shrink-0 pr-4">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="mr-1.5 flex shrink-0 items-center gap-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-semibold text-emerald-200 hover:bg-white/10 hover:text-white transition-colors cursor-pointer outline-none">
-                    <ChevronDown className="h-3.5 w-3.5 text-emerald-400" /> Shop by category
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-60 max-h-96 overflow-y-auto bg-[#071F15] border border-emerald-900/80 text-emerald-100 p-1.5 shadow-lg rounded-md z-50">
-                  <div className="px-2 py-1.5 text-[10px] font-bold text-emerald-400 uppercase tracking-wider border-b border-emerald-900/60 mb-1">
-                    All Categories
-                  </div>
-                  {(categories?.length ? categories : WEBSITE_CATEGORIES).map((c: any) => (
-                    <DropdownMenuItem key={c.slug || c.id} asChild className="focus:bg-emerald-800 focus:text-white rounded-md cursor-pointer text-xs py-1.5 px-2">
-                      <Link to={`/category/${c.slug}`} className="flex items-center gap-2 w-full">
-                        <BookOpen className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-                        <span>{c.name}</span>
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {(categories?.length ? categories : WEBSITE_CATEGORIES)
-                .filter((c: any) => {
-                  const slug = (c.slug || '').toLowerCase();
-                  const name = (c.name || '').toLowerCase();
-                  return slug !== 'techno-world' && !name.includes('our publication');
-                })
-                .map((c: any) => (
-                  <Link
-                    key={c.slug || c.id}
-                    to={`/category/${c.slug}`}
-                    className="whitespace-nowrap rounded-md px-2 lg:px-2.5 py-0.5 text-xs text-emerald-100/90 transition hover:bg-white/10 hover:text-white shrink-0"
-                  >
-                    {(c.name || '').replace(' Books', '')}
-                  </Link>
+          <div className="flex items-center gap-1 min-w-0">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="mr-1.5 flex shrink-0 items-center gap-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-semibold text-emerald-200 hover:bg-white/10 hover:text-white transition-colors cursor-pointer outline-none">
+                  <ChevronDown className="h-3.5 w-3.5 text-emerald-400" /> Shop by category
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-60 max-h-96 overflow-y-auto bg-[#071F15] border border-emerald-900/80 text-emerald-100 p-1.5 shadow-lg rounded-md z-50">
+                <div className="px-2 py-1.5 text-[10px] font-bold text-emerald-400 uppercase tracking-wider border-b border-emerald-900/60 mb-1">
+                  All Categories
+                </div>
+                {(categories?.length ? categories : WEBSITE_CATEGORIES).map((c: any) => (
+                  <DropdownMenuItem key={c.slug || c.id} asChild className="focus:bg-emerald-800 focus:text-white rounded-md cursor-pointer text-xs py-1.5 px-2">
+                    <Link to={`/category/${c.slug}`} className="flex items-center gap-2 w-full">
+                      <BookOpen className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                      <span>{c.name}</span>
+                    </Link>
+                  </DropdownMenuItem>
                 ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <div className="flex items-center gap-1">
+              {visibleCategories.map((c: any) => (
+                <Link
+                  key={c.slug || c.id}
+                  to={`/category/${c.slug}`}
+                  className="whitespace-nowrap rounded-md px-2 lg:px-2.5 py-0.5 text-xs text-emerald-100/90 transition hover:bg-white/10 hover:text-white shrink-0"
+                >
+                  {(c.name || '').replace(' Books', '')}
+                </Link>
+              ))}
+
+              {moreCategories.length > 0 && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex shrink-0 items-center gap-1 whitespace-nowrap rounded-md px-2 py-0.5 text-xs font-medium text-emerald-200/90 hover:bg-white/10 hover:text-white transition-colors cursor-pointer outline-none">
+                      More <ChevronDown className="h-3 w-3 text-emerald-400" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-52 max-h-80 overflow-y-auto bg-[#071F15] border border-emerald-900/80 text-emerald-100 p-1.5 shadow-lg rounded-md z-50">
+                    {moreCategories.map((c: any) => (
+                      <DropdownMenuItem key={c.slug || c.id} asChild className="focus:bg-emerald-800 focus:text-white rounded-md cursor-pointer text-xs py-1.5 px-2">
+                        <Link to={`/category/${c.slug}`} className="flex items-center gap-2 w-full">
+                          <span>{(c.name || '').replace(' Books', '')}</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </div>
           </div>
-          <div className="flex shrink-0 items-center gap-1 pl-4 border-l border-white/10 ml-2">
+
+          <div className="flex shrink-0 items-center gap-1.5 pl-4 border-l border-white/10 ml-3">
             <Link to="/search?publisher=Techno%20World%20Publications" className="whitespace-nowrap rounded-md px-2.5 py-0.5 text-xs font-semibold text-emerald-100/90 transition-colors hover:bg-white/10 hover:text-white">Our Publications</Link>
             <Link to="/about" className="whitespace-nowrap rounded-md px-2.5 py-0.5 text-xs font-semibold text-emerald-100/90 transition-colors hover:bg-white/10 hover:text-white">About</Link>
             <Link to="/blog" className="whitespace-nowrap rounded-md px-2.5 py-0.5 text-xs font-semibold text-[#D4A017] transition-colors hover:bg-white/10">Blog</Link>

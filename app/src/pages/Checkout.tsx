@@ -512,7 +512,7 @@ export default function Checkout() {
                 <span>TechnoPoints Earned</span>
               </div>
               <p className="mt-1 text-xs font-semibold text-stone-900 font-mono">
-                +{Math.floor((placed.total || 0) / 100) * 5} pts
+                +{(placed as any).pointsEarned ?? Math.floor((placed.subtotal || placed.total || 0) / 100)} pts
               </p>
             </div>
           </div>
@@ -750,6 +750,7 @@ export default function Checkout() {
             shipping: 0,
             discount,
             total: serverOrder.totalAmount,
+            pointsEarned: serverOrder.pointsEarned ?? Math.floor((serverOrder.subtotal || subtotal) / 100),
             status: serverOrder.status,
             placedAt: new Date().toISOString(),
             payment: serverOrder.paymentMethod,
@@ -951,6 +952,7 @@ export default function Checkout() {
           shipping,
           discount,
           total: serverOrder.totalAmount,
+          pointsEarned: serverOrder.pointsEarned ?? Math.floor((serverOrder.subtotal || subtotal) / 100),
           status: serverOrder.status || 'CONFIRMED',
           placedAt: new Date().toISOString(),
           payment: serverOrder.paymentMethod,
