@@ -72,18 +72,7 @@ export default function ShippingPolicy() {
 
         {/* Section 2 */}
         <section className="space-y-3">
-          <h2 className="text-base font-bold text-slate-900">2. Cash on Delivery (COD) Handling Fee</h2>
-          <p>
-            Cash on Delivery is available across most serviceable Indian pincodes for eligible book values. An additional handling fee of <b>₹20</b> is appended to the order total at checkout to cover courier cash processing.
-          </p>
-          <p className="text-xs text-slate-500">
-            Please keep exact change ready upon arrival of the delivery executive.
-          </p>
-        </section>
-
-        {/* Section 3 */}
-        <section className="space-y-3">
-          <h2 className="text-base font-bold text-slate-900">3. Non-Refundable Delivery Refusal & RTO Policy</h2>
+          <h2 className="text-base font-bold text-slate-900">2. Non-Refundable Delivery Refusal & RTO Policy</h2>
           <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs text-slate-700 space-y-1.5">
             <p className="font-bold text-slate-900">
               Refusal of Delivery Notice:
@@ -94,9 +83,9 @@ export default function ShippingPolicy() {
           </div>
         </section>
 
-        {/* Section 4 */}
+        {/* Section 3 */}
         <section className="space-y-3">
-          <h2 className="text-base font-bold text-slate-900">4. Tracking Your Parcel</h2>
+          <h2 className="text-base font-bold text-slate-900">3. Tracking Your Parcel</h2>
           <p>
             Immediately upon dispatch, you will receive an automated email notification with your official <b>India Post tracking number</b> (e.g. <code>EB...IN</code> for Speed Post or parcel article code) or courier partner details.
           </p>
@@ -109,9 +98,9 @@ export default function ShippingPolicy() {
           </p>
         </section>
 
-        {/* Section 5 */}
+        {/* Section 4 */}
         <section className="space-y-3">
-          <h2 className="text-base font-bold text-slate-900">5. Undelivered or Lost Packages</h2>
+          <h2 className="text-base font-bold text-slate-900">4. Undelivered or Lost Packages</h2>
           <p>
             If your package is delayed, missing, or marked as delivered but not received:
           </p>
@@ -121,9 +110,9 @@ export default function ShippingPolicy() {
           </ul>
         </section>
 
-        {/* Section 6 */}
+        {/* Section 5 */}
         <section className="space-y-3">
-          <h2 className="text-base font-bold text-slate-900">6. Incorrect Shipping Address</h2>
+          <h2 className="text-base font-bold text-slate-900">5. Incorrect Shipping Address</h2>
           <p className="leading-relaxed text-slate-700">
             Please ensure your shipping details are accurate. We are not responsible for orders delivered to the wrong address due to incorrect information provided during checkout.
           </p>
