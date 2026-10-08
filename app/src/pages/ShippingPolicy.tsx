@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import { Truck, Zap, Package } from 'lucide-react';
+import { Truck, Zap, Package, Mail, Phone } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 
 export default function ShippingPolicy() {
@@ -107,6 +107,55 @@ export default function ShippingPolicy() {
             </Link>
             .
           </p>
+        </section>
+
+        {/* Section 5 */}
+        <section className="space-y-3">
+          <h2 className="text-base font-bold text-slate-900">5. Undelivered or Lost Packages</h2>
+          <p>
+            If your package is delayed, missing, or marked as delivered but not received:
+          </p>
+          <ul className="list-disc list-inside space-y-1.5 text-slate-700 pl-2">
+            <li>Please wait <b>24–48 hours</b> after the expected delivery date, as postal systems may occasionally mark parcels ahead of the final delivery drop.</li>
+            <li>Contact our customer support team at <a href="mailto:support@technoworldbooks.in" className="font-semibold text-emerald-700 hover:underline">support@technoworldbooks.in</a> with your order reference number for immediate tracking coordination.</li>
+          </ul>
+        </section>
+
+        {/* Section 6 */}
+        <section className="space-y-3">
+          <h2 className="text-base font-bold text-slate-900">6. Incorrect Shipping Address</h2>
+          <div className="rounded-xl border border-stone-200 bg-stone-50 p-4 text-xs text-slate-700 space-y-1.5">
+            <p className="font-bold text-slate-900">
+              Address Accuracy Notice:
+            </p>
+            <p className="leading-relaxed">
+              Please ensure your shipping details and pincode are accurate at checkout. We are not responsible for orders delivered to the wrong address or returned to origin due to incorrect or incomplete information provided during checkout.
+            </p>
+          </div>
+        </section>
+
+        {/* Section 7 */}
+        <section className="space-y-3 rounded-xl border border-emerald-900/10 bg-emerald-50/40 p-5">
+          <h2 className="text-base font-bold text-emerald-950">Shipping Support &amp; Queries</h2>
+          <p className="text-xs text-emerald-900/80">
+            If you have any questions or concerns regarding your shipment, feel free to reach our College Street support team:
+          </p>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 pt-2 text-xs font-medium text-slate-800">
+            <a
+              href="mailto:support@technoworldbooks.in"
+              className="inline-flex items-center gap-2 rounded-lg bg-white px-3.5 py-2 border border-stone-200 text-stone-800 hover:border-emerald-600 hover:text-emerald-700 transition-colors shadow-2xs"
+            >
+              <Mail className="h-3.5 w-3.5 text-emerald-700" />
+              <span>Email: support@technoworldbooks.in</span>
+            </a>
+            <a
+              href="tel:+917479135626"
+              className="inline-flex items-center gap-2 rounded-lg bg-white px-3.5 py-2 border border-stone-200 text-stone-800 hover:border-emerald-600 hover:text-emerald-700 transition-colors shadow-2xs"
+            >
+              <Phone className="h-3.5 w-3.5 text-emerald-700" />
+              <span>Phone: +91 747 913 5626</span>
+            </a>
+          </div>
         </section>
       </div>
 

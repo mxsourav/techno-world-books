@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef, useState, useMemo } from 'react';
-import { Link, useNavigate, useParams } from 'react-router';
+import { Link, useNavigate, useParams, useLocation, useSearchParams } from 'react-router';
 import {
   ChevronLeft, ChevronRight, Heart, Share2, Truck, ShieldCheck, RotateCcw, MapPin, Zap,
   ShoppingCart, BadgeCheck, Loader2, Star, Tag, ChevronDown, ChevronUp,
@@ -220,6 +220,23 @@ export default function Product() {
   const [reviewerName, setReviewerName] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
   const [reviewError, setReviewError] = useState('');
+
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+
+  // Auto-open review section and modal if arriving via delivery email link (?review=true or #reviews)
+  useEffect(() => {
+    if (!book) return;
+    const isReviewParam = searchParams.get('review') === 'true' || location.hash === '#reviews';
+    if (isReviewParam) {
+      setOpenSections((prev) => ({ ...prev, reviews: true }));
+      setShowReviewModal(true);
+      const ratingParam = Number(searchParams.get('rating'));
+      if (ratingParam >= 1 && ratingParam <= 5) {
+        setReviewRating(ratingParam);
+      }
+    }
+  }, [book, searchParams, location.hash]);
 
   const handleAskQuestionSubmit = async () => {
     if (!questionInput.trim() || questionInput.trim().length < 5) {
