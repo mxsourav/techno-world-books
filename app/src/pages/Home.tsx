@@ -259,7 +259,7 @@ export default function Home() {
               className="absolute inset-0 pointer-events-none bg-gradient-to-r from-[#02120b]/60 via-[#02120b]/20 to-[#02120b]/35 mix-blend-multiply"
             />
 
-            {/* Soft Ambient Diffuse Grounding Shadow on Wooden Desk */}
+            {/* Soft Ambient Diffuse Shadow on Wooden Desk */}
             <div
               className="absolute hidden lg:block pointer-events-none"
               style={{
@@ -269,12 +269,12 @@ export default function Home() {
                 height: activePreset.shadow.diffuse.height,
                 transformOrigin: '0% 50%',
                 transform: `rotate(${activePreset.shadow.diffuse.angle})`,
-                background: 'radial-gradient(ellipse at 50% 45%, rgba(8, 3, 1, 0.78) 0%, rgba(18, 7, 2, 0.45) 45%, rgba(22, 9, 3, 0.15) 70%, transparent 85%)',
-                filter: 'blur(8px)',
+                background: 'radial-gradient(ellipse at 50% 50%, rgba(10, 5, 2, 0.45) 0%, rgba(18, 8, 3, 0.20) 50%, transparent 75%)',
+                filter: 'blur(10px)',
               }}
             />
 
-            {/* Ground Contact Ambient Occlusion Shadow along Wood Grain */}
+            {/* Front Bottom Seam Crisp Contact Shadow */}
             <div
               className="absolute hidden lg:block pointer-events-none"
               style={{
@@ -283,9 +283,9 @@ export default function Home() {
                 width: activePreset.shadow.contact.width,
                 height: activePreset.shadow.contact.height,
                 transformOrigin: '0% 50%',
-                transform: `rotate(${activePreset.shadow.contact.angle}) translateY(6px)`,
-                background: 'linear-gradient(90deg, rgba(12,5,1,0.65) 0%, rgba(6,2,0,0.85) 30%, rgba(6,2,0,0.80) 75%, rgba(12,5,1,0.30) 100%)',
-                filter: 'blur(3.5px)',
+                transform: `rotate(${activePreset.shadow.contact.angle})`,
+                background: 'linear-gradient(90deg, rgba(8,4,1,0.55) 0%, rgba(5,2,1,0.85) 35%, rgba(5,2,1,0.80) 75%, rgba(8,4,1,0.30) 100%)',
+                filter: 'blur(3px)',
               }}
             />
 
@@ -299,9 +299,9 @@ export default function Home() {
                   width: activePreset.shadow.pageBlock.width,
                   height: activePreset.shadow.pageBlock.height,
                   transformOrigin: '0% 50%',
-                  transform: `rotate(${activePreset.shadow.pageBlock.angle}) translateY(1px)`,
-                  background: 'linear-gradient(90deg, rgba(2,1,0,0.98) 0%, rgba(6,3,1,0.88) 50%, rgba(12,6,2,0.45) 100%)',
-                  filter: 'blur(1.5px)',
+                  transform: `rotate(${activePreset.shadow.pageBlock.angle})`,
+                  background: 'linear-gradient(90deg, rgba(5,2,1,0.85) 0%, rgba(10,5,2,0.65) 50%, rgba(15,8,3,0.25) 100%)',
+                  filter: 'blur(2px)',
                 }}
               />
             )}
@@ -317,7 +317,7 @@ export default function Home() {
                   height: activePreset.shadow.pageBlockCast.height,
                   transformOrigin: '0% 50%',
                   transform: activePreset.shadow.pageBlockCast.angle ? `rotate(${activePreset.shadow.pageBlockCast.angle})` : undefined,
-                  background: 'radial-gradient(ellipse at 30% 50%, rgba(8,3,1,0.80) 0%, rgba(15,7,2,0.40) 50%, transparent 80%)',
+                  background: 'radial-gradient(ellipse at 30% 50%, rgba(10,5,2,0.60) 0%, rgba(15,8,3,0.25) 50%, transparent 80%)',
                   filter: 'blur(4px)',
                 }}
               />
