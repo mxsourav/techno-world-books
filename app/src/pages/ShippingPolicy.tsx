@@ -116,22 +116,17 @@ export default function ShippingPolicy() {
             If your package is delayed, missing, or marked as delivered but not received:
           </p>
           <ul className="list-disc list-inside space-y-1.5 text-slate-700 pl-2">
-            <li>Please wait <b>24–48 hours</b> after the expected delivery date, as postal systems may occasionally mark parcels ahead of the final delivery drop.</li>
-            <li>Contact our customer support team at <a href="mailto:support@technoworldbooks.in" className="font-semibold text-emerald-700 hover:underline">support@technoworldbooks.in</a> with your order reference number for immediate tracking coordination.</li>
+            <li>Please wait <b>24–48 hours</b> after the expected delivery date.</li>
+            <li>Contact us at <a href="mailto:support@technoworldbooks.in" className="font-semibold text-emerald-700 hover:underline">support@technoworldbooks.in</a> with your order number for assistance.</li>
           </ul>
         </section>
 
         {/* Section 6 */}
         <section className="space-y-3">
           <h2 className="text-base font-bold text-slate-900">6. Incorrect Shipping Address</h2>
-          <div className="rounded-xl border border-stone-200 bg-stone-50 p-4 text-xs text-slate-700 space-y-1.5">
-            <p className="font-bold text-slate-900">
-              Address Accuracy Notice:
-            </p>
-            <p className="leading-relaxed">
-              Please ensure your shipping details and pincode are accurate at checkout. We are not responsible for orders delivered to the wrong address or returned to origin due to incorrect or incomplete information provided during checkout.
-            </p>
-          </div>
+          <p className="leading-relaxed text-slate-700">
+            Please ensure your shipping details are accurate. We are not responsible for orders delivered to the wrong address due to incorrect information provided during checkout.
+          </p>
         </section>
 
         {/* Section 7 */}

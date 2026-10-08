@@ -492,11 +492,11 @@ export default function Home() {
                       mixBlendMode: 'multiply',
                     }}
                   />
-                  {/* 3. Paper Texture & Subtle Page Leaf Edge Striations */}
+                  {/* 3. Paper Texture & Subtle Page Leaf Edge Striations (Vertical individual page lines) */}
                   <div
-                    className="absolute inset-0 opacity-45"
+                    className="absolute inset-0 opacity-50"
                     style={{
-                      backgroundImage: 'repeating-linear-gradient(0deg, rgba(30, 16, 5, 0.25) 0px, rgba(30, 16, 5, 0.25) 1px, transparent 1px, transparent 3px)',
+                      backgroundImage: 'repeating-linear-gradient(90deg, rgba(30, 16, 5, 0.30) 0px, rgba(30, 16, 5, 0.30) 1px, transparent 1px, transparent 3px)',
                       mixBlendMode: 'multiply',
                     }}
                   />

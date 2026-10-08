@@ -123,11 +123,11 @@ export const BOOK_PRESETS: Record<BookPresetId, BookPresetConfig> = {
       matrix: 'matrix3d(0.905179, -0.072358, 0, -0.001003, 0, 1.0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)',
     },
     pageBlockOverlay: {
-      left: '77.81%',
+      left: '77.62%',
       top: '9.46%',
-      width: '9.99%',
-      height: '82.93%',
-      clipPath: 'polygon(0% 0%, 100% 2.15%, 100% 96.65%, 0% 100%)',
+      width: '10.47%',
+      height: '82.99%',
+      clipPath: 'polygon(0% 0%, 100% 2.15%, 100% 96.73%, 0% 100%)',
     },
     shadow: {
       diffuse: {
@@ -203,11 +203,11 @@ export const BOOK_PRESETS: Record<BookPresetId, BookPresetConfig> = {
       matrix: 'matrix3d(0.902811, -0.067066, 0, -0.000938, 0, 1.0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)',
     },
     pageBlockOverlay: {
-      left: '82.88%',
+      left: '82.69%',
       top: '8.72%',
-      width: '8.46%',
-      height: '82.15%',
-      clipPath: 'polygon(0% 0%, 100% 1.93%, 100% 97.67%, 0% 100%)',
+      width: '9.42%',
+      height: '82.22%',
+      clipPath: 'polygon(0% 0%, 100% 1.93%, 100% 97.60%, 0% 100%)',
     },
     shadow: {
       diffuse: {
@@ -283,11 +283,11 @@ export const BOOK_PRESETS: Record<BookPresetId, BookPresetConfig> = {
       matrix: 'matrix3d(0.905803, -0.090424, 0, -0.001148, 0, 1.0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)',
     },
     pageBlockOverlay: {
-      left: '77.02%',
+      left: '76.81%',
       top: '7.88%',
-      width: '6.15%',
-      height: '83.48%',
-      clipPath: 'polygon(0% 0%, 100% 1.81%, 100% 98.19%, 0% 100%)',
+      width: '6.65%',
+      height: '83.54%',
+      clipPath: 'polygon(0% 0%, 100% 1.81%, 100% 98.15%, 0% 100%)',
     },
     shadow: {
       diffuse: {
