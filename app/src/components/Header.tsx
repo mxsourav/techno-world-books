@@ -785,7 +785,7 @@ export default function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {validCategories.map((c: any) => (
+              {validCategories.slice(0, 8).map((c: any) => (
                 <Link
                   key={c.slug || c.id}
                   to={`/category/${c.slug}`}
