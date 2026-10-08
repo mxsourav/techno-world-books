@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://technoworldbooks.in/</loc>
-    <lastmod>2026-10-06T17:16:58+00:00</lastmod>
+    <lastmod>2026-10-07T18:53:18+00:00</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -4448,7 +4448,7 @@
   </url>
   <url>
     <loc>https://technoworldbooks.in/book/python-crash-course-hands-on-project-guide-prelims-and-mains-18-9789390000821</loc>
-    <lastmod>2026-09-25T18:17:04+00:00</lastmod>
+    <lastmod>2026-10-06T18:33:59+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -5017,12 +5017,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://technoworldbooks.in/book/wbcs-general-studies-manual-comprehensive-guide-2026-edition-21-9789390000926</loc>
-    <lastmod>2026-09-25T18:17:05+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://technoworldbooks.in/book/kolkata-police-si-sergeant-practice-work-book-2026-edition-21-9789390000927</loc>
     <lastmod>2026-09-25T18:17:05+00:00</lastmod>
     <changefreq>weekly</changefreq>
@@ -5043,6 +5037,12 @@
   <url>
     <loc>https://technoworldbooks.in/book/environment-ecology-for-civil-services-examination-2026-edition-21-9789390000930</loc>
     <lastmod>2026-09-25T18:17:05+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://technoworldbooks.in/book/wbcs-general-studies-manual-comprehensive-guide-2026-edition-21-9789390000926</loc>
+    <lastmod>2026-10-06T18:33:59+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -6108,61 +6108,61 @@
   </url>
   <url>
     <loc>https://technoworldbooks.in/search</loc>
-    <lastmod>2026-10-06T17:16:58+00:00</lastmod>
+    <lastmod>2026-10-07T18:53:18+00:00</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/blog</loc>
-    <lastmod>2026-10-06T17:16:58+00:00</lastmod>
+    <lastmod>2026-10-07T18:53:18+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/track</loc>
-    <lastmod>2026-10-06T17:16:58+00:00</lastmod>
+    <lastmod>2026-10-07T18:53:18+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/about</loc>
-    <lastmod>2026-10-06T17:16:58+00:00</lastmod>
+    <lastmod>2026-10-07T18:53:18+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/contact</loc>
-    <lastmod>2026-10-06T17:16:58+00:00</lastmod>
+    <lastmod>2026-10-07T18:53:18+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/help</loc>
-    <lastmod>2026-10-06T17:16:58+00:00</lastmod>
+    <lastmod>2026-10-07T18:53:18+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/terms</loc>
-    <lastmod>2026-10-06T17:16:58+00:00</lastmod>
+    <lastmod>2026-10-07T18:53:18+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/shipping-policy</loc>
-    <lastmod>2026-10-06T17:16:58+00:00</lastmod>
+    <lastmod>2026-10-07T18:53:18+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/refund-policy</loc>
-    <lastmod>2026-10-06T17:16:58+00:00</lastmod>
+    <lastmod>2026-10-07T18:53:18+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/privacy-policy</loc>
-    <lastmod>2026-10-06T17:16:58+00:00</lastmod>
+    <lastmod>2026-10-07T18:53:18+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>

@@ -180,9 +180,9 @@ function CustomerLayout() {
         target="_blank"
         rel="noreferrer"
         aria-label="WhatsApp Support"
-        className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500 text-white shadow-lg transition hover:scale-105 hover:bg-emerald-600"
+        className="fixed bottom-5 right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-800 text-white shadow-md transition-colors hover:bg-emerald-900"
       >
-        <MessageCircle className="h-7 w-7" />
+        <MessageCircle className="h-6 w-6" />
       </a>
     </>
   );
@@ -194,9 +194,12 @@ function CustomerStorefront() {
       {/* Customer Storefront Routes */}
       <Route element={<CustomerLayout />}>
         <Route path="/" element={<Home />} />
+        <Route path="/listing" element={<Listing />} />
+        <Route path="/books" element={<Navigate to="/listing" replace />} />
         <Route path="/category/:category" element={<Listing />} />
         <Route path="/search" element={<Listing />} />
         <Route path="/book/:slug" element={<Product />} />
+        <Route path="/books/:slug" element={<Product />} />
         <Route path="/product/:slug" element={<Product />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
@@ -212,11 +215,15 @@ function CustomerStorefront() {
         <Route path="/help" element={<Help />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/terms-of-service" element={<Terms />} />
+        <Route path="/terms-and-conditions" element={<Navigate to="/terms" replace />} />
         <Route path="/refund-policy" element={<RefundPolicy />} />
+        <Route path="/refund" element={<Navigate to="/refund-policy" replace />} />
         <Route path="/cancellation-refund" element={<RefundPolicy />} />
         <Route path="/cancellation-policy" element={<RefundPolicy />} />
         <Route path="/shipping-policy" element={<ShippingPolicy />} />
+        <Route path="/shipping" element={<Navigate to="/shipping-policy" replace />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/privacy" element={<Navigate to="/privacy-policy" replace />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/contact-us" element={<Contact />} />
         <Route path="/b2b" element={<Navigate to="/?b2b=true" replace />} />

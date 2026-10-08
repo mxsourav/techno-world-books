@@ -59,9 +59,27 @@ export default function SEOHead({
     setMeta('name', 'robots', noIndex ? 'noindex, nofollow' : 'index, follow');
 
     // --- Canonical URL ---
-    const fullCanonical = canonicalUrl
-      ? (canonicalUrl.startsWith('http') ? canonicalUrl : `${SITE_URL}${canonicalUrl}`)
-      : SITE_URL;
+    let fullCanonical = SITE_URL;
+    if (canonicalUrl) {
+      let raw = canonicalUrl.trim();
+      if (!raw.startsWith('http')) {
+        raw = `${SITE_URL}${raw.startsWith('/') ? '' : '/'}${raw}`;
+      }
+      try {
+        const u = new URL(raw);
+        u.search = '';
+        u.hash = '';
+        let pathname = u.pathname;
+        if (pathname.length > 1 && pathname.endsWith('/')) {
+          pathname = pathname.replace(/\/+$/, '');
+        }
+        u.pathname = pathname;
+        fullCanonical = u.origin + u.pathname;
+      } catch {
+        fullCanonical = raw.replace(/\/+$/, '') || SITE_URL;
+      }
+    }
+
     let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
     if (!canonical) {
       canonical = document.createElement('link');
@@ -340,7 +358,7 @@ export function buildWebsiteJsonLd() {
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: `${SITE_URL}/search?q={search_term_string}`,
+        urlTemplate: `${SITE_URL}/search?search={search_term_string}`,
       },
       'query-input': 'required name=search_term_string',
     },

@@ -6,6 +6,19 @@
   RewriteEngine On
   RewriteBase /
 
+  # 1. Force HTTPS
+  RewriteCond %{HTTPS} off
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+  # 2. Redirect legacy /books/:slug to /book/:slug
+  RewriteRule ^books/(.+)$ /book/$1 [R=301,L]
+
+  # 3. Strip trailing slashes from URLs (e.g. /book/slug/ -> /book/slug)
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_URI} !^/?$
+  RewriteRule ^(.+)/+$ /$1 [R=301,L]
+
   # If the requested file or directory exists, serve it directly
   RewriteCond %{REQUEST_FILENAME} -f [OR]
   RewriteCond %{REQUEST_FILENAME} -d

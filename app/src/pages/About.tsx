@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { CheckCircle2, BookOpen, Send, Upload, X, Loader2, Sparkles, MessageSquare, Phone } from 'lucide-react';
+import { CheckCircle2, BookOpen, Send, Upload, X, Loader2, Sparkles, MessageSquare, Phone, MapPin, Quote } from 'lucide-react';
 import { toast } from 'sonner';
 import { bookRequestService } from '@/services/api';
 import { useStore } from '@/store/StoreContext';
 import { CmsText } from '@/components/common/CmsText';
+import SEOHead from '@/components/SEOHead';
 
 export default function About() {
   const { user } = useStore();
@@ -78,6 +79,11 @@ export default function About() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <SEOHead
+        title="About Us — Techno World Books | College Street, Kolkata"
+        description="Learn about Techno World Books, Kolkata's trusted bookstore from College Street. Providing authentic school, university, medical, engineering and competitive exam textbooks across India."
+        canonicalUrl="/about"
+      />
       {/* Header Section */}
       <div className="text-center mb-16">
         <h1 className="text-4xl font-extrabold tracking-tight text-emerald-900 sm:text-5xl lg:text-6xl mb-6">
@@ -98,18 +104,19 @@ export default function About() {
             Whether you're preparing for competitive exams (NEET, JEE, UPSC, WBCS), pursuing university degrees, building your professional library, or simply searching for your next great read, our experienced College Street team is here to assist you with genuine editions and dependable delivery.
           </p>
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-1.5 text-sm font-semibold text-emerald-800 border border-emerald-200">
-              📍 College Street Flagship: 90/6A Mahatma Gandhi Rd, opp. Grace Cinema, Kolkata 700007
+            <span className="inline-flex items-center gap-2 rounded-md bg-stone-100 px-3.5 py-1.5 text-xs font-semibold text-stone-800 border border-stone-200">
+              <MapPin className="h-4 w-4 text-emerald-800 shrink-0" />
+              <span>College Street Flagship: 90/6A Mahatma Gandhi Rd, opp. Grace Cinema, Kolkata 700007</span>
             </span>
           </div>
         </div>
 
         {/* Visual Element */}
         <div className="relative group">
-          <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-md bg-gradient-to-br from-emerald-800 to-teal-950 flex items-center justify-center p-8 text-white relative">
+          <div className="aspect-[4/3] rounded-lg overflow-hidden border border-stone-800 shadow-sm bg-[#0B2518] flex items-center justify-center p-8 text-white relative">
             <div className="text-center space-y-4">
-              <div className="text-6xl font-serif">❝</div>
-              <p className="text-2xl font-serif italic max-w-md mx-auto leading-snug">
+              <Quote className="h-8 w-8 text-emerald-600/50 mx-auto" />
+              <p className="text-xl sm:text-2xl font-serif italic max-w-md mx-auto leading-snug text-stone-200">
                 <CmsText
                   contentKey="about.quote"
                   defaultText='"Connecting generations of readers with the rich literary and academic heritage of College Street."'
@@ -117,26 +124,25 @@ export default function About() {
                   multiline
                 />
               </p>
-              <div className="pt-4 text-emerald-300 font-bold uppercase tracking-wider text-sm">
+              <div className="pt-2 text-stone-400 font-semibold uppercase tracking-wider text-xs">
                 Techno World Books · Kolkata
               </div>
             </div>
           </div>
-          <div className="absolute inset-0 bg-emerald-900/5 rounded-2xl mix-blend-multiply transition-colors group-hover:bg-transparent"></div>
         </div>
       </div>
 
       {/* CAN'T FIND A BOOK? & SOURCING REQUEST FORM */}
       <div className="mb-20">
-        <div className="bg-gradient-to-br from-emerald-50 via-teal-50/40 to-white rounded-2xl p-6 sm:p-12 shadow-sm border border-emerald-100">
+        <div className="bg-stone-50 rounded-lg p-6 sm:p-10 shadow-xs border border-stone-200">
           <div className="max-w-3xl mb-8">
-            <div className="inline-flex items-center gap-2 text-emerald-800 text-xs font-bold uppercase tracking-wider mb-2">
-              <Sparkles className="h-4 w-4" /> Book Procurement & Sourcing
+            <div className="inline-flex items-center gap-2 text-emerald-900 text-xs font-bold uppercase tracking-wider mb-2">
+              <Sparkles className="h-4 w-4 text-emerald-800" /> Book Procurement & Sourcing
             </div>
-            <h2 className="text-3xl font-extrabold tracking-tight text-emerald-950 mb-3">
+            <h2 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 mb-2">
               <CmsText contentKey="about.procurement_title" defaultText="Can't Find a Book? Request It Here" label="Sourcing Heading" />
             </h2>
-            <p className="text-sm sm:text-base text-slate-700 leading-relaxed">
+            <p className="text-sm sm:text-base text-stone-600 leading-relaxed">
               <CmsText
                 contentKey="about.procurement_desc"
                 defaultText="Don't worry if the book you're looking for isn't currently displayed on our website. With our deep connections across College Street, national publishers, and academic distributors, our team can source rare, out-of-print, and foreign editions for you."
@@ -147,10 +153,10 @@ export default function About() {
           </div>
 
           {submitted ? (
-            <div className="rounded-2xl border border-emerald-300 bg-white p-8 text-center space-y-4 max-w-2xl mx-auto shadow-sm">
-              <CheckCircle2 className="h-14 w-14 text-emerald-600 mx-auto" />
-              <h3 className="text-xl font-black text-slate-900">Book Sourcing Request Submitted!</h3>
-              <p className="text-sm text-slate-600 leading-relaxed">
+            <div className="rounded-lg border border-stone-200 bg-white p-8 text-center space-y-4 max-w-2xl mx-auto shadow-xs">
+              <CheckCircle2 className="h-12 w-12 text-emerald-800 mx-auto" />
+              <h3 className="font-serif text-xl font-bold text-stone-900">Book Sourcing Request Submitted!</h3>
+              <p className="text-sm text-stone-600 leading-relaxed">
                 Thank you! We have logged your request for <b>"{form.title}"</b> by <b>{form.author}</b> into our procurement desk. Our sourcing team is checking publisher availability and will contact you at <b>{form.email}</b> or WhatsApp.
               </p>
               <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
@@ -169,7 +175,7 @@ export default function About() {
                     });
                     setImagePreview(null);
                   }}
-                  className="rounded-xl bg-slate-100 px-5 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-200 transition"
+                  className="rounded-md bg-stone-100 px-5 py-2.5 text-xs font-semibold text-stone-700 hover:bg-stone-200 transition-colors"
                 >
                   Request Another Book
                 </button>
@@ -179,19 +185,19 @@ export default function About() {
                   )}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-bold text-white hover:bg-emerald-700 transition shadow-sm"
+                  className="inline-flex items-center gap-2 rounded-md bg-emerald-800 px-5 py-2.5 text-xs font-semibold text-white hover:bg-emerald-900 transition-colors shadow-xs"
                 >
                   <MessageSquare className="h-4 w-4" /> Message on WhatsApp
                 </a>
               </div>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="rounded-2xl border border-emerald-200/80 bg-white p-6 sm:p-8 shadow-sm space-y-5">
-              <div className="border-b border-slate-100 pb-3">
-                <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
-                  <BookOpen className="h-5 w-5 text-emerald-700" /> Book Sourcing Request Form
+            <form onSubmit={handleSubmit} className="rounded-lg border border-stone-200 bg-white p-6 sm:p-8 shadow-xs space-y-5">
+              <div className="border-b border-stone-100 pb-3">
+                <h3 className="font-serif text-base font-bold text-stone-900 flex items-center gap-2">
+                  <BookOpen className="h-5 w-5 text-stone-700" /> Book Sourcing Request Form
                 </h3>
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-stone-500 mt-1">
                   Fill in the book details below. Book name, author name, and your email are mandatory.
                 </p>
               </div>
@@ -330,15 +336,15 @@ export default function About() {
                   value={form.notes}
                   onChange={(e) => setForm({ ...form, notes: e.target.value })}
                   placeholder="e.g. Required urgently for semester exams / need paperback edition / looking for 3 copies..."
-                  className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-emerald-500"
+                  className="w-full rounded-md border border-stone-300 px-3.5 py-2.5 text-sm outline-none focus:border-stone-500"
                 />
               </div>
 
-              <div className="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-slate-100">
+              <div className="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-stone-100">
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-7 py-3 text-sm font-bold text-white hover:bg-emerald-800 shadow transition disabled:opacity-50"
+                  className="inline-flex items-center gap-2 rounded-md bg-emerald-800 px-7 py-3 text-sm font-semibold text-white hover:bg-emerald-900 shadow-xs transition-colors disabled:opacity-50"
                 >
                   {submitting ? (
                     <>
@@ -353,8 +359,8 @@ export default function About() {
                   )}
                 </button>
 
-                <div className="text-xs text-slate-500 flex items-center gap-2">
-                  <Phone className="h-3.5 w-3.5 text-emerald-700" />
+                <div className="text-xs text-stone-500 flex items-center gap-2">
+                  <Phone className="h-3.5 w-3.5 text-stone-600" />
                   <span>Immediate inquiry? WhatsApp us at <b>+91 747 913 5626</b></span>
                 </div>
               </div>
@@ -380,26 +386,26 @@ export default function About() {
             'Responsive customer support',
             'A customer-first approach built on trust and satisfaction'
           ].map((feature, idx) => (
-            <div key={idx} className="flex items-center p-6 bg-white rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-              <CheckCircle2 className="h-8 w-8 text-emerald-500 mr-4 flex-shrink-0" />
-              <span className="text-slate-800 font-medium text-lg leading-tight">{feature}</span>
+            <div key={idx} className="flex items-center p-5 bg-white rounded-lg shadow-xs border border-stone-200">
+              <CheckCircle2 className="h-6 w-6 text-emerald-800 mr-3.5 flex-shrink-0" />
+              <span className="text-stone-800 font-medium text-base leading-snug">{feature}</span>
             </div>
           ))}
         </div>
 
-        <p className="mt-12 text-lg text-slate-700 leading-relaxed max-w-4xl mx-auto text-center font-medium">
+        <p className="mt-10 text-base text-stone-600 leading-relaxed max-w-3xl mx-auto text-center font-medium">
           Backed by our presence in College Street, Kolkata, we combine the heritage of India's most famous book market with the convenience of modern online shopping, making it easier than ever to discover and purchase the books you need.
         </p>
       </div>
 
-      <div className="text-center max-w-3xl mx-auto bg-slate-50 p-10 rounded-3xl border border-slate-100">
-        <h2 className="text-3xl font-bold tracking-tight text-emerald-900 mb-6">
+      <div className="text-center max-w-3xl mx-auto bg-stone-50 p-8 sm:p-10 rounded-lg border border-stone-200">
+        <h2 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 mb-4">
           Join Our Reading Journey
         </h2>
-        <p className="text-lg text-slate-700 leading-relaxed mb-6">
+        <p className="text-base text-stone-600 leading-relaxed mb-4">
           At Techno World Books, we're more than a bookstore—we're your partner in learning, growth, and discovery. Whether you're a student, educator, professional, parent, or passionate reader, we're here to support your journey with the right books and dependable service.
         </p>
-        <p className="text-lg text-emerald-800 leading-relaxed font-bold">
+        <p className="text-base text-emerald-900 leading-relaxed font-semibold">
           Explore our collection today, and if you ever need help finding a specific title, simply reach out. We'll be happy to help you find the book you're looking for.
         </p>
       </div>

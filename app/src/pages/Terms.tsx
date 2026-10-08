@@ -1,9 +1,15 @@
 import { Link } from 'react-router';
 import { FileText } from 'lucide-react';
+import SEOHead from '@/components/SEOHead';
 
 export default function Terms() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
+      <SEOHead
+        title="Terms and Conditions of Service | Techno World Books"
+        description="Official terms of service, legal compliance, orders, and purchase conditions for Techno World Books, College Street, Kolkata."
+        canonicalUrl="/terms"
+      />
       {/* Header */}
       <div className="border-b border-slate-200 pb-6 mb-8">
         <div className="flex items-center gap-2 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-2">

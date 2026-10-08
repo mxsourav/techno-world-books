@@ -142,10 +142,10 @@ export default function HomePopupAd() {
           opacity: opacityStyle,
           transition: isDragging ? 'none' : 'transform 240ms cubic-bezier(0.16, 1, 0.3, 1), opacity 240ms ease-out',
         }}
-        className="group relative flex h-[76px] items-center overflow-hidden rounded-2xl border border-zinc-200/90 bg-white p-2 shadow-sm hover:shadow transition-shadow select-none cursor-grab active:cursor-grabbing touch-pan-y dark:border-zinc-800 dark:bg-zinc-900"
+        className="group relative flex h-[76px] items-center overflow-hidden rounded-lg border border-stone-200 bg-white p-2 shadow-xs hover:shadow-sm transition-shadow select-none cursor-grab active:cursor-grabbing touch-pan-y"
       >
         {/* Minimal Cover Image */}
-        <div className="relative h-full w-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
+        <div className="relative h-full w-14 shrink-0 overflow-hidden rounded-md bg-stone-100">
           <img
             src={cms?.t('popup.image_url', '/home-popup-preview.png') || '/home-popup-preview.png'}
             alt="Offer preview"
@@ -162,10 +162,10 @@ export default function HomePopupAd() {
             </span>
           </div>
           <p className="mt-1 truncate text-xs font-bold text-zinc-900 dark:text-zinc-100">
-            <CmsText contentKey="popup.headline" defaultText="Book Sale · Up to 60% Off" label="Offer Popup Headline" />
+            <CmsText contentKey="popup.headline" defaultText="Book Sale · Up to 60% Off*" label="Offer Popup Headline" />
           </p>
-          <p className="truncate text-[11px] text-zinc-500 dark:text-zinc-400">
-            <CmsText contentKey="popup.subtext" defaultText="Swipe left or right to dismiss" label="Offer Popup Subtext" />
+          <p className="truncate text-[10px] text-zinc-500 dark:text-zinc-400">
+            <CmsText contentKey="popup.subtext" defaultText="*Includes coupon codes on selected category books" label="Offer Popup Subtext" />
           </p>
         </div>
 

@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
-import { Heart, Loader2 } from 'lucide-react';
+import { Heart, Loader2, AlertCircle } from 'lucide-react';
 import { useStore } from '@/store/StoreContext';
 import { BookCard, BookRow } from '@/components/BookCard';
 import { bookService } from '@/services/api';
 import type { Book } from '@/types';
+import SEOHead from '@/components/SEOHead';
 
 export default function Wishlist() {
   const { wishlist } = useStore();
@@ -47,18 +48,18 @@ export default function Wishlist() {
   if (loading) {
     return (
       <div className="flex h-96 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-stone-600" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-20 text-center text-slate-500">
-        <span className="text-4xl mb-4">⚠️</span>
-        <h2 className="text-xl font-bold text-slate-700">Error Loading Wishlist</h2>
+      <div className="mx-auto max-w-7xl px-4 py-20 text-center text-stone-600">
+        <AlertCircle className="mx-auto h-12 w-12 text-stone-400 mb-3" />
+        <h2 className="text-xl font-bold text-stone-800">Error Loading Wishlist</h2>
         <p className="text-sm mt-2">{error.message}</p>
-        <button onClick={() => window.location.reload()} className="mt-4 rounded-lg bg-emerald-600 px-6 py-2 font-bold text-white">Retry</button>
+        <button onClick={() => window.location.reload()} className="mt-4 rounded-md bg-stone-900 px-6 py-2 text-xs font-semibold text-white hover:bg-stone-800 transition-colors cursor-pointer">Retry</button>
       </div>
     );
   }
@@ -66,10 +67,15 @@ export default function Wishlist() {
   if (books.length === 0) {
     return (
       <div className="mx-auto max-w-3xl px-6 py-16 text-center">
-        <Heart className="mx-auto h-16 w-16 text-slate-300" />
-        <h1 className="mt-4 text-xl font-bold text-slate-800">Your wishlist is empty</h1>
-        <p className="mt-1 text-sm text-slate-500">Tap the ♥ on any book to save it here.</p>
-        <Link to="/" className="mt-5 inline-block rounded-xl bg-emerald-700 px-6 py-3 text-sm font-bold text-white">Discover Books</Link>
+        <SEOHead
+          title="My Wishlist | Techno World Books"
+          description="Saved books in your wishlist."
+          noIndex={true}
+        />
+        <Heart className="mx-auto h-16 w-16 text-stone-300" />
+        <h1 className="mt-4 font-serif text-2xl font-bold text-stone-900">Your wishlist is empty</h1>
+        <p className="mt-1 text-sm text-stone-500">Tap the heart icon on any book to save it here.</p>
+        <Link to="/" className="mt-5 inline-block rounded-md bg-emerald-800 hover:bg-emerald-900 px-6 py-2.5 text-sm font-semibold text-white transition-colors shadow-xs">Discover Books</Link>
         <div className="mt-8 text-left"><BookRow title="Best Sellers" books={recos} /></div>
       </div>
     );
@@ -77,7 +83,12 @@ export default function Wishlist() {
 
   return (
     <div className="mx-auto max-w-7xl px-3 py-6 sm:px-6">
-      <h1 className="mb-4 text-2xl font-extrabold text-slate-900">My Wishlist <span className="text-base font-medium text-slate-400">({books.length})</span></h1>
+      <SEOHead
+        title="My Wishlist | Techno World Books"
+        description="Saved books in your wishlist."
+        noIndex={true}
+      />
+      <h1 className="mb-4 font-serif text-2xl font-bold text-stone-900 tracking-tight">My Wishlist <span className="text-base font-sans font-normal text-stone-500">({books.length})</span></h1>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-5">
         {books.map((b) => (
           <div key={b.id} className="[&>div]:w-full"><BookCard book={b} /></div>

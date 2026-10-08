@@ -17,6 +17,7 @@ import { blogService, analyticsService, getImageUrl } from '@/services/api';
 import { BOOKS } from '@/data/books';
 import { BookRow } from '@/components/BookCard';
 import type { Book } from '@/types';
+import SEOHead from '@/components/SEOHead';
 
 // Adapter to ensure books from API match the UI Book type
 function adaptBook(b: any): Book {
@@ -114,13 +115,18 @@ export function BlogList() {
 
   return (
     <div className="mx-auto max-w-7xl px-3 py-8 sm:px-6">
+      <SEOHead
+        title="Book Lists & Study Guides — Techno World Books Blog"
+        description="Exam booklists, syllabus reading guides, medical, engineering and competitive examination book recommendations from the Techno World Books editorial desk."
+        canonicalUrl="/blog"
+      />
       {/* Header Section */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">
-            <Sparkles className="h-3.5 w-3.5" /> Official Editorial Desk
+          <span className="inline-flex items-center gap-1.5 rounded bg-stone-100 border border-stone-200 px-2.5 py-1 text-xs font-semibold text-stone-700">
+            <Sparkles className="h-3.5 w-3.5 text-stone-600" /> Official Editorial Desk
           </span>
-          <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+          <h1 className="mt-2 text-2xl font-serif font-bold tracking-tight text-stone-900 sm:text-4xl">
             Book Lists & Study Guides
           </h1>
           <p className="mt-1 text-sm text-slate-500 max-w-2xl">
@@ -173,21 +179,21 @@ export function BlogList() {
       {loading && posts.length === 0 ? (
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="animate-pulse rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-              <div className="aspect-[16/9] w-full rounded-xl bg-slate-200" />
-              <div className="mt-4 h-5 w-3/4 rounded bg-slate-200" />
-              <div className="mt-2 h-4 w-full rounded bg-slate-100" />
+            <div key={i} className="animate-pulse rounded-lg border border-stone-200 bg-white p-4 shadow-xs">
+              <div className="aspect-[16/9] w-full rounded-md bg-stone-100" />
+              <div className="mt-4 h-5 w-3/4 rounded bg-stone-100" />
+              <div className="mt-2 h-4 w-full rounded bg-stone-100" />
               <div className="mt-4 flex items-center gap-2">
-                <div className="h-3 w-20 rounded bg-slate-200" />
-                <div className="h-3 w-16 rounded bg-slate-200" />
+                <div className="h-3 w-20 rounded bg-stone-100" />
+                <div className="h-3 w-16 rounded bg-stone-100" />
               </div>
             </div>
           ))}
         </div>
       ) : posts.length === 0 ? (
-        <div className="mt-12 rounded-2xl border border-dashed border-slate-200 bg-white p-12 text-center shadow-sm">
-          <BookOpen className="mx-auto h-12 w-12 text-slate-300" />
-          <h3 className="mt-3 text-base font-bold text-slate-800">
+        <div className="mt-12 rounded-lg border border-dashed border-stone-300 bg-white p-12 text-center">
+          <BookOpen className="mx-auto h-12 w-12 text-stone-300" />
+          <h3 className="mt-3 text-base font-bold text-stone-900">
             {selectedCategory !== 'All' || searchQuery ? 'No matching articles found' : 'No blog posts published yet'}
           </h3>
           <p className="mt-1 text-sm text-slate-500 max-w-md mx-auto">
@@ -228,7 +234,7 @@ export function BlogList() {
               <Link
                 key={p.id || p.slug}
                 to={`/blog/${p.slug}`}
-                className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-xl"
+                className="group flex flex-col overflow-hidden rounded-lg border border-stone-200 bg-white shadow-xs transition-colors hover:border-stone-300"
               >
                 {/* Image Banner */}
                 <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-100">
@@ -359,7 +365,7 @@ export function BlogPost() {
           <div className="h-4 w-32 rounded bg-slate-200" />
           <div className="h-8 w-3/4 rounded bg-slate-200" />
           <div className="h-4 w-1/2 rounded bg-slate-200" />
-          <div className="aspect-[16/9] w-full rounded-2xl bg-slate-200" />
+          <div className="aspect-[16/9] w-full rounded-lg bg-stone-200" />
           <div className="space-y-3 pt-6">
             <div className="h-4 w-full rounded bg-slate-100" />
             <div className="h-4 w-full rounded bg-slate-100" />
@@ -373,6 +379,11 @@ export function BlogPost() {
   if (!post) {
     return (
       <div className="mx-auto max-w-xl px-4 py-20 text-center">
+        <SEOHead
+          title="Article Not Found | Techno World Books Blog"
+          description="The requested guide or article may have been moved or updated."
+          noIndex={true}
+        />
         <BookOpen className="mx-auto h-12 w-12 text-slate-300" />
         <h2 className="mt-3 text-xl font-bold text-slate-900">Article not found</h2>
         <p className="mt-1 text-sm text-slate-500">
@@ -416,6 +427,33 @@ export function BlogPost() {
 
   return (
     <div className="mx-auto max-w-3xl px-3 py-8 sm:px-6">
+      <SEOHead
+        title={`${post.title} | Techno World Books Blog`}
+        description={post.excerpt || (paragraphs[0] ? paragraphs[0].slice(0, 160) : 'Read this study guide from Techno World Books.')}
+        canonicalUrl={`/blog/${post.slug || slug}`}
+        ogType="article"
+        ogImage={thumbSrc || undefined}
+        structuredData={{
+          '@context': 'https://schema.org',
+          '@type': 'BlogPosting',
+          headline: post.title,
+          description: post.excerpt || (paragraphs[0] ? paragraphs[0].slice(0, 160) : ''),
+          image: thumbSrc || 'https://technoworldbooks.in/techno_world.png',
+          datePublished: post.createdAt || post.date,
+          author: {
+            '@type': 'Person',
+            name: authorName,
+          },
+          publisher: {
+            '@type': 'Organization',
+            name: 'Techno World Books',
+            logo: {
+              '@type': 'ImageObject',
+              url: 'https://technoworldbooks.in/techno_world.png',
+            },
+          },
+        }}
+      />
       {/* Breadcrumb */}
       <nav className="mb-4 flex items-center gap-1.5 text-xs text-slate-500">
         <Link to="/" className="hover:text-emerald-700">
@@ -431,7 +469,7 @@ export function BlogPost() {
 
       {/* Category Pill & Share */}
       <div className="flex items-center justify-between">
-        <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">
+        <span className="rounded bg-stone-100 border border-stone-200 px-2.5 py-1 text-xs font-semibold text-stone-700">
           {post.category || 'Study Guides'}
         </span>
         <button
@@ -480,9 +518,9 @@ export function BlogPost() {
       </div>
 
       {/* Hero Banner (Real Thumbnail image or gradient fallback) */}
-      <div className="mt-6 overflow-hidden rounded-2xl border border-slate-100 shadow-md">
+      <div className="mt-6 overflow-hidden rounded-lg border border-stone-200 shadow-xs">
         {thumbSrc ? (
-          <div className="relative aspect-[16/9] w-full bg-slate-100">
+          <div className="relative aspect-[16/9] w-full bg-stone-100">
             <img
               src={thumbSrc}
               alt={post.title}
@@ -505,7 +543,7 @@ export function BlogPost() {
 
       {/* Excerpt Lead */}
       {post.excerpt && (
-        <div className="mt-6 rounded-xl border-l-4 border-emerald-500 bg-emerald-50/50 p-4 text-sm font-medium leading-relaxed text-emerald-950">
+        <div className="mt-6 rounded-md border-l-2 border-emerald-800 bg-stone-50 p-4 text-sm font-medium leading-relaxed text-stone-900">
           {post.excerpt}
         </div>
       )}
@@ -515,22 +553,22 @@ export function BlogPost() {
         {paragraphs.map((para, i) => {
           if (para.startsWith('### ')) {
             return (
-              <h3 key={i} className="pt-3 text-lg font-bold text-slate-900">
+              <h3 key={i} className="pt-3 font-serif text-lg font-bold text-stone-900">
                 {para.replace('### ', '')}
               </h3>
             );
           }
           if (para.startsWith('## ')) {
             return (
-              <h2 key={i} className="pt-4 text-xl font-extrabold text-slate-900">
+              <h2 key={i} className="pt-4 font-serif text-xl font-bold text-stone-900">
                 {para.replace('## ', '')}
               </h2>
             );
           }
 
           return (
-            <p key={i} className="text-[15px] leading-relaxed text-slate-700">
-              {para.split('**').map((seg, j) => (j % 2 === 1 ? <strong key={j} className="font-bold text-slate-900">{seg}</strong> : seg))}
+            <p key={i} className="text-[15px] leading-relaxed text-stone-700">
+              {para.split('**').map((seg, j) => (j % 2 === 1 ? <strong key={j} className="font-semibold text-stone-900">{seg}</strong> : seg))}
             </p>
           );
         })}
@@ -538,7 +576,7 @@ export function BlogPost() {
 
       {/* Attached / Recommended Books Section */}
       <div
-        className="mt-12 rounded-2xl border border-slate-200/70 bg-gradient-to-b from-slate-50/70 to-white p-4 sm:p-6 shadow-sm"
+        className="mt-12 rounded-lg border border-stone-200 bg-stone-50 p-4 sm:p-6 shadow-xs"
         onClick={(e) => {
           const target = (e.target as HTMLElement).closest('a, button');
           if (target && slug) {

@@ -53,7 +53,7 @@ export default function PromoBanners() {
     <section className="mx-auto max-w-7xl px-4 py-8 pb-12 sm:px-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {banners.map(banner => (
-          <Link key={banner.id} to={banner.linkUrl} className="group overflow-hidden rounded-2xl shadow-sm transition hover:shadow-md border border-slate-100 block aspect-[21/9] sm:aspect-[16/9] md:aspect-[3/2] lg:aspect-[16/9] relative bg-slate-100">
+          <Link key={banner.id} to={banner.linkUrl} className="group overflow-hidden rounded-lg shadow-xs transition hover:border-stone-300 border border-stone-200 block aspect-[21/9] sm:aspect-[16/9] md:aspect-[3/2] lg:aspect-[16/9] relative bg-stone-100">
             {banner.imageUrl ? (
               <img 
                 src={banner.imageUrl} 

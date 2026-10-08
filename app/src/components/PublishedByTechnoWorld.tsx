@@ -37,23 +37,23 @@ export default function PublishedByTechnoWorld() {
   if (isLoading || displayBooks.length === 0) return null;
 
   return (
-    <section className="bg-slate-900 px-4 py-8 text-white sm:px-6 lg:py-10 border-y border-slate-800">
+    <section className="bg-[#0B1710] px-4 py-8 text-white sm:px-6 lg:py-10 border-y border-stone-800">
       <div className="mx-auto max-w-7xl">
         <div className="mb-5 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-end">
           <div className="min-w-0 max-w-full">
-            <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-bold text-emerald-400 border border-emerald-500/20">
+            <div className="mb-2 inline-flex items-center gap-1.5 rounded-md bg-emerald-950/80 px-2.5 py-0.5 text-xs font-semibold text-emerald-300 border border-emerald-800/60">
               <Building2 className="h-3.5 w-3.5" /> In-House Publications
             </div>
-            <h2 className="text-lg sm:text-2xl font-black tracking-tight text-white">
+            <h2 className="font-serif text-lg sm:text-2xl font-bold tracking-tight text-white">
               Published by Techno World
             </h2>
-            <p className="mt-1 text-xs text-slate-400">
+            <p className="mt-1 text-xs text-stone-400">
               Official publications authored for universities, colleges, and competitive exams across India.
             </p>
           </div>
           <Link
             to="/search?publisher=Techno%20World%20Publications"
-            className="group inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-emerald-400 hover:text-emerald-300 transition-colors shrink-0"
+            className="group inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-emerald-300 hover:text-white transition-colors shrink-0"
           >
             <span>View All</span>
             <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
@@ -70,7 +70,7 @@ export default function PublishedByTechnoWorld() {
               <Link
                 key={book.id || book.slug}
                 to={`/book/${book.slug}`}
-                className="group relative flex flex-col overflow-hidden rounded-lg bg-slate-800/90 border border-slate-700/60 transition-all duration-200 hover:-translate-y-1 hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-950/40"
+                className="group relative flex flex-col overflow-hidden rounded-md bg-[#132219] border border-stone-800 transition-all duration-200 hover:-translate-y-0.5 hover:border-stone-700 hover:shadow-md"
               >
                 {/* Compact Cover Image */}
                 <div className="relative aspect-[3/4.2] w-full overflow-hidden bg-slate-800 flex items-center justify-center">

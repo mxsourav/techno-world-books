@@ -67,16 +67,16 @@ export const RecentlyViewedCarousel: React.FC<RecentlyViewedCarouselProps> = ({ 
   };
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm">
+    <div className="rounded-lg border border-stone-200 bg-white p-5 sm:p-6 shadow-xs">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
-            <Clock className="h-3.5 w-3.5 text-emerald-600" />
+          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-stone-100 text-stone-700">
+            <Clock className="h-3.5 w-3.5 text-stone-700" />
           </span>
-          <h3 className="text-sm sm:text-base font-bold text-slate-900">
+          <h3 className="font-serif text-sm sm:text-base font-bold text-stone-900">
             Recently Viewed Books
           </h3>
-          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600">
+          <span className="rounded-md bg-stone-100 px-2 py-0.5 text-[10px] font-semibold text-stone-600">
             {items.length}
           </span>
         </div>
@@ -86,7 +86,7 @@ export const RecentlyViewedCarousel: React.FC<RecentlyViewedCarouselProps> = ({ 
             <button
               type="button"
               onClick={() => handleScroll('left')}
-              className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
+              className="flex h-7 w-7 items-center justify-center rounded-md border border-stone-200 text-stone-600 hover:bg-stone-50 transition-colors"
               title="Scroll left"
             >
               <ChevronLeft className="h-3.5 w-3.5" />
@@ -94,7 +94,7 @@ export const RecentlyViewedCarousel: React.FC<RecentlyViewedCarouselProps> = ({ 
             <button
               type="button"
               onClick={() => handleScroll('right')}
-              className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
+              className="flex h-7 w-7 items-center justify-center rounded-md border border-stone-200 text-stone-600 hover:bg-stone-50 transition-colors"
               title="Scroll right"
             >
               <ChevronRight className="h-3.5 w-3.5" />
@@ -105,7 +105,7 @@ export const RecentlyViewedCarousel: React.FC<RecentlyViewedCarouselProps> = ({ 
 
       <div
         ref={scrollContainerRef}
-        className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-200"
+        className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-stone-200"
       >
         {items.map((book) => {
           const discountPercent =
@@ -116,16 +116,16 @@ export const RecentlyViewedCarousel: React.FC<RecentlyViewedCarouselProps> = ({ 
           return (
             <div
               key={book.id}
-              className="group relative flex flex-col justify-between w-44 sm:w-48 shrink-0 rounded-xl border border-slate-200 bg-white p-3 hover:border-emerald-300 hover:shadow-md transition-all"
+              className="group relative flex flex-col justify-between w-44 sm:w-48 shrink-0 rounded-md border border-stone-200 bg-white p-3 hover:border-stone-400 hover:shadow-xs transition-all"
             >
               <Link to={`/book/${book.slug}`} className="block">
-                <div className="relative aspect-[3/4] w-full overflow-hidden rounded-lg bg-slate-100 border border-slate-100">
+                <div className="relative aspect-[3/4] w-full overflow-hidden rounded-md bg-stone-100 border border-stone-200">
                   <BookCover
                     book={book as any as Book}
                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                   {discountPercent && (
-                    <span className="absolute top-1.5 left-1.5 rounded bg-emerald-600 px-1.5 py-0.5 text-[9px] font-bold text-white shadow-2xs">
+                    <span className="absolute top-1.5 left-1.5 rounded-sm bg-emerald-800 px-1.5 py-0.5 text-[9px] font-semibold text-white shadow-2xs">
                       {discountPercent}% OFF
                     </span>
                   )}
@@ -133,26 +133,26 @@ export const RecentlyViewedCarousel: React.FC<RecentlyViewedCarouselProps> = ({ 
 
                 <div className="mt-2.5 space-y-1">
                   {book.publisher && (
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 truncate">
+                    <div className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 truncate">
                       {book.publisher}
                     </div>
                   )}
-                  <h4 className="text-xs font-bold text-slate-900 line-clamp-2 leading-snug group-hover:text-emerald-700 transition-colors">
+                  <h4 className="text-xs font-semibold text-stone-900 line-clamp-2 leading-snug group-hover:text-stone-700 transition-colors">
                     {book.title}
                   </h4>
-                  <p className="text-[11px] text-slate-500 truncate">
+                  <p className="text-[11px] text-stone-500 truncate">
                     {book.author}
                   </p>
                 </div>
               </Link>
 
-              <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between gap-1">
+              <div className="mt-3 pt-2 border-t border-stone-100 flex items-center justify-between gap-1">
                 <div className="flex flex-col">
-                  <span className="text-xs font-extrabold text-slate-900">
+                  <span className="text-xs font-semibold text-stone-900 font-mono">
                     {formatINR(book.price)}
                   </span>
                   {book.mrp && book.mrp > book.price && (
-                    <span className="text-[10px] text-slate-400 line-through">
+                    <span className="text-[10px] text-stone-400 line-through font-mono">
                       {formatINR(book.mrp)}
                     </span>
                   )}
@@ -161,7 +161,7 @@ export const RecentlyViewedCarousel: React.FC<RecentlyViewedCarouselProps> = ({ 
                 <button
                   type="button"
                   onClick={(e) => handleQuickAdd(e, book)}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-colors shadow-2xs"
+                  className="flex h-7 w-7 items-center justify-center rounded-md border border-stone-200 bg-stone-50 text-stone-700 hover:bg-emerald-800 hover:text-white hover:border-emerald-800 transition-colors shadow-2xs"
                   title="Add to cart"
                 >
                   <ShoppingCart className="h-3 w-3" />

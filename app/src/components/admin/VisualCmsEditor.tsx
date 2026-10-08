@@ -41,7 +41,7 @@ const REGISTERED_CMS_KEYS: EditableKeyInfo[] = [
   { key: 'header.sub_tagline', label: 'Store Tagline', section: 'Header & Navigation', defaultText: 'India ka apna bookstore' },
   
   // Homepage Hero (page '/')
-  { key: 'home.hero_badge', label: 'Hero Sale Badge', section: 'Homepage Hero', defaultText: 'Grand Book Sale — Up to 60% off 10,000+ titles', page: '/' },
+  { key: 'home.hero_badge', label: 'Hero Sale Badge', section: 'Homepage Hero', defaultText: 'Grand Book Sale — Up to 60% off* 10,000+ titles', page: '/' },
   { key: 'home.hero_title_1', label: 'Hero Headline Line 1', section: 'Homepage Hero', defaultText: 'Every book India reads,', page: '/' },
   { key: 'home.hero_title_2', label: 'Hero Headline Line 2', section: 'Homepage Hero', defaultText: 'one search away.', page: '/' },
   { key: 'home.hero_desc', label: 'Hero Subtitle Description', section: 'Homepage Hero', defaultText: 'From academic textbooks to bestselling fiction, get genuine books delivered straight to your doorstep with guaranteed lowest prices.', multiline: true, page: '/' },
@@ -58,8 +58,8 @@ const REGISTERED_CMS_KEYS: EditableKeyInfo[] = [
 
   // Special Offer Floating Popup (page '/')
   { key: 'popup.badge', label: 'Offer Popup Badge', section: 'Floating Special Offer', defaultText: 'Special offer', page: '/' },
-  { key: 'popup.headline', label: 'Offer Popup Headline', section: 'Floating Special Offer', defaultText: 'Book sale · Up to 60% off', page: '/' },
-  { key: 'popup.subtext', label: 'Offer Popup Subtext', section: 'Floating Special Offer', defaultText: 'Find your next favourite read.', multiline: true, page: '/' },
+  { key: 'popup.headline', label: 'Offer Popup Headline', section: 'Floating Special Offer', defaultText: 'Book sale · Up to 60% off*', page: '/' },
+  { key: 'popup.subtext', label: 'Offer Popup Subtext', section: 'Floating Special Offer', defaultText: '*Includes coupon codes on select categories.', multiline: true, page: '/' },
 
   // Homepage Book Sections (page '/')
   { key: 'home.section_recommended', label: 'Recommended Section Title', section: 'Homepage Book Sections', defaultText: 'Recommended For You', page: '/' },

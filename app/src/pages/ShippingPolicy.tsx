@@ -1,51 +1,57 @@
 import { Link } from 'react-router';
 import { Truck, Zap, Package } from 'lucide-react';
+import SEOHead from '@/components/SEOHead';
 
 export default function ShippingPolicy() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
+      <SEOHead
+        title="Shipping & Delivery Policy | Techno World Books"
+        description="Delivery timelines, shipping rates, and India Post Speed Post coverage across 27,000+ pincodes in India from Techno World Books."
+        canonicalUrl="/shipping-policy"
+      />
       {/* Header */}
-      <div className="border-b border-slate-200 pb-6 mb-8">
-        <div className="flex items-center gap-2 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-2">
-          <Truck className="h-4 w-4" /> Logistics & Delivery
+      <div className="border-b border-stone-200 pb-6 mb-8">
+        <div className="flex items-center gap-2 text-stone-600 text-xs font-semibold uppercase tracking-wider mb-2">
+          <Truck className="h-4 w-4 text-emerald-800" /> Logistics & Delivery
         </div>
-        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Shipping & Delivery Policy</h1>
-        <p className="text-sm text-slate-500 mt-2">
+        <h1 className="font-serif text-3xl font-bold text-stone-900 tracking-tight">Shipping & Delivery Policy</h1>
+        <p className="text-sm text-stone-500 mt-2">
           Nationwide delivery across 27,000+ Indian pincodes via India Post & local on-demand couriers
         </p>
       </div>
 
       {/* 3 Delivery Options */}
       <div className="grid gap-4 sm:grid-cols-3 mb-10">
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 space-y-2 shadow-xs">
-          <div className="flex items-center gap-2 text-slate-900 font-bold text-xs">
-            <Package className="h-4 w-4 text-emerald-600" />
+        <div className="rounded-lg border border-stone-200 bg-white p-4 space-y-2 shadow-xs">
+          <div className="flex items-center gap-2 text-stone-900 font-semibold text-xs">
+            <Package className="h-4 w-4 text-stone-700" />
             <span>Standard Delivery</span>
           </div>
-          <p className="text-base font-extrabold text-emerald-700">₹69 <span className="text-[11px] font-normal text-slate-500">(FREE ₹999+)</span></p>
-          <p className="text-[11px] text-slate-600 leading-relaxed">
+          <p className="text-base font-semibold text-stone-900 font-mono">₹69 <span className="text-[11px] font-normal text-stone-500">(FREE ₹999+)</span></p>
+          <p className="text-[11px] text-stone-600 leading-relaxed">
             Reliable delivery across all Indian states. Estimated transit: 5–7 business days.
           </p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 space-y-2 shadow-xs">
-          <div className="flex items-center gap-2 text-slate-900 font-bold text-xs">
-            <Truck className="h-4 w-4 text-orange-600" />
+        <div className="rounded-lg border border-stone-200 bg-white p-4 space-y-2 shadow-xs">
+          <div className="flex items-center gap-2 text-stone-900 font-semibold text-xs">
+            <Truck className="h-4 w-4 text-stone-700" />
             <span>Speed Post</span>
           </div>
-          <p className="text-base font-extrabold text-orange-600">₹199 Flat</p>
-          <p className="text-[11px] text-slate-600 leading-relaxed">
+          <p className="text-base font-semibold text-stone-900 font-mono">₹199 Flat</p>
+          <p className="text-[11px] text-stone-600 leading-relaxed">
             High-priority inland parcel booked via India Post network with SMS tracking. 2–3 days.
           </p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 space-y-2 shadow-xs">
-          <div className="flex items-center gap-2 text-slate-900 font-bold text-xs">
-            <Zap className="h-4 w-4 text-purple-700" />
+        <div className="rounded-lg border border-stone-200 bg-white p-4 space-y-2 shadow-xs">
+          <div className="flex items-center gap-2 text-stone-900 font-semibold text-xs">
+            <Zap className="h-4 w-4 text-stone-700" />
             <span>Local Express</span>
           </div>
-          <p className="text-base font-extrabold text-purple-800">₹149 Flat</p>
-          <p className="text-[11px] text-slate-600 leading-relaxed">
+          <p className="text-base font-semibold text-stone-900 font-mono">₹149 Flat</p>
+          <p className="text-[11px] text-stone-600 leading-relaxed">
             On-demand dispatch (Porter/Rapido) for Kolkata & Howrah. Same-day priority.
           </p>
         </div>

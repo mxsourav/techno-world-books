@@ -6,6 +6,7 @@ import { formatINR } from '@/utils/helpers';
 import { useStore } from '@/store/StoreContext';
 import { BookCover } from '@/components/BookCover';
 import { shippingService } from '@/services/api';
+import SEOHead from '@/components/SEOHead';
 
 const DEFAULT_STEPS = [
   { key: 'Placed', icon: Package, desc: 'Order confirmed & payment received' },
@@ -18,11 +19,32 @@ const DEFAULT_STEPS = [
 export default function Track() {
   const { orders } = useStore();
   const [params] = useSearchParams();
-  const [input, setInput] = useState(params.get('id') ?? '');
-  const [lookup, setLookup] = useState(params.get('id') ?? '');
+  const initialId = (
+    params.get('id') ||
+    params.get('tracking') ||
+    params.get('trackingNumber') ||
+    params.get('orderId') ||
+    ''
+  ).trim();
+  const [input, setInput] = useState(initialId);
+  const [lookup, setLookup] = useState(initialId);
   const [loading, setLoading] = useState(false);
   const [liveTracking, setLiveTracking] = useState<any>(null);
   const [errorMsg, setErrorMsg] = useState('');
+
+  useEffect(() => {
+    const q = (
+      params.get('id') ||
+      params.get('tracking') ||
+      params.get('trackingNumber') ||
+      params.get('orderId') ||
+      ''
+    ).trim();
+    if (q && q !== lookup) {
+      setInput(q);
+      setLookup(q);
+    }
+  }, [params, lookup]);
 
   const localOrder = orders.find(
     (o) =>
@@ -94,13 +116,18 @@ export default function Track() {
 
   return (
     <div className="mx-auto max-w-3xl px-3 py-8 sm:px-6">
+      <SEOHead
+        title="Track Order & Consignment | Techno World Books"
+        description="Track your book package delivery status in real-time with India Post Speed Post consignment integration on Techno World Books."
+        canonicalUrl="/track"
+      />
       <div className="flex items-center gap-2">
-        <h1 className="text-2xl font-extrabold text-slate-900">Track Your Order</h1>
-        <span className="rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-bold text-red-800 flex items-center gap-1">
-          <ShieldCheck className="h-3 w-3" /> India Post Integrated
+        <h1 className="font-serif text-2xl font-bold text-stone-900 tracking-tight">Track Your Order</h1>
+        <span className="rounded-md bg-stone-100 border border-stone-200 px-2.5 py-0.5 text-xs font-semibold text-stone-700 flex items-center gap-1">
+          <ShieldCheck className="h-3 w-3 text-stone-600" /> India Post Integrated
         </span>
       </div>
-      <p className="mt-1 text-sm text-slate-500">
+      <p className="mt-1 text-sm text-stone-500">
         Enter your Order ID (e.g. TW-20260901-...) or India Post Consignment Barcode (e.g. EB468827991IN)
       </p>
 
@@ -110,12 +137,12 @@ export default function Track() {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && setLookup(input)}
           placeholder="e.g. TW-20260901-1234 or EB468827991IN"
-          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-emerald-500 shadow-sm"
+          className="w-full rounded-md border border-stone-300 bg-white px-4 py-3 text-sm outline-none focus:border-stone-500 shadow-xs font-mono"
         />
         <button
           disabled={loading}
           onClick={() => setLookup(input)}
-          className="flex items-center gap-2 rounded-xl bg-emerald-700 px-6 py-3 text-sm font-bold text-white hover:bg-emerald-800 disabled:opacity-50 transition-colors shadow-sm"
+          className="flex items-center gap-2 rounded-md bg-emerald-800 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-900 disabled:opacity-50 transition-colors shadow-xs"
         >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
           Track
@@ -123,14 +150,14 @@ export default function Track() {
       </div>
 
       {lookup && !loading && !matchedOrder && !bookingDetails && (
-        <div className={`mt-6 rounded-xl border p-5 text-center text-sm ${isLikelyInvalid ? 'border-red-200 bg-red-50 text-red-800' : 'border-amber-200 bg-amber-50 text-amber-800'}`}>
+        <div className="mt-6 rounded-md border border-stone-200 bg-stone-50 p-5 text-center text-sm text-stone-700">
           {isLikelyInvalid ? (
             <>
-              <p className="font-bold text-base mb-1">Invalid Tracking ID</p>
+              <p className="font-semibold text-stone-900 text-base mb-1">Invalid Tracking ID</p>
               <p>
                 <b>"{lookup}"</b> is not a valid Order ID or India Post barcode.
               </p>
-              <p className="mt-2 text-xs opacity-75">
+              <p className="mt-2 text-xs text-stone-500">
                 Order IDs start with <code>TW-</code>. India Post barcodes look like <code>EB123456789IN</code>.
               </p>
             </>
@@ -138,11 +165,11 @@ export default function Track() {
             errorMsg
           ) : (
             <>
-              <p className="font-bold text-base mb-1">No tracking data yet</p>
+              <p className="font-semibold text-stone-900 text-base mb-1">No tracking data yet</p>
               <p>
                 No live tracking found for <b>"{lookup}"</b>.
               </p>
-              <p className="mt-2 text-xs opacity-75">
+              <p className="mt-2 text-xs text-stone-500">
                 If you just placed this order, your AWB / consignment number will be assigned once we hand it over to India Post. Check back soon or contact us on WhatsApp.
               </p>
             </>
@@ -151,15 +178,15 @@ export default function Track() {
       )}
 
       {(matchedOrder || bookingDetails) && (
-        <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="mt-6 rounded-lg border border-stone-200 bg-white p-6 shadow-xs">
           {/* Header Bar */}
-          <div className="flex flex-wrap items-start justify-between gap-3 border-b border-dashed border-slate-200 pb-4">
+          <div className="flex flex-wrap items-start justify-between gap-3 border-b border-dashed border-stone-200 pb-4">
             <div>
               <div className="flex items-center gap-2">
-                <p className="text-base font-extrabold text-slate-900">
+                <p className="font-serif text-base font-bold text-stone-900">
                   {matchedOrder?.orderNumber ? `Order #${matchedOrder.orderNumber}` : `Consignment ${bookingDetails?.article_number || lookup}`}
                 </p>
-                <span className="rounded bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-200">
+                <span className="rounded-md bg-stone-100 px-2 py-0.5 text-[11px] font-semibold text-stone-800 border border-stone-200">
                   {matchedOrder?.carrier || 'India Post Speed Post'}
                 </span>
               </div>
@@ -213,7 +240,7 @@ export default function Track() {
                             {evt.event}
                           </p>
                           {isLatest && (
-                            <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
+                            <span className="rounded bg-stone-100 border border-stone-200 px-2 py-0.5 text-[10px] font-semibold text-stone-700">
                               Latest Checkpoint
                             </span>
                           )}
@@ -303,15 +330,15 @@ export default function Track() {
                   setInput(o.id);
                   setLookup(o.id);
                 }}
-                className="flex w-full items-center justify-between rounded-xl border border-slate-100 bg-white p-4 text-left shadow-sm hover:shadow-md transition-shadow"
+                className="flex w-full items-center justify-between rounded-lg border border-stone-200 bg-white p-4 text-left shadow-xs hover:border-stone-300 transition-colors"
               >
                 <span>
-                  <span className="block text-sm font-bold text-slate-800">{o.id}</span>
-                  <span className="text-xs text-slate-500">
+                  <span className="block text-sm font-semibold text-stone-900">{o.id}</span>
+                  <span className="text-xs text-stone-500">
                     {new Date(o.placedAt).toLocaleDateString('en-IN')} · {o.items.length} item(s) · {o.courier || 'India Post'}
                   </span>
                 </span>
-                <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">
+                <span className="rounded bg-stone-100 border border-stone-200 px-2.5 py-0.5 text-xs font-semibold text-stone-700">
                   {o.status}
                 </span>
               </button>

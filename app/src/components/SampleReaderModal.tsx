@@ -73,18 +73,18 @@ export const SampleReaderModal: React.FC<SampleReaderModalProps> = ({
   const totalSamplePages = 4;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="relative flex flex-col w-full max-w-4xl h-[90vh] max-h-[820px] rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-stone-950/70 backdrop-blur-xs animate-in fade-in duration-200">
+      <div className="relative flex flex-col w-full max-w-4xl h-[90vh] max-h-[820px] rounded-lg bg-white shadow-2xl border border-stone-200 overflow-hidden">
         
         {/* Top Header Bar */}
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 bg-slate-50/80 shrink-0">
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-stone-200 bg-stone-50/80 shrink-0">
           <div className="flex items-center gap-2.5 min-w-0 pr-4">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700 shrink-0">
+            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-stone-100 text-stone-700 shrink-0">
               <BookOpen className="h-4 w-4" />
             </span>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-700">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-stone-700">
                   Look Inside · Sample Reader
                 </span>
                 {book.edition && (
@@ -220,12 +220,12 @@ export const SampleReaderModal: React.FC<SampleReaderModalProps> = ({
                     <p className="text-xs sm:text-sm leading-relaxed text-slate-700">
                       Academic study in this domain necessitates a rigorous mathematical and empirical understanding. The principles established in this text are structured to provide both conceptual depth and practical problem-solving capability.
                     </p>
-                    <div className="rounded-lg bg-emerald-50/60 border border-emerald-200/70 p-4 font-sans text-xs">
-                      <div className="font-bold text-emerald-900 flex items-center gap-1.5">
-                        <GraduationCap className="h-3.5 w-3.5 text-emerald-700" />
+                    <div className="rounded-lg bg-stone-50 border border-stone-200 p-4 font-sans text-xs">
+                      <div className="font-semibold text-stone-900 flex items-center gap-1.5">
+                        <GraduationCap className="h-3.5 w-3.5 text-stone-700" />
                         Key Theorem & Formula
                       </div>
-                      <p className="mt-1 text-emerald-800 font-mono">
+                      <p className="mt-1 text-stone-800 font-mono">
                         Φ(x) = ∑ [ w_i · ψ_i(x) ] + ε_0, where ∀ i ∈ {`{1, ..., n}`}
                       </p>
                     </div>
@@ -284,20 +284,20 @@ export const SampleReaderModal: React.FC<SampleReaderModalProps> = ({
 
                 {samplePage === 4 && (
                   <div className="space-y-4 text-center py-6">
-                    <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 mx-auto">
+                    <div className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-stone-100 text-stone-700 mx-auto">
                       <BookOpen className="h-6 w-6" />
                     </div>
-                    <h3 className="text-base font-bold text-slate-900 font-sans">
+                    <h3 className="font-serif text-base font-bold text-stone-900">
                       End of Free Online Sample
                     </h3>
-                    <p className="text-xs text-slate-600 font-sans max-w-sm mx-auto">
+                    <p className="text-xs text-stone-600 max-w-sm mx-auto">
                       Purchase the full printed edition to access all chapters, complete university solved papers, and exhaustive exercise sets.
                     </p>
                     <div className="pt-2">
                       <button
                         type="button"
                         onClick={onBuyNow}
-                        className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 font-sans transition-all"
+                        className="inline-flex items-center gap-2 rounded-md bg-emerald-800 px-5 py-2.5 text-xs font-semibold text-white shadow-xs hover:bg-emerald-900 transition-colors cursor-pointer"
                       >
                         <Zap className="h-4 w-4" />
                         Buy Complete Book for {formatINR(book.price)}
@@ -377,16 +377,16 @@ export const SampleReaderModal: React.FC<SampleReaderModalProps> = ({
         {/* Bottom Persistent Action Bar */}
         <div className="flex items-center justify-between px-5 py-3 border-t border-slate-200 bg-white shrink-0">
           <div className="flex items-baseline gap-2">
-            <span className="text-base font-extrabold text-slate-900">
+            <span className="text-base font-bold text-stone-900">
               {formatINR(book.price)}
             </span>
             {book.mrp && book.mrp > book.price && (
               <>
-                <span className="text-xs text-slate-400 line-through">
+                <span className="text-xs text-stone-400 line-through">
                   {formatINR(book.mrp)}
                 </span>
                 {discountPercent && (
-                  <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-800">
+                  <span className="rounded bg-stone-100 border border-stone-200 px-1.5 py-0.5 text-[10px] font-semibold text-stone-700">
                     {discountPercent}% OFF
                   </span>
                 )}
@@ -398,16 +398,16 @@ export const SampleReaderModal: React.FC<SampleReaderModalProps> = ({
             <button
               type="button"
               onClick={onAddToCart}
-              className="flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs font-bold text-slate-800 hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
+              className="flex items-center gap-1.5 rounded-md border border-stone-200 bg-white px-3.5 py-2 text-xs font-semibold text-stone-800 hover:bg-stone-50 transition-colors shadow-2xs cursor-pointer"
             >
-              <ShoppingCart className="h-3.5 w-3.5 text-slate-600" />
+              <ShoppingCart className="h-3.5 w-3.5 text-stone-600" />
               <span>Add to Cart</span>
             </button>
 
             <button
               type="button"
               onClick={onBuyNow}
-              className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-700 transition-colors shadow-sm cursor-pointer"
+              className="flex items-center gap-1.5 rounded-md bg-emerald-800 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-900 transition-colors shadow-xs cursor-pointer"
             >
               <Zap className="h-3.5 w-3.5" />
               <span>Buy Now</span>
