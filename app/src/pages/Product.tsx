@@ -469,7 +469,10 @@ export default function Product() {
   const pages = Number(book.pages || 320);
   const isbn = book.isbn13 || book.isbn10 || book.isbn || '978-93-89314-20-5';
   const publisher = book.publisher || 'Techno World Publications';
-  const author = book.author || (book.authors && book.authors[0]?.name) || 'Academic Editorial Board';
+  const rawAuthorCandidate = (book.author || (book.authors && book.authors[0]?.name) || '').trim();
+  const isInvalidAuthor = !rawAuthorCandidate || /^(unknown(\s*author)?|n\/?a|none)$/i.test(rawAuthorCandidate);
+  const author = isInvalidAuthor ? null : rawAuthorCandidate;
+  const authorOrEditorial = author || 'Techno World Editorial Board';
   const pubYear = book.publicationYear || (book.publicationDate ? new Date(book.publicationDate).getFullYear() : 2026);
   const edition = book.edition || '2026 Edition';
   const language = book.language || 'English';
@@ -1010,11 +1013,19 @@ export default function Product() {
 
               {/* Author & Publisher attribution */}
               <p className="mt-1.5 text-xs text-slate-500">
-                Authored by{' '}
-                <Link to={`/search?q=${encodeURIComponent(author)}`} className="font-semibold text-emerald-700 hover:underline">
-                  {author}
-                </Link>
-                {' '}· Published by <span className="font-medium text-slate-700">{publisher}</span>
+                {author ? (
+                  <>
+                    Authored by{' '}
+                    <Link to={`/search?q=${encodeURIComponent(author)}`} className="font-semibold text-emerald-700 hover:underline">
+                      {author}
+                    </Link>
+                    {' '}· Published by <span className="font-medium text-slate-700">{publisher}</span>
+                  </>
+                ) : (
+                  <>
+                    Published by <span className="font-medium text-slate-700">{publisher}</span>
+                  </>
+                )}
               </p>
 
               {/* Rating & Review Pill Badge */}
@@ -1225,7 +1236,7 @@ export default function Product() {
 
                     <div className="border-b border-slate-100 pb-2">
                       <span className="text-slate-400 font-medium block">Author(s)</span>
-                      <span className="font-bold text-slate-800">{author}</span>
+                      <span className="font-bold text-slate-800">{authorOrEditorial}</span>
                     </div>
 
                     <div className="border-b border-slate-100 pb-2">
@@ -1297,7 +1308,10 @@ export default function Product() {
               {openSections.allDetails && (
                 <div className="p-5 text-xs text-slate-600 leading-relaxed space-y-3">
                   <p className="text-slate-800 font-medium">
-                    {book.description || `A comprehensive and authoritative book on ${book.title} authored by ${author}, specifically structured according to the latest academic and competitive examination syllabus.`}
+                    {book.description || (author
+                      ? `A comprehensive academic reference volume on ${book.title} authored by ${author}, prepared in accordance with the latest university and competitive syllabus standards.`
+                      : `An official publication on ${book.title} published by ${publisher}, structured for academic curriculum and examination preparation.`
+                    )}
                   </p>
                   
                   <div className="rounded-xl bg-slate-50 p-4 border border-slate-100 space-y-2">

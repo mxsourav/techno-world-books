@@ -148,7 +148,9 @@ export function BookCover({ book, className = '' }: { book: Partial<Book> & Reco
     !rawPublisher ||
     rawPublisher.toLowerCase().includes('unknown') ||
     rawPublisher.toLowerCase() === 'n/a';
-  const displayPublisher = isPublisherInvalid ? 'Techno World Press' : rawPublisher;
+  const displayPublisher = isPublisherInvalid
+    ? 'Techno World'
+    : (rawPublisher.toLowerCase().includes('techno world') ? 'Techno World' : (rawPublisher.length > 16 ? rawPublisher.slice(0, 15) + '…' : rawPublisher));
 
   return (
     <div

@@ -47,8 +47,8 @@ async function processPdf(path: string, url: string): Promise<AutoFeaturedBook[]
       baseTitle = fileName;
     }
     // Final safety check: remove .cdr from filename fallback just in case
-    baseTitle = baseTitle.replace(/\.cdr$/i, '').trim();
-    const author = info?.Author || 'Unknown Author';
+    const rawAuthor = (info?.Author || '').trim();
+    const author = (!rawAuthor || /^(unknown(\s*author)?|n\/?a)$/i.test(rawAuthor)) ? 'Techno World Editorial Board' : rawAuthor;
 
     const extractedBooks: AutoFeaturedBook[] = [];
 

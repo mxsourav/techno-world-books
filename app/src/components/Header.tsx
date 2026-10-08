@@ -776,15 +776,21 @@ export default function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {(categories?.length ? categories : WEBSITE_CATEGORIES).map((c: any) => (
-                <Link
-                  key={c.slug || c.id}
-                  to={`/category/${c.slug}`}
-                  className="whitespace-nowrap rounded-md px-2 lg:px-2.5 py-0.5 text-xs text-emerald-100/90 transition hover:bg-white/10 hover:text-white shrink-0"
-                >
-                  {(c.name || '').replace(' Books', '')}
-                </Link>
-              ))}
+              {(categories?.length ? categories : WEBSITE_CATEGORIES)
+                .filter((c: any) => {
+                  const slug = (c.slug || '').toLowerCase();
+                  const name = (c.name || '').toLowerCase();
+                  return slug !== 'techno-world' && !name.includes('our publication');
+                })
+                .map((c: any) => (
+                  <Link
+                    key={c.slug || c.id}
+                    to={`/category/${c.slug}`}
+                    className="whitespace-nowrap rounded-md px-2 lg:px-2.5 py-0.5 text-xs text-emerald-100/90 transition hover:bg-white/10 hover:text-white shrink-0"
+                  >
+                    {(c.name || '').replace(' Books', '')}
+                  </Link>
+                ))}
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-1 pl-4 border-l border-white/10 ml-2">
