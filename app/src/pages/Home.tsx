@@ -463,6 +463,53 @@ export default function Home() {
                   />
                 </div>
               )}
+
+              {/* Photorealistic Page Block Shading & Paper Texture Depth Layer */}
+              {activePreset.pageBlockOverlay && (
+                <div
+                  className="absolute pointer-events-none select-none z-15 overflow-hidden"
+                  style={{
+                    left: activePreset.pageBlockOverlay.left,
+                    top: activePreset.pageBlockOverlay.top,
+                    width: activePreset.pageBlockOverlay.width,
+                    height: activePreset.pageBlockOverlay.height,
+                    clipPath: activePreset.pageBlockOverlay.clipPath,
+                  }}
+                >
+                  {/* 1. Vertical Ambient Occlusion & Lamp Falloff (warmer highlight at top, dark amber/brown deepening towards desk contact) */}
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      background: 'linear-gradient(180deg, rgba(255, 230, 175, 0.22) 0%, rgba(190, 145, 95, 0.08) 18%, rgba(65, 42, 18, 0.32) 55%, rgba(25, 14, 5, 0.65) 82%, rgba(8, 4, 1, 0.88) 100%)',
+                      mixBlendMode: 'multiply',
+                    }}
+                  />
+                  {/* 2. Cover Board Overhang Crease Shadow (left edge where cover board projects past pages) */}
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      background: 'linear-gradient(90deg, rgba(8, 4, 1, 0.88) 0%, rgba(15, 8, 3, 0.50) 18%, rgba(25, 12, 5, 0.18) 45%, transparent 75%)',
+                      mixBlendMode: 'multiply',
+                    }}
+                  />
+                  {/* 3. Paper Texture & Subtle Page Leaf Edge Striations */}
+                  <div
+                    className="absolute inset-0 opacity-45"
+                    style={{
+                      backgroundImage: 'repeating-linear-gradient(0deg, rgba(30, 16, 5, 0.25) 0px, rgba(30, 16, 5, 0.25) 1px, transparent 1px, transparent 3px)',
+                      mixBlendMode: 'multiply',
+                    }}
+                  />
+                  {/* 4. Directional Warm Room Lamp Ambient Sheen */}
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(255, 215, 130, 0.25) 0%, transparent 45%, rgba(0, 0, 0, 0.35) 100%)',
+                      mixBlendMode: 'overlay',
+                    }}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
