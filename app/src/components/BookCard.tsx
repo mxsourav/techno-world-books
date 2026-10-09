@@ -163,7 +163,7 @@ export function BookRow({
       <div className="mb-4 flex items-end justify-between">
         <h2 className="flex items-center gap-2 text-lg font-bold text-slate-900 sm:text-xl">
           {iconUrl ? (
-            <img src={iconUrl} alt="" aria-hidden="true" className="h-5 w-5 object-contain" />
+            <img src={iconUrl} alt="" aria-hidden="true" className="h-8 w-8 object-contain" />
           ) : (
             icon
           )}

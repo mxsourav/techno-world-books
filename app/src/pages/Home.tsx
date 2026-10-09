@@ -19,27 +19,46 @@ import { useCms } from '@/context/CmsContext';
 import { BOOKS as FALLBACK_BOOKS } from '@/data/books';
 
 
+// Book Icons
+import Recommended from "../../public/icons/recommended.png"
+import Competitive from "../../public/icons/ranking.png"
+import NonFiction from "../../public/icons/non-fiction.png"
+import Medical from "../../public/icons/medical.png"
+import Engineering from "../../public/icons/engineering.png"
+import Bengali from "../../public/icons/bengali-books.png"
+import Fiction from "../../public/icons/fiction.png"
+import School from "../../public/icons/school.png"
+import University from "../../public/icons/university.png"
+import BestSeller from "../../public/icons/best-seller.png"
+import Trending from "../../public/icons/trending.png"
+import NewReleases from "../../public/icons/new-releases.png"
+import RecentlyViewed from "../../public/icons/recently-viewed.png"
+import International from "../../public/icons/international.png"
+import Rare from "../../public/icons/rare.png"
+
+
+
 const PUBLISHERS = ['NCERT', 'Arihant Publications', 'McGraw Hill', 'Elsevier', 'Penguin', 'Ananda Publishers', 'MTG Learning Media', 'Dhanpat Rai'];
 
 import { BOOK_PRESETS, type BookPresetId } from '@/types/hero';
 
 // Add the image URL for each home-page book-row icon here.
 const BOOK_ROW_ICON_URLS = {
-  recommended: '',
-  competitive: '',
-  nonFiction: '',
-  medical: '',
-  engineering: '',
-  bengali: '',
-  fiction: '',
-  school: '',
-  university: '',
-  bestsellers: '',
-  trending: '',
-  newReleases: '',
-  recentlyViewed: '',
-  international: '',
-  rare: '',
+  recommended: Recommended,
+  competitive: Competitive,
+  nonFiction: NonFiction ,
+  medical: Medical,
+  engineering: Engineering,
+  bengali: Bengali,
+  fiction: Fiction,
+  school: School,
+  university: University,
+  bestsellers: BestSeller,
+  trending: Trending,
+  newReleases: NewReleases,
+  recentlyViewed: RecentlyViewed,
+  international: International,
+  rare: Rare,
 } as const;
 
 export default function Home() {

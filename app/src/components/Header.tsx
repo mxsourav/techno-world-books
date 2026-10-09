@@ -705,7 +705,7 @@ export default function Header() {
               )}
             </Link>
             {user ? (
-              <Link to="/profile" className="flex items-center gap-2 rounded-md px-2.5 py-1.5 border border-emerald-800/60 hover:bg-emerald-800/60 transition-colors text-white">
+              <Link to="/profile" className="flex items-center gap-2 rounded-full p-0 md:rounded-md md:px-2.5 md:py-1.5 md:border md:border-emerald-800/60 md:hover:bg-emerald-800/60 transition-colors text-white">
                 <div className="relative h-6 w-6 shrink-0">
                   {(authUser?.avatarUrl || user?.avatarUrl) && !(authUser?.avatarUrl || user?.avatarUrl)?.includes('unsplash') && !avatarError ? (
                     <img
@@ -764,7 +764,7 @@ export default function Header() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 py-1.5 gap-2">
           <div className="flex flex-1 min-w-0 items-center overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <div className="flex items-center gap-1 shrink-0">
-              <DropdownMenu>
+              <DropdownMenu modal={false}>
                 <DropdownMenuTrigger asChild>
                   <button className="mr-2 flex shrink-0 items-center gap-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-semibold text-emerald-200 hover:bg-white/10 hover:text-white transition-colors cursor-pointer outline-none">
                     <ChevronDown className="h-3.5 w-3.5 text-emerald-400" /> Shop by category
