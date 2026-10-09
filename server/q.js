@@ -1,1 +1,0 @@
-const sqlite3 = require('sqlite3').verbose(); const db = new sqlite3.Database('prisma/dev.db'); db.get(\\" SELECT * FROM User WHERE role = SUPER_ADMIN "\, (err, row) => { console.log(row); db.close(); });  
