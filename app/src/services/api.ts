@@ -513,6 +513,7 @@ export const profileService = {
     isDefault?: boolean;
   }) => api.post<any>('/profile/address', data),
   updateAddress: (id: string, data: any) => api.patch<any>(`/profile/address/${id}`, data),
+  setDefaultAddress: (id: string) => api.patch<any>(`/profile/address/${id}/default`),
   deleteAddress: (id: string) => api.delete<any>(`/profile/address/${id}`),
   getPaymentMethods: () => api.get<any[]>('/profile/payment-methods'),
   savePaymentMethod: (data: {

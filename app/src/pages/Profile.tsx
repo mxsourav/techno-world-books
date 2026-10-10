@@ -264,6 +264,21 @@ export default function Profile() {
     }
   };
 
+  const handleSetDefaultAddress = async (id: string) => {
+    try {
+      await profileService.setDefaultAddress(id);
+      toast.success('Default delivery address updated');
+      setAddresses((prev) =>
+        prev.map((a) => ({
+          ...a,
+          isDefault: a.id === id,
+        }))
+      );
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to update default address');
+    }
+  };
+
   const handleDeleteAddress = async (id: string) => {
     if (!confirm('Are you sure you want to remove this saved address?')) return;
     try {
@@ -1357,10 +1372,19 @@ export default function Profile() {
                           <span className="rounded bg-stone-100 border border-stone-200 px-2 py-0.5 text-[10px] font-semibold text-stone-700 uppercase">
                             {addr.type || 'HOME'}
                           </span>
-                          {addr.isDefault && (
-                            <span className="rounded bg-stone-100 border border-stone-200 text-stone-800 text-[10px] font-semibold px-2 py-0.5 flex items-center gap-1">
-                              <CheckCircle2 className="h-3 w-3 text-emerald-800" /> Default
+                          {addr.isDefault ? (
+                            <span className="rounded bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-semibold px-2 py-0.5 flex items-center gap-1">
+                              <CheckCircle2 className="h-3 w-3 text-emerald-700" /> Default
                             </span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleSetDefaultAddress(addr.id)}
+                              className="text-[10px] font-semibold text-stone-500 hover:text-emerald-800 transition-colors border border-dashed border-stone-300 rounded px-2 py-0.5 hover:border-emerald-700 hover:bg-emerald-50 cursor-pointer"
+                              title="Set as your primary delivery address"
+                            >
+                              Set as Default
+                            </button>
                           )}
                         </div>
                         <div className="flex items-center gap-1">

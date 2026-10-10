@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { POPULAR_SEARCHES } from '@/data/blog';
 import { CATEGORIES as WEBSITE_CATEGORIES } from '@/data/books';
+import whatsappIcon from '@/assets/images/whatsapp.svg';
 import { useStore } from '@/store/StoreContext';
 import { useAuthStore } from '@/store/AuthStore';
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -555,8 +556,8 @@ export default function Header() {
         <div className="flex items-center gap-4">
           <Link to="/track" className="hover:text-white">Track Order</Link>
           <Link to="/help" className="hover:text-white">Help Center</Link>
-          <a href="https://wa.me/917479135626?text=Hi%20Techno%20World%20Books!%20I%20need%20assistance." target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:text-white">
-            <MessageCircle className="h-3 w-3" /> WhatsApp Support
+          <a href="https://wa.me/917479135626?text=Hi%20Techno%20World%20Books!%20I%20need%20assistance." target="_blank" rel="noreferrer" className="flex items-center gap-1.5 hover:text-white">
+            <img src={whatsappIcon} alt="WhatsApp" className="h-3.5 w-3.5 object-contain inline-block" /> WhatsApp Support
           </a>
         </div>
       </div>

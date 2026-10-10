@@ -1,6 +1,6 @@
 import { useEffect, Suspense, lazy } from 'react';
 import { Route, Routes, useLocation, Outlet, Navigate } from 'react-router';
-import { MessageCircle } from 'lucide-react';
+import whatsappIcon from '@/assets/images/whatsapp.svg';
 import { Toaster } from 'sonner';
 import { ToastSwipeHandler } from '@/components/common/ToastSwipeHandler';
 import { StoreProvider } from '@/store/StoreContext';
@@ -180,9 +180,9 @@ function CustomerLayout() {
         target="_blank"
         rel="noreferrer"
         aria-label="WhatsApp Support"
-        className="fixed bottom-5 right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-800 text-white shadow-md transition-colors hover:bg-emerald-900"
+        className="fixed bottom-5 right-5 z-40 flex h-13 w-13 items-center justify-center rounded-full drop-shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
       >
-        <MessageCircle className="h-6 w-6" />
+        <img src={whatsappIcon} alt="WhatsApp Support" className="h-12 w-12 object-contain select-none" />
       </a>
     </>
   );

@@ -156,6 +156,20 @@ export default function Footer() {
             <span className="text-[10px] text-stone-500 max-w-xl leading-normal">
               *Promotional discounts, including &apos;Up to 50%/60% Off&apos;, include applicable coupon codes and promotional discounts on selected category books. Subject to terms &amp; conditions.
             </span>
+            <span className="text-[10px] text-stone-500 max-w-xl leading-normal">
+              Icon attribution:{' '}
+              <a href="https://iconscout.com/icons/whatsapp" className="underline hover:text-stone-300 transition-colors" target="_blank" rel="noreferrer">
+                Whatsapp
+              </a>{' '}
+              by{' '}
+              <a href="https://iconscout.com/contributors/maninderkaur" className="underline hover:text-stone-300 transition-colors" target="_blank" rel="noreferrer">
+                maninderkaur
+              </a>{' '}
+              on{' '}
+              <a href="https://iconscout.com" className="underline hover:text-stone-300 transition-colors" target="_blank" rel="noreferrer">
+                IconScout
+              </a>
+            </span>
           </div>
 
           <div className="flex flex-row flex-wrap items-center gap-2.5 justify-center">
