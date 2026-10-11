@@ -1,3 +1,5 @@
+const PROD_API_URL = 'https://api.technoworldbooks.in/api/v1';
+
 const getApiUrl = (): string => {
   const envUrl = import.meta.env.VITE_API_URL;
   // If loaded in browser over HTTPS, never use insecure http:// (blocked by browser as Mixed Content)
@@ -5,15 +7,15 @@ const getApiUrl = (): string => {
     if (envUrl && envUrl.startsWith('https://')) {
       return envUrl;
     }
-    return 'https://api.technoworldbooks.in/api/v1';
+    return PROD_API_URL;
   }
   if (import.meta.env.PROD) {
     if (envUrl && envUrl.startsWith('https://')) {
       return envUrl;
     }
-    return 'https://api.technoworldbooks.in/api/v1';
+    return PROD_API_URL;
   }
-  return envUrl || 'http://localhost:5000/api/v1';
+  return envUrl || PROD_API_URL;
 };
 
 const API_URL = getApiUrl();
@@ -151,7 +153,18 @@ async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Re
     credentials: 'include',
   };
 
-  let response = await fetch(url, mergedOptions);
+  let response: Response;
+  try {
+    response = await fetch(url, mergedOptions);
+  } catch (err: any) {
+    if (url.includes('localhost:5000') || url.includes('127.0.0.1:5000')) {
+      const fallbackUrl = url.replace(/https?:\/\/(localhost|127\.0\.0\.1):5000\/api\/v1/, PROD_API_URL);
+      console.warn(`[Local Server Offline] Retrying API request with production fallback: ${fallbackUrl}`);
+      response = await fetch(fallbackUrl, mergedOptions);
+    } else {
+      throw err;
+    }
+  }
 
   const newAccessToken = response.headers.get('x-new-access-token');
   if (newAccessToken) {

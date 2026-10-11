@@ -242,7 +242,7 @@ export default function Listing() {
       />
       {/* breadcrumbs */}
       <nav className="mb-3 flex items-center gap-1 text-xs text-stone-500">
-        <Link to="/" className="hover:text-emerald-800 transition-colors">Home</Link>
+        <Link to="/" className="hover:text-brand-base transition-colors">Home</Link>
         <ChevronRight className="h-3 w-3" />
         {catObj ? (
           <span className="font-semibold text-stone-800">{catObj.name}</span>
@@ -297,7 +297,7 @@ export default function Listing() {
               <BookOpen className="mx-auto h-12 w-12 text-stone-300 stroke-[1.5]" />
               <p className="mt-3 font-semibold text-stone-800">No books matched</p>
               <p className="mt-1 text-sm text-stone-500">Try clearing filters or a different search — title, author, ISBN, exam or university.</p>
-              <button onClick={clearAll} className="mt-4 rounded-md bg-emerald-800 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-900 transition-colors shadow-xs cursor-pointer">Clear filters</button>
+              <button onClick={clearAll} className="mt-4 rounded-md bg-brand-base px-4 py-2 text-xs font-semibold text-white hover:bg-brand-light transition-colors shadow-xs cursor-pointer">Clear filters</button>
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">

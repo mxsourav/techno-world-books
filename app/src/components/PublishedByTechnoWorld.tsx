@@ -38,11 +38,11 @@ export default function PublishedByTechnoWorld() {
   if (isLoading || displayBooks.length === 0) return null;
 
   return (
-    <section className="bg-[#0B1710] px-4 py-8 text-white sm:px-6 lg:py-10 border-y border-stone-800">
+    <section className="bg-brand-dark px-4 py-8 text-white sm:px-6 lg:py-10 border-y border-stone-800">
       <div className="mx-auto max-w-7xl">
         <div className="mb-5 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-end">
           <div className="min-w-0 max-w-full">
-            <div className="mb-2 inline-flex items-center gap-1.5 rounded-md bg-emerald-950/80 px-2.5 py-0.5 text-xs font-semibold text-emerald-300 border border-emerald-800/60">
+            <div className="mb-2 inline-flex items-center gap-1.5 rounded-md bg-brand-dark/80 px-2.5 py-0.5 text-xs font-semibold text-brand-200 border border-brand-base/60">
               <Building2 className="h-3.5 w-3.5" /> In-House Publications
             </div>
             <h2 className="font-serif text-lg sm:text-2xl font-bold tracking-tight text-white">
@@ -54,7 +54,7 @@ export default function PublishedByTechnoWorld() {
           </div>
           <Link
             to="/search?publisher=Techno%20World%20Publications"
-            className="group inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-emerald-300 hover:text-white transition-colors shrink-0"
+            className="group inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-brand-200 hover:text-white transition-colors shrink-0"
           >
             <span>View All</span>
             <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
@@ -70,14 +70,14 @@ export default function PublishedByTechnoWorld() {
               <Link
                 key={book.id || book.slug}
                 to={`/book/${book.slug}`}
-                className="group relative flex flex-col overflow-hidden rounded-md bg-[#132219] border border-stone-800 transition-colors duration-200 hover:border-emerald-700/60"
+                className="group relative flex flex-col overflow-hidden rounded-md bg-brand-dark border border-stone-800 transition-colors duration-200 hover:border-brand-base/60"
               >
                 {/* Compact Cover Image */}
                 <div className="relative aspect-[3/4.2] w-full overflow-hidden bg-slate-900">
                   <BookCover book={book} className="w-full h-full" />
 
                   {book.edition && (
-                    <span className="absolute top-1.5 left-1.5 z-30 bg-black/75 backdrop-blur-xs text-[9px] font-extrabold text-emerald-300 px-1.5 py-0.5 rounded shadow">
+                    <span className="absolute top-1.5 left-1.5 z-30 bg-black/75 backdrop-blur-xs text-[9px] font-extrabold text-brand-200 px-1.5 py-0.5 rounded shadow">
                       {book.edition}
                     </span>
                   )}
@@ -85,7 +85,7 @@ export default function PublishedByTechnoWorld() {
 
                 {/* Compact Content */}
                 <div className="flex flex-1 flex-col p-2.5">
-                  <h3 className="line-clamp-2 text-xs font-bold leading-snug text-slate-100 group-hover:text-emerald-300 transition-colors">
+                  <h3 className="line-clamp-2 text-xs font-bold leading-snug text-slate-100 group-hover:text-brand-200 transition-colors">
                     {book.title}
                   </h3>
 

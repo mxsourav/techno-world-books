@@ -149,7 +149,7 @@ export const NotifyStockModal: React.FC<NotifyStockModalProps> = ({
 
           {isSuccess ? (
             <div className="py-6 text-center space-y-3">
-              <div className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-stone-100 text-emerald-800">
+              <div className="inline-flex h-12 w-12 items-center justify-center rounded-md bg-stone-100 text-brand-base">
                 <CheckCircle2 className="h-6 w-6" />
               </div>
               <h4 className="font-serif text-sm font-bold text-stone-900">
@@ -221,7 +221,7 @@ export const NotifyStockModal: React.FC<NotifyStockModalProps> = ({
                   type="checkbox"
                   checked={notifyWhatsapp}
                   onChange={(e) => setNotifyWhatsapp(e.target.checked)}
-                  className="rounded-xs border-stone-300 text-emerald-800 focus:ring-emerald-800 h-4 w-4"
+                  className="rounded-xs border-stone-300 text-brand-base focus:ring-brand-base h-4 w-4"
                 />
                 <span className="flex items-center gap-1.5 text-xs text-stone-600 font-medium">
                   <MessageSquare className="h-3.5 w-3.5 text-stone-600" />
@@ -234,7 +234,7 @@ export const NotifyStockModal: React.FC<NotifyStockModalProps> = ({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full flex items-center justify-center gap-2 rounded-md bg-emerald-800 py-2.5 text-xs font-semibold text-white hover:bg-emerald-900 transition-colors shadow-xs disabled:opacity-50 cursor-pointer"
+                  className="w-full flex items-center justify-center gap-2 rounded-md bg-brand-base py-2.5 text-xs font-semibold text-white hover:bg-brand-light transition-colors shadow-xs disabled:opacity-50 cursor-pointer"
                 >
                   {isSubmitting ? (
                     <>

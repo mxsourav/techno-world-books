@@ -12,7 +12,7 @@ export default function Terms() {
       />
       {/* Header */}
       <div className="border-b border-slate-200 pb-6 mb-8">
-        <div className="flex items-center gap-2 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-2">
+        <div className="flex items-center gap-2 text-brand-base text-xs font-bold uppercase tracking-wider mb-2">
           <FileText className="h-4 w-4" /> Legal & Compliance
         </div>
         <h1 className="text-3xl font-black text-slate-900 tracking-tight">Terms and Conditions of Service</h1>
@@ -119,7 +119,7 @@ export default function Terms() {
                 href="https://docs.google.com/forms/d/e/1FAIpQLSdP7BBi2SNX67XU0xoBDzqiXSaL4nyBBIwDfVacG8M9kVR1RQ/viewform?usp=publish-editor"
                 target="_blank"
                 rel="noreferrer"
-                className="font-bold text-emerald-700 hover:underline inline-flex items-center gap-1"
+                className="font-bold text-brand-base hover:underline inline-flex items-center gap-1"
               >
                 Online Replacement Form &rarr;
               </a>
@@ -160,10 +160,10 @@ export default function Terms() {
 
       {/* Bottom Navigation */}
       <div className="mt-12 pt-6 border-t border-slate-200 flex flex-wrap gap-4 text-xs font-semibold">
-        <Link to="/refund-policy" className="text-emerald-700 hover:underline">Read Refund & Replacement Policy →</Link>
-        <Link to="/shipping-policy" className="text-emerald-700 hover:underline">Read Shipping Policy →</Link>
-        <Link to="/privacy-policy" className="text-emerald-700 hover:underline">Read Privacy Policy →</Link>
-        <Link to="/contact" className="text-emerald-700 hover:underline">Contact Support →</Link>
+        <Link to="/refund-policy" className="text-brand-base hover:underline">Read Refund & Replacement Policy →</Link>
+        <Link to="/shipping-policy" className="text-brand-base hover:underline">Read Shipping Policy →</Link>
+        <Link to="/privacy-policy" className="text-brand-base hover:underline">Read Privacy Policy →</Link>
+        <Link to="/contact" className="text-brand-base hover:underline">Contact Support →</Link>
       </div>
     </div>
   );

@@ -157,13 +157,21 @@ export default function Home() {
     setError(false);
     bookService.getBooks({ limit: 500 })
       .then((booksRes) => {
-        if (booksRes.success && Array.isArray(booksRes.data)) {
+        if (booksRes.success && Array.isArray(booksRes.data) && booksRes.data.length > 0) {
           setBooks(booksRes.data);
-        } else if (!booksRes.success) {
+        } else if (FALLBACK_BOOKS && FALLBACK_BOOKS.length > 0) {
+          setBooks(FALLBACK_BOOKS as any);
+        } else {
           setError(true);
         }
       })
-      .catch(() => setError(true))
+      .catch(() => {
+        if (FALLBACK_BOOKS && FALLBACK_BOOKS.length > 0) {
+          setBooks(FALLBACK_BOOKS as any);
+        } else {
+          setError(true);
+        }
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -260,7 +268,7 @@ export default function Home() {
   // const featuredBook = books.find((b) => b.featured) || books[0];
 
   return (
-    <div className="w-full min-w-0 max-w-full overflow-x-hidden bg-[#FBFBFA] selection:bg-emerald-900/20">
+    <div className="w-full min-w-0 max-w-full overflow-x-hidden bg-[#FBFBFA] selection:bg-brand-dark/20">
       <SEOHead
         title="Techno World Books — Buy Academic, School & College Books Online"
         description="Every book India reads, one search away. Fast delivery across India on genuine textbooks, reference materials, and publications from College Street, Kolkata."
@@ -268,7 +276,7 @@ export default function Home() {
         structuredData={[buildWebsiteJsonLd(), buildLocalBusinessJsonLd()]}
       />
       {/* Hero Section */}
-      <section id="home-hero" className="relative flex min-h-[620px] w-full max-w-full min-w-0 flex-col justify-center overflow-x-hidden bg-[#02120b] pb-24 pt-7 text-white sm:min-h-[85vh] sm:pb-32 sm:pt-14 lg:pt-16 lg:pb-40">
+      <section id="home-hero" className="relative flex min-h-[620px] w-full max-w-full min-w-0 flex-col justify-center overflow-x-hidden bg-brand-dark pb-24 pt-7 text-white sm:min-h-[85vh] sm:pb-32 sm:pt-14 lg:pt-16 lg:pb-40">
         {/* Synchronized Hero Canvas with Pure CSS 3D Perspective Book Cover & Paperback Texture */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           <div
@@ -293,9 +301,20 @@ export default function Home() {
               loading="eager"
               decoding="async"
             />
-            {/* Soft Ambient Eye-Pleasing Dimming Overlay */}
+            {/* Dynamic Brand Color Filter Overlay (mix-blend-color) that adapts instantly to active theme */}
             <div
-              className="absolute inset-0 pointer-events-none bg-gradient-to-r from-[#02120b]/60 via-[#02120b]/20 to-[#02120b]/35 mix-blend-multiply"
+              className="absolute inset-0 pointer-events-none mix-blend-color transition-colors duration-300"
+              style={{
+                backgroundColor: 'var(--brand-dark)',
+                opacity: 0.35,
+              }}
+            />
+            {/* Ambient Lighting & Depth Overlay (mix-blend-multiply) */}
+            <div
+              className="absolute inset-0 pointer-events-none mix-blend-multiply transition-all duration-300"
+              style={{
+                background: 'linear-gradient(to right, rgba(var(--brand-dark-rgb, 7, 16, 31), 0.75) 0%, rgba(var(--brand-dark-rgb, 7, 16, 31), 0.25) 45%, rgba(var(--brand-dark-rgb, 7, 16, 31), 0.40) 100%)',
+              }}
             />
 
             {/* Soft Ambient Diffuse Shadow on Wooden Desk */}
@@ -552,8 +571,21 @@ export default function Home() {
             </div>
           </div>
         </div>
-        {/* Gradient Overlay: constrained to left text column so the 3D book on the right remains 100% crisp, vibrant, and un-tinted */}
-        <div className="absolute inset-0 z-0 bg-gradient-to-b sm:bg-gradient-to-r from-[#03150b] via-[#0a2e16]/95 to-transparent pointer-events-none w-full lg:w-[50%]"></div>
+        {/* Rich Left-Column Gradient: transitions from pitch black edge through brand-dark to transparent */}
+        <div
+          className="absolute inset-0 z-0 pointer-events-none w-full lg:w-[55%] transition-all duration-300"
+          style={{
+            background: 'linear-gradient(to right, var(--brand-pitch) 0%, rgba(var(--brand-dark-rgb, 7, 16, 31), 0.95) 55%, transparent 100%)',
+          }}
+        />
+
+        {/* Ambient Radial Luminous Glow Accent directly behind Hero Heading Text */}
+        <div
+          className="absolute -top-12 -left-12 z-0 pointer-events-none w-[640px] h-[520px] rounded-full blur-3xl opacity-40 transition-all duration-300"
+          style={{
+            background: 'radial-gradient(circle, var(--brand-base) 0%, rgba(var(--brand-light-rgb, 27, 55, 102), 0.5) 40%, transparent 70%)',
+          }}
+        />
 
         {/* Subtle Geometric Texture Overlay (Fades out early on left text column) */}
         <div
@@ -571,7 +603,7 @@ export default function Home() {
           <div className="flex w-full min-w-0 max-w-[750px] flex-col overflow-visible text-left lg:w-[60%]">
 
             {/* Top Sale Badge */}
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#0a2e1f] border border-[#D4A017] px-3.5 py-1.5 mb-5 shadow-sm max-w-full">
+            <div className="inline-flex items-center gap-2 rounded-full bg-brand-dark border border-[#D4A017] px-3.5 py-1.5 mb-5 shadow-sm max-w-full">
               <Tag className="h-3.5 w-3.5 text-[#D4A017] shrink-0" />
               <span className="text-[11px] sm:text-[13px] font-medium text-[#D4A017] truncate sm:whitespace-normal">
                 <CmsText contentKey="home.hero_badge" defaultText="Grand Book Sale — Up to 60% off* 10,000+ titles" label="Hero Sale Badge" />
@@ -695,7 +727,7 @@ export default function Home() {
           <AlertCircle className="h-10 w-10 text-stone-400 mb-3" />
           <h2 className="text-lg font-serif font-bold text-stone-800">Failed to load books</h2>
           <p className="text-sm text-stone-500 max-w-xs mt-1">We couldn't reach the server. Please try again later.</p>
-          <button onClick={() => window.location.reload()} className="mt-4 rounded-md bg-emerald-800 hover:bg-emerald-900 px-6 py-2 text-xs font-semibold text-white transition-colors">Retry</button>
+          <button onClick={() => window.location.reload()} className="mt-4 rounded-md bg-brand-base hover:bg-brand-light px-6 py-2 text-xs font-semibold text-white transition-colors">Retry</button>
         </div>
       ) : !loading && books.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 px-4 text-stone-500 text-center">
@@ -812,9 +844,9 @@ export default function Home() {
 
           {/* EXAM ZONE BANNER */}
           <section className="mx-auto max-w-7xl px-3 py-5 sm:px-6">
-            <div className="flex flex-col items-start justify-between gap-4 rounded-lg border border-stone-800 bg-[#0B1710] p-5 text-white sm:flex-row sm:items-center sm:p-8 shadow-xs">
+            <div className="flex flex-col items-start justify-between gap-4 rounded-lg border border-stone-800 bg-brand-dark p-5 text-white sm:flex-row sm:items-center sm:p-8 shadow-xs">
               <div className="min-w-0">
-                <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-emerald-300"><Trophy className="h-4 w-4" /> Exam Zone</p>
+                <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-brand-200"><Trophy className="h-4 w-4" /> Exam Zone</p>
                 <h3 className="font-serif mt-1 text-lg font-bold sm:text-2xl leading-snug text-white">
                   <CmsText
                     contentKey="home.exam_zone_title"
@@ -830,7 +862,7 @@ export default function Home() {
                   />
                 </p>
               </div>
-              <Link to="/category/competitive-exams" className="flex shrink-0 items-center gap-2 rounded-md bg-emerald-800 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-900 transition-colors w-full sm:w-auto justify-center sm:justify-start">
+              <Link to="/category/competitive-exams" className="flex shrink-0 items-center gap-2 rounded-md bg-brand-base px-5 py-3 text-sm font-semibold text-white hover:bg-brand-light transition-colors w-full sm:w-auto justify-center sm:justify-start">
                 Shop Exam Books <ArrowRight className="h-4 w-4" />
               </Link>
             </div>

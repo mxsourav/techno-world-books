@@ -13,7 +13,7 @@ export default function ShippingPolicy() {
       {/* Header */}
       <div className="border-b border-stone-200 pb-6 mb-8">
         <div className="flex items-center gap-2 text-stone-600 text-xs font-semibold uppercase tracking-wider mb-2">
-          <Truck className="h-4 w-4 text-emerald-800" /> Logistics & Delivery
+          <Truck className="h-4 w-4 text-brand-base" /> Logistics & Delivery
         </div>
         <h1 className="font-serif text-3xl font-bold text-stone-900 tracking-tight">Shipping & Delivery Policy</h1>
         <p className="text-sm text-stone-500 mt-2">
@@ -91,7 +91,7 @@ export default function ShippingPolicy() {
           </p>
           <p>
             You can also track your shipment status anytime directly via our website at{' '}
-            <Link to="/track" className="font-bold text-emerald-700 hover:underline">
+            <Link to="/track" className="font-bold text-brand-base hover:underline">
               Track Order Page
             </Link>
             .
@@ -106,7 +106,7 @@ export default function ShippingPolicy() {
           </p>
           <ul className="list-disc list-inside space-y-1.5 text-slate-700 pl-2">
             <li>Please wait <b>24–48 hours</b> after the expected delivery date.</li>
-            <li>Contact us at <a href="mailto:support@technoworldbooks.in" className="font-semibold text-emerald-700 hover:underline">support@technoworldbooks.in</a> with your order number for assistance.</li>
+            <li>Contact us at <a href="mailto:support@technoworldbooks.in" className="font-semibold text-brand-base hover:underline">support@technoworldbooks.in</a> with your order number for assistance.</li>
           </ul>
         </section>
 
@@ -119,24 +119,24 @@ export default function ShippingPolicy() {
         </section>
 
         {/* Section 7 */}
-        <section className="space-y-3 rounded-xl border border-emerald-900/10 bg-emerald-50/40 p-5">
-          <h2 className="text-base font-bold text-emerald-950">Shipping Support &amp; Queries</h2>
-          <p className="text-xs text-emerald-900/80">
+        <section className="space-y-3 rounded-xl border border-brand-dark/10 bg-brand-50/40 p-5">
+          <h2 className="text-base font-bold text-brand-dark">Shipping Support &amp; Queries</h2>
+          <p className="text-xs text-brand-dark/80">
             If you have any questions or concerns regarding your shipment, feel free to reach our customer support team:
           </p>
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 pt-2 text-xs font-medium text-slate-800">
             <a
               href="mailto:support@technoworldbooks.in"
-              className="inline-flex items-center gap-2 rounded-lg bg-white px-3.5 py-2 border border-stone-200 text-stone-800 hover:border-emerald-600 hover:text-emerald-700 transition-colors shadow-2xs"
+              className="inline-flex items-center gap-2 rounded-lg bg-white px-3.5 py-2 border border-stone-200 text-stone-800 hover:border-emerald-600 hover:text-brand-base transition-colors shadow-2xs"
             >
-              <Mail className="h-3.5 w-3.5 text-emerald-700" />
+              <Mail className="h-3.5 w-3.5 text-brand-base" />
               <span>Email: support@technoworldbooks.in</span>
             </a>
             <a
               href="tel:+917479135626"
-              className="inline-flex items-center gap-2 rounded-lg bg-white px-3.5 py-2 border border-stone-200 text-stone-800 hover:border-emerald-600 hover:text-emerald-700 transition-colors shadow-2xs"
+              className="inline-flex items-center gap-2 rounded-lg bg-white px-3.5 py-2 border border-stone-200 text-stone-800 hover:border-emerald-600 hover:text-brand-base transition-colors shadow-2xs"
             >
-              <Phone className="h-3.5 w-3.5 text-emerald-700" />
+              <Phone className="h-3.5 w-3.5 text-brand-base" />
               <span>Phone: +91 747 913 5626</span>
             </a>
           </div>
@@ -145,9 +145,9 @@ export default function ShippingPolicy() {
 
       {/* Bottom Navigation */}
       <div className="mt-12 pt-6 border-t border-slate-200 flex flex-wrap gap-4 text-xs font-semibold">
-        <Link to="/terms" className="text-emerald-700 hover:underline">Read Terms of Service →</Link>
-        <Link to="/refund-policy" className="text-emerald-700 hover:underline">Read Refund & Replacement Policy →</Link>
-        <Link to="/contact" className="text-emerald-700 hover:underline">Contact Support →</Link>
+        <Link to="/terms" className="text-brand-base hover:underline">Read Terms of Service →</Link>
+        <Link to="/refund-policy" className="text-brand-base hover:underline">Read Refund & Replacement Policy →</Link>
+        <Link to="/contact" className="text-brand-base hover:underline">Contact Support →</Link>
       </div>
     </div>
   );

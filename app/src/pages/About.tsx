@@ -86,10 +86,10 @@ export default function About() {
       />
       {/* Header Section */}
       <div className="text-center mb-16">
-        <h1 className="text-4xl font-extrabold tracking-tight text-emerald-900 sm:text-5xl lg:text-6xl mb-6">
+        <h1 className="text-4xl font-extrabold tracking-tight text-brand-dark sm:text-5xl lg:text-6xl mb-6">
           <CmsText contentKey="about.title" defaultText="About Techno World Books" label="About Page Title" />
         </h1>
-        <p className="mx-auto max-w-3xl text-2xl text-emerald-700 leading-relaxed font-semibold">
+        <p className="mx-auto max-w-3xl text-2xl text-brand-base leading-relaxed font-semibold">
           <CmsText contentKey="about.subtitle" defaultText="Your Trusted Bookstore for Every Reader" label="About Page Subtitle" />
         </p>
       </div>
@@ -105,7 +105,7 @@ export default function About() {
           </p>
           <div>
             <span className="inline-flex items-center gap-2 rounded-md bg-stone-100 px-3.5 py-1.5 text-xs font-semibold text-stone-800 border border-stone-200">
-              <MapPin className="h-4 w-4 text-emerald-800 shrink-0" />
+              <MapPin className="h-4 w-4 text-brand-base shrink-0" />
               <span>College Street Flagship: 90/6A Mahatma Gandhi Rd, opp. Grace Cinema, Kolkata 700007</span>
             </span>
           </div>
@@ -113,7 +113,7 @@ export default function About() {
 
         {/* Visual Element */}
         <div className="relative group">
-          <div className="aspect-[4/3] rounded-lg overflow-hidden border border-stone-800 shadow-sm bg-[#0B2518] flex items-center justify-center p-8 text-white relative">
+          <div className="aspect-[4/3] rounded-lg overflow-hidden border border-stone-800 shadow-sm bg-brand-dark flex items-center justify-center p-8 text-white relative">
             <div className="text-center space-y-4">
               <Quote className="h-8 w-8 text-emerald-600/50 mx-auto" />
               <p className="text-xl sm:text-2xl font-serif italic max-w-md mx-auto leading-snug text-stone-200">
@@ -136,8 +136,8 @@ export default function About() {
       <div className="mb-20">
         <div className="bg-stone-50 rounded-lg p-6 sm:p-10 shadow-xs border border-stone-200">
           <div className="max-w-3xl mb-8">
-            <div className="inline-flex items-center gap-2 text-emerald-900 text-xs font-bold uppercase tracking-wider mb-2">
-              <Sparkles className="h-4 w-4 text-emerald-800" /> Book Procurement & Sourcing
+            <div className="inline-flex items-center gap-2 text-brand-dark text-xs font-bold uppercase tracking-wider mb-2">
+              <Sparkles className="h-4 w-4 text-brand-base" /> Book Procurement & Sourcing
             </div>
             <h2 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 mb-2">
               <CmsText contentKey="about.procurement_title" defaultText="Can't Find a Book? Request It Here" label="Sourcing Heading" />
@@ -154,7 +154,7 @@ export default function About() {
 
           {submitted ? (
             <div className="rounded-lg border border-stone-200 bg-white p-8 text-center space-y-4 max-w-2xl mx-auto shadow-xs">
-              <CheckCircle2 className="h-12 w-12 text-emerald-800 mx-auto" />
+              <CheckCircle2 className="h-12 w-12 text-brand-base mx-auto" />
               <h3 className="font-serif text-xl font-bold text-stone-900">Book Sourcing Request Submitted!</h3>
               <p className="text-sm text-stone-600 leading-relaxed">
                 Thank you! We have logged your request for <b>"{form.title}"</b> by <b>{form.author}</b> into our procurement desk. Our sourcing team is checking publisher availability and will contact you at <b>{form.email}</b> or WhatsApp.
@@ -185,7 +185,7 @@ export default function About() {
                   )}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-md bg-emerald-800 px-5 py-2.5 text-xs font-semibold text-white hover:bg-emerald-900 transition-colors shadow-xs"
+                  className="inline-flex items-center gap-2 rounded-md bg-brand-base px-5 py-2.5 text-xs font-semibold text-white hover:bg-brand-light transition-colors shadow-xs"
                 >
                   <MessageSquare className="h-4 w-4" /> Message on WhatsApp
                 </a>
@@ -213,7 +213,7 @@ export default function About() {
                     value={form.title}
                     onChange={(e) => setForm({ ...form, title: e.target.value })}
                     placeholder="e.g. Higher Algebra / Concepts of Physics"
-                    className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-emerald-500"
+                    className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-brand-base"
                   />
                 </div>
 
@@ -227,7 +227,7 @@ export default function About() {
                     value={form.author}
                     onChange={(e) => setForm({ ...form, author: e.target.value })}
                     placeholder="e.g. Hall & Knight / H.C. Verma"
-                    className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-emerald-500"
+                    className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-brand-base"
                   />
                 </div>
               </div>
@@ -243,7 +243,7 @@ export default function About() {
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
                     placeholder="you@example.com"
-                    className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-emerald-500"
+                    className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-brand-base"
                   />
                 </div>
 
@@ -256,7 +256,7 @@ export default function About() {
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
                     placeholder="e.g. 7479135626 (For WhatsApp updates)"
-                    className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-emerald-500"
+                    className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-brand-base"
                   />
                 </div>
               </div>
@@ -271,7 +271,7 @@ export default function About() {
                     value={form.publisher}
                     onChange={(e) => setForm({ ...form, publisher: e.target.value })}
                     placeholder="e.g. Cambridge / Wiley / NCERT / S. Chand"
-                    className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-emerald-500"
+                    className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-brand-base"
                   />
                 </div>
 
@@ -284,7 +284,7 @@ export default function About() {
                     value={form.edition}
                     onChange={(e) => setForm({ ...form, edition: e.target.value })}
                     placeholder="e.g. 2026 Latest Edition / 4th Edition"
-                    className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-emerald-500"
+                    className="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm outline-none focus:border-brand-base"
                   />
                 </div>
               </div>
@@ -296,7 +296,7 @@ export default function About() {
                 </label>
                 <div className="flex items-center gap-4">
                   <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-100 hover:border-emerald-500 transition">
-                    <Upload className="h-4 w-4 text-emerald-700" />
+                    <Upload className="h-4 w-4 text-brand-base" />
                     <span>Choose Image (Max 5MB)</span>
                     <input
                       type="file"
@@ -344,7 +344,7 @@ export default function About() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="inline-flex items-center gap-2 rounded-md bg-emerald-800 px-7 py-3 text-sm font-semibold text-white hover:bg-emerald-900 shadow-xs transition-colors disabled:opacity-50"
+                  className="inline-flex items-center gap-2 rounded-md bg-brand-base px-7 py-3 text-sm font-semibold text-white hover:bg-brand-light shadow-xs transition-colors disabled:opacity-50"
                 >
                   {submitting ? (
                     <>
@@ -370,7 +370,7 @@ export default function About() {
       </div>
 
       <div className="mb-20">
-        <h2 className="text-3xl font-bold tracking-tight text-emerald-900 mb-8 text-center">
+        <h2 className="text-3xl font-bold tracking-tight text-brand-dark mb-8 text-center">
           Why Choose Techno World Books?
         </h2>
         <div className="max-w-4xl mx-auto mb-10 text-lg text-slate-700 text-center">
@@ -387,7 +387,7 @@ export default function About() {
             'A customer-first approach built on trust and satisfaction'
           ].map((feature, idx) => (
             <div key={idx} className="flex items-center p-5 bg-white rounded-lg shadow-xs border border-stone-200">
-              <CheckCircle2 className="h-6 w-6 text-emerald-800 mr-3.5 flex-shrink-0" />
+              <CheckCircle2 className="h-6 w-6 text-brand-base mr-3.5 flex-shrink-0" />
               <span className="text-stone-800 font-medium text-base leading-snug">{feature}</span>
             </div>
           ))}
@@ -405,7 +405,7 @@ export default function About() {
         <p className="text-base text-stone-600 leading-relaxed mb-4">
           At Techno World Books, we're more than a bookstore—we're your partner in learning, growth, and discovery. Whether you're a student, educator, professional, parent, or passionate reader, we're here to support your journey with the right books and dependable service.
         </p>
-        <p className="text-base text-emerald-900 leading-relaxed font-semibold">
+        <p className="text-base text-brand-dark leading-relaxed font-semibold">
           Explore our collection today, and if you ever need help finding a specific title, simply reach out. We'll be happy to help you find the book you're looking for.
         </p>
       </div>

@@ -13,7 +13,7 @@ export default function RefundPolicy() {
       {/* Header */}
       <div className="border-b border-stone-200 pb-6 mb-8">
         <div className="flex items-center gap-2 text-stone-600 text-xs font-semibold uppercase tracking-wider mb-2">
-          <ShieldCheck className="h-4 w-4 text-emerald-800" /> Official Bookstore Guidelines
+          <ShieldCheck className="h-4 w-4 text-brand-base" /> Official Bookstore Guidelines
         </div>
         <h1 className="font-serif text-3xl font-bold text-stone-900 tracking-tight">Cancellation, Replacement & Refund Policy</h1>
         <p className="text-sm text-stone-500 mt-2">
@@ -49,10 +49,10 @@ export default function RefundPolicy() {
       </div>
 
       {/* Replacement Help Banner */}
-      <div className="rounded-lg border border-stone-800 bg-[#0B1710] text-white p-6 sm:p-8 mb-10 shadow-xs">
+      <div className="rounded-lg border border-stone-800 bg-brand-dark text-white p-6 sm:p-8 mb-10 shadow-xs">
         <div className="max-w-2xl space-y-3">
-          <span className="inline-flex items-center gap-1.5 rounded-md bg-stone-900 border border-stone-800 px-3 py-1 text-xs font-medium text-emerald-300">
-            <RefreshCw className="h-3.5 w-3.5 text-emerald-300" /> Replacement Support Desk
+          <span className="inline-flex items-center gap-1.5 rounded-md bg-stone-900 border border-stone-800 px-3 py-1 text-xs font-medium text-brand-200">
+            <RefreshCw className="h-3.5 w-3.5 text-brand-200" /> Replacement Support Desk
           </span>
           <h2 className="font-serif text-xl sm:text-2xl font-bold text-white">Need a Replacement for a Delivered Book?</h2>
           <p className="text-xs sm:text-sm text-stone-300 leading-relaxed">
@@ -63,7 +63,7 @@ export default function RefundPolicy() {
               href="https://docs.google.com/forms/d/e/1FAIpQLSdP7BBi2SNX67XU0xoBDzqiXSaL4nyBBIwDfVacG8M9kVR1RQ/viewform?usp=publish-editor"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-md bg-emerald-800 px-5 py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-emerald-900 transition-colors shadow-xs"
+              className="inline-flex items-center gap-2 rounded-md bg-brand-base px-5 py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-brand-light transition-colors shadow-xs"
             >
               Fill Online Replacement Form <ExternalLink className="h-4 w-4" />
             </a>
@@ -73,7 +73,7 @@ export default function RefundPolicy() {
               rel="noreferrer"
               className="inline-flex items-center gap-2 rounded-md border border-stone-800 bg-stone-900 px-4 py-2.5 text-xs sm:text-sm font-semibold text-stone-200 hover:bg-stone-800 transition-colors"
             >
-              <Phone className="h-4 w-4 text-emerald-300" /> WhatsApp Video: +91 747 913 5626
+              <Phone className="h-4 w-4 text-brand-200" /> WhatsApp Video: +91 747 913 5626
             </a>
           </div>
         </div>
@@ -143,7 +143,7 @@ export default function RefundPolicy() {
                     href="https://docs.google.com/forms/d/e/1FAIpQLSdP7BBi2SNX67XU0xoBDzqiXSaL4nyBBIwDfVacG8M9kVR1RQ/viewform?usp=publish-editor"
                     target="_blank"
                     rel="noreferrer"
-                    className="font-bold text-emerald-700 hover:underline"
+                    className="font-bold text-brand-base hover:underline"
                   >
                     Google Replacement Request Form
                   </a>{' '}
@@ -210,9 +210,9 @@ export default function RefundPolicy() {
 
       {/* Bottom Navigation */}
       <div className="mt-12 pt-6 border-t border-slate-200 flex flex-wrap gap-4 text-xs font-semibold">
-        <Link to="/terms" className="text-emerald-700 hover:underline">Read Terms & Conditions →</Link>
-        <Link to="/shipping-policy" className="text-emerald-700 hover:underline">Read Shipping Policy →</Link>
-        <Link to="/contact" className="text-emerald-700 hover:underline">Contact Customer Support →</Link>
+        <Link to="/terms" className="text-brand-base hover:underline">Read Terms & Conditions →</Link>
+        <Link to="/shipping-policy" className="text-brand-base hover:underline">Read Shipping Policy →</Link>
+        <Link to="/contact" className="text-brand-base hover:underline">Contact Customer Support →</Link>
       </div>
     </div>
   );

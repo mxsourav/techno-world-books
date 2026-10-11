@@ -32,6 +32,7 @@ import { AuthProvider } from '@/store/AuthStore';
 import { CmsProvider } from '@/context/CmsContext';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import HomePopupAd from './components/HomePopupAd';
+import ThemePaletteCustomizer from '@/components/ThemePaletteCustomizer';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -174,6 +175,7 @@ function CustomerLayout() {
       </main>
       <Footer />
       <HomePopupAd />
+      <ThemePaletteCustomizer />
       {/* floating WhatsApp support */}
       <a
         href="https://wa.me/917479135626?text=Hi%20Techno%20World%20Books!%20I%20need%20help%20with%20my%20order."

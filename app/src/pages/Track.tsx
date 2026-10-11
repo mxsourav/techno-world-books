@@ -142,7 +142,7 @@ export default function Track() {
         <button
           disabled={loading}
           onClick={() => setLookup(input)}
-          className="flex items-center gap-2 rounded-md bg-emerald-800 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-900 disabled:opacity-50 transition-colors shadow-xs"
+          className="flex items-center gap-2 rounded-md bg-brand-base px-6 py-3 text-sm font-semibold text-white hover:bg-brand-light disabled:opacity-50 transition-colors shadow-xs"
         >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
           Track
@@ -224,7 +224,7 @@ export default function Track() {
                         <span
                           className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${
                             isLatest
-                              ? 'border-2 border-emerald-600 bg-emerald-600 text-white ring-4 ring-emerald-100'
+                              ? 'border-2 border-emerald-600 bg-emerald-600 text-white ring-4 ring-brand-100'
                               : 'border-2 border-slate-300 bg-slate-100 text-slate-600'
                           }`}
                         >
@@ -236,7 +236,7 @@ export default function Track() {
                       </div>
                       <div className="pt-0.5 pb-2">
                         <div className="flex items-center gap-2">
-                          <p className={`text-sm font-bold ${isLatest ? 'text-emerald-900' : 'text-slate-800'}`}>
+                          <p className={`text-sm font-bold ${isLatest ? 'text-brand-dark' : 'text-slate-800'}`}>
                             {evt.event}
                           </p>
                           {isLatest && (
@@ -272,7 +272,7 @@ export default function Track() {
                           done
                             ? 'border-emerald-600 bg-emerald-600 text-white'
                             : 'border-slate-200 bg-white text-slate-300'
-                        } ${current ? 'ring-4 ring-emerald-100' : ''}`}
+                        } ${current ? 'ring-4 ring-brand-100' : ''}`}
                       >
                         <s.icon className="h-4 w-4" />
                       </span>
@@ -284,7 +284,7 @@ export default function Track() {
                       <p className={`text-sm font-bold ${done ? 'text-slate-900' : 'text-slate-400'}`}>{s.key}</p>
                       <p className="text-xs text-slate-500">{s.desc}</p>
                       {current && (
-                        <p className="mt-0.5 text-xs font-semibold text-emerald-700">
+                        <p className="mt-0.5 text-xs font-semibold text-brand-base">
                           ← Current status · updates in real-time via India Post
                         </p>
                       )}
@@ -316,7 +316,7 @@ export default function Track() {
                     <div className="h-28 w-20 rounded bg-stone-100 overflow-hidden border border-stone-200/80 shadow-2xs group-hover:border-stone-400 transition-colors">
                       <BookCover book={bookObj} className="w-full h-full text-[6px]" />
                     </div>
-                    <p className="mt-1 line-clamp-2 text-[11px] font-semibold text-slate-700 group-hover:text-emerald-800 transition-colors">
+                    <p className="mt-1 line-clamp-2 text-[11px] font-semibold text-slate-700 group-hover:text-brand-base transition-colors">
                       {bookObj.title}
                     </p>
                   </div>

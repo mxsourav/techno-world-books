@@ -15,7 +15,7 @@ export default function OrderSuccess() {
       />
       <div className="flex justify-center mb-6">
         <div className="rounded-full bg-stone-100 border border-stone-200 p-3">
-          <CheckCircle2 className="h-16 w-16 text-emerald-800" />
+          <CheckCircle2 className="h-16 w-16 text-brand-base" />
         </div>
       </div>
       <h1 className="text-3xl font-serif font-bold tracking-tight text-stone-900 sm:text-4xl">
@@ -27,7 +27,7 @@ export default function OrderSuccess() {
 
       <div className="mt-8 rounded-lg border border-stone-200 bg-white p-6 shadow-xs flex flex-col sm:flex-row justify-around gap-6 items-center">
         <div className="flex flex-col items-center text-stone-800">
-          <CheckCircle2 className="h-8 w-8 text-emerald-800 mb-2" />
+          <CheckCircle2 className="h-8 w-8 text-brand-base mb-2" />
           <span className="font-semibold text-sm">Order Confirmed</span>
         </div>
         <ChevronRight className="h-5 w-5 text-stone-300 hidden sm:block" />
@@ -43,7 +43,7 @@ export default function OrderSuccess() {
       </div>
 
       <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-        <Link to="/my-orders" className="inline-flex items-center justify-center rounded-md bg-emerald-800 px-6 py-3 text-sm font-semibold text-white shadow-xs hover:bg-emerald-900 transition-colors">
+        <Link to="/my-orders" className="inline-flex items-center justify-center rounded-md bg-brand-base px-6 py-3 text-sm font-semibold text-white shadow-xs hover:bg-brand-light transition-colors">
           View My Orders
         </Link>
         <Link to="/" className="inline-flex items-center justify-center rounded-md border border-stone-300 bg-white px-6 py-3 text-sm font-semibold text-stone-800 hover:bg-stone-50 transition-colors">

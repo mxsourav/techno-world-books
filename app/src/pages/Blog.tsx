@@ -142,7 +142,7 @@ export function BlogList() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search articles or exams..."
-            className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm text-slate-800 placeholder-slate-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+            className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm text-slate-800 placeholder-slate-400 shadow-sm focus:border-brand-base focus:outline-none focus:ring-2 focus:ring-brand-base/20"
           />
           {searchQuery && (
             <button
@@ -207,7 +207,7 @@ export function BlogList() {
                 setSelectedCategory('All');
                 setSearchQuery('');
               }}
-              className="mt-4 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-700 transition-colors"
+              className="mt-4 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-brand-light transition-colors"
             >
               Reset Filters
             </button>
@@ -265,7 +265,7 @@ export function BlogList() {
 
                   {/* Attached Books Badge */}
                   {attachedCount > 0 && (
-                    <span className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-emerald-700/90 px-2.5 py-1 text-[10px] font-bold text-white shadow-md backdrop-blur-md">
+                    <span className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-brand-base/90 px-2.5 py-1 text-[10px] font-bold text-white shadow-md backdrop-blur-md">
                       <BookOpen className="h-3 w-3" /> {attachedCount} {attachedCount === 1 ? 'Book' : 'Books'}
                     </span>
                   )}
@@ -273,7 +273,7 @@ export function BlogList() {
 
                 {/* Body Content */}
                 <div className="flex flex-1 flex-col p-5">
-                  <h2 className="line-clamp-2 text-base font-extrabold leading-snug text-slate-900 group-hover:text-emerald-700">
+                  <h2 className="line-clamp-2 text-base font-extrabold leading-snug text-slate-900 group-hover:text-brand-base">
                     {p.title}
                   </h2>
                   <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-slate-500">
@@ -391,7 +391,7 @@ export function BlogPost() {
         </p>
         <Link
           to="/blog"
-          className="mt-5 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white shadow hover:bg-emerald-700"
+          className="mt-5 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white shadow hover:bg-brand-light"
         >
           <ArrowLeft className="h-4 w-4" /> Back to All Articles
         </Link>
@@ -456,11 +456,11 @@ export function BlogPost() {
       />
       {/* Breadcrumb */}
       <nav className="mb-4 flex items-center gap-1.5 text-xs text-slate-500">
-        <Link to="/" className="hover:text-emerald-700">
+        <Link to="/" className="hover:text-brand-base">
           Home
         </Link>
         <ChevronRight className="h-3 w-3" />
-        <Link to="/blog" className="hover:text-emerald-700">
+        <Link to="/blog" className="hover:text-brand-base">
           Blog
         </Link>
         <ChevronRight className="h-3 w-3" />
@@ -543,7 +543,7 @@ export function BlogPost() {
 
       {/* Excerpt Lead */}
       {post.excerpt && (
-        <div className="mt-6 rounded-md border-l-2 border-emerald-800 bg-stone-50 p-4 text-sm font-medium leading-relaxed text-stone-900">
+        <div className="mt-6 rounded-md border-l-2 border-brand-base bg-stone-50 p-4 text-sm font-medium leading-relaxed text-stone-900">
           {post.excerpt}
         </div>
       )}
@@ -608,7 +608,7 @@ export function BlogPost() {
       <div className="mt-8 flex items-center justify-between border-t border-slate-200 pt-6">
         <Link
           to="/blog"
-          className="inline-flex items-center gap-2 text-sm font-bold text-emerald-700 transition hover:text-emerald-800 hover:underline"
+          className="inline-flex items-center gap-2 text-sm font-bold text-brand-base transition hover:text-brand-base hover:underline"
         >
           <ArrowLeft className="h-4 w-4" /> All Guides & Articles
         </Link>

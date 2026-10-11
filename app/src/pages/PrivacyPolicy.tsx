@@ -12,7 +12,7 @@ export default function PrivacyPolicy() {
       />
       {/* Header */}
       <div className="border-b border-slate-200 pb-6 mb-8">
-        <div className="flex items-center gap-2 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-2">
+        <div className="flex items-center gap-2 text-brand-base text-xs font-bold uppercase tracking-wider mb-2">
           <Shield className="h-4 w-4" /> Privacy & Security
         </div>
         <h1 className="text-3xl font-black text-slate-900 tracking-tight">Privacy Policy</h1>
@@ -71,9 +71,9 @@ export default function PrivacyPolicy() {
 
       {/* Bottom Navigation */}
       <div className="mt-12 pt-6 border-t border-slate-200 flex flex-wrap gap-4 text-xs font-semibold">
-        <Link to="/terms" className="text-emerald-700 hover:underline">Read Terms of Service →</Link>
-        <Link to="/refund-policy" className="text-emerald-700 hover:underline">Read Refund & Replacement Policy →</Link>
-        <Link to="/shipping-policy" className="text-emerald-700 hover:underline">Read Shipping Policy →</Link>
+        <Link to="/terms" className="text-brand-base hover:underline">Read Terms of Service →</Link>
+        <Link to="/refund-policy" className="text-brand-base hover:underline">Read Refund & Replacement Policy →</Link>
+        <Link to="/shipping-policy" className="text-brand-base hover:underline">Read Shipping Policy →</Link>
       </div>
     </div>
   );

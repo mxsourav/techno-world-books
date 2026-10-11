@@ -348,7 +348,7 @@ export default function Checkout() {
   if (loading && items.length === 0) {
     return (
       <div className="flex h-96 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600"></div>
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-200 border-t-emerald-600"></div>
       </div>
     );
   }
@@ -399,7 +399,7 @@ export default function Checkout() {
           <div className="mt-6 rounded-lg border border-stone-200 bg-white p-6 text-left shadow-xs">
             <div className="flex items-center justify-between border-b border-stone-100 pb-3.5">
               <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-emerald-800" />
+                <span className="h-2 w-2 rounded-full bg-brand-base" />
                 <span className="text-xs font-semibold uppercase tracking-wider text-stone-900">Store Takeaway Confirmed</span>
               </div>
               <span className="text-[11px] font-medium text-stone-500">Ready for scheduling</span>
@@ -466,7 +466,7 @@ export default function Checkout() {
         <div className="mt-6 rounded-lg border border-stone-200 bg-white p-6 text-left shadow-xs">
           <div className="flex items-center justify-between border-b border-stone-100 pb-3.5">
             <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-emerald-800" />
+              <span className="h-2 w-2 rounded-full bg-brand-base" />
               <span className="text-xs font-semibold uppercase tracking-wider text-stone-900">Order Confirmed &amp; In Queue</span>
             </div>
             <span className="text-[11px] font-medium text-stone-500">Receipt emailed</span>
@@ -569,7 +569,7 @@ export default function Checkout() {
         />
         <Package className="mx-auto h-12 w-12 text-slate-300 mb-3" />
         <h1 className="text-xl font-bold text-slate-800">Nothing to checkout</h1>
-        <Link to="/" className="mt-4 inline-block rounded-xl bg-emerald-700 px-6 py-3 text-sm font-bold text-white">Browse Books</Link>
+        <Link to="/" className="mt-4 inline-block rounded-xl bg-brand-base px-6 py-3 text-sm font-bold text-white">Browse Books</Link>
       </div>
     );
   }
@@ -1053,7 +1053,7 @@ export default function Checkout() {
                 <div className="mb-4 flex items-center justify-between">
                   <p className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-stone-900">
                     <span className="flex h-6 w-6 items-center justify-center rounded-md bg-stone-900 text-xs font-semibold text-white">1</span>
-                    <Store className="h-4 w-4 text-emerald-800" /> Collector Information &amp; Pickup Desk
+                    <Store className="h-4 w-4 text-brand-base" /> Collector Information &amp; Pickup Desk
                   </p>
                   <span className="rounded-md bg-stone-100 border border-stone-200 px-2.5 py-0.5 text-[10px] font-semibold text-stone-700">Active Step</span>
                 </div>
@@ -1127,7 +1127,7 @@ export default function Checkout() {
                 {/* College Street Desk Pickup Note */}
                 <div className="mt-4 rounded-lg border border-stone-200 bg-white p-4 text-xs text-stone-600">
                   <div className="flex items-start gap-2.5">
-                    <Info className="h-4 w-4 text-emerald-800 shrink-0 mt-0.5" />
+                    <Info className="h-4 w-4 text-brand-base shrink-0 mt-0.5" />
                     <div className="space-y-1">
                       <p className="font-semibold text-stone-900">College Street Desk Pickup Information</p>
                       <p className="leading-relaxed text-stone-600">
@@ -1141,7 +1141,7 @@ export default function Checkout() {
                   <button
                     type="button"
                     onClick={handleProceedToDelivery}
-                    className="w-full sm:w-auto rounded-md bg-emerald-800 px-6 py-2.5 text-sm font-semibold text-white hover:bg-emerald-900 shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full sm:w-auto rounded-md bg-brand-base px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-light shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
                   >
                     Confirm Collector Info &amp; Continue →
                   </button>
@@ -1153,7 +1153,7 @@ export default function Checkout() {
                 <div className="mb-4 flex items-center justify-between">
                   <p className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-stone-900">
                     <span className="flex h-6 w-6 items-center justify-center rounded-md bg-stone-900 text-xs font-semibold text-white">1</span>
-                    <MapPin className="h-4 w-4 text-emerald-800" /> Delivery Address
+                    <MapPin className="h-4 w-4 text-brand-base" /> Delivery Address
                   </p>
                   <span className="rounded-md bg-stone-100 border border-stone-200 px-2.5 py-0.5 text-[10px] font-semibold text-stone-700">Active Step</span>
                 </div>
@@ -1283,8 +1283,8 @@ export default function Checkout() {
                       </p>
                     )}
                     {pincodeStatus.verified && (
-                      <p className="mt-1.5 flex items-center gap-1.5 text-xs font-semibold text-emerald-800 bg-stone-50 px-2.5 py-1 rounded-md border border-stone-200">
-                        <ShieldCheck className="h-3.5 w-3.5 text-emerald-800" />
+                      <p className="mt-1.5 flex items-center gap-1.5 text-xs font-semibold text-brand-base bg-stone-50 px-2.5 py-1 rounded-md border border-stone-200">
+                        <ShieldCheck className="h-3.5 w-3.5 text-brand-base" />
                         Speed Post Deliverable: {pincodeStatus.postOffice}
                       </p>
                     )}
@@ -1301,7 +1301,7 @@ export default function Checkout() {
                   <button
                     type="button"
                     onClick={handleProceedToDelivery}
-                    className="w-full sm:w-auto rounded-md bg-emerald-800 px-6 py-2.5 text-sm font-semibold text-white hover:bg-emerald-900 shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full sm:w-auto rounded-md bg-brand-base px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-light shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
                   >
                     Deliver to this Address →
                   </button>
@@ -1312,7 +1312,7 @@ export default function Checkout() {
             /* STEP 1 COLLAPSED / COMPLETED */
             <div className="rounded-lg border border-stone-200 bg-white p-4 shadow-xs flex items-start justify-between gap-3">
               <div className="flex items-start gap-3">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-emerald-800 text-white mt-0.5">
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-brand-base text-white mt-0.5">
                   <Check className="h-3.5 w-3.5" />
                 </div>
                 <div>
@@ -1370,11 +1370,11 @@ export default function Checkout() {
                   <span className="flex h-6 w-6 items-center justify-center rounded-md bg-stone-900 text-xs font-semibold text-white">2</span>
                   {fulfillmentMode === 'PICKUP' ? (
                     <>
-                      <Store className="h-4 w-4 text-emerald-800" /> Fulfillment Method
+                      <Store className="h-4 w-4 text-brand-base" /> Fulfillment Method
                     </>
                   ) : (
                     <>
-                      <Truck className="h-4 w-4 text-emerald-800" /> Choose Delivery Method
+                      <Truck className="h-4 w-4 text-brand-base" /> Choose Delivery Method
                     </>
                   )}
                 </p>
@@ -1386,13 +1386,13 @@ export default function Checkout() {
                   <div className="rounded-lg border border-stone-200 bg-stone-50 p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2.5">
-                        <Store className="h-5 w-5 text-emerald-800" />
+                        <Store className="h-5 w-5 text-brand-base" />
                         <div>
                           <p className="text-sm font-semibold text-stone-900">Store Self-Pickup (College Street Desk)</p>
                           <p className="text-xs text-stone-600 mt-0.5">Ready per appointed time slot · Zero shipping fee</p>
                         </div>
                       </div>
-                      <span className="rounded-md bg-emerald-800 px-2.5 py-1 text-xs font-semibold text-white">FREE</span>
+                      <span className="rounded-md bg-brand-base px-2.5 py-1 text-xs font-semibold text-white">FREE</span>
                     </div>
                     <p className="text-[11px] text-stone-600 mt-2.5 border-t border-stone-200 pt-2 leading-relaxed">
                       Once your order is placed, our warehouse team will prepare your books and offer <b>3 to 4 pickup time slots</b> in your Notification Center &amp; Order Details. Choose your preferred slot and collect your books!
@@ -1403,7 +1403,7 @@ export default function Checkout() {
                     <button
                       type="button"
                       onClick={handleProceedToPayment}
-                      className="w-full sm:w-auto rounded-md bg-emerald-800 px-6 py-2.5 text-sm font-semibold text-white hover:bg-emerald-900 shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full sm:w-auto rounded-md bg-brand-base px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-light shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
                     >
                       Continue to Payment Method →
                     </button>
@@ -1413,7 +1413,7 @@ export default function Checkout() {
                 <div className="space-y-4">
                   {isAddonBundle && (
                     <div className="rounded-lg border border-stone-300 bg-stone-50 p-4 text-xs text-stone-900 flex items-start gap-3 shadow-xs">
-                      <Sparkles className="h-5 w-5 text-emerald-800 shrink-0 mt-0.5" />
+                      <Sparkles className="h-5 w-5 text-brand-base shrink-0 mt-0.5" />
                       <div>
                         <p className="font-semibold text-sm text-stone-900 flex items-center gap-1.5">
                           Active Dispatch Consignment #{bundledWithOrderNumber}
@@ -1435,11 +1435,11 @@ export default function Checkout() {
                           key={methodId}
                           className={`relative flex cursor-pointer flex-col gap-2 rounded-lg border p-4 transition-colors ${
                             isSelected 
-                              ? 'border-emerald-800 bg-stone-50 ring-1 ring-emerald-800'
+                              ? 'border-brand-base bg-stone-50 ring-1 ring-brand-base'
                               : 'border-stone-200 hover:border-stone-300 bg-white'
                           }`}
                         >
-                          {isSelected && <div className="absolute inset-y-0 left-0 w-1 rounded-l-lg bg-emerald-800" />}
+                          {isSelected && <div className="absolute inset-y-0 left-0 w-1 rounded-l-lg bg-brand-base" />}
                           <div className="flex items-start justify-between gap-3 ml-1">
                             <div className="flex items-center gap-2">
                               <input
@@ -1451,7 +1451,7 @@ export default function Checkout() {
                               />
                               <div>
                                 <p className={`text-sm font-semibold flex items-center gap-1.5 ${isSelected ? 'text-stone-900' : 'text-stone-800'}`}>
-                                  <Icon className={`h-4 w-4 ${isSelected ? 'text-emerald-800' : 'text-stone-400'}`} />
+                                  <Icon className={`h-4 w-4 ${isSelected ? 'text-brand-base' : 'text-stone-400'}`} />
                                   {opt.label}
                                 </p>
                                 <p className="text-[11px] text-stone-500 mt-0.5 leading-relaxed">{opt.description}</p>
@@ -1459,7 +1459,7 @@ export default function Checkout() {
                             </div>
                             <div className="text-right shrink-0">
                               <p className="text-sm font-bold text-stone-900">
-                                {opt.price === 0 ? <span className="text-emerald-800">FREE</span> : formatINR(opt.price)}
+                                {opt.price === 0 ? <span className="text-brand-base">FREE</span> : formatINR(opt.price)}
                               </p>
                               <p className="text-[10px] font-medium text-stone-500 mt-1 whitespace-nowrap">{opt.estimatedDays}</p>
                             </div>
@@ -1473,7 +1473,7 @@ export default function Checkout() {
                     <button
                       type="button"
                       onClick={handleProceedToPayment}
-                      className="w-full sm:w-auto rounded-md bg-emerald-800 px-6 py-2.5 text-sm font-semibold text-white hover:bg-emerald-900 shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full sm:w-auto rounded-md bg-brand-base px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-light shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
                     >
                       Continue to Payment Method →
                     </button>
@@ -1485,7 +1485,7 @@ export default function Checkout() {
             /* Step 2 Collapsed / Completed */
             <div className="rounded-lg border border-stone-200 bg-white p-4 shadow-xs flex items-start justify-between gap-3">
               <div className="flex items-start gap-3">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-emerald-800 text-white mt-0.5">
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-brand-base text-white mt-0.5">
                   <Check className="h-3.5 w-3.5" />
                 </div>
                 <div>
@@ -1497,13 +1497,13 @@ export default function Checkout() {
                   </div>
                   <div className="mt-1 text-sm font-semibold text-stone-800">
                     {fulfillmentMode === 'PICKUP' ? (
-                      <span>Store Takeaway (College Street Desk) · <b className="text-emerald-800">FREE</b></span>
+                      <span>Store Takeaway (College Street Desk) · <b className="text-brand-base">FREE</b></span>
                     ) : (
                       (() => {
                         const chosen = effectiveDeliveryOptions.find((o: any) => (o.method || o.id) === shippingMethod) || effectiveDeliveryOptions[0];
                         return (
                           <span>
-                            <b>{chosen?.label}</b> · <span className="text-emerald-800 font-semibold">{chosen?.price === 0 ? 'FREE' : formatINR(chosen?.price)}</span>
+                            <b>{chosen?.label}</b> · <span className="text-brand-base font-semibold">{chosen?.price === 0 ? 'FREE' : formatINR(chosen?.price)}</span>
                             <span className="text-xs text-stone-500 font-normal ml-1">({chosen?.estimatedDays})</span>
                           </span>
                         );
@@ -1540,7 +1540,7 @@ export default function Checkout() {
               <div className="mb-4 flex items-center justify-between">
                 <p className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-stone-900">
                   <span className="flex h-6 w-6 items-center justify-center rounded-md bg-stone-900 text-xs font-semibold text-white">3</span>
-                  <CreditCard className="h-4 w-4 text-emerald-800" /> Payment Method & Rewards
+                  <CreditCard className="h-4 w-4 text-brand-base" /> Payment Method & Rewards
                 </p>
                 <span className="rounded-md bg-stone-100 border border-stone-200 px-2.5 py-0.5 text-[10px] font-semibold text-stone-700">Active Step</span>
               </div>
@@ -1616,7 +1616,7 @@ export default function Checkout() {
                           </button>
                         </div>
                         {effectivePointsUsed > 0 && (
-                          <p className="mt-1 text-[11px] font-semibold text-emerald-800 flex items-center gap-1">
+                          <p className="mt-1 text-[11px] font-semibold text-brand-base flex items-center gap-1">
                             <Check className="h-3 w-3" /> Saving ₹{effectivePointsUsed}.00 with coins
                           </p>
                         )}
@@ -1678,7 +1678,7 @@ export default function Checkout() {
                           </button>
                         </div>
                         {effectiveWalletUsed > 0 && (
-                          <p className="mt-1 text-[11px] font-semibold text-emerald-800 flex items-center gap-1">
+                          <p className="mt-1 text-[11px] font-semibold text-brand-base flex items-center gap-1">
                             <Check className="h-3 w-3" /> Using ₹{Number(effectiveWalletUsed || 0).toFixed(2)} wallet cash
                           </p>
                         )}
@@ -1692,7 +1692,7 @@ export default function Checkout() {
               {total === 0 ? (
                 <div className="my-3 rounded-lg border border-stone-200 bg-stone-50 p-4 text-center shadow-xs">
                   <p className="text-sm font-semibold text-stone-900 flex items-center justify-center gap-1.5">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-800" />
+                    <CheckCircle2 className="h-4 w-4 text-brand-base" />
                     <span>Order 100% Covered by TechnoRewards &amp; Wallet!</span>
                   </p>
                   <p className="text-xs text-stone-600 mt-1">
@@ -1729,7 +1729,7 @@ export default function Checkout() {
                 <button
                   disabled={isSubmitting || !isValid}
                   onClick={handlePlaceOrder}
-                  className="w-full rounded-md bg-emerald-800 hover:bg-emerald-900 py-3.5 text-sm font-semibold text-white shadow-xs disabled:opacity-50 disabled:pointer-events-none transition-colors duration-200 flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full rounded-md bg-brand-base hover:bg-brand-light py-3.5 text-sm font-semibold text-white shadow-xs disabled:opacity-50 disabled:pointer-events-none transition-colors duration-200 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {isSubmitting ? (
                     <>
@@ -1753,7 +1753,7 @@ export default function Checkout() {
           {/* Same-Batch Free Add-on Shipping Notification */}
           {isAddonBundle && (
             <div className="mb-4 rounded-lg border border-stone-300 bg-stone-50 p-3 text-xs text-stone-900 shadow-xs flex items-start gap-2.5">
-              <Sparkles className="h-4 w-4 text-emerald-800 shrink-0 mt-0.5" />
+              <Sparkles className="h-4 w-4 text-brand-base shrink-0 mt-0.5" />
               <div>
                 <p className="font-semibold text-stone-900">
                   Free Add-on Delivery Activated (₹0 Shipping)!
@@ -1800,7 +1800,7 @@ export default function Checkout() {
             {appliedCoupon ? (
               <div className="flex items-center justify-between rounded-md bg-stone-50 border border-stone-200 p-2.5 text-xs">
                 <span className="flex items-center gap-1.5 font-medium text-stone-800">
-                  <Tag className="h-3.5 w-3.5 text-emerald-800" /> &ldquo;{appliedCoupon}&rdquo; applied ({formatINR(discount)} OFF)
+                  <Tag className="h-3.5 w-3.5 text-brand-base" /> &ldquo;{appliedCoupon}&rdquo; applied ({formatINR(discount)} OFF)
                 </span>
                 <button onClick={clearCoupon} className="font-semibold text-stone-600 hover:text-rose-600 underline transition-colors cursor-pointer">Remove</button>
               </div>
@@ -1838,7 +1838,7 @@ export default function Checkout() {
             {discount > 0 && (
               <div className="flex justify-between">
                 <dt className="text-stone-600">Coupon discount</dt>
-                <dd className="font-medium text-emerald-800">− {formatINR(discount)}</dd>
+                <dd className="font-medium text-brand-base">− {formatINR(discount)}</dd>
               </div>
             )}
             {pointsDiscount > 0 && (
@@ -1847,7 +1847,7 @@ export default function Checkout() {
                   <Coins className="h-3.5 w-3.5 text-stone-600 shrink-0" />
                   <span>TechnoPoints ({pointsUsed} pts)</span>
                 </dt>
-                <dd className="font-medium text-emerald-800">− {formatINR(pointsDiscount)}</dd>
+                <dd className="font-medium text-brand-base">− {formatINR(pointsDiscount)}</dd>
               </div>
             )}
             {walletDiscount > 0 && (
@@ -1856,17 +1856,17 @@ export default function Checkout() {
                   <Wallet className="h-3.5 w-3.5 text-stone-600 shrink-0" />
                   <span>TechnoWallet Cash</span>
                 </dt>
-                <dd className="font-medium text-emerald-800">− {formatINR(walletDiscount)}</dd>
+                <dd className="font-medium text-brand-base">− {formatINR(walletDiscount)}</dd>
               </div>
             )}
             <div className="flex justify-between items-center">
               <dt className="text-stone-600">Delivery</dt>
               <dd>
                 {fulfillmentMode === 'PICKUP' ? (
-                  <span className="font-semibold text-emerald-800">FREE</span>
+                  <span className="font-semibold text-brand-base">FREE</span>
                 ) : isShippingCalculated ? (
                   shipping === 0 ? (
-                    <span className="font-semibold text-emerald-800">FREE</span>
+                    <span className="font-semibold text-brand-base">FREE</span>
                   ) : (
                     <span className="font-medium text-stone-900">{formatINR(shipping)}</span>
                   )
@@ -1916,7 +1916,7 @@ export default function Checkout() {
           )}
           {/* Techno Points Reward Preview */}
           <div className="mt-4 rounded-md border border-stone-200 bg-stone-50/60 p-3 flex items-center gap-3">
-            <Gift className="h-5 w-5 text-emerald-800 shrink-0" />
+            <Gift className="h-5 w-5 text-brand-base shrink-0" />
             <div className="text-left">
               <p className="text-xs font-semibold text-stone-900">Earn {Math.floor(total / 100)} Techno Points</p>
               <p className="text-[10px] text-stone-500 font-medium">1 Point per ₹100 spent · Valid for 1 year upon delivery</p>
@@ -1927,7 +1927,7 @@ export default function Checkout() {
             <button
               type="button"
               onClick={handleProceedToDelivery}
-              className="mt-4 w-full rounded-md bg-emerald-800 py-3 text-sm font-semibold text-white shadow-xs hover:bg-emerald-900 transition-colors cursor-pointer"
+              className="mt-4 w-full rounded-md bg-brand-base py-3 text-sm font-semibold text-white shadow-xs hover:bg-brand-light transition-colors cursor-pointer"
             >
               Continue to Delivery Method →
             </button>
@@ -1935,7 +1935,7 @@ export default function Checkout() {
             <button
               type="button"
               onClick={handleProceedToPayment}
-              className="mt-4 w-full rounded-md bg-emerald-800 py-3 text-sm font-semibold text-white shadow-xs hover:bg-emerald-900 transition-colors cursor-pointer"
+              className="mt-4 w-full rounded-md bg-brand-base py-3 text-sm font-semibold text-white shadow-xs hover:bg-brand-light transition-colors cursor-pointer"
             >
               Continue to Payment →
             </button>
@@ -1943,7 +1943,7 @@ export default function Checkout() {
             <button
               disabled={isSubmitting || !isValid}
               onClick={handlePlaceOrder}
-              className="mt-4 w-full rounded-md bg-emerald-800 py-3 text-sm font-semibold text-white shadow-xs hover:bg-emerald-900 disabled:opacity-50 transition-colors cursor-pointer"
+              className="mt-4 w-full rounded-md bg-brand-base py-3 text-sm font-semibold text-white shadow-xs hover:bg-brand-light disabled:opacity-50 transition-colors cursor-pointer"
             >
               {isSubmitting ? 'Processing...' : payment === 'cod' ? `Place Order · ${formatINR(total)}` : `Pay ${formatINR(total)} Securely`}
             </button>

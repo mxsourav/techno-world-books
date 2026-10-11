@@ -36,7 +36,7 @@ export default function Help() {
 
       {/* contact cards */}
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
-        <a href="https://wa.me/917479135626?text=Hi%20Techno%20World%20Books!%20I%20need%20assistance." target="_blank" rel="noreferrer" className="flex items-center gap-3 rounded-lg bg-emerald-800 p-4 text-white shadow-xs hover:bg-emerald-900 transition-colors">
+        <a href="https://wa.me/917479135626?text=Hi%20Techno%20World%20Books!%20I%20need%20assistance." target="_blank" rel="noreferrer" className="flex items-center gap-3 rounded-lg bg-brand-base p-4 text-white shadow-xs hover:bg-brand-light transition-colors">
           <MessageCircle className="h-7 w-7" />
           <span><b className="block text-sm font-semibold">WhatsApp Chat</b><span className="text-xs opacity-90">+91 74791 35626 — fast reply</span></span>
         </a>
@@ -98,7 +98,7 @@ export default function Help() {
         />
         <button
           onClick={() => { if (!ticket.subject) return toast.error('Add a subject'); toast.success(`Ticket #T${Math.floor(Math.random() * 90000 + 10000)} created — we'll reply within 4 hours.`); setTicket({ subject: '', msg: '' }); }}
-          className="mt-3 rounded-md bg-emerald-800 px-6 py-2.5 text-sm font-semibold text-white hover:bg-emerald-900 transition-colors"
+          className="mt-3 rounded-md bg-brand-base px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-light transition-colors"
         >
           Submit Ticket
         </button>

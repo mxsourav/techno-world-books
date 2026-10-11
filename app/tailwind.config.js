@@ -10,9 +10,49 @@ module.exports = {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        // Dynamic Brand Theme (Controlled by CSS Custom Properties, defaults to #07101F)
+        brand: {
+          dark: 'var(--brand-dark, #07101F)',      // Darkest surface (Headers, footer, dark banners)
+          DEFAULT: 'var(--brand-base, #07101F)',   // Primary Base (Interactive, CTAs, highlights)
+          base: 'var(--brand-base, #07101F)',      // Semantic alias for Base
+          light: 'var(--brand-light, #152e59)',    // Lighter interactive hover tint
+          lighter: 'var(--brand-lighter, #1d3d75)',// Secondary elevated hover
+          muted: 'var(--brand-muted, #1a2f52)',    // Muted slate tone
+          subtle: 'var(--brand-subtle, #e8effa)',  // Soft tint for badges and chips
+          soft: 'var(--brand-soft, #f0f5fb)',      // Soft card fill
+          pitch: 'var(--brand-pitch, #030810)',    // Deepest pitch black-blue
+          50: 'var(--brand-50, #f0f5fb)',
+          100: 'var(--brand-100, #e2ebf7)',
+          200: 'var(--brand-200, #c6d7f0)',
+          300: 'var(--brand-300, #9fbfe3)',
+          400: 'var(--brand-400, #6c9fd1)',
+          500: 'var(--brand-500, #4682bf)',
+          600: 'var(--brand-600, #3169a5)',
+          700: 'var(--brand-700, #225185)',
+          800: 'var(--brand-base, #07101F)',
+          900: 'var(--brand-dark, #07101F)',
+          950: 'var(--brand-pitch, #030810)',
+        },
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: 'var(--brand-base, #07101F)',
+          foreground: '#ffffff',
+          dark: 'var(--brand-dark, #07101F)',
+          base: 'var(--brand-base, #07101F)',
+          light: 'var(--brand-light, #152e59)',
+        },
+        // Remap legacy emerald utility classes to dynamic brand variables
+        emerald: {
+          50: 'var(--brand-50, #f0f5fb)',
+          100: 'var(--brand-100, #e2ebf7)',
+          200: 'var(--brand-200, #c6d7f0)',
+          300: 'var(--brand-300, #9fbfe3)',
+          400: 'var(--brand-400, #6c9fd1)',
+          500: 'var(--brand-500, #4682bf)',
+          600: 'var(--brand-600, #3169a5)',
+          700: 'var(--brand-700, #225185)',
+          800: 'var(--brand-base, #07101F)',
+          900: 'var(--brand-dark, #07101F)',
+          950: 'var(--brand-pitch, #030810)',
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -41,12 +81,12 @@ module.exports = {
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
-          primary: "hsl(var(--sidebar-primary))",
-          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
+          primary: "var(--brand-base, #07101F)",
+          "primary-foreground": "#ffffff",
           accent: "hsl(var(--sidebar-accent))",
           "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
           border: "hsl(var(--sidebar-border))",
-          ring: "hsl(var(--sidebar-ring))",
+          ring: "var(--brand-base, #07101F)",
         },
       },
       borderRadius: {

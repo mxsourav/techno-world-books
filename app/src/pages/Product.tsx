@@ -469,7 +469,7 @@ export default function Product() {
         </div>
         <h1 className="font-serif text-2xl font-bold text-stone-900">{error?.message || 'Book not found'}</h1>
         <p className="mt-2 text-sm text-stone-500">The book you are looking for might have been moved or is currently unavailable.</p>
-        <Link to="/" className="mt-6 inline-flex items-center gap-2 rounded-md bg-emerald-800 px-5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-emerald-900 transition-colors">
+        <Link to="/" className="mt-6 inline-flex items-center gap-2 rounded-md bg-brand-base px-5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-brand-light transition-colors">
           Browse Book Catalog
         </Link>
       </div>
@@ -715,13 +715,13 @@ export default function Product() {
       <div className="border-b border-slate-200/80 bg-white">
         <div className="mx-auto max-w-7xl px-4 py-2.5 sm:px-6">
           <nav className="flex flex-wrap items-center gap-1.5 text-xs text-slate-500">
-            <Link to="/" className="hover:text-emerald-700 font-medium">Home</Link>
+            <Link to="/" className="hover:text-brand-base font-medium">Home</Link>
             <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
-            <Link to="/category/all" className="hover:text-emerald-700 font-medium">Books</Link>
+            <Link to="/category/all" className="hover:text-brand-base font-medium">Books</Link>
             <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
             {cat ? (
               <>
-                <Link to={`/category/${cat.slug}`} className="hover:text-emerald-700 font-medium">{cat.name}</Link>
+                <Link to={`/category/${cat.slug}`} className="hover:text-brand-base font-medium">{cat.name}</Link>
                 <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
               </>
             ) : (
@@ -785,7 +785,7 @@ export default function Product() {
                               <div className="h-1 bg-slate-300 rounded w-4/5" />
                               <div className="h-1 bg-slate-300 rounded w-2/3" />
                             </div>
-                            <span className="text-[6px] text-emerald-700 font-bold">{idx === 1 ? 'TOC' : `p.${idx * 14}`}</span>
+                            <span className="text-[6px] text-brand-base font-bold">{idx === 1 ? 'TOC' : `p.${idx * 14}`}</span>
                           </div>
                         )}
                       </button>
@@ -809,7 +809,7 @@ export default function Product() {
                         onClick={() => moveGallery(-1)}
                         disabled={activeImageIndex === 0}
                         aria-label="Previous product preview"
-                        className="absolute left-2 sm:left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-600 shadow-md transition hover:bg-white hover:text-emerald-700 disabled:pointer-events-none disabled:opacity-30"
+                        className="absolute left-2 sm:left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-600 shadow-md transition hover:bg-white hover:text-brand-base disabled:pointer-events-none disabled:opacity-30"
                       >
                         <ChevronLeft className="h-5 w-5" />
                       </button>
@@ -818,7 +818,7 @@ export default function Product() {
                         onClick={() => moveGallery(1)}
                         disabled={activeImageIndex === galleryItems.length - 1}
                         aria-label="Next product preview"
-                        className="absolute right-2 sm:right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-600 shadow-md transition hover:bg-white hover:text-emerald-700 disabled:pointer-events-none disabled:opacity-30"
+                        className="absolute right-2 sm:right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-600 shadow-md transition hover:bg-white hover:text-brand-base disabled:pointer-events-none disabled:opacity-30"
                       >
                         <ChevronRight className="h-5 w-5" />
                       </button>
@@ -840,7 +840,7 @@ export default function Product() {
                     <button
                       type="button"
                       onClick={handleShare}
-                      className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-white shadow-md border border-slate-100 text-slate-500 hover:text-emerald-700 transition-transform active:scale-95"
+                      className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-white shadow-md border border-slate-100 text-slate-500 hover:text-brand-base transition-transform active:scale-95"
                       title="Share book link"
                     >
                       <Share2 className="h-4 w-4" />
@@ -852,7 +852,7 @@ export default function Product() {
                         const shareMsg = encodeURIComponent(`Take a look at "${book.title}" on Techno World Books: `);
                         window.open(`https://api.whatsapp.com/send?text=${shareMsg}${shareUrl}`, '_blank');
                       }}
-                      className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-white shadow-md border border-slate-100 text-slate-500 hover:text-emerald-700 transition-transform active:scale-95 cursor-pointer"
+                      className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-white shadow-md border border-slate-100 text-slate-500 hover:text-brand-base transition-transform active:scale-95 cursor-pointer"
                       title="Share on WhatsApp"
                     >
                       <MessageSquare className="h-4 w-4" />
@@ -898,7 +898,7 @@ export default function Product() {
                         
                         {activeImageIndex === 1 && (
                           <div className="space-y-2 text-[11px] text-slate-700">
-                            <p className="font-bold text-emerald-800 uppercase tracking-wide text-[10px]">Table of Contents</p>
+                            <p className="font-bold text-brand-base uppercase tracking-wide text-[10px]">Table of Contents</p>
                             {tocList.slice(0, 5).map((item: string, i: number) => (
                               <div key={i} className="flex min-w-0 justify-between gap-2 border-b border-dashed border-slate-100 py-1">
                                 <span className="min-w-0 truncate">{item}</span>
@@ -996,7 +996,7 @@ export default function Product() {
                     addToCart(book.id, 1);
                     navigate('/checkout');
                   }}
-                  className="flex items-center justify-center gap-2 rounded-lg bg-emerald-800 hover:bg-emerald-900 border border-emerald-900 py-3.5 px-4 text-sm font-bold text-white shadow-sm hover:shadow transition-all active:scale-[0.99] cursor-pointer"
+                  className="flex items-center justify-center gap-2 rounded-lg bg-brand-base hover:bg-brand-light border border-brand-dark py-3.5 px-4 text-sm font-bold text-white shadow-sm hover:shadow transition-all active:scale-[0.99] cursor-pointer"
                 >
                   <Zap className="h-4 w-4 fill-white text-white" />
                   <span>Buy at {formatINR(price)}</span>
@@ -1015,7 +1015,7 @@ export default function Product() {
               
               {/* Publisher & Imprint Super-title */}
               <div className="flex items-center justify-between gap-2 mb-1.5">
-                <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">
+                <span className="text-xs font-bold uppercase tracking-wider text-brand-base">
                   {publisher}
                 </span>
                 <span className="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600 uppercase">
@@ -1033,7 +1033,7 @@ export default function Product() {
                 {author ? (
                   <>
                     Authored by{' '}
-                    <Link to={`/search?q=${encodeURIComponent(author)}`} className="font-semibold text-emerald-700 hover:underline">
+                    <Link to={`/search?q=${encodeURIComponent(author)}`} className="font-semibold text-brand-base hover:underline">
                       {author}
                     </Link>
                     {' '}· Published by <span className="font-medium text-slate-700">{publisher}</span>
@@ -1047,7 +1047,7 @@ export default function Product() {
 
               {/* Rating & Review Pill Badge */}
               <div className="mt-3.5 flex flex-wrap items-center gap-3">
-                <div className="inline-flex items-center gap-1 rounded-md bg-emerald-800 px-2 py-0.5 text-xs font-semibold text-white shadow-xs">
+                <div className="inline-flex items-center gap-1 rounded-md bg-brand-base px-2 py-0.5 text-xs font-semibold text-white shadow-xs">
                   <span>{rating.toFixed(1)}</span>
                   <Star className="h-3 w-3 fill-white" />
                 </div>
@@ -1065,7 +1065,7 @@ export default function Product() {
               <div className="mt-5 border-t border-dashed border-slate-200 pt-4">
                 <div className="flex items-baseline gap-3">
                   {discount > 0 && (
-                    <span className="text-lg font-extrabold text-emerald-700 flex items-center">
+                    <span className="text-lg font-extrabold text-brand-base flex items-center">
                       ↓{discount}%
                     </span>
                   )}
@@ -1148,7 +1148,7 @@ export default function Product() {
                   <div className="mt-3 rounded-lg border border-stone-200 bg-stone-50 p-3.5 text-xs text-stone-900 space-y-2">
                     <div className="flex items-start justify-between gap-2">
                       <p className="flex items-center gap-1.5 font-bold text-stone-900">
-                        <ShieldCheck className="h-4 w-4 text-emerald-800 shrink-0" />
+                        <ShieldCheck className="h-4 w-4 text-brand-base shrink-0" />
                         Speed Post Deliverable to {pincodeCheck.postOffice}
                       </p>
                       <span className="rounded-md border border-stone-200 bg-white px-2 py-0.5 text-[10px] font-semibold text-stone-700 shrink-0">
@@ -1158,11 +1158,11 @@ export default function Product() {
 
                     <div className="rounded-md bg-white border border-stone-200 p-2.5 space-y-1">
                       <div className="flex items-center gap-1.5 text-stone-800 font-semibold">
-                        <Truck className="h-4 w-4 text-emerald-800 shrink-0" />
+                        <Truck className="h-4 w-4 text-brand-base shrink-0" />
                         <span>Estimated Delivery: <b className="text-stone-900">{pincodeCheck.dispatchInfo?.estDelivery || deliveryDate}</b></span>
                       </div>
                       <p className="text-[11px] text-stone-600 flex items-center gap-1">
-                        <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-700" />
+                        <span className="inline-block h-1.5 w-1.5 rounded-full bg-brand-base" />
                         <span>Order within <b>{pincodeCheck.dispatchInfo?.countdown}</b> for <b>{pincodeCheck.dispatchInfo?.dispatchBatch}</b></span>
                       </p>
                     </div>
@@ -1188,7 +1188,7 @@ export default function Product() {
 
                 {pincodeCheck.verified === null && (
                   <div className="mt-3 flex items-center gap-2 text-xs font-semibold text-stone-700 bg-stone-50 border border-stone-200 rounded-md p-2.5">
-                    <Truck className="h-4 w-4 text-emerald-800 shrink-0" />
+                    <Truck className="h-4 w-4 text-brand-base shrink-0" />
                     <span>Enter PIN code above to see exact India Post batch dispatch schedule & delivery date</span>
                   </div>
                 )}
@@ -1201,19 +1201,19 @@ export default function Product() {
               {/* Trust Badges 3-Pill Grid */}
               <div className="mt-5 grid grid-cols-3 gap-2 border-t border-stone-200 pt-4">
                 <div className="flex flex-col items-center justify-center rounded-md bg-stone-50 p-2.5 text-center border border-stone-200">
-                  <RotateCcw className="h-4 w-4 text-emerald-800 mb-1" />
+                  <RotateCcw className="h-4 w-4 text-brand-base mb-1" />
                   <span className="text-[11px] font-bold text-stone-900 leading-tight">7 Days</span>
                   <span className="text-[10px] text-stone-500">Easy Replacement</span>
                 </div>
 
                 <div className="flex flex-col items-center justify-center rounded-md bg-stone-50 p-2.5 text-center border border-stone-200">
-                  <Award className="h-4 w-4 text-emerald-800 mb-1" />
+                  <Award className="h-4 w-4 text-brand-base mb-1" />
                   <span className="text-[11px] font-bold text-stone-900 leading-tight">COD Available</span>
                   <span className="text-[10px] text-stone-500">Cash on Delivery</span>
                 </div>
 
                 <div className="flex flex-col items-center justify-center rounded-md bg-stone-50 p-2.5 text-center border border-stone-200">
-                  <ShieldCheck className="h-4 w-4 text-emerald-800 mb-1" />
+                  <ShieldCheck className="h-4 w-4 text-brand-base mb-1" />
                   <span className="text-[11px] font-bold text-stone-900 leading-tight">100% Genuine</span>
                   <span className="text-[10px] text-stone-500">Direct from Publisher</span>
                 </div>
@@ -1440,7 +1440,7 @@ export default function Product() {
                 <button
                   type="button"
                   onClick={() => setShowReviewModal(true)}
-                  className="rounded-md bg-emerald-800 hover:bg-emerald-900 text-white px-3.5 py-1.5 text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-xs shrink-0"
+                  className="rounded-md bg-brand-base hover:bg-brand-light text-white px-3.5 py-1.5 text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-xs shrink-0"
                 >
                   <Star className="h-3.5 w-3.5 fill-white" /> Rate & Review
                 </button>
@@ -1470,7 +1470,7 @@ export default function Product() {
                               <Star className="h-2.5 w-2.5 fill-current text-[#D4A017]" />
                             </span>
                             <div className="h-2 flex-1 rounded-full bg-stone-100 overflow-hidden">
-                              <div className="h-full bg-emerald-800 rounded-full" style={{ width: `${r.pct}%` }} />
+                              <div className="h-full bg-brand-base rounded-full" style={{ width: `${r.pct}%` }} />
                             </div>
                             <span className="w-8 text-right text-stone-400 text-[10px]">{r.pct}%</span>
                           </div>
@@ -1486,7 +1486,7 @@ export default function Product() {
                           <button
                             type="button"
                             onClick={() => setShowReviewModal(true)}
-                            className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition-colors"
+                            className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-brand-light transition-colors"
                           >
                             <Star className="h-3.5 w-3.5 fill-white" />
                             Write a Review
@@ -1554,7 +1554,7 @@ export default function Product() {
           <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg border border-stone-200">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-base font-bold text-stone-900 flex items-center gap-2">
-                <HelpCircle className="h-5 w-5 text-emerald-800" /> Ask a Question
+                <HelpCircle className="h-5 w-5 text-brand-base" /> Ask a Question
               </h3>
               <button onClick={() => setShowQuestionModal(false)} className="text-stone-400 hover:text-stone-600 transition-colors">
                 <X className="h-4 w-4" />
@@ -1597,7 +1597,7 @@ export default function Product() {
                 type="button"
                 disabled={submittingQuestion}
                 onClick={handleAskQuestionSubmit}
-                className="rounded-md bg-emerald-800 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-900 disabled:opacity-50 transition-colors shadow-xs"
+                className="rounded-md bg-brand-base px-4 py-2 text-xs font-semibold text-white hover:bg-brand-light disabled:opacity-50 transition-colors shadow-xs"
               >
                 {submittingQuestion ? 'Submitting...' : 'Submit Question'}
               </button>
@@ -1718,7 +1718,7 @@ export default function Product() {
                 type="button"
                 disabled={submittingReview}
                 onClick={handleReviewSubmit}
-                className="rounded-md bg-emerald-800 px-5 py-2 text-xs font-semibold text-white hover:bg-emerald-900 disabled:opacity-50 flex items-center gap-1.5 transition-colors shadow-xs"
+                className="rounded-md bg-brand-base px-5 py-2 text-xs font-semibold text-white hover:bg-brand-light disabled:opacity-50 flex items-center gap-1.5 transition-colors shadow-xs"
               >
                 {submittingReview ? 'Submitting...' : 'Post Review'}
               </button>

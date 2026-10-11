@@ -432,7 +432,7 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
             </div>
             <div className="hidden sm:block">
               <span className="text-xs font-bold text-slate-900 dark:text-white">Visual CMS</span>
-              <span className="ml-1.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+              <span className="ml-1.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-brand-50 dark:bg-brand-dark/60 px-1.5 py-0.5 rounded border border-brand-200 dark:border-brand-base">
                 Live
               </span>
             </div>
@@ -506,7 +506,7 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
             title={isInspectorCollapsed ? "Show Editor" : "Hide Editor"}
             className={`p-1.5 rounded-lg transition-colors ${
               !isInspectorCollapsed
-                ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400'
+                ? 'bg-brand-50 text-brand-base dark:bg-brand-dark/60 dark:text-emerald-400'
                 : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 dark:text-slate-400'
             }`}
           >
@@ -516,7 +516,7 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
           <button
             onClick={handlePublish}
             disabled={isPublishing}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold shadow-xs transition-all disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-brand-light active:scale-95 text-white text-xs font-bold shadow-xs transition-all disabled:opacity-50"
           >
             <Save className="h-3.5 w-3.5" />
             <span>{isPublishing ? 'Publishing...' : 'Publish'}</span>
@@ -607,7 +607,7 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
                         rows={3}
                         value={currentInputValue}
                         onChange={(e) => handleValueChange(e.target.value)}
-                        className="w-full rounded-md px-2.5 py-1.5 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 resize-y"
+                        className="w-full rounded-md px-2.5 py-1.5 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white outline-none focus:border-brand-base focus:ring-1 focus:ring-brand-base resize-y"
                         placeholder="Enter text..."
                       />
                     ) : (
@@ -643,7 +643,7 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
                               setShowSuggestions(false);
                             }
                           }}
-                          className="w-full rounded-md px-2.5 py-1.5 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                          className="w-full rounded-md px-2.5 py-1.5 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white outline-none focus:border-brand-base focus:ring-1 focus:ring-brand-base"
                           placeholder={isCategorySectionKey ? 'Search or choose a category...' : 'Enter text...'}
                         />
 
@@ -664,7 +664,7 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
                                   onClick={() => handleSelectCategory(cat)}
                                   className={`w-full text-left px-2.5 py-2 flex items-center justify-between gap-2 text-xs transition-colors ${
                                     isHighlighted
-                                      ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-900 dark:text-emerald-200'
+                                      ? 'bg-brand-50 dark:bg-brand-dark/50 text-brand-dark dark:text-brand-100'
                                       : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200'
                                   }`}
                                 >
@@ -699,7 +699,7 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
                   {/* Category Synchronization Notice & Quick Preset Chips */}
                   {isCategorySectionKey && (
                     <div className="pt-2 space-y-2 border-t border-slate-200 dark:border-slate-700">
-                      <div className="flex items-start gap-1.5 px-2.5 py-1.5 rounded-md bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/80 text-[11px] text-emerald-800 dark:text-emerald-300">
+                      <div className="flex items-start gap-1.5 px-2.5 py-1.5 rounded-md bg-brand-50/90 dark:bg-brand-dark/40 border border-brand-200/80 dark:border-brand-base/80 text-[11px] text-brand-base dark:text-brand-200">
                         <Sparkles className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                         <div className="leading-tight">
                           <span className="font-bold">Dynamic Category Sync:</span> Renaming this title automatically updates the books rendered in this section in real time.
@@ -723,7 +723,7 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
                                 className={`text-[10px] px-2 py-0.5 rounded-full border transition-all flex items-center gap-1 ${
                                   isSelected
                                     ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs font-bold'
-                                    : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300'
+                                    : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-emerald-400 hover:text-brand-base dark:hover:text-brand-200'
                                 }`}
                               >
                                 <span>{cat.icon}</span>
@@ -770,7 +770,7 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Filter texts..."
-                    className="w-full rounded-md pl-8 pr-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:border-emerald-500"
+                    className="w-full rounded-md pl-8 pr-3 py-1.5 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white outline-none focus:border-brand-base"
                   />
                   {searchTerm && (
                     <button
@@ -795,7 +795,7 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
                         onClick={() => handleSelectKeyFromList(item)}
                         className={`w-full text-left p-2.5 rounded-lg border transition-all flex items-start justify-between gap-2 ${
                           isCurrent
-                            ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500 text-emerald-900 dark:text-emerald-100 shadow-xs'
+                            ? 'bg-brand-50 dark:bg-brand-dark/40 border-emerald-500 text-brand-dark dark:text-brand-100 shadow-xs'
                             : 'bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700/60 hover:bg-slate-50 dark:hover:bg-slate-800'
                         }`}
                       >
@@ -829,7 +829,7 @@ export const VisualCmsEditor: React.FC<VisualCmsEditorProps> = () => {
                 <button
                   onClick={handlePublish}
                   disabled={isPublishing}
-                  className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold shadow-xs transition-all disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg bg-emerald-600 hover:bg-brand-light active:scale-95 text-white text-xs font-bold shadow-xs transition-all disabled:opacity-50"
                 >
                   <Save className="h-3.5 w-3.5" />
                   <span>Publish {modifiedCount} Unsaved {modifiedCount === 1 ? 'Change' : 'Changes'}</span>

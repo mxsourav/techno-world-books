@@ -41,7 +41,7 @@ export default function HeroFeaturedBooks() {
 
   if (AUTO_FEATURED_BOOKS && loading) {
     return (
-      <div className="relative flex min-h-[300px] w-full items-center justify-center overflow-hidden rounded-lg border border-stone-800 bg-[#0B2518] p-6 shadow-sm sm:p-8">
+      <div className="relative flex min-h-[300px] w-full items-center justify-center overflow-hidden rounded-lg border border-stone-800 bg-brand-dark p-6 shadow-sm sm:p-8">
         <div className="flex flex-col items-center gap-3 text-stone-300">
           <Loader2 className="h-6 w-6 animate-spin text-stone-400" />
           <p className="text-xs font-semibold tracking-wider uppercase text-stone-400">Loading Featured Books...</p>
@@ -60,7 +60,7 @@ export default function HeroFeaturedBooks() {
 
   return (
     <div 
-      className="relative w-full overflow-hidden rounded-lg border border-stone-800 bg-[#0B2518] p-6 shadow-sm transition-colors sm:p-8"
+      className="relative w-full overflow-hidden rounded-lg border border-stone-800 bg-brand-dark p-6 shadow-sm transition-colors sm:p-8"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >

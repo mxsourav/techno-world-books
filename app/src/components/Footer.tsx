@@ -45,7 +45,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="mt-8 border-t border-stone-800 bg-[#0B1710] text-stone-300">
+    <footer className="mt-8 border-t border-stone-800 bg-brand-dark text-stone-300">
       <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-3 sm:px-6 py-8 md:grid-cols-12 md:gap-6 lg:gap-8">
         
         {/* Col 1: Address (Takes more space) */}
@@ -144,7 +144,7 @@ export default function Footer() {
       </div>
 
       {/* Developer Credits Strip */}
-      <div className="border-t border-stone-800/80 bg-[#070e0a]">
+      <div className="border-t border-stone-800/80 bg-brand-pitch">
         <div className="mx-auto max-w-7xl px-3 sm:px-6 py-3 flex flex-col lg:flex-row items-center justify-between gap-3">
           <div className="flex flex-col items-center lg:items-start gap-1 text-center lg:text-left">
             <span className="text-[11px] font-bold tracking-[0.08em] text-stone-400 uppercase">

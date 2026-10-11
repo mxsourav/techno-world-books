@@ -75,7 +75,7 @@ export default function Wishlist() {
         <Heart className="mx-auto h-16 w-16 text-stone-300" />
         <h1 className="mt-4 font-serif text-2xl font-bold text-stone-900">Your wishlist is empty</h1>
         <p className="mt-1 text-sm text-stone-500">Tap the heart icon on any book to save it here.</p>
-        <Link to="/" className="mt-5 inline-block rounded-md bg-emerald-800 hover:bg-emerald-900 px-6 py-2.5 text-sm font-semibold text-white transition-colors shadow-xs">Discover Books</Link>
+        <Link to="/" className="mt-5 inline-block rounded-md bg-brand-base hover:bg-brand-light px-6 py-2.5 text-sm font-semibold text-white transition-colors shadow-xs">Discover Books</Link>
         <div className="mt-8 text-left"><BookRow title="Best Sellers" books={recos} /></div>
       </div>
     );

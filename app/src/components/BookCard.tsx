@@ -39,7 +39,7 @@ export function BookCard({ book }: { book: Book }) {
       <Link to={`/book/${book.slug}`} className="block">
         <BookCover book={book} className="text-sm" />
         <div className="mt-3 flex-1">
-          <h3 className="line-clamp-2 min-h-[2.5em] text-sm font-semibold leading-tight text-slate-800 group-hover:text-emerald-800 transition-colors">
+          <h3 className="line-clamp-2 min-h-[2.5em] text-sm font-semibold leading-tight text-slate-800 group-hover:text-brand-base transition-colors">
             {book.title}
           </h3>
           <div className="mt-0.5 flex items-center justify-between gap-1">
@@ -53,7 +53,7 @@ export function BookCard({ book }: { book: Book }) {
             )}
           </div>
           <div className="mt-1 flex items-center gap-1.5">
-            <span className="flex items-center gap-0.5 rounded bg-emerald-700 px-1.5 py-0.5 text-[11px] font-bold text-white">
+            <span className="flex items-center gap-0.5 rounded bg-brand-base px-1.5 py-0.5 text-[11px] font-bold text-white">
               {book.rating} <Star className="h-2.5 w-2.5 fill-white" />
             </span>
             <span className="text-[11px] text-slate-400">({book.ratingsCount.toLocaleString('en-IN')})</span>
@@ -80,7 +80,7 @@ export function BookCard({ book }: { book: Book }) {
             addToCart(book.id);
             navigate('/checkout');
           }}
-          className="flex-[3] flex items-center justify-center gap-1 rounded-lg bg-emerald-700 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-800"
+          className="flex-[3] flex items-center justify-center gap-1 rounded-lg bg-brand-base py-1.5 text-xs font-semibold text-white transition hover:bg-brand-base"
         >
           <Zap className="h-3 w-3 fill-white text-white" /> Buy Now
         </button>

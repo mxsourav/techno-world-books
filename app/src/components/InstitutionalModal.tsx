@@ -189,7 +189,7 @@ export function InstitutionalModal({ isOpen, onClose }: InstitutionalModalProps)
         {isSubmitted ? (
           /* Minimalist Editorial Success State */
           <div className="py-12 px-4 text-center space-y-4 animate-in fade-in zoom-in-95 duration-300">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-stone-100 border border-stone-200 text-emerald-800">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-stone-100 border border-stone-200 text-brand-base">
               <CheckCircle2 className="h-8 w-8" />
             </div>
             <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-stone-900">
@@ -250,7 +250,7 @@ export function InstitutionalModal({ isOpen, onClose }: InstitutionalModalProps)
                     value={organizationName}
                     onChange={(e) => setOrganizationName(e.target.value)}
                     placeholder="e.g. St. Xavier's College, Kolkata"
-                    className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-800 focus:outline-none focus:ring-1 focus:ring-emerald-800 transition-colors"
+                    className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:border-brand-base focus:outline-none focus:ring-1 focus:ring-brand-base transition-colors"
                   />
                 </div>
 
@@ -266,7 +266,7 @@ export function InstitutionalModal({ isOpen, onClose }: InstitutionalModalProps)
                     value={representativeName}
                     onChange={(e) => setRepresentativeName(e.target.value)}
                     placeholder="e.g. Dr. A. K. Banerjee (Librarian)"
-                    className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-800 focus:outline-none focus:ring-1 focus:ring-emerald-800 transition-colors"
+                    className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:border-brand-base focus:outline-none focus:ring-1 focus:ring-brand-base transition-colors"
                   />
                 </div>
 
@@ -282,7 +282,7 @@ export function InstitutionalModal({ isOpen, onClose }: InstitutionalModalProps)
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="library@institution.ac.in"
-                    className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-800 focus:outline-none focus:ring-1 focus:ring-emerald-800 transition-colors"
+                    className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:border-brand-base focus:outline-none focus:ring-1 focus:ring-brand-base transition-colors"
                   />
                 </div>
 
@@ -298,7 +298,7 @@ export function InstitutionalModal({ isOpen, onClose }: InstitutionalModalProps)
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="+91 98765 43210"
-                    className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-800 focus:outline-none focus:ring-1 focus:ring-emerald-800 transition-colors"
+                    className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:border-brand-base focus:outline-none focus:ring-1 focus:ring-brand-base transition-colors"
                   />
                 </div>
 
@@ -313,7 +313,7 @@ export function InstitutionalModal({ isOpen, onClose }: InstitutionalModalProps)
                   id="b2b-timeline"
                   value={timeline}
                   onChange={(e) => setTimeline(e.target.value)}
-                  className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-xs sm:text-sm text-stone-900 focus:border-emerald-800 focus:outline-none focus:ring-1 focus:ring-emerald-800 transition-colors cursor-pointer"
+                  className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-xs sm:text-sm text-stone-900 focus:border-brand-base focus:outline-none focus:ring-1 focus:ring-brand-base transition-colors cursor-pointer"
                 >
                   {TIMELINE_OPTIONS.map((opt) => (
                     <option key={opt} value={opt}>
@@ -335,7 +335,7 @@ export function InstitutionalModal({ isOpen, onClose }: InstitutionalModalProps)
                   value={requirements}
                   onChange={(e) => setRequirements(e.target.value)}
                   placeholder="Please describe the books, genres, or specific titles you need bulk pricing for (e.g. 30 sets of MBBS 1st Year Anatomy textbooks, or departmental requisition)..."
-                  className="w-full rounded-lg border border-stone-300 bg-white p-3 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-800 focus:outline-none focus:ring-1 focus:ring-emerald-800 transition-colors leading-relaxed"
+                  className="w-full rounded-lg border border-stone-300 bg-white p-3 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:border-brand-base focus:outline-none focus:ring-1 focus:ring-brand-base transition-colors leading-relaxed"
                 />
               </div>
 
@@ -382,7 +382,7 @@ export function InstitutionalModal({ isOpen, onClose }: InstitutionalModalProps)
                       onChange={(e) => setAttachCart(e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-stone-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-900"></div>
+                    <div className="w-9 h-5 bg-stone-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-dark"></div>
                   </label>
                 </div>
               </div>
@@ -392,7 +392,7 @@ export function InstitutionalModal({ isOpen, onClose }: InstitutionalModalProps)
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-800 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-900 active:bg-emerald-950 transition-all shadow-sm disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-brand-base px-5 py-3 text-sm font-semibold text-white hover:bg-brand-light active:bg-brand-dark transition-all shadow-sm disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
                 >
                   {isSubmitting ? (
                     <>
@@ -417,7 +417,7 @@ export function InstitutionalModal({ isOpen, onClose }: InstitutionalModalProps)
                 <span className="text-stone-700">Call Md. Washim:</span>
                 <a
                   href="tel:+917479135626"
-                  className="font-bold text-stone-900 hover:text-emerald-800 font-mono tracking-tight whitespace-nowrap"
+                  className="font-bold text-stone-900 hover:text-brand-base font-mono tracking-tight whitespace-nowrap"
                 >
                   +91 747 913 5626
                 </a>

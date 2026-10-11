@@ -16,7 +16,7 @@ export default function AboutTechnoWorld() {
         {/* Text Content */}
         <div className="flex-1 space-y-5">
           <div>
-            <span className="text-xs font-bold uppercase tracking-widest text-emerald-800">
+            <span className="text-xs font-bold uppercase tracking-widest text-brand-base">
               Institutional Heritage
             </span>
             <h2 className="mt-1 font-serif text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl">
@@ -39,7 +39,7 @@ export default function AboutTechnoWorld() {
               key={idx} 
               className="flex items-start gap-3.5 rounded-lg border border-stone-200 bg-white p-4 shadow-xs"
             >
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-stone-200 bg-stone-50 text-emerald-900">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-stone-200 bg-stone-50 text-brand-dark">
                 <badge.icon className="h-4 w-4" />
               </div>
               <div className="min-w-0">

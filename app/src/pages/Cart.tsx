@@ -37,7 +37,7 @@ export default function Cart() {
         <AlertCircle className="mx-auto h-12 w-12 text-rose-500 mb-3" />
         <h2 className="text-xl font-bold text-slate-700">Error Loading Cart</h2>
         <p className="text-sm mt-2">{error.message}</p>
-        <button onClick={() => window.location.reload()} className="mt-4 rounded-lg bg-emerald-700 hover:bg-emerald-800 transition-colors px-6 py-2 font-bold text-white cursor-pointer">Retry</button>
+        <button onClick={() => window.location.reload()} className="mt-4 rounded-lg bg-brand-base hover:bg-brand-base transition-colors px-6 py-2 font-bold text-white cursor-pointer">Retry</button>
       </div>
     );
   }
@@ -53,7 +53,7 @@ export default function Cart() {
         <ShoppingBag className="mx-auto h-16 w-16 text-stone-300" />
         <h1 className="mt-4 font-serif text-2xl font-bold text-stone-900">Your cart is empty</h1>
         <p className="mt-1 text-sm text-stone-500">Browse best sellers, exam books and new releases.</p>
-        <Link to="/" className="mt-5 inline-block rounded-md bg-emerald-800 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-900 transition-colors shadow-xs">Start Shopping</Link>
+        <Link to="/" className="mt-5 inline-block rounded-md bg-brand-base px-6 py-3 text-sm font-semibold text-white hover:bg-brand-light transition-colors shadow-xs">Start Shopping</Link>
         <div className="mt-8 text-left"><BookRow title="Best Sellers" books={fbt} /></div>
       </div>
     );
@@ -75,7 +75,7 @@ export default function Cart() {
                 <BookCover book={{ coverUrl: i.coverUrl, title: i.title } as Book} className="text-[9px]" />
               </Link>
               <div className="min-w-0 flex-1">
-                <Link to={`/book/${i.slug}`} className="line-clamp-2 text-sm font-semibold text-stone-900 hover:text-emerald-800 transition-colors">{i.title}</Link>
+                <Link to={`/book/${i.slug}`} className="line-clamp-2 text-sm font-semibold text-stone-900 hover:text-brand-base transition-colors">{i.title}</Link>
                 <p className="text-xs text-stone-500 mt-0.5">{i.author}</p>
                 <p className="mt-1.5 text-xs text-stone-500">
                   Delivery by <b className="font-semibold text-stone-800">{new Date(Date.now() + 4 * 86400000).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}</b>
@@ -124,7 +124,7 @@ export default function Cart() {
             <div className="mb-3 flex flex-col gap-2 rounded-md bg-stone-50 border border-stone-200 px-3.5 py-2.5 text-xs">
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-1.5 font-medium text-stone-800">
-                  <Tag className="h-3.5 w-3.5 text-emerald-800" /> Coupon &ldquo;{appliedCoupon}&rdquo; applied ({formatINR(discount)} OFF)
+                  <Tag className="h-3.5 w-3.5 text-brand-base" /> Coupon &ldquo;{appliedCoupon}&rdquo; applied ({formatINR(discount)} OFF)
                 </span>
                 <button onClick={clearCoupon} className="font-semibold text-stone-600 hover:text-rose-600 underline transition-colors">Remove</button>
               </div>
@@ -157,11 +157,11 @@ export default function Cart() {
           )}
           <dl className="space-y-2 border-b border-dashed border-stone-200 pb-3 text-sm">
             <div className="flex justify-between"><dt className="text-stone-600">Price ({items.reduce((s: number, i: any) => s + (i.quantity || 1), 0)} items)</dt><dd className="font-medium text-stone-900">{formatINR(mrpTotal)}</dd></div>
-            <div className="flex justify-between"><dt className="text-stone-600">Book discount</dt><dd className="font-medium text-emerald-800">− {formatINR(mrpTotal - subtotal)}</dd></div>
-            {discount > 0 && <div className="flex justify-between"><dt className="text-stone-600">Coupon savings</dt><dd className="font-medium text-emerald-800">− {formatINR(discount)}</dd></div>}
+            <div className="flex justify-between"><dt className="text-stone-600">Book discount</dt><dd className="font-medium text-brand-base">− {formatINR(mrpTotal - subtotal)}</dd></div>
+            {discount > 0 && <div className="flex justify-between"><dt className="text-stone-600">Coupon savings</dt><dd className="font-medium text-brand-base">− {formatINR(discount)}</dd></div>}
             <div className="flex justify-between">
               <dt className="flex items-center gap-1 text-stone-600"><Truck className="h-3.5 w-3.5" /> Delivery</dt>
-              <dd>{shipping === 0 ? <span className="font-semibold text-emerald-800">FREE</span> : <span className="font-medium text-stone-900">{formatINR(shipping)}</span>}</dd>
+              <dd>{shipping === 0 ? <span className="font-semibold text-brand-base">FREE</span> : <span className="font-medium text-stone-900">{formatINR(shipping)}</span>}</dd>
             </div>
           </dl>
           <div className="mt-3 flex justify-between text-base font-bold text-stone-900"><span>Total</span><span>{formatINR(total)}</span></div>
@@ -178,7 +178,7 @@ export default function Cart() {
           <button
             onClick={() => navigate('/checkout')}
             disabled={items?.length === 0 || !isValid}
-            className="mt-4 flex w-full items-center justify-center gap-2 rounded-md bg-emerald-800 py-3 text-sm font-semibold text-white hover:bg-emerald-900 disabled:opacity-40 transition-colors shadow-xs cursor-pointer"
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-md bg-brand-base py-3 text-sm font-semibold text-white hover:bg-brand-light disabled:opacity-40 transition-colors shadow-xs cursor-pointer"
           >
             Proceed to Checkout <ArrowRight className="h-4 w-4" />
           </button>

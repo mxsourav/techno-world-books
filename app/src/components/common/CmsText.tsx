@@ -267,7 +267,7 @@ export const CmsText: React.FC<CmsTextProps> = ({
             title="Drag corner to scale font size & field width proportionally"
             className="absolute -bottom-2.5 -right-2.5 w-5 h-5 rounded-sm bg-gradient-to-br from-white to-emerald-100 border-2 border-emerald-600 shadow-lg pointer-events-auto cursor-se-resize hover:scale-125 transition-transform flex items-center justify-center group z-50"
           >
-            <div className="w-2 h-2 bg-emerald-600 rounded-2xs group-hover:bg-emerald-700" />
+            <div className="w-2 h-2 bg-emerald-600 rounded-2xs group-hover:bg-brand-light" />
           </div>
 
           {/* Right Edge Width Resize Pill */}
@@ -308,7 +308,7 @@ export const CmsText: React.FC<CmsTextProps> = ({
           }}
           className={`absolute -top-7 left-0 z-50 px-2 py-0.5 text-[10px] font-black rounded-md shadow-lg pointer-events-none flex items-center gap-1.5 uppercase tracking-wider whitespace-nowrap border ${
             isSelected
-              ? 'bg-gradient-to-r from-emerald-700 to-emerald-900 text-white border-emerald-400/60'
+              ? 'bg-gradient-to-r from-brand-base to-brand-dark text-white border-emerald-400/60'
               : 'bg-gradient-to-r from-cyan-700 to-cyan-900 text-white border-cyan-400/60'
           }`}
         >

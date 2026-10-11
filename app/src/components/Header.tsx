@@ -140,7 +140,7 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
     <Dialog open={open} onOpenChange={(v) => { if (!v) { onClose(); setStep('phone'); setOtp(''); } }}>
       <DialogContent className="sm:max-w-[420px] p-0 overflow-hidden bg-white border border-stone-200 shadow-lg rounded-lg">
         {/* Decorative Header with Brand Logo */}
-        <div className="relative bg-[#0B2518] px-6 py-8 text-center overflow-hidden flex flex-col items-center justify-center border-b border-stone-800">
+        <div className="relative bg-brand-dark px-6 py-8 text-center overflow-hidden flex flex-col items-center justify-center border-b border-stone-800">
           <div className="relative z-10 flex flex-col items-center">
             <DialogTitle className="sr-only">Sign In to Techno World Books</DialogTitle>
             <img
@@ -214,7 +214,7 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
               <button 
                 onClick={() => handleEmailLogin()} 
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 rounded-md bg-emerald-800 py-3 text-sm font-semibold text-white hover:bg-emerald-900 transition-colors shadow-xs disabled:opacity-50 cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 rounded-md bg-brand-base py-3 text-sm font-semibold text-white hover:bg-brand-light transition-colors shadow-xs disabled:opacity-50 cursor-pointer"
               >
                 <Mail className="h-4 w-4" /> {loading ? 'Signing in...' : 'Sign In with Email'}
               </button>
@@ -239,7 +239,7 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
               
               <button 
                 onClick={sendOtp} 
-                className="w-full flex items-center justify-center gap-2 rounded-md bg-emerald-800 py-3 text-sm font-semibold text-white hover:bg-emerald-900 transition-colors shadow-xs cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 rounded-md bg-brand-base py-3 text-sm font-semibold text-white hover:bg-brand-light transition-colors shadow-xs cursor-pointer"
               >
                 <MessageCircle className="h-4 w-4" /> Send OTP Securely
               </button>
@@ -269,7 +269,7 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
                 <button 
                   onClick={verify} 
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 rounded-md bg-emerald-800 py-3 text-sm font-semibold text-white hover:bg-emerald-900 transition-colors shadow-xs disabled:opacity-50 cursor-pointer"
+                  className="w-full flex items-center justify-center gap-2 rounded-md bg-brand-base py-3 text-sm font-semibold text-white hover:bg-brand-light transition-colors shadow-xs disabled:opacity-50 cursor-pointer"
                 >
                   {loading ? 'Verifying...' : 'Verify & Login'}
                 </button>
@@ -362,7 +362,7 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
             <Mic className="h-4 w-4" />
           </button>
         </div>
-        <button onClick={() => submit()} aria-label="Submit search" className="flex shrink-0 items-center justify-center px-4 sm:px-6 bg-[#0B2518] text-white hover:bg-[#071910] transition-colors cursor-pointer">
+        <button onClick={() => submit()} aria-label="Submit search" className="flex shrink-0 items-center justify-center px-4 sm:px-6 bg-brand-dark text-white hover:bg-[#0a2e5c] transition-colors cursor-pointer">
           <Search className="h-4 w-4" />
         </button>
       </div>
@@ -407,11 +407,11 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
                             }}
                           />
                         ) : (
-                          <BookOpen className="h-4 w-4 text-emerald-800" />
+                          <BookOpen className="h-4 w-4 text-brand-base" />
                         )}
                       </div>
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-xs sm:text-sm font-semibold text-stone-900 group-hover:text-emerald-900 transition-colors">
+                        <span className="block truncate text-xs sm:text-sm font-semibold text-stone-900 group-hover:text-brand-dark transition-colors">
                           {b.title}
                         </span>
                         <span className="block truncate text-[11px] text-stone-500 mt-0.5">
@@ -470,7 +470,7 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
                 <div className="flex flex-wrap gap-1.5">
                   {POPULAR_SEARCHES.slice(0, 6).map((p) => (
                     <button key={p} onClick={() => submit(p)} className="flex items-center gap-1 rounded-md border border-stone-200 bg-stone-50 px-2 py-0.5 text-xs text-stone-700 hover:border-stone-300 hover:bg-stone-100 transition-colors">
-                      <TrendingUp className="h-3 w-3 text-emerald-800" /> {p}
+                      <TrendingUp className="h-3 w-3 text-brand-base" /> {p}
                     </button>
                   ))}
                 </div>
@@ -546,9 +546,9 @@ export default function Header() {
   }, [categories]);
 
   return (
-    <header className="sticky top-0 z-40 w-full max-w-full bg-[#0a2e1f] text-white shadow-md transition-colors duration-300">
-      {/* top strip */}
-      <div className="hidden w-full items-center justify-between gap-4 bg-[#061d13] px-6 py-1.5 text-[11px] text-emerald-200 md:flex">
+    <header className="sticky top-0 z-40 w-full max-w-full text-white shadow-md transition-colors duration-300">
+      {/* 1. Top Strip */}
+      <div className="hidden w-full items-center justify-between gap-4 bg-brand-pitch px-6 py-1.5 text-[11px] text-brand-100 md:flex transition-colors duration-300">
         <span className="flex items-center gap-1">
           <MapPin className="h-3 w-3" />
           <CmsText contentKey="header.top_strip" defaultText="Delivering across India — 27,000+ pincodes" label="Header Announcement" />
@@ -562,21 +562,23 @@ export default function Header() {
         </div>
       </div>
 
-      <div className="mx-auto flex w-full max-w-7xl min-w-0 items-center px-4 py-2.5 sm:px-6 sm:py-3 gap-3 sm:gap-4 lg:gap-6">
+      {/* 2. Main Middle Strip */}
+      <div className="w-full bg-brand-base transition-colors duration-300 border-b border-black/10">
+        <div className="mx-auto flex w-full max-w-7xl min-w-0 items-center px-4 py-2.5 sm:px-6 sm:py-3 gap-3 sm:gap-4 lg:gap-6">
         {/* Mobile header: menu on the left; profile access stays on the right. */}
         <div className="flex w-auto md:w-[220px] lg:w-[260px] shrink-0 items-center justify-start gap-3 sm:gap-5">
           <Sheet>
             <SheetTrigger className="md:hidden" aria-label="Menu"><Menu className="h-6 w-6" /></SheetTrigger>
             <SheetContent side="left" className="w-80 p-0 flex flex-col h-full max-h-[100dvh] overflow-hidden bg-white">
               {/* Top Branding Strip (Fixed) */}
-              <div className="shrink-0 bg-[#0a2e1f] p-4 pr-12 text-white relative">
+              <div className="shrink-0 bg-brand-dark p-4 pr-12 text-white relative">
                 <SheetClose asChild>
                   <Link to="/" className="flex items-center gap-2.5 font-bold">
                     <img src="/techno_world_circle_white.png" alt="Techno World Books Logo" className="h-8 w-8 object-contain" />
                     <span className="text-base font-extrabold tracking-wider uppercase text-white">Techno World</span>
                   </Link>
                 </SheetClose>
-                <p className="mt-1 text-xs text-emerald-200 truncate">{user ? `Hi, ${user.name}` : <CmsText contentKey="header.sub_tagline" defaultText="India ka apna bookstore" label="Header Tagline" />}</p>
+                <p className="mt-1 text-xs text-brand-100 truncate">{user ? `Hi, ${user.name}` : <CmsText contentKey="header.sub_tagline" defaultText="India ka apna bookstore" label="Header Tagline" />}</p>
               </div>
 
               {/* Scrollable Categories & Links */}
@@ -596,25 +598,25 @@ export default function Header() {
                   <p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-stone-400">Quick Links</p>
                   <SheetClose asChild>
                     <Link to="/search?publisher=Techno%20World%20Publications" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-stone-700 hover:bg-stone-100 hover:text-stone-900 transition-colors">
-                      <BookOpen className="h-4 w-4 text-emerald-800 shrink-0" />
+                      <BookOpen className="h-4 w-4 text-brand-base shrink-0" />
                       <span>Our Publications</span>
                     </Link>
                   </SheetClose>
                   <SheetClose asChild>
                     <Link to="/track" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-stone-700 hover:bg-stone-100 hover:text-stone-900 transition-colors">
-                      <Truck className="h-4 w-4 text-emerald-800 shrink-0" />
+                      <Truck className="h-4 w-4 text-brand-base shrink-0" />
                       <span>Track Order</span>
                     </Link>
                   </SheetClose>
                   <SheetClose asChild>
                     <Link to="/blog" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-stone-700 hover:bg-stone-100 hover:text-stone-900 transition-colors">
-                      <FileText className="h-4 w-4 text-emerald-800 shrink-0" />
+                      <FileText className="h-4 w-4 text-brand-base shrink-0" />
                       <span>Blog & Book Lists</span>
                     </Link>
                   </SheetClose>
                   <SheetClose asChild>
                     <Link to="/help" className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-stone-700 hover:bg-stone-100 hover:text-stone-900 transition-colors">
-                      <HelpCircle className="h-4 w-4 text-emerald-800 shrink-0" />
+                      <HelpCircle className="h-4 w-4 text-brand-base shrink-0" />
                       <span>Help Center</span>
                     </Link>
                   </SheetClose>
@@ -699,14 +701,14 @@ export default function Header() {
         {/* Right Section (Fixed width matches Left, ml-auto pushes it to right edge) */}
         <div className="flex w-auto md:w-[220px] lg:w-[260px] shrink-0 items-center justify-end ml-auto">
           <nav className="flex shrink-0 items-center gap-2 sm:gap-4">
-            <Link to="/cart" className="relative rounded-md p-1.5 hover:bg-emerald-800/80 md:p-2 transition-colors" aria-label="Cart">
+            <Link to="/cart" className="relative rounded-md p-1.5 hover:bg-brand-base/80 md:p-2 transition-colors" aria-label="Cart">
               <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6" />
               {cartCount > 0 && (
                 <span className="absolute right-0 top-0 flex h-3.5 w-3.5 sm:h-4 sm:w-4 items-center justify-center rounded-full bg-[#D4A017] text-[9px] sm:text-[10px] font-bold text-stone-900">{cartCount}</span>
               )}
             </Link>
             {user ? (
-              <Link to="/profile" className="flex items-center gap-2 rounded-full p-0 md:rounded-md md:px-2.5 md:py-1.5 md:border md:border-emerald-800/60 md:hover:bg-emerald-800/60 transition-colors text-white">
+              <Link to="/profile" className="flex items-center gap-2 rounded-full p-0 md:rounded-md md:px-2.5 md:py-1.5 md:border md:border-brand-base/60 md:hover:bg-brand-base/60 transition-colors text-white">
                 <div className="relative h-6 w-6 shrink-0">
                   {(authUser?.avatarUrl || user?.avatarUrl) && !(authUser?.avatarUrl || user?.avatarUrl)?.includes('unsplash') && !avatarError ? (
                     <img
@@ -717,14 +719,14 @@ export default function Header() {
                       className="h-6 w-6 rounded-full object-cover border border-white/20"
                     />
                   ) : (
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-900 border border-white/20 text-[11px] font-bold text-white shadow-xs">
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-dark border border-white/20 text-[11px] font-bold text-white shadow-xs">
                       {user.name?.[0]?.toUpperCase() || 'U'}
                     </div>
                   )}
                 </div>
                 <div className="hidden text-left md:block leading-tight">
                   <span className="block max-w-[85px] truncate text-xs font-medium text-white">{user.name.split(' ')[0]}</span>
-                  <span className="text-[10px] font-medium text-emerald-200/70 flex items-center gap-1">
+                  <span className="text-[10px] font-medium text-brand-100/70 flex items-center gap-1">
                     <span>•</span>
                     <span>{user.rewardPoints || 0} pts</span>
                   </span>
@@ -739,18 +741,18 @@ export default function Header() {
                   }
                   setLoginOpen(true);
                 }}
-                className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 hover:bg-emerald-800/80 transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 hover:bg-brand-base/80 transition-colors cursor-pointer"
               >
                 <User className="h-5 w-5 sm:h-6 sm:w-6" />
                 <span className="hidden text-sm font-semibold md:block">Login</span>
               </button>
             )}
             {user && (
-              <button onClick={logout} title="Logout" className="hidden rounded-md p-1.5 hover:bg-emerald-800/80 md:block transition-colors cursor-pointer">
+              <button onClick={logout} title="Logout" className="hidden rounded-md p-1.5 hover:bg-brand-base/80 md:block transition-colors cursor-pointer">
                 <LogOut className="h-5 w-5" />
               </button>
             )}
-            <Link to="/wishlist" className="relative hidden rounded-md p-1.5 hover:bg-emerald-800/80 md:block md:p-2 transition-colors" aria-label="Wishlist">
+            <Link to="/wishlist" className="relative hidden rounded-md p-1.5 hover:bg-brand-base/80 md:block md:p-2 transition-colors" aria-label="Wishlist">
               <Heart className="h-5 w-5 sm:h-6 sm:w-6" />
               {wishlist?.length > 0 && (
                 <span className="absolute right-0 top-0 flex h-3.5 w-3.5 sm:h-4 sm:w-4 items-center justify-center rounded-full bg-rose-600 text-[9px] sm:text-[10px] font-bold text-white">{wishlist?.length}</span>
@@ -759,26 +761,27 @@ export default function Header() {
           </nav>
         </div>
       </div>
+      </div>
 
-      {/* category strip */}
-      <nav className="hidden border-t border-white/10 bg-[#071F15] md:block">
+      {/* 3. Category Strip */}
+      <nav className="hidden border-t border-white/10 bg-brand-dark md:block transition-colors duration-300">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 py-1.5 gap-2">
           <div className="flex flex-1 min-w-0 items-center overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <div className="flex items-center gap-1 shrink-0">
               <DropdownMenu modal={false}>
                 <DropdownMenuTrigger asChild>
-                  <button className="mr-2 flex shrink-0 items-center gap-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-semibold text-emerald-200 hover:bg-white/10 hover:text-white transition-colors cursor-pointer outline-none">
+                  <button className="mr-2 flex shrink-0 items-center gap-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-semibold text-brand-100 hover:bg-white/10 hover:text-white transition-colors cursor-pointer outline-none">
                     <ChevronDown className="h-3.5 w-3.5 text-emerald-400" /> Shop by category
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-60 max-h-96 overflow-y-auto bg-emerald-950/80 backdrop-blur-md border border-emerald-300/20 text-emerald-50 p-1.5 shadow-xl shadow-emerald-950/30 rounded-lg z-50">
-                  <div className="px-2 py-1.5 text-[10px] font-bold text-emerald-200 uppercase tracking-wider border-b border-emerald-300/20 mb-1">
+                <DropdownMenuContent align="start" className="w-60 max-h-96 overflow-y-auto bg-brand-dark/80 backdrop-blur-md border border-brand-200/20 text-emerald-50 p-1.5 shadow-xl shadow-emerald-950/30 rounded-lg z-50">
+                  <div className="px-2 py-1.5 text-[10px] font-bold text-brand-100 uppercase tracking-wider border-b border-brand-200/20 mb-1">
                     All Categories
                   </div>
                   {(categories?.length ? categories : WEBSITE_CATEGORIES).map((c: any) => (
                     <DropdownMenuItem key={c.slug || c.id} asChild className="focus:bg-white/15 focus:text-white rounded-md cursor-pointer text-xs py-1.5 px-2">
                       <Link to={`/category/${c.slug}`} className="flex items-center gap-2 w-full">
-                        <BookOpen className="h-3.5 w-3.5 text-emerald-200 shrink-0" />
+                        <BookOpen className="h-3.5 w-3.5 text-brand-100 shrink-0" />
                         <span>{c.name}</span>
                       </Link>
                     </DropdownMenuItem>
@@ -790,7 +793,7 @@ export default function Header() {
                 <Link
                   key={c.slug || c.id}
                   to={`/category/${c.slug}`}
-                  className="whitespace-nowrap rounded-md px-2 lg:px-2.5 py-0.5 text-xs text-emerald-100/90 transition hover:bg-white/10 hover:text-white shrink-0"
+                  className="whitespace-nowrap rounded-md px-2 lg:px-2.5 py-0.5 text-xs text-brand-100/90 transition hover:bg-white/10 hover:text-white shrink-0"
                 >
                   {(c.name || '').replace(' Books', '')}
                 </Link>
@@ -799,8 +802,8 @@ export default function Header() {
           </div>
 
           <div className="flex shrink-0 items-center gap-1.5 pl-4 border-l border-white/10 ml-2">
-            <Link to="/search?publisher=Techno%20World%20Publications" className="whitespace-nowrap rounded-md px-2.5 py-0.5 text-xs font-semibold text-emerald-100/90 transition-colors hover:bg-white/10 hover:text-white">Our Publications</Link>
-            <Link to="/about" className="whitespace-nowrap rounded-md px-2.5 py-0.5 text-xs font-semibold text-emerald-100/90 transition-colors hover:bg-white/10 hover:text-white">About</Link>
+            <Link to="/search?publisher=Techno%20World%20Publications" className="whitespace-nowrap rounded-md px-2.5 py-0.5 text-xs font-semibold text-brand-100/90 transition-colors hover:bg-white/10 hover:text-white">Our Publications</Link>
+            <Link to="/about" className="whitespace-nowrap rounded-md px-2.5 py-0.5 text-xs font-semibold text-brand-100/90 transition-colors hover:bg-white/10 hover:text-white">About</Link>
             <Link to="/blog" className="whitespace-nowrap rounded-md px-2.5 py-0.5 text-xs font-semibold text-[#D4A017] transition-colors hover:bg-white/10">Blog</Link>
           </div>
         </div>

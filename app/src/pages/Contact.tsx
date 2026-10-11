@@ -65,7 +65,7 @@ export default function Contact() {
         canonicalUrl="/contact"
       />
       <div className="border-b border-slate-200 pb-6 mb-8">
-        <div className="flex items-center gap-2 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-2">
+        <div className="flex items-center gap-2 text-brand-base text-xs font-bold uppercase tracking-wider mb-2">
           <Phone className="h-4 w-4" /> Get in Touch
         </div>
         <h1 className="text-3xl font-black text-slate-900 tracking-tight">
@@ -87,7 +87,7 @@ export default function Contact() {
             <h2 className="font-serif text-base font-bold text-stone-900">College Street Storefront</h2>
             
             <div className="flex items-start gap-3 text-sm text-stone-700">
-              <MapPin className="h-5 w-5 text-emerald-800 shrink-0 mt-0.5" />
+              <MapPin className="h-5 w-5 text-brand-base shrink-0 mt-0.5" />
               <div>
                 <p className="font-semibold text-stone-900">Techno World Books</p>
                 <p className="text-xs text-stone-600 mt-1 leading-relaxed">
@@ -104,7 +104,7 @@ export default function Contact() {
               <Phone className="h-5 w-5 text-stone-700 shrink-0" />
               <div>
                 <p className="text-xs text-stone-500 font-medium">Store Landline (9:00 AM – 8:00 PM)</p>
-                <span className="font-semibold text-stone-900 hover:text-emerald-800">
+                <span className="font-semibold text-stone-900 hover:text-brand-base">
                   <CmsText contentKey="footer.phone" defaultText="033 2219 6115" label="Store Landline" />
                 </span>
               </div>
@@ -117,7 +117,7 @@ export default function Contact() {
                   <p className="text-xs text-stone-500 font-medium">WhatsApp Support</p>
                   <span className="rounded-md bg-stone-200 px-1.5 py-0.5 text-[9px] font-semibold text-stone-700">24/7 FASTEST</span>
                 </div>
-                <a href="https://wa.me/917479135626" target="_blank" rel="noreferrer" className="font-semibold text-stone-900 hover:text-emerald-800 font-mono">
+                <a href="https://wa.me/917479135626" target="_blank" rel="noreferrer" className="font-semibold text-stone-900 hover:text-brand-base font-mono">
                   +91 747 913 5626
                 </a>
                 <p className="text-[10px] text-stone-400">Usually replies within hours</p>
@@ -128,7 +128,7 @@ export default function Contact() {
               <Mail className="h-5 w-5 text-stone-700 shrink-0" />
               <div>
                 <p className="text-xs text-stone-500 font-medium">Customer Support Email</p>
-                <a href="mailto:support@technoworldbooks.in" className="font-semibold text-stone-900 hover:text-emerald-800">
+                <a href="mailto:support@technoworldbooks.in" className="font-semibold text-stone-900 hover:text-brand-base">
                   support@technoworldbooks.in
                 </a>
               </div>
@@ -147,7 +147,7 @@ export default function Contact() {
           {/* Replacement Assistance */}
           <div className="rounded-lg border border-stone-200 bg-white p-5 space-y-2.5 shadow-xs">
             <p className="text-xs font-semibold text-stone-900 uppercase tracking-wider flex items-center gap-1.5">
-              <HelpCircle className="h-4 w-4 text-emerald-800" /> Book Replacement Assistance
+              <HelpCircle className="h-4 w-4 text-brand-base" /> Book Replacement Assistance
             </p>
             <p className="text-xs text-stone-600 leading-relaxed">
               If your received books are damaged, defective, or misprinted, please send an unboxing video to WhatsApp <b>+91 747 913 5626</b> and submit our replacement form within 7 days of delivery.
@@ -157,7 +157,7 @@ export default function Contact() {
                 href="https://docs.google.com/forms/d/e/1FAIpQLSdP7BBi2SNX67XU0xoBDzqiXSaL4nyBBIwDfVacG8M9kVR1RQ/viewform?usp=publish-editor"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-800 hover:underline"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-base hover:underline"
               >
                 Open Replacement Form <ExternalLink className="h-3.5 w-3.5" />
               </a>
@@ -165,7 +165,7 @@ export default function Contact() {
                 href="https://wa.me/917479135626"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-700 hover:text-emerald-800"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-700 hover:text-brand-base"
               >
                 Chat on WhatsApp &rarr;
               </a>
@@ -196,7 +196,7 @@ export default function Contact() {
 
             {submitted ? (
               <div className="rounded-lg bg-stone-50 border border-stone-200 p-8 text-center space-y-3">
-                <CheckCircle2 className="h-10 w-10 text-emerald-800 mx-auto" />
+                <CheckCircle2 className="h-10 w-10 text-brand-base mx-auto" />
                 <h3 className="font-serif text-lg font-bold text-stone-900">Thank you! Your Message Has Been Sent.</h3>
                 <p className="text-xs text-stone-600 max-w-md mx-auto leading-relaxed">
                   Your inquiry has been successfully registered in our customer care system. A confirmation email has been dispatched to <b>{email}</b>, and our customer support team will reply shortly.
@@ -208,7 +208,7 @@ export default function Contact() {
                       setSubmitted(false);
                       setMessage('');
                     }}
-                    className="rounded-md bg-emerald-800 px-5 py-2 text-xs font-semibold text-white hover:bg-emerald-900 transition-colors"
+                    className="rounded-md bg-brand-base px-5 py-2 text-xs font-semibold text-white hover:bg-brand-light transition-colors"
                   >
                     Send Another Message
                   </button>
@@ -269,7 +269,7 @@ export default function Contact() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="inline-flex items-center gap-2 rounded-md bg-emerald-800 px-7 py-3 text-sm font-semibold text-white hover:bg-emerald-900 transition-colors shadow-xs disabled:opacity-50"
+                    className="inline-flex items-center gap-2 rounded-md bg-brand-base px-7 py-3 text-sm font-semibold text-white hover:bg-brand-light transition-colors shadow-xs disabled:opacity-50"
                   >
                     {loading ? (
                       <>
@@ -290,7 +290,7 @@ export default function Contact() {
                     )}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-emerald-700"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-brand-base"
                   >
                     <span>Need instant help? Chat on WhatsApp</span> &rarr;
                   </a>

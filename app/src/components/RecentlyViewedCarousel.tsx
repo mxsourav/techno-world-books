@@ -125,7 +125,7 @@ export const RecentlyViewedCarousel: React.FC<RecentlyViewedCarouselProps> = ({ 
                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                   {discountPercent && (
-                    <span className="absolute top-1.5 left-1.5 rounded-sm bg-emerald-800 px-1.5 py-0.5 text-[9px] font-semibold text-white shadow-2xs">
+                    <span className="absolute top-1.5 left-1.5 rounded-sm bg-brand-base px-1.5 py-0.5 text-[9px] font-semibold text-white shadow-2xs">
                       {discountPercent}% OFF
                     </span>
                   )}
@@ -161,7 +161,7 @@ export const RecentlyViewedCarousel: React.FC<RecentlyViewedCarouselProps> = ({ 
                 <button
                   type="button"
                   onClick={(e) => handleQuickAdd(e, book)}
-                  className="flex h-7 w-7 items-center justify-center rounded-md border border-stone-200 bg-stone-50 text-stone-700 hover:bg-emerald-800 hover:text-white hover:border-emerald-800 transition-colors shadow-2xs"
+                  className="flex h-7 w-7 items-center justify-center rounded-md border border-stone-200 bg-stone-50 text-stone-700 hover:bg-brand-base hover:text-white hover:border-brand-base transition-colors shadow-2xs"
                   title="Add to cart"
                 >
                   <ShoppingCart className="h-3 w-3" />
