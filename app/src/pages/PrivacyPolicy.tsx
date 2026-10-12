@@ -64,7 +64,7 @@ export default function PrivacyPolicy() {
         <section className="space-y-3">
           <h2 className="text-base font-bold text-slate-900">5. Contacting Our Data Officer</h2>
           <p>
-            If you have questions about your personal data or wish to delete your account, reach out to us at <b>support@technoworldbooks.in</b> or call <b>033 2219 6115</b>.
+            If you have questions about your personal data or wish to delete your account, reach out to us at <b>support@technoworldbooks.in</b> or call <b>+91 8509986008</b>.
           </p>
         </section>
       </div>

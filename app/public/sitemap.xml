@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://technoworldbooks.in/</loc>
-    <lastmod>2026-10-12T04:02:30+00:00</lastmod>
+    <lastmod>2026-10-12T17:12:26+00:00</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -4309,12 +4309,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://technoworldbooks.in/book/a-modern-approach-to-verbal-non-verbal-reasoning-prelims-and-mains-18-9789390000796</loc>
-    <lastmod>2026-09-25T18:17:04+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://technoworldbooks.in/book/bd-chaurasias-handbook-of-general-anatomy-prelims-and-mains-18-9789390000797</loc>
     <lastmod>2026-09-25T18:17:04+00:00</lastmod>
     <changefreq>weekly</changefreq>
@@ -4341,6 +4335,12 @@
   <url>
     <loc>https://technoworldbooks.in/book/problems-in-general-physics-prelims-and-mains-18-9789390000811</loc>
     <lastmod>2026-09-25T18:17:04+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://technoworldbooks.in/book/a-modern-approach-to-verbal-non-verbal-reasoning-prelims-and-mains-18-9789390000796</loc>
+    <lastmod>2026-10-12T04:47:21+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -5999,12 +5999,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://technoworldbooks.in/book/indian-economy-for-upsc-state-psc-prelims-mains-vol-1-22-9789390000971</loc>
-    <lastmod>2026-09-26T16:08:16+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://technoworldbooks.in/book/the-routledge-history-of-literature-in-english-prelims-and-mains-18-9789390000822</loc>
     <lastmod>2026-10-05T17:35:43+00:00</lastmod>
     <changefreq>weekly</changefreq>
@@ -6012,12 +6006,28 @@
   </url>
   <url>
     <loc>https://technoworldbooks.in/book/computer-graphics-9992</loc>
-    <lastmod>2026-10-09T17:31:52+00:00</lastmod>
+    <lastmod>2026-10-12T04:45:39+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <image:image>
       <image:loc>https://res.cloudinary.com/tcsmyxe2/image/upload/v1791567084/Home/books/computer-graphics-9992/images/cover_1791567082898.jpg</image:loc>
       <image:title>Computer Graphics</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://technoworldbooks.in/book/indian-economy-for-upsc-state-psc-prelims-mains-vol-1-22-9789390000971</loc>
+    <lastmod>2026-10-12T04:45:39+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://technoworldbooks.in/book/competency-based-bd-chaurasia-s-human-anatomy-4-vol-set-6386</loc>
+    <lastmod>2026-10-12T16:31:50+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/tcsmyxe2/image/upload/v1791822021/Home/books/competency-based-bd-chaurasia-s-human-anatomy-4-vol-set-6386/images/cover_1791822019622.jpg</image:loc>
+      <image:title>Competency-Based BD Chaurasia&apos;s Human Anatomy (4 Vol. Set)</image:title>
     </image:image>
   </url>
   <url>
@@ -6118,61 +6128,61 @@
   </url>
   <url>
     <loc>https://technoworldbooks.in/search</loc>
-    <lastmod>2026-10-12T04:02:30+00:00</lastmod>
+    <lastmod>2026-10-12T17:12:26+00:00</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/blog</loc>
-    <lastmod>2026-10-12T04:02:30+00:00</lastmod>
+    <lastmod>2026-10-12T17:12:26+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/track</loc>
-    <lastmod>2026-10-12T04:02:30+00:00</lastmod>
+    <lastmod>2026-10-12T17:12:26+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/about</loc>
-    <lastmod>2026-10-12T04:02:30+00:00</lastmod>
+    <lastmod>2026-10-12T17:12:26+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/contact</loc>
-    <lastmod>2026-10-12T04:02:30+00:00</lastmod>
+    <lastmod>2026-10-12T17:12:26+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/help</loc>
-    <lastmod>2026-10-12T04:02:30+00:00</lastmod>
+    <lastmod>2026-10-12T17:12:26+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/terms</loc>
-    <lastmod>2026-10-12T04:02:30+00:00</lastmod>
+    <lastmod>2026-10-12T17:12:26+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/shipping-policy</loc>
-    <lastmod>2026-10-12T04:02:30+00:00</lastmod>
+    <lastmod>2026-10-12T17:12:26+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/refund-policy</loc>
-    <lastmod>2026-10-12T04:02:30+00:00</lastmod>
+    <lastmod>2026-10-12T17:12:26+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/privacy-policy</loc>
-    <lastmod>2026-10-12T04:02:30+00:00</lastmod>
+    <lastmod>2026-10-12T17:12:26+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>

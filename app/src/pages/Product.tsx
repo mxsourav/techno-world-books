@@ -4,7 +4,7 @@ import { Link, useNavigate, useParams, useLocation, useSearchParams } from 'reac
 import {
   ChevronLeft, ChevronRight, Heart, Share2, Truck, ShieldCheck, RotateCcw, MapPin, Zap,
   ShoppingCart, BadgeCheck, Loader2, Star, Tag, ChevronDown, ChevronUp,
-  BookOpen, HelpCircle, Check, Sparkles, Award, AlertCircle, Bell, MessageSquare, Info, X
+  BookOpen, HelpCircle, Check, Sparkles, Award, AlertCircle, Bell, MessageSquare, Info, X, Layers, ZoomIn
 } from 'lucide-react';
 
 import { formatINR } from '@/utils/helpers';
@@ -17,6 +17,144 @@ import { toast } from 'sonner';
 import { SampleReaderModal } from '@/components/SampleReaderModal';
 import { NotifyStockModal } from '@/components/NotifyStockModal';
 import { RecentlyViewedCarousel } from '@/components/RecentlyViewedCarousel';
+
+function renderBookDescriptionContent(text: string | null | undefined) {
+  if (!text || !text.trim()) {
+    return (
+      <div className="rounded-lg bg-stone-50 border border-stone-200 p-4 text-xs text-stone-500 italic">
+        No extended description has been added for this title yet. Please refer to product specifications and book attributes above.
+      </div>
+    );
+  }
+
+  const lines = text.split('\n');
+  const elements: React.ReactNode[] = [];
+  let listItems: React.ReactNode[] = [];
+
+  const flushList = (key: string) => {
+    if (listItems.length > 0) {
+      elements.push(
+        <ul key={key} className="my-2 space-y-1.5 pl-1">
+          {listItems}
+        </ul>
+      );
+      listItems = [];
+    }
+  };
+
+  const parseInline = (str: string): React.ReactNode => {
+    const parts = str.split(/(==[^=]+?==|<mark>.*?<\/mark>|\*\*[^*]+?\*\*|<b>.*?<\/b>|<strong>.*?<\/strong>|\*[^*]+?\*)/g);
+    return parts.map((part, i) => {
+      if (!part) return null;
+      if (part.startsWith('==') && part.endsWith('==') && part.length >= 4) {
+        return (
+          <mark key={i} className="bg-yellow-200/90 text-amber-950 font-bold px-1.5 py-0.5 rounded shadow-2xs border border-amber-300">
+            {part.slice(2, -2)}
+          </mark>
+        );
+      }
+      if (part.startsWith('<mark>') && part.endsWith('</mark>')) {
+        return (
+          <mark key={i} className="bg-yellow-200/90 text-amber-950 font-bold px-1.5 py-0.5 rounded shadow-2xs border border-amber-300">
+            {part.slice(6, -7)}
+          </mark>
+        );
+      }
+      if (part.startsWith('**') && part.endsWith('**') && part.length >= 4) {
+        return <strong key={i} className="font-extrabold text-slate-950">{part.slice(2, -2)}</strong>;
+      }
+      if (part.startsWith('<b>') && part.endsWith('</b>')) {
+        return <strong key={i} className="font-extrabold text-slate-950">{part.slice(3, -4)}</strong>;
+      }
+      if (part.startsWith('<strong>') && part.endsWith('</strong>')) {
+        return <strong key={i} className="font-extrabold text-slate-950">{part.slice(8, -9)}</strong>;
+      }
+      if (part.startsWith('*') && part.endsWith('*') && part.length >= 3) {
+        return <em key={i} className="italic text-slate-800">{part.slice(1, -1)}</em>;
+      }
+      return part;
+    });
+  };
+
+  lines.forEach((rawLine, idx) => {
+    const line = rawLine.trim();
+
+    if (!line) {
+      flushList(`list-${idx}`);
+      elements.push(<div key={`blank-${idx}`} className="h-2" />);
+      return;
+    }
+
+    if (line.startsWith('# ')) {
+      flushList(`list-${idx}`);
+      elements.push(
+        <h1 key={`h1-${idx}`} className="text-base font-black text-slate-950 mt-3 mb-1 border-b border-slate-200 pb-1">
+          {line.replace(/^#\s+/, '')}
+        </h1>
+      );
+      return;
+    }
+
+    if (line.startsWith('## ')) {
+      flushList(`list-${idx}`);
+      elements.push(
+        <h2 key={`h2-${idx}`} className="text-sm font-black text-slate-900 mt-3 mb-1">
+          {line.replace(/^##\s+/, '')}
+        </h2>
+      );
+      return;
+    }
+
+    if (line.startsWith('### ')) {
+      flushList(`list-${idx}`);
+      const title = line.replace(/^###\s+/, '');
+      elements.push(
+        <div key={`h3-${idx}`} className="mt-3.5 mb-1.5 flex items-center gap-2 border-b border-emerald-100 pb-1">
+          <span className="h-2 w-2 rounded-full bg-emerald-600 shrink-0"></span>
+          <h3 className="text-xs font-black uppercase tracking-wider text-emerald-900">
+            {title}
+          </h3>
+        </div>
+      );
+      return;
+    }
+
+    if (line.startsWith('•') || line.startsWith('- ') || line.startsWith('* ')) {
+      const clean = line.replace(/^[•\-*]\s*/, '');
+      listItems.push(
+        <li key={`li-${idx}`} className="flex items-start gap-2 text-xs text-slate-700">
+          <span className="text-emerald-600 font-bold text-sm leading-none mt-0.5">•</span>
+          <span className="flex-1 leading-relaxed">{parseInline(clean)}</span>
+        </li>
+      );
+      return;
+    }
+
+    const numMatch = line.match(/^(\d+)\.\s+(.*)$/);
+    if (numMatch) {
+      listItems.push(
+        <li key={`li-${idx}`} className="flex items-start gap-2 text-xs text-slate-700">
+          <span className="inline-flex items-center justify-center h-4 w-4 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-bold shrink-0 mt-0.5">
+            {numMatch[1]}
+          </span>
+          <span className="flex-1 leading-relaxed">{parseInline(numMatch[2])}</span>
+        </li>
+      );
+      return;
+    }
+
+    flushList(`list-${idx}`);
+    elements.push(
+      <p key={`p-${idx}`} className="text-xs text-slate-700 leading-relaxed">
+        {parseInline(line)}
+      </p>
+    );
+  });
+
+  flushList('list-end');
+
+  return <div className="space-y-1.5">{elements}</div>;
+}
 
 export default function Product() {
   const { slug } = useParams();
@@ -144,8 +282,9 @@ export default function Product() {
   const moveGallery = (step: number) => {
     setGallerySwipeDirection(step > 0 ? 'next' : 'previous');
     setActiveImageIndex((currentIndex) => {
-      const maxIdx = Math.max(0, galleryItems.length - 1);
-      return Math.max(0, Math.min(maxIdx, currentIndex + step));
+      const total = galleryItems.length;
+      if (total <= 1) return 0;
+      return (currentIndex + step + total) % total;
     });
   };
 
@@ -154,11 +293,91 @@ export default function Product() {
     setActiveImageIndex(index);
   };
 
+  // Desktop Hover Zoom & Mobile Pinch-to-Zoom states
+  const [isHoverZooming, setIsHoverZooming] = useState(false);
+  const [hoverOrigin, setHoverOrigin] = useState({ x: 50, y: 50 });
+  const [pinchScale, setPinchScale] = useState(1);
+  const imageCanvasRef = useRef<HTMLDivElement>(null);
+  const startPinchDist = useRef<number>(0);
+  const startPinchScale = useRef<number>(1);
+
+  // Desktop mouse movement tracks zoom focal point
+  const handleMouseMoveZoom = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
+    const y = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100));
+    setHoverOrigin({ x, y });
+    setIsHoverZooming(true);
+  };
+
+  const handleMouseLeaveZoom = () => {
+    setIsHoverZooming(false);
+  };
+
+  // Mobile pinch-to-zoom with non-passive touchmove to prevent browser page zoom
+  useEffect(() => {
+    const container = imageCanvasRef.current;
+    if (!container) return;
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const dist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        startPinchDist.current = dist;
+        startPinchScale.current = pinchScale;
+      }
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        // Crucial: stops the browser from zooming the webpage itself
+        e.preventDefault();
+        const dist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        if (startPinchDist.current > 0) {
+          const factor = dist / startPinchDist.current;
+          const next = Math.min(4, Math.max(1, startPinchScale.current * factor));
+          setPinchScale(next);
+        }
+      }
+    };
+
+    const onTouchEnd = (e: TouchEvent) => {
+      if (e.touches.length < 2) {
+        startPinchDist.current = 0;
+      }
+    };
+
+    container.addEventListener('touchstart', onTouchStart, { passive: false });
+    container.addEventListener('touchmove', onTouchMove, { passive: false });
+    container.addEventListener('touchend', onTouchEnd);
+
+    return () => {
+      container.removeEventListener('touchstart', onTouchStart);
+      container.removeEventListener('touchmove', onTouchMove);
+      container.removeEventListener('touchend', onTouchEnd);
+    };
+  }, [pinchScale]);
+
+  // Reset zoom on slide change
+  useEffect(() => {
+    setPinchScale(1);
+    setIsHoverZooming(false);
+  }, [activeImageIndex]);
+
   const handleGalleryTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
-    galleryTouchStartX.current = event.touches[0]?.clientX ?? null;
+    if (event.touches.length === 1) {
+      galleryTouchStartX.current = event.touches[0]?.clientX ?? null;
+    }
   };
 
   const handleGalleryTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (pinchScale > 1.05) return; // Don't swipe while zoomed in
     const startX = galleryTouchStartX.current;
     const endX = event.changedTouches[0]?.clientX;
     galleryTouchStartX.current = null;
@@ -172,12 +391,13 @@ export default function Product() {
   useEffect(() => {
     if (galleryItems.length <= 1) return;
     const autoScrollTimer = window.setInterval(() => {
+      if (isHoverZooming || pinchScale > 1.05) return;
       setGallerySwipeDirection('next');
       setActiveImageIndex((currentIndex) => (currentIndex + 1) % galleryItems.length);
     }, 30000);
 
     return () => window.clearInterval(autoScrollTimer);
-  }, [galleryItems.length]);
+  }, [galleryItems.length, isHoverZooming, pinchScale]);
   
   // Delivery pincode state
   const [pincode, setPincode] = useState('700006');
@@ -193,6 +413,8 @@ export default function Product() {
   // Accordion open states (Flipkart style)
   const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>({
     highlights: true,
+    keyFeatures: true,
+    description: true,
     allDetails: true,
     toc: true,
     qa: false,
@@ -506,34 +728,14 @@ export default function Product() {
 
   const displayQuestions = liveQuestions.length > 0
     ? liveQuestions
-    : [
-        {
-          id: 'def1',
-          question: 'Is this the latest 2026 revised edition?',
-          answer: 'Yes, this is the official 2026 revised edition with the updated syllabus and 2025 solved papers.',
-          answeredBy: 'Techno World Direct · Verified Seller'
-        },
-        {
-          id: 'def2',
-          question: 'Does this book contain Bengali and English explanations?',
-          answer: `The theory and MCQs are provided in ${language} with lucid explanations.`,
-          answeredBy: 'Staff Academic Reviewer'
-        }
-      ];
+    : (Array.isArray(book.questions) && book.questions.length > 0 ? book.questions : []);
 
-  // Default TOC fallback
+  // Real Table of Contents from catalog (only if provided by publisher/admin)
   const tocList = Array.isArray(book.toc) && book.toc.length > 0
     ? book.toc
-    : (typeof book.toc === 'string'
-        ? book.toc.split('\n').filter(Boolean)
-        : [
-            'Unit I: Reading Comprehension & Passage Analytics',
-            'Unit II: Verbal Ability, Grammar, Synonyms & Antonyms',
-            'Unit III: Subject-Specific Core Theory & Concept Notes',
-            'Unit IV: 4050+ Chapter-wise High-Yield MCQs',
-            'Unit V: Solved Previous Years Question Papers (2020–2025)',
-            'Appendix: Rapid Revision Mind Maps & Answer Keys'
-          ]);
+    : (typeof book.toc === 'string' && book.toc.trim()
+        ? book.toc.split('\n').map((s: string) => s.trim()).filter(Boolean)
+        : []);
 
   // Calculate India Post batch dispatch schedule & countdown
   const getIndiaPostDispatchInfo = (cleanPin: string) => {
@@ -660,6 +862,17 @@ export default function Product() {
       toast.success('Book link copied to clipboard!');
     }
   };
+
+  const isSetProduct = Boolean(
+    (book?.volume && (
+      book.volume.toLowerCase().includes('set') ||
+      book.volume.toLowerCase().includes('vol') ||
+      book.volume.toLowerCase().includes('part')
+    )) || book?.unitType === 'Set'
+  );
+  const setDetailsLabel = book?.volume && book.volume.toLowerCase().includes('set')
+    ? book.volume
+    : (book?.volume ? `Set · ${book.volume}` : 'Complete Set');
 
   const seoImageUrl = getImageUrl(book.coverUrl || book.coverImage);
   const discountPercent = mrp && mrp > price ? Math.round(((mrp - price) / mrp) * 100) : 0;
@@ -795,6 +1008,7 @@ export default function Product() {
 
                 {/* Main Active Preview Canvas */}
                 <div
+                  ref={imageCanvasRef}
                   className={`order-1 relative flex h-[370px] min-w-0 w-full items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-slate-50/80 p-3 select-none sm:order-2 sm:h-[450px] ${
                     galleryItems.length > 1 ? 'px-10 sm:px-12' : 'px-4 sm:px-6'
                   }`}
@@ -807,26 +1021,26 @@ export default function Product() {
                       <button
                         type="button"
                         onClick={() => moveGallery(-1)}
-                        disabled={activeImageIndex === 0}
                         aria-label="Previous product preview"
-                        className="absolute left-2 sm:left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-600 shadow-md transition hover:bg-white hover:text-brand-base disabled:pointer-events-none disabled:opacity-30"
+                        title="Previous Image"
+                        className="absolute left-2 sm:left-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200/90 bg-white/95 text-slate-700 shadow-lg backdrop-blur-xs transition-all hover:bg-white hover:text-brand-base hover:scale-105 active:scale-95 cursor-pointer"
                       >
-                        <ChevronLeft className="h-5 w-5" />
+                        <ChevronLeft className="h-6 w-6 stroke-[2.5]" />
                       </button>
                       <button
                         type="button"
                         onClick={() => moveGallery(1)}
-                        disabled={activeImageIndex === galleryItems.length - 1}
                         aria-label="Next product preview"
-                        className="absolute right-2 sm:right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-600 shadow-md transition hover:bg-white hover:text-brand-base disabled:pointer-events-none disabled:opacity-30"
+                        title="Next Image"
+                        className="absolute right-2 sm:right-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200/90 bg-white/95 text-slate-700 shadow-lg backdrop-blur-xs transition-all hover:bg-white hover:text-brand-base hover:scale-105 active:scale-95 cursor-pointer"
                       >
-                        <ChevronRight className="h-5 w-5" />
+                        <ChevronRight className="h-6 w-6 stroke-[2.5]" />
                       </button>
                     </>
                   )}
                   
                   {/* Floating Action Buttons: Wishlist & Share */}
-                  <div className="absolute right-3 top-3 z-10 flex flex-col gap-2">
+                  <div className="absolute right-3 top-3 z-20 flex flex-col gap-2">
                     <button
                       type="button"
                       onClick={() => toggleWishlist(book.id)}
@@ -859,6 +1073,42 @@ export default function Product() {
                     </button>
                   </div>
 
+                  {/* Hover / Pinch Zoom indicator */}
+                  <div className="absolute left-3 bottom-3 z-20 flex items-center gap-1.5 pointer-events-auto">
+                    {pinchScale > 1.05 ? (
+                      <button
+                        type="button"
+                        onClick={() => setPinchScale(1)}
+                        className="flex items-center gap-1 rounded-full bg-slate-900/85 px-2.5 py-1 text-[11px] font-bold text-white shadow-md backdrop-blur-xs hover:bg-slate-900 active:scale-95 transition-all"
+                      >
+                        <RotateCcw className="h-3 w-3" />
+                        <span>Reset Zoom ({Math.round(pinchScale * 100)}%)</span>
+                      </button>
+                    ) : (
+                      <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-white/80 border border-slate-200/80 px-2 py-0.5 text-[10px] font-semibold text-slate-500 shadow-2xs backdrop-blur-xs pointer-events-none">
+                        <ZoomIn className="h-3 w-3 text-slate-400" />
+                        <span>Hover to zoom · 2 fingers on phone</span>
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Dots indicator for gallery slides */}
+                  {galleryItems.length > 1 && (
+                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 bg-black/25 backdrop-blur-xs px-2 py-1 rounded-full pointer-events-auto">
+                      {galleryItems.map((_, dotIdx) => (
+                        <button
+                          key={dotIdx}
+                          type="button"
+                          onClick={() => selectGalleryImage(dotIdx)}
+                          aria-label={`Slide ${dotIdx + 1}`}
+                          className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                            activeImageIndex === dotIdx ? 'w-4 bg-white' : 'w-1.5 bg-white/50 hover:bg-white/80'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  )}
+
                   {/* Active Preview Rendering */}
                   <div
                     key={activeImageIndex}
@@ -873,69 +1123,30 @@ export default function Product() {
                       />
                     </div>
                   ) : galleryItems[activeImageIndex]?.imageUrl ? (
-                    <div className="h-[310px] sm:h-[375px] w-auto max-w-full aspect-[3/4.2] drop-shadow-xl transition-all duration-300 flex items-center justify-center mx-auto">
+                    <div
+                      className="relative h-[310px] sm:h-[375px] w-auto max-w-full aspect-[3/4.2] flex items-center justify-center mx-auto overflow-hidden rounded-lg cursor-zoom-in"
+                      onMouseMove={handleMouseMoveZoom}
+                      onMouseLeave={handleMouseLeaveZoom}
+                    >
                       <img
                         src={getImageUrl(galleryItems[activeImageIndex].imageUrl)}
                         alt={galleryItems[activeImageIndex].title}
-                        className="h-full w-auto max-w-full object-contain rounded-lg shadow-sm"
+                        style={{
+                          transformOrigin: `${hoverOrigin.x}% ${hoverOrigin.y}%`,
+                          transform: isHoverZooming
+                            ? 'scale(2.2)'
+                            : (pinchScale > 1 ? `scale(${pinchScale})` : 'scale(1)'),
+                          transition: isHoverZooming ? 'transform 0.08s ease-out' : 'transform 0.25s ease-out',
+                          touchAction: 'none',
+                        }}
+                        className="h-full w-auto max-w-full object-contain rounded-lg shadow-sm select-none pointer-events-auto"
                         loading="eager"
+                        draggable={false}
                       />
                     </div>
-                  ) : activeImageIndex === 0 ? (
+                  ) : (
                     <div className="h-[310px] sm:h-[375px] w-auto max-w-full aspect-[3/4.2] drop-shadow-xl transition-all duration-300 flex items-center justify-center mx-auto">
                       <BookCover book={book} className="w-full h-full text-base sm:text-xl drop-shadow-md" />
-                    </div>
-                  ) : (
-                    /* Sample Page / Contents Sheet Simulation */
-                    <div className="flex h-full min-h-0 w-full max-w-[280px] min-w-0 flex-col justify-between rounded-lg border border-slate-200 bg-white p-4 text-xs text-slate-800 shadow-lg sm:h-full sm:p-5 mx-auto">
-                      <div>
-                        <div className="flex min-w-0 items-center justify-between gap-2 border-b pb-2 mb-3">
-                          <span className="min-w-0 truncate font-extrabold text-slate-900 text-sm">
-                            {galleryItems[activeImageIndex].title}
-                          </span>
-                          <span className="shrink-0 text-[10px] font-mono text-slate-400">Sample Preview</span>
-                        </div>
-                        
-                        {activeImageIndex === 1 && (
-                          <div className="space-y-2 text-[11px] text-slate-700">
-                            <p className="font-bold text-brand-base uppercase tracking-wide text-[10px]">Table of Contents</p>
-                            {tocList.slice(0, 5).map((item: string, i: number) => (
-                              <div key={i} className="flex min-w-0 justify-between gap-2 border-b border-dashed border-slate-100 py-1">
-                                <span className="min-w-0 truncate">{item}</span>
-                                <span className="shrink-0 text-slate-400 font-mono">p.{(i + 1) * 24}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-
-                        {activeImageIndex === 2 && (
-                          <div className="space-y-2 text-[11px] text-slate-700 leading-relaxed">
-                            <p className="font-bold text-slate-900 uppercase tracking-wide text-[10px]">Unit 1 · Reading Comprehension</p>
-                            <p className="text-justify text-slate-600">
-                              Passage analysis requires keen attention to contextual vocabulary and inference. Practice with diverse passages from scientific discoveries, literature, and social sciences...
-                            </p>
-                            <div className="bg-slate-50 p-2.5 rounded border border-slate-200 font-mono text-[10px] text-slate-700">
-                              Q1. What is the central theme of paragraph 2?
-                              <br />[A] Historical context [B] Analytical critique
-                            </div>
-                          </div>
-                        )}
-
-                        {activeImageIndex >= 3 && (
-                          <div className="space-y-2 text-[11px] text-slate-700">
-                            <p className="font-bold text-slate-900 uppercase tracking-wide text-[10px]">High-Yield Practice MCQs</p>
-                            <div className="space-y-1.5 text-slate-600">
-                              <p>• 4050+ Curated Question Bank with Explanations</p>
-                              <p>• Chapter-wise self-assessment tests</p>
-                              <p>• Verified answers vetted by university professors</p>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="mt-4 pt-2 border-t text-center text-[10px] text-slate-400">
-                        Techno World Books · {publisher}
-                      </div>
                     </div>
                   )}
                   </div>
@@ -1014,10 +1225,18 @@ export default function Product() {
             <div className="rounded-lg border border-stone-200 bg-white p-6 shadow-xs">
               
               {/* Publisher & Imprint Super-title */}
-              <div className="flex items-center justify-between gap-2 mb-1.5">
-                <span className="text-xs font-bold uppercase tracking-wider text-brand-base">
-                  {publisher}
-                </span>
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-brand-base">
+                    {publisher}
+                  </span>
+                  {isSetProduct && (
+                    <span className="inline-flex items-center gap-1 rounded bg-amber-100 border border-amber-300 px-2 py-0.5 text-[10px] font-black text-amber-950 tracking-wide uppercase shadow-2xs">
+                      <Layers className="h-3 w-3 text-amber-700" />
+                      {setDetailsLabel}
+                    </span>
+                  )}
+                </div>
                 <span className="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600 uppercase">
                   {edition}
                 </span>
@@ -1077,6 +1296,15 @@ export default function Product() {
                   <span className="text-3xl font-black text-slate-950 tracking-tight">
                     {formatINR(price)}
                   </span>
+                  {isSetProduct ? (
+                    <span className="text-xs font-bold text-amber-900 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded shadow-2xs">
+                      Price for Complete Set
+                    </span>
+                  ) : (
+                    <span className="text-xs font-medium text-slate-400">
+                      / 1 Unit
+                    </span>
+                  )}
                 </div>
                 <p className="mt-1 text-xs text-slate-500">
                   Inclusive of all taxes · Free delivery on eligible orders above ₹999
@@ -1297,8 +1525,17 @@ export default function Product() {
                     </div>
 
                     <div className="border-b border-slate-100 pb-2">
-                      <span className="text-slate-400 font-medium block">Net Quantity</span>
-                      <span className="font-bold text-slate-800">{1} Unit</span>
+                      <span className="text-slate-400 font-medium block">Packaging & Selling Unit</span>
+                      <span className="font-bold text-slate-800 flex items-center gap-1.5">
+                        {isSetProduct ? (
+                          <>
+                            <Layers className="h-3.5 w-3.5 text-amber-700" />
+                            <span className="text-amber-950 font-bold">{setDetailsLabel}</span>
+                          </>
+                        ) : (
+                          '1 Standard Unit'
+                        )}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -1306,73 +1543,88 @@ export default function Product() {
             </div>
 
 
-            {/* ================= ALL DETAILS / DESCRIPTION ACCORDION ================= */}
-            <div className="rounded-lg border border-stone-200 bg-white shadow-xs overflow-hidden">
-              <button
-                type="button"
-                onClick={() => toggleSection('allDetails')}
-                className="w-full flex items-center justify-between p-5 bg-white hover:bg-slate-50 transition-colors border-b border-slate-100"
-              >
-                <div className="flex items-center gap-2">
-                  <BookOpen className="h-4 w-4 text-emerald-600" />
-                  <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-wide">
-                    All Details (Features & Description)
-                  </h3>
-                </div>
-                {openSections.allDetails ? <ChevronUp className="h-4 w-4 text-slate-400" /> : <ChevronDown className="h-4 w-4 text-slate-400" />}
-              </button>
-
-              {openSections.allDetails && (
-                <div className="p-5 text-xs text-slate-600 leading-relaxed space-y-3">
-                  <p className="text-slate-800 font-medium">
-                    {book.description || (author
-                      ? `A comprehensive academic reference volume on ${book.title} authored by ${author}, prepared in accordance with the latest university and competitive syllabus standards.`
-                      : `An official publication on ${book.title} published by ${publisher}, structured for academic curriculum and examination preparation.`
-                    )}
-                  </p>
-                  
-                  <div className="rounded-xl bg-slate-50 p-4 border border-slate-100 space-y-2">
-                    <p className="font-bold text-slate-900">Key Features of this Edition:</p>
-                    <ul className="list-disc pl-5 space-y-1 text-slate-700">
-                      <li>Strictly updated as per the latest 2026 examination guidelines and syllabus pattern.</li>
-                      <li>Includes chapter-wise theoretical summaries, practice problems, and self-assessment test papers.</li>
-                      <li>Contains previous years solved question papers with comprehensive step-by-step solutions.</li>
-                      <li>Authentic paper and binding quality from {publisher}.</li>
-                    </ul>
+            {/* ================= KEY FEATURES ACCORDION (Dedicated Box from Admin) ================= */}
+            {Boolean(book.shortDescription && book.shortDescription.trim()) && (
+              <div className="rounded-lg border border-blue-200/80 bg-white shadow-xs overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('keyFeatures')}
+                  className="w-full flex items-center justify-between p-5 bg-blue-50/30 hover:bg-blue-50/60 transition-colors border-b border-blue-100"
+                >
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-blue-600" />
+                    <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-wide">
+                      Key Features & Syllabus Breakdown
+                    </h3>
                   </div>
-                </div>
-              )}
-            </div>
+                  {openSections.keyFeatures ? <ChevronUp className="h-4 w-4 text-slate-400" /> : <ChevronDown className="h-4 w-4 text-slate-400" />}
+                </button>
+
+                {openSections.keyFeatures && (
+                  <div className="p-5 text-xs text-slate-700 leading-relaxed bg-white">
+                    {renderBookDescriptionContent(book.shortDescription)}
+                  </div>
+                )}
+              </div>
+            )}
 
 
-            {/* ================= TABLE OF CONTENTS ACCORDION ================= */}
-            <div className="rounded-lg border border-stone-200 bg-white shadow-xs overflow-hidden">
-              <button
-                type="button"
-                onClick={() => toggleSection('toc')}
-                className="w-full flex items-center justify-between p-5 bg-white hover:bg-slate-50 transition-colors border-b border-slate-100"
-              >
-                <div className="flex items-center gap-2">
-                  <Tag className="h-4 w-4 text-blue-600" />
-                  <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-wide">
-                    Table of Contents (Syllabus Coverage)
-                  </h3>
-                </div>
-                {openSections.toc ? <ChevronUp className="h-4 w-4 text-slate-400" /> : <ChevronDown className="h-4 w-4 text-slate-400" />}
-              </button>
+            {/* ================= BOOK DESCRIPTION ACCORDION ================= */}
+            {Boolean(book.description && book.description.trim()) && (
+              <div className="rounded-lg border border-stone-200 bg-white shadow-xs overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('description')}
+                  className="w-full flex items-center justify-between p-5 bg-white hover:bg-slate-50 transition-colors border-b border-slate-100"
+                >
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="h-4 w-4 text-emerald-600" />
+                    <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-wide">
+                      Book Description & Overview
+                    </h3>
+                  </div>
+                  {openSections.description ? <ChevronUp className="h-4 w-4 text-slate-400" /> : <ChevronDown className="h-4 w-4 text-slate-400" />}
+                </button>
 
-              {openSections.toc && (
-                <div className="p-5">
-                  <ol className="list-decimal pl-5 space-y-2 text-xs text-slate-700">
-                    {tocList.map((item: string, i: number) => (
-                      <li key={i} className="font-medium">
-                        {item}
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              )}
-            </div>
+                {openSections.description && (
+                  <div className="p-5 text-xs text-slate-600 leading-relaxed">
+                    {renderBookDescriptionContent(book.description)}
+                  </div>
+                )}
+              </div>
+            )}
+
+
+            {/* ================= TABLE OF CONTENTS ACCORDION (Only if real TOC is present) ================= */}
+            {tocList.length > 0 && (
+              <div className="rounded-lg border border-stone-200 bg-white shadow-xs overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('toc')}
+                  className="w-full flex items-center justify-between p-5 bg-white hover:bg-slate-50 transition-colors border-b border-slate-100"
+                >
+                  <div className="flex items-center gap-2">
+                    <Tag className="h-4 w-4 text-blue-600" />
+                    <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-wide">
+                      Table of Contents (Syllabus Coverage)
+                    </h3>
+                  </div>
+                  {openSections.toc ? <ChevronUp className="h-4 w-4 text-slate-400" /> : <ChevronDown className="h-4 w-4 text-slate-400" />}
+                </button>
+
+                {openSections.toc && (
+                  <div className="p-5">
+                    <ol className="list-decimal pl-5 space-y-2 text-xs text-slate-700">
+                      {tocList.map((item: string, i: number) => (
+                        <li key={i} className="font-medium">
+                          {item}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
+              </div>
+            )}
 
 
             {/* ================= QUESTIONS & ANSWERS ACCORDION ================= */}
@@ -1394,15 +1646,21 @@ export default function Product() {
               {openSections.qa && (
                 <div className="p-5 space-y-4">
                   <div className="space-y-3">
-                    {displayQuestions.map((q: any) => (
-                      <div key={q.id} className="border-b border-slate-100 pb-3 last:border-0">
-                        <p className="text-xs font-bold text-slate-800">Q: {q.question}</p>
-                        <p className="text-xs text-slate-600 mt-1">A: {q.answer || 'Pending answer from editorial team'}</p>
-                        <span className="text-[10px] text-slate-400 mt-1 block font-medium">
-                          {q.answeredBy || 'Techno World Direct · Verified Seller'}
-                        </span>
+                    {displayQuestions.length > 0 ? (
+                      displayQuestions.map((q: any) => (
+                        <div key={q.id} className="border-b border-slate-100 pb-3 last:border-0">
+                          <p className="text-xs font-bold text-slate-800">Q: {q.question}</p>
+                          <p className="text-xs text-slate-600 mt-1">A: {q.answer || 'Pending answer from editorial team'}</p>
+                          <span className="text-[10px] text-slate-400 mt-1 block font-medium">
+                            {q.answeredBy || 'Techno World Direct · Verified Seller'}
+                          </span>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="rounded-lg bg-stone-50 border border-stone-200 p-4 text-xs text-stone-500 italic">
+                        No community questions have been posted for this book yet. Have a question? Ask our academic team below!
                       </div>
-                    ))}
+                    )}
                   </div>
 
                   <div className="rounded-lg bg-stone-50 p-4 border border-stone-200 flex items-center justify-between gap-4">

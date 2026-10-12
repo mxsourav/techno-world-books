@@ -97,7 +97,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => { localStorage.setItem('twb_saved', JSON.stringify(savedForLater)); }, [savedForLater]);
   useEffect(() => { localStorage.setItem('twb_wishlist', JSON.stringify(wishlist)); }, [wishlist]);
   useEffect(() => { localStorage.setItem('twb_orders', JSON.stringify(orders)); }, [orders]);
-  useEffect(() => { localStorage.setItem('twb_user', JSON.stringify(user)); }, [user]);
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('twb_user', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('twb_user');
+    }
+  }, [user]);
   useEffect(() => { localStorage.setItem('twb_addresses', JSON.stringify(addresses)); }, [addresses]);
   useEffect(() => { localStorage.setItem('twb_history', JSON.stringify(searchHistory)); }, [searchHistory]);
   useEffect(() => { localStorage.setItem('twb_recent', JSON.stringify(recentlyViewed)); }, [recentlyViewed]);
@@ -242,7 +248,18 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const login = useCallback((u: User) => {
     setUser(u);
   }, []);
-  const logout = useCallback(() => setUser(null), []);
+  const logout = useCallback(() => {
+    setUser(null);
+    setOrders([]);
+    setAddresses([]);
+    setCoupon(null);
+    localStorage.removeItem('twb_user');
+    localStorage.removeItem('twb_orders');
+    localStorage.removeItem('twb_addresses');
+    localStorage.removeItem('tw_customer_token');
+    localStorage.removeItem('tw_customer_refresh_token');
+    localStorage.removeItem('tw_token');
+  }, []);
 
   const addAddress = useCallback((a: Address) => setAddresses((arr) => [...arr, a]), []);
 

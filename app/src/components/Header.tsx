@@ -488,6 +488,7 @@ export default function Header() {
   const { cart, wishlist, user, logout } = useStore();
   const { logout: authLogout, user: authUser } = useAuthStore();
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const [loginOpen, setLoginOpen] = useState(false);
   const [categories, setCategories] = useState<any[]>(WEBSITE_CATEGORIES);
   const [avatarError, setAvatarError] = useState(false);
@@ -503,7 +504,16 @@ export default function Header() {
     logout();
     authLogout();
     authService.logout().catch(() => {});
+    localStorage.removeItem('tw_customer_token');
+    localStorage.removeItem('tw_customer_refresh_token');
+    localStorage.removeItem('tw_token');
+    localStorage.removeItem('twb_user');
+    localStorage.removeItem('twb_orders');
+    localStorage.removeItem('twb_addresses');
     toast.success('Logged out successfully');
+    if (pathname.startsWith('/profile') || pathname.startsWith('/orders') || pathname.startsWith('/checkout')) {
+      navigate('/', { replace: true });
+    }
   };
 
   useEffect(() => {
@@ -748,7 +758,7 @@ export default function Header() {
               </button>
             )}
             {user && (
-              <button onClick={logout} title="Logout" className="hidden rounded-md p-1.5 hover:bg-brand-base/80 md:block transition-colors cursor-pointer">
+              <button onClick={handleLogout} title="Logout" className="hidden rounded-md p-1.5 hover:bg-brand-base/80 md:block transition-colors cursor-pointer">
                 <LogOut className="h-5 w-5" />
               </button>
             )}

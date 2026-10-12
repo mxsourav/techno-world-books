@@ -318,16 +318,48 @@ export default function Profile() {
   };
 
   const handleLogout = () => {
+    setProfileData(null);
+    setUserOrders([]);
+    setUserNotifs([]);
+    setAddresses([]);
+    setPaymentMethods([]);
+    setPointsData(null);
+    setName('');
+    setPhone('');
+    setAvatarUrl('');
     authLogout();
     storeLogout();
+    localStorage.removeItem('tw_customer_token');
+    localStorage.removeItem('tw_customer_refresh_token');
+    localStorage.removeItem('tw_token');
+    localStorage.removeItem('twb_user');
+    localStorage.removeItem('twb_orders');
+    localStorage.removeItem('twb_addresses');
+    sessionStorage.clear();
     authService.logout().catch(() => {});
     toast.success('Signed out successfully');
-    navigate('/');
+    navigate('/', { replace: true });
   };
 
+  // Sync state if logged out externally
+  useEffect(() => {
+    const hasAnyToken = !!(accessToken || storeUser || localStorage.getItem('tw_customer_token') || localStorage.getItem('tw_token'));
+    if (!hasAnyToken && profileData) {
+      setProfileData(null);
+      setUserOrders([]);
+      setUserNotifs([]);
+      setAddresses([]);
+      setPaymentMethods([]);
+      setPointsData(null);
+      setName('');
+      setPhone('');
+      setAvatarUrl('');
+    }
+  }, [accessToken, storeUser, profileData]);
+
   // If not logged in, prompt user to log in via Developer Google OAuth Bypass
-  // Check BOTH profileData (from API) AND storeUser/accessToken (from login state)
-  const isLoggedIn = !!(profileData || storeUser || accessToken);
+  const hasToken = !!(accessToken || storeUser || localStorage.getItem('tw_customer_token') || localStorage.getItem('tw_token'));
+  const isLoggedIn = !!(hasToken && (profileData || storeUser));
 
   if (!loading && !isLoggedIn) {
     return (
