@@ -182,21 +182,17 @@ export default function Checkout() {
   // 15% Subtotal margin guardrail for TechnoPoints (coins)
   // Max coins allowed is 15% of book subtotal, up to user's point balance
   // TechnoWallet cash remains 100% usable with 0 restrictions
-  const cartSubtotal = useMemo(() => {
-    return (cart || []).reduce((acc: number, item: any) => {
-      const price = Number(item.price || item.unitPrice || (item as any).book?.price || 0);
-      const qty = Number(item.qty || (item as any).quantity || 1);
-      return acc + (price * qty);
-    }, 0);
-  }, [cart]);
+  void cart;
 
-  const maxAllowedPoints = Math.min(availablePoints, Math.floor(cartSubtotal * 0.15));
+  const parsedPointsInput = customPoints.trim() === ''
+    ? (usePoints ? availablePoints : 0)
+    : Math.max(0, parseInt(customPoints, 10) || 0);
+  const requestedPoints = usePoints ? Math.min(parsedPointsInput, availablePoints) : 0;
 
-  const parsedPointsInput = customPoints.trim() === '' ? (usePoints ? maxAllowedPoints : 0) : Math.max(0, parseInt(customPoints, 10) || 0);
-  const effectivePointsUsed = usePoints ? Math.min(parsedPointsInput, maxAllowedPoints) : 0;
-
-  const parsedWalletInput = customWallet.trim() === '' ? (useWallet ? availableWallet : 0) : Math.max(0, parseFloat(customWallet) || 0);
-  const effectiveWalletUsed = useWallet ? Math.min(parsedWalletInput, availableWallet) : 0;
+  const parsedWalletInput = customWallet.trim() === ''
+    ? (useWallet ? availableWallet : 0)
+    : Math.max(0, parseFloat(customWallet) || 0);
+  const requestedWallet = useWallet ? Math.min(parsedWalletInput, availableWallet) : 0;
 
   const {
     items,
@@ -215,6 +211,7 @@ export default function Checkout() {
     discount,
     pointsUsed,
     pointsDiscount,
+    maxPointsAllowed: backendMaxPoints,
     walletDiscount,
     userPointsBalance,
     userWalletBalance,
@@ -231,17 +228,30 @@ export default function Checkout() {
     effectivePricingAddress,
     effectiveShippingMethod,
     payment,
-    effectivePointsUsed,
-    effectiveWalletUsed
+    requestedPoints,
+    requestedWallet
   );
+
+  const maxAllowedPoints = useMemo(() => {
+    if (backendMaxPoints !== undefined && backendMaxPoints >= 0) {
+      return Math.min(availablePoints, backendMaxPoints);
+    }
+    if (subtotal > 0) {
+      return Math.min(availablePoints, Math.floor(subtotal * 0.15));
+    }
+    return availablePoints;
+  }, [backendMaxPoints, availablePoints, subtotal]);
+
+  const effectivePointsUsed = pointsUsed || (usePoints ? Math.min(requestedPoints, maxAllowedPoints) : 0);
+  const effectiveWalletUsed = requestedWallet;
 
   useEffect(() => {
     const pts = Number(userPointsBalance);
     const wal = Number(userWalletBalance);
-    if (!isNaN(pts) && pts > availablePoints) {
+    if (!isNaN(pts) && pts !== availablePoints) {
       setAvailablePoints(pts);
     }
-    if (!isNaN(wal) && wal > availableWallet) {
+    if (!isNaN(wal) && wal !== availableWallet) {
       setAvailableWallet(wal);
     }
   }, [userPointsBalance, userWalletBalance, availablePoints, availableWallet]);
@@ -1569,7 +1579,7 @@ export default function Checkout() {
                       <input
                         type="checkbox"
                         checked={usePoints}
-                        disabled={maxAllowedPoints <= 0}
+                        disabled={availablePoints <= 0}
                         onChange={(e) => {
                           const checked = e.target.checked;
                           setUsePoints(checked);
@@ -1588,7 +1598,9 @@ export default function Checkout() {
                             {availablePoints} pts
                           </span>
                         </div>
-                        <p className="text-[10px] text-stone-500 mt-0.5">1 Point = ₹1.00 instant discount</p>
+                        <p className="text-[10px] text-stone-500 mt-0.5">
+                          1 Point = ₹1.00 instant discount {maxAllowedPoints > 0 ? `· Max ${maxAllowedPoints} pts (15% book cap)` : ''}
+                        </p>
                       </div>
                     </label>
 
