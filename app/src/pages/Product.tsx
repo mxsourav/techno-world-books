@@ -20,11 +20,7 @@ import { RecentlyViewedCarousel } from '@/components/RecentlyViewedCarousel';
 
 function renderBookDescriptionContent(text: string | null | undefined) {
   if (!text || !text.trim()) {
-    return (
-      <div className="rounded-lg bg-stone-50 border border-stone-200 p-4 text-xs text-stone-500 italic">
-        No extended description has been added for this title yet. Please refer to product specifications and book attributes above.
-      </div>
-    );
+    return null;
   }
 
   const lines = text.split('\n');
@@ -1009,9 +1005,7 @@ export default function Product() {
                 {/* Main Active Preview Canvas */}
                 <div
                   ref={imageCanvasRef}
-                  className={`order-1 relative flex h-[370px] min-w-0 w-full items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-slate-50/80 p-3 select-none sm:order-2 sm:h-[450px] ${
-                    galleryItems.length > 1 ? 'px-10 sm:px-12' : 'px-4 sm:px-6'
-                  }`}
+                  className="order-1 relative flex h-[370px] min-w-0 w-full items-center justify-center overflow-hidden rounded-xl border border-stone-200/90 bg-white select-none sm:order-2 sm:h-[450px] shadow-xs"
                   onTouchStart={handleGalleryTouchStart}
                   onTouchEnd={handleGalleryTouchEnd}
                 >
@@ -1023,7 +1017,7 @@ export default function Product() {
                         onClick={() => moveGallery(-1)}
                         aria-label="Previous product preview"
                         title="Previous Image"
-                        className="absolute left-2 sm:left-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200/90 bg-white/95 text-slate-700 shadow-lg backdrop-blur-xs transition-all hover:bg-white hover:text-brand-base hover:scale-105 active:scale-95 cursor-pointer"
+                        className="absolute left-2.5 sm:left-3 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-stone-200 bg-white/95 text-stone-700 shadow-md backdrop-blur-xs transition-all hover:bg-white hover:text-brand-base hover:scale-105 active:scale-95 cursor-pointer"
                       >
                         <ChevronLeft className="h-6 w-6 stroke-[2.5]" />
                       </button>
@@ -1032,7 +1026,7 @@ export default function Product() {
                         onClick={() => moveGallery(1)}
                         aria-label="Next product preview"
                         title="Next Image"
-                        className="absolute right-2 sm:right-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200/90 bg-white/95 text-slate-700 shadow-lg backdrop-blur-xs transition-all hover:bg-white hover:text-brand-base hover:scale-105 active:scale-95 cursor-pointer"
+                        className="absolute right-2.5 sm:right-3 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-stone-200 bg-white/95 text-stone-700 shadow-md backdrop-blur-xs transition-all hover:bg-white hover:text-brand-base hover:scale-105 active:scale-95 cursor-pointer"
                       >
                         <ChevronRight className="h-6 w-6 stroke-[2.5]" />
                       </button>
@@ -1040,7 +1034,7 @@ export default function Product() {
                   )}
                   
                   {/* Floating Action Buttons: Wishlist & Share */}
-                  <div className="absolute right-3 top-3 z-20 flex flex-col gap-2">
+                  <div className="absolute right-3 top-3 z-30 flex flex-col gap-2">
                     <button
                       type="button"
                       onClick={() => toggleWishlist(book.id)}
@@ -1054,7 +1048,7 @@ export default function Product() {
                     <button
                       type="button"
                       onClick={handleShare}
-                      className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-white shadow-md border border-slate-100 text-slate-500 hover:text-brand-base transition-transform active:scale-95"
+                      className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-white shadow-md border border-slate-100 text-slate-500 hover:text-brand-base transition-transform active:scale-95 cursor-pointer"
                       title="Share book link"
                     >
                       <Share2 className="h-4 w-4" />
@@ -1073,28 +1067,32 @@ export default function Product() {
                     </button>
                   </div>
 
-                  {/* Hover / Pinch Zoom indicator */}
-                  <div className="absolute left-3 bottom-3 z-20 flex items-center gap-1.5 pointer-events-auto">
+                  {/* Top-Left Zoom indicator: positioned away from bottom dots to eliminate UI overlap */}
+                  <div className="absolute left-3 top-3 z-30 flex items-center gap-1.5 pointer-events-auto">
                     {pinchScale > 1.05 ? (
                       <button
                         type="button"
                         onClick={() => setPinchScale(1)}
-                        className="flex items-center gap-1 rounded-full bg-slate-900/85 px-2.5 py-1 text-[11px] font-bold text-white shadow-md backdrop-blur-xs hover:bg-slate-900 active:scale-95 transition-all"
+                        className="flex items-center gap-1 rounded-full bg-slate-900/90 px-2.5 py-1 text-[11px] font-bold text-white shadow-md backdrop-blur-xs hover:bg-slate-900 active:scale-95 transition-all cursor-pointer"
                       >
                         <RotateCcw className="h-3 w-3" />
                         <span>Reset Zoom ({Math.round(pinchScale * 100)}%)</span>
                       </button>
                     ) : (
-                      <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-white/80 border border-slate-200/80 px-2 py-0.5 text-[10px] font-semibold text-slate-500 shadow-2xs backdrop-blur-xs pointer-events-none">
-                        <ZoomIn className="h-3 w-3 text-slate-400" />
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full bg-white/90 border border-stone-200/90 px-2.5 py-1 text-[10px] font-semibold text-stone-600 shadow-xs backdrop-blur-xs pointer-events-none transition-opacity duration-150 ${
+                          isHoverZooming ? 'opacity-0' : 'opacity-100'
+                        }`}
+                      >
+                        <ZoomIn className="h-3 w-3 text-stone-400" />
                         <span>Hover to zoom · 2 fingers on phone</span>
                       </span>
                     )}
                   </div>
 
-                  {/* Dots indicator for gallery slides */}
+                  {/* Dots indicator for gallery slides: centered at bottom */}
                   {galleryItems.length > 1 && (
-                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 bg-black/25 backdrop-blur-xs px-2 py-1 rounded-full pointer-events-auto">
+                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5 bg-black/35 backdrop-blur-xs px-2.5 py-1.5 rounded-full pointer-events-auto shadow-xs">
                       {galleryItems.map((_, dotIdx) => (
                         <button
                           key={dotIdx}
@@ -1124,29 +1122,48 @@ export default function Product() {
                     </div>
                   ) : galleryItems[activeImageIndex]?.imageUrl ? (
                     <div
-                      className="relative h-[310px] sm:h-[375px] w-auto max-w-full aspect-[3/4.2] flex items-center justify-center mx-auto overflow-hidden rounded-lg cursor-zoom-in"
+                      className="relative flex h-full w-full items-center justify-center overflow-hidden cursor-zoom-in"
                       onMouseMove={handleMouseMoveZoom}
                       onMouseLeave={handleMouseLeaveZoom}
                     >
-                      <img
-                        src={getImageUrl(galleryItems[activeImageIndex].imageUrl)}
-                        alt={galleryItems[activeImageIndex].title}
-                        style={{
-                          transformOrigin: `${hoverOrigin.x}% ${hoverOrigin.y}%`,
-                          transform: isHoverZooming
-                            ? 'scale(2.2)'
-                            : (pinchScale > 1 ? `scale(${pinchScale})` : 'scale(1)'),
-                          transition: isHoverZooming ? 'transform 0.08s ease-out' : 'transform 0.25s ease-out',
-                          touchAction: 'none',
-                        }}
-                        className="h-full w-auto max-w-full object-contain rounded-lg shadow-sm select-none pointer-events-auto"
-                        loading="eager"
-                        draggable={false}
-                      />
+                      {/* Normal Centered Image View (when not hover zooming) */}
+                      <div
+                        className={`flex h-full w-full items-center justify-center p-6 sm:p-8 transition-opacity duration-150 ${
+                          isHoverZooming ? 'opacity-0' : 'opacity-100'
+                        }`}
+                      >
+                        <img
+                          src={getImageUrl(galleryItems[activeImageIndex].imageUrl)}
+                          alt={galleryItems[activeImageIndex].title}
+                          style={{
+                            transform: pinchScale > 1 ? `scale(${pinchScale})` : undefined,
+                            transition: pinchScale > 1 ? 'transform 0.1s ease-out' : undefined,
+                            touchAction: 'none',
+                          }}
+                          className="max-h-full max-w-full w-auto h-auto object-contain rounded-lg drop-shadow-md select-none pointer-events-auto"
+                          loading="eager"
+                          draggable={false}
+                        />
+                      </div>
+
+                      {/* Full-Section Magnified Zoom Layer: totally fills the square section edge-to-edge */}
+                      {isHoverZooming && (
+                        <div
+                          className="absolute inset-0 z-10 h-full w-full overflow-hidden pointer-events-none rounded-xl bg-white"
+                          style={{
+                            backgroundImage: `url("${getImageUrl(galleryItems[activeImageIndex].imageUrl)}")`,
+                            backgroundRepeat: 'no-repeat',
+                            backgroundSize: '240% auto',
+                            backgroundPosition: `${hoverOrigin.x}% ${hoverOrigin.y}%`,
+                          }}
+                        />
+                      )}
                     </div>
                   ) : (
-                    <div className="h-[310px] sm:h-[375px] w-auto max-w-full aspect-[3/4.2] drop-shadow-xl transition-all duration-300 flex items-center justify-center mx-auto">
-                      <BookCover book={book} className="w-full h-full text-base sm:text-xl drop-shadow-md" />
+                    <div className="flex h-full w-full items-center justify-center p-6 sm:p-8">
+                      <div className="h-[310px] sm:h-[375px] w-auto max-w-full aspect-[3/4.2] drop-shadow-xl transition-all duration-300 flex items-center justify-center mx-auto">
+                        <BookCover book={book} className="w-full h-full text-base sm:text-xl drop-shadow-md" />
+                      </div>
                     </div>
                   )}
                   </div>
