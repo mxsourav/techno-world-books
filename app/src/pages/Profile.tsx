@@ -34,15 +34,12 @@ import { ExpandableOrderCard } from '@/components/orders/ExpandableOrderCard';
 import { toast } from 'sonner';
 import { GoogleSignInButton } from '@/components/GoogleSignInButton';
 import SEOHead from '@/components/SEOHead';
-import IndiaPostBatchExporterModal from '@/components/admin/IndiaPostBatchExporterModal';
+import { DeveloperFeedbackBanner } from '@/components/common/DeveloperFeedbackBanner';
 
 export default function Profile() {
   const { logout: authLogout, accessToken } = useAuthStore();
   const { logout: storeLogout, user: storeUser } = useStore();
   const navigate = useNavigate();
-
-  // India Post Dispatch Batch State
-  const [isIndiaPostModalOpen, setIsIndiaPostModalOpen] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [profileData, setProfileData] = useState<any>(null);
@@ -515,6 +512,11 @@ export default function Profile() {
           </div>
         </div>
 
+        {/* Bug Bounty & Developer Feedback Banner (Static Crowdsourced QA) */}
+        <div className="mb-6">
+          <DeveloperFeedbackBanner />
+        </div>
+
         {/* 2-Column Dashboard Layout (Desktop) */}
         <div className="lg:grid lg:grid-cols-12 lg:gap-8 items-start">
           
@@ -657,24 +659,14 @@ export default function Profile() {
                   </h2>
                   <p className="text-xs text-stone-500 mt-0.5">Track your orders, view delivery progress, and check real-time shipment updates.</p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setIsIndiaPostModalOpen(true)}
-                    className="rounded-md border border-stone-800 bg-stone-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-stone-800 transition-colors flex items-center gap-1.5 shadow-2xs"
-                    title="Export daily batch for India Post CEPT Bulk Booking"
-                  >
-                    <Truck className="h-3.5 w-3.5 text-emerald-400" />
-                    <span>India Post Dispatch</span>
-                  </button>
-                  <button
-                    onClick={fetchUserOrders}
-                    disabled={isLoadingOrders}
-                    className="rounded-md border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors flex items-center gap-1.5 disabled:opacity-50"
-                  >
-                    {isLoadingOrders ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Clock className="h-3.5 w-3.5" />}
-                    <span>Refresh</span>
-                  </button>
-                </div>
+                <button
+                  onClick={fetchUserOrders}
+                  disabled={isLoadingOrders}
+                  className="rounded-md border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                >
+                  {isLoadingOrders ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Clock className="h-3.5 w-3.5" />}
+                  <span>Refresh</span>
+                </button>
               </div>
 
               {userOrders.length === 0 ? (
@@ -1632,13 +1624,6 @@ export default function Profile() {
           </div>
         </div>
       )}
-
-      {/* India Post Dispatch Batch Exporter Modal */}
-      <IndiaPostBatchExporterModal
-        isOpen={isIndiaPostModalOpen}
-        onClose={() => setIsIndiaPostModalOpen(false)}
-        orders={userOrders}
-      />
     </div>
   );
 }

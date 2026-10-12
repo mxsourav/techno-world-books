@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
-import { Package, HelpCircle, MessageSquare, Phone, Mail, X, Truck } from 'lucide-react';
+import { Package, HelpCircle, MessageSquare, Phone, Mail, X } from 'lucide-react';
 import { orderService } from '@/services/api';
 import { downloadOrderInvoice } from '@/utils/generateInvoice';
 import { toast } from 'sonner';
 import { useStore } from '@/store/StoreContext';
 import SEOHead from '@/components/SEOHead';
 import { ExpandableOrderCard } from '@/components/orders/ExpandableOrderCard';
-import IndiaPostBatchExporterModal from '@/components/admin/IndiaPostBatchExporterModal';
 
 export default function MyOrders() {
   const { user } = useStore();
@@ -15,7 +14,6 @@ export default function MyOrders() {
   const [loading, setLoading] = useState(true);
   const [downloadingInvoiceId, setDownloadingInvoiceId] = useState<string | null>(null);
   const [helpOrderModal, setHelpOrderModal] = useState<any | null>(null);
-  const [isIndiaPostModalOpen, setIsIndiaPostModalOpen] = useState(false);
 
   const loadOrders = async () => {
     try {
@@ -43,19 +41,7 @@ export default function MyOrders() {
         description="View your order history and track deliveries."
         noIndex={true}
       />
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="font-serif text-2xl font-bold text-stone-900 tracking-tight">My Orders</h1>
-        {orders.length > 0 && (
-          <button
-            onClick={() => setIsIndiaPostModalOpen(true)}
-            className="rounded-md border border-stone-800 bg-stone-900 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-stone-800 transition-colors flex items-center gap-1.5 shadow-2xs cursor-pointer"
-            title="Export daily batch for India Post CEPT Bulk Booking"
-          >
-            <Truck className="h-3.5 w-3.5 text-emerald-400" />
-            <span>India Post Dispatch</span>
-          </button>
-        )}
-      </div>
+      <h1 className="font-serif text-2xl font-bold text-stone-900 tracking-tight mb-6">My Orders</h1>
       
       {orders.length === 0 ? (
         <div className="bg-white border border-stone-200 rounded-lg p-12 text-center shadow-xs">
@@ -187,13 +173,6 @@ export default function MyOrders() {
           </div>
         </div>
       )}
-
-      {/* India Post Dispatch Batch Exporter Modal */}
-      <IndiaPostBatchExporterModal
-        isOpen={isIndiaPostModalOpen}
-        onClose={() => setIsIndiaPostModalOpen(false)}
-        orders={orders}
-      />
     </div>
   );
 }

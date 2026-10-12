@@ -70,9 +70,9 @@ export default function Cart() {
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
         <div className="space-y-4">
           {items.map((i: any) => (
-            <div key={i.bookId} className="flex gap-4 rounded-lg border border-stone-200 bg-white p-4 shadow-xs">
-              <Link to={`/book/${i.slug}`} className="w-20 shrink-0 sm:w-24">
-                <BookCover book={{ coverUrl: i.coverUrl, title: i.title } as Book} className="text-[9px]" />
+            <div key={i.bookId} className="flex items-start gap-4 rounded-lg border border-stone-200 bg-white p-4 shadow-xs min-h-[136px]">
+              <Link to={`/book/${i.slug}`} className="w-18 shrink-0 sm:w-20 self-start block">
+                <BookCover book={{ coverUrl: i.coverUrl, title: i.title } as Book} className="text-[8px] shadow-sm" />
               </Link>
               <div className="min-w-0 flex-1">
                 <Link to={`/book/${i.slug}`} className="line-clamp-2 text-sm font-semibold text-stone-900 hover:text-brand-base transition-colors">{i.title}</Link>

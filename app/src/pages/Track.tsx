@@ -91,19 +91,38 @@ export default function Track() {
     };
   }, [lookup]);
 
-  const activeIdx = localOrder
-    ? DEFAULT_STEPS.findIndex((s) => s.key === localOrder.status)
-    : liveTracking?.tracking?.del_status?.del_status === 'delivered'
-    ? 4
-    : liveTracking?.tracking?.del_status?.del_status === 'out_for_delivery'
-    ? 3
-    : liveTracking?.tracking?.tracking_details?.length > 1
-    ? 2
-    : 1;
-
   const trackingDetails = liveTracking?.tracking?.tracking_details || [];
   const bookingDetails = liveTracking?.tracking?.booking_details;
   const matchedOrder = liveTracking?.order || localOrder;
+
+  // Robust status resolution from matchedOrder, localOrder, or India Post live tracking
+  const rawStatus = String(
+    matchedOrder?.status ||
+    localOrder?.status ||
+    liveTracking?.tracking?.del_status?.del_status ||
+    ''
+  ).toUpperCase();
+
+  let activeIdx = 0;
+  if (rawStatus.includes('DELIVER')) {
+    activeIdx = 4;
+  } else if (rawStatus.includes('OUT') || rawStatus.includes('POSTMAN')) {
+    activeIdx = 3;
+  } else if (rawStatus.includes('SHIP') || rawStatus.includes('DISPATCH') || rawStatus.includes('TRANSIT')) {
+    activeIdx = 2;
+  } else if (rawStatus.includes('PACK') || rawStatus.includes('PROCESS')) {
+    activeIdx = 1;
+  } else if (rawStatus.includes('PLACED') || rawStatus.includes('CONFIRM')) {
+    activeIdx = 0;
+  } else if (liveTracking?.tracking?.del_status?.del_status === 'delivered') {
+    activeIdx = 4;
+  } else if (liveTracking?.tracking?.del_status?.del_status === 'out_for_delivery') {
+    activeIdx = 3;
+  } else if (trackingDetails.length > 1) {
+    activeIdx = 2;
+  } else if (matchedOrder) {
+    activeIdx = 1;
+  }
 
   // Determine the nature of a "not found" result
   const lookupTrimmed = lookup.trim();

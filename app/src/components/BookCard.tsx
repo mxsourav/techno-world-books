@@ -53,7 +53,7 @@ export function BookCard({ book }: { book: Book }) {
             )}
           </div>
           <div className="mt-1 flex items-center gap-1.5">
-            <span className="flex items-center gap-0.5 rounded bg-brand-base px-1.5 py-0.5 text-[11px] font-bold text-white">
+            <span className="flex items-center gap-0.5 rounded bg-emerald-600 px-1.5 py-0.5 text-[11px] font-bold text-white">
               {book.rating} <Star className="h-2.5 w-2.5 fill-white" />
             </span>
             <span className="text-[11px] text-slate-400">({book.ratingsCount.toLocaleString('en-IN')})</span>

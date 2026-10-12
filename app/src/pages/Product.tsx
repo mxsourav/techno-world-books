@@ -1470,7 +1470,7 @@ export default function Product() {
                               <Star className="h-2.5 w-2.5 fill-current text-[#D4A017]" />
                             </span>
                             <div className="h-2 flex-1 rounded-full bg-stone-100 overflow-hidden">
-                              <div className="h-full bg-brand-base rounded-full" style={{ width: `${r.pct}%` }} />
+                              <div className="h-full bg-emerald-600 rounded-full" style={{ width: `${r.pct}%` }} />
                             </div>
                             <span className="w-8 text-right text-stone-400 text-[10px]">{r.pct}%</span>
                           </div>

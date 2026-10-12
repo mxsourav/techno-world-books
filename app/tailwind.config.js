@@ -40,20 +40,6 @@ module.exports = {
           base: 'var(--brand-base, #07101F)',
           light: 'var(--brand-light, #152e59)',
         },
-        // Remap legacy emerald utility classes to dynamic brand variables
-        emerald: {
-          50: 'var(--brand-50, #f0f5fb)',
-          100: 'var(--brand-100, #e2ebf7)',
-          200: 'var(--brand-200, #c6d7f0)',
-          300: 'var(--brand-300, #9fbfe3)',
-          400: 'var(--brand-400, #6c9fd1)',
-          500: 'var(--brand-500, #4682bf)',
-          600: 'var(--brand-600, #3169a5)',
-          700: 'var(--brand-700, #225185)',
-          800: 'var(--brand-base, #07101F)',
-          900: 'var(--brand-dark, #07101F)',
-          950: 'var(--brand-pitch, #030810)',
-        },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
