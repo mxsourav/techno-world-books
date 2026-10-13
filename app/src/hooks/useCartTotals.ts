@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useStore } from '@/store/StoreContext';
 import { pricingService } from '@/services/api';
 
@@ -114,7 +114,9 @@ export function useCartTotals(
       }
     }
 
-    const timeout = setTimeout(loadPricing, 400);
+    // Fire immediately on initial load; debounce rapid quantity taps by 150ms
+    const delay = pricingRef.current ? 150 : 0;
+    const timeout = setTimeout(loadPricing, delay);
     return () => {
       active = false;
       clearTimeout(timeout);
@@ -124,19 +126,97 @@ export function useCartTotals(
   const rawPromoCode = pricing?.promotionCode || pricing?.couponCode || null;
   const promoError = pricing?.promotionError || pricing?.couponError || null;
   const discount = Number(pricing?.promotionDiscount ?? pricing?.couponDiscount ?? 0);
+  const pointsDiscount = Number(pricing?.pointsDiscount || 0);
+  const walletDiscount = Number(pricing?.walletDiscount || 0);
+
+  // Instant optimistic items & totals derived synchronously from live `cart` state
+  const optimistic = useMemo(() => {
+    const rawItems: any[] = pricing?.items || [];
+    if (!cart || cart.length === 0) {
+      return {
+        items: [],
+        subtotal: 0,
+        mrpTotal: 0,
+        shipping: 0,
+        baseTotal: 0,
+      };
+    }
+
+    const cartMap = new Map<string, number>();
+    for (const c of cart) {
+      const id = c.bookId || (c as any).id;
+      if (id) cartMap.set(String(id), Number(c.qty || (c as any).quantity || 1));
+    }
+
+    let isOutOfSync = rawItems.length !== cartMap.size;
+    const mappedItems: any[] = [];
+
+    for (const pItem of rawItems) {
+      const liveQty = cartMap.get(String(pItem.bookId));
+      if (liveQty === undefined) {
+        isOutOfSync = true;
+        continue; // Item was removed or saved for later — hide immediately
+      }
+      const serverQty = Number(pItem.quantity || 1);
+      if (liveQty !== serverQty) {
+        isOutOfSync = true;
+        const unitPrice = Number(
+          pItem.unitPrice ?? pItem.price ?? (serverQty > 0 ? Number(pItem.totalPrice || 0) / serverQty : 0)
+        );
+        const unitMrp = Number(
+          pItem.unitMrp ?? pItem.mrp ?? (serverQty > 0 ? Number(pItem.totalMrp || 0) / serverQty : unitPrice)
+        );
+        mappedItems.push({
+          ...pItem,
+          quantity: liveQty,
+          totalPrice: Math.round(unitPrice * liveQty * 100) / 100,
+          totalMrp: Math.round(unitMrp * liveQty * 100) / 100,
+        });
+      } else {
+        mappedItems.push(pItem);
+      }
+    }
+
+    if (!isOutOfSync) {
+      return {
+        items: rawItems,
+        subtotal: Number(pricing?.subtotal || 0),
+        mrpTotal: Number(pricing?.mrpTotal || 0),
+        shipping: Number(pricing?.shippingCharge || 0),
+        baseTotal: Number(pricing?.totalAmount || 0),
+      };
+    }
+
+    const optSubtotal = Math.round(mappedItems.reduce((sum, i) => sum + Number(i.totalPrice || 0), 0) * 100) / 100;
+    const optMrpTotal = Math.round(mappedItems.reduce((sum, i) => sum + Number(i.totalMrp || 0), 0) * 100) / 100;
+    const serverShipping = Number(pricing?.shippingCharge || 0);
+    const serverCod = Number(pricing?.codFee || 0);
+    const optBaseTotal = Math.max(
+      0,
+      Math.round((optSubtotal - discount - pointsDiscount - walletDiscount + serverShipping + serverCod) * 100) / 100
+    );
+
+    return {
+      items: mappedItems,
+      subtotal: optSubtotal,
+      mrpTotal: optMrpTotal,
+      shipping: serverShipping,
+      baseTotal: optBaseTotal,
+    };
+  }, [cart, pricing, discount, pointsDiscount, walletDiscount]);
 
   const effectiveCodFee = paymentMethod === 'cod' ? Number(pricing?.codFee || 20) : 0;
-  const baseTotal = Number(pricing?.totalAmount || 0);
+  const baseTotal = optimistic.baseTotal;
   const pricingHadCod = Number(pricing?.codFee || 0) > 0;
   const effectiveTotal = (paymentMethod === 'cod' && !pricingHadCod && baseTotal > 0)
     ? Number((Number(baseTotal || 0) + 20).toFixed(2))
     : Number(baseTotal || 0);
 
   return { 
-    items: pricing?.items || [], 
-    subtotal: pricing?.subtotal || 0, 
-    mrpTotal: pricing?.mrpTotal || 0, 
-    shipping: pricing?.shippingCharge || 0, 
+    items: optimistic.items, 
+    subtotal: optimistic.subtotal, 
+    mrpTotal: optimistic.mrpTotal, 
+    shipping: optimistic.shipping, 
     codFee: effectiveCodFee,
     isShippingCalculated: Boolean(pricing?.isShippingCalculated),
     isExpressEligible: Boolean(pricing?.isExpressEligible),
@@ -151,10 +231,10 @@ export function useCartTotals(
     parentShippingCharge: pricing?.parentShippingCharge || 0,
     discount, 
     pointsUsed: Number(pricing?.pointsUsed || 0),
-    pointsDiscount: Number(pricing?.pointsDiscount || 0),
+    pointsDiscount,
     maxPointsAllowed: pricing?.maxPointsAllowed !== undefined ? Number(pricing.maxPointsAllowed) : undefined,
     walletUsed: Number(pricing?.walletUsed || 0),
-    walletDiscount: Number(pricing?.walletDiscount || 0),
+    walletDiscount,
     userPointsBalance: pricing?.userPointsBalance !== undefined ? Number(pricing.userPointsBalance) : undefined,
     userWalletBalance: pricing?.userWalletBalance !== undefined ? Number(pricing.userWalletBalance) : undefined,
     total: effectiveTotal, 

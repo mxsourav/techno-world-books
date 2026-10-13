@@ -188,13 +188,21 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const updateDebounceRef = useRef<Record<string, any>>({});
+
   const setQty = useCallback((bookId: string, qty: number) => {
     if (qty < 1) return;
     const capped = Math.min(qty, 10);
     setCart((c) => c.map((i) => (i.bookId === bookId ? { ...i, qty: capped } : i)));
     const token = localStorage.getItem('tw_customer_token') || localStorage.getItem('tw_token');
     if (token) {
-      cartService.updateItem(bookId, capped).catch(() => {});
+      if (updateDebounceRef.current[bookId]) {
+        clearTimeout(updateDebounceRef.current[bookId]);
+      }
+      updateDebounceRef.current[bookId] = setTimeout(() => {
+        cartService.updateItem(bookId, capped).catch(() => {});
+        delete updateDebounceRef.current[bookId];
+      }, 300);
     }
   }, []);
 
