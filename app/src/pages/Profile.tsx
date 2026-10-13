@@ -35,6 +35,7 @@ import { toast } from 'sonner';
 import { GoogleSignInButton } from '@/components/GoogleSignInButton';
 import SEOHead from '@/components/SEOHead';
 import { DeveloperFeedbackBanner } from '@/components/common/DeveloperFeedbackBanner';
+import { UserAvatar } from '@/components/UserAvatar';
 
 export default function Profile() {
   const { logout: authLogout, accessToken } = useAuthStore();
@@ -54,8 +55,6 @@ export default function Profile() {
   // Edit Profile State
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState('');
-  const [avatarError, setAvatarError] = useState(false);
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
 
   // Address Modals & State
@@ -122,8 +121,6 @@ export default function Profile() {
         setProfileData(res.data);
         setName(res.data.name || '');
         setPhone(res.data.phone || '');
-        setAvatarUrl(res.data.avatarUrl || '');
-        setAvatarError(false);
         setAddresses(res.data.addresses || []);
         setPaymentMethods(res.data.savedPaymentMethods || []);
       }
@@ -214,12 +211,10 @@ export default function Profile() {
       const res = await profileService.updateProfile({
         name,
         phone: phone || null,
-        avatarUrl: avatarUrl.trim() ? avatarUrl.trim() : null,
       });
       if (res.success) {
         toast.success('Profile updated successfully!');
         setProfileData((prev: any) => ({ ...prev, ...res.data }));
-        setAvatarError(false);
       }
     } catch (err: any) {
       toast.error(err.message || 'Failed to update profile');
@@ -326,7 +321,6 @@ export default function Profile() {
     setPointsData(null);
     setName('');
     setPhone('');
-    setAvatarUrl('');
     authLogout();
     storeLogout();
     localStorage.removeItem('tw_customer_token');
@@ -353,7 +347,6 @@ export default function Profile() {
       setPointsData(null);
       setName('');
       setPhone('');
-      setAvatarUrl('');
     }
   }, [accessToken, storeUser, profileData]);
 
@@ -439,21 +432,6 @@ export default function Profile() {
   const technoWallet = Number(profileData?.technoWallet ?? pointsData?.technoWallet ?? 0);
   const displayName = profileData?.name || storeUser?.name || (profileData?.email ? profileData.email.split('@')[0] : 'Reader');
 
-  const hasCustomAvatar = Boolean(
-    profileData?.avatarUrl &&
-    !profileData.avatarUrl.includes('unsplash') &&
-    !avatarError
-  );
-  const avatarInitial = (displayName || storeUser?.name || storeUser?.email || 'Reader').trim().charAt(0).toUpperCase() || 'U';
-  
-  // Clean Gmail-style Google avatar palette
-  const getGmailAvatarBg = (name: string) => {
-    const bgList = ['bg-[#1a73e8]', 'bg-[#188038]', 'bg-[#d93025]', 'bg-[#e37400]', 'bg-[#8430ce]', 'bg-[#129eaf]', 'bg-[#475569]'];
-    const code = (name || 'U').charCodeAt(0);
-    return bgList[code % bgList.length];
-  };
-  const gmailBgClass = getGmailAvatarBg(displayName);
-
   const navigationTabs = [
     { id: 'orders', label: 'My Orders', count: userOrders.length, icon: ShoppingCart },
     { id: 'notifications', label: 'Alerts', count: userNotifs.filter(n => !n.isRead).length > 0 ? userNotifs.filter(n => !n.isRead).length : null, icon: Bell, isNew: userNotifs.filter(n => !n.isRead).length > 0 },
@@ -465,7 +443,7 @@ export default function Profile() {
 
 
   return (
-    <div className="min-h-screen bg-stone-50/50 py-6 sm:py-10 font-sans text-stone-900">
+    <div className="min-h-screen bg-stone-50/50 py-6 sm:py-10 font-sans text-stone-900 ph-no-capture data-mask" data-mask="true" data-private="true">
       <SEOHead
         title="My Profile & Account | Techno World Books"
         description="Manage your customer account and addresses."
@@ -476,21 +454,7 @@ export default function Profile() {
         {/* Mobile Header / Quick Identity Banner (< lg screens) */}
         <div className="lg:hidden mb-6 rounded-lg border border-stone-200 bg-white p-4 space-y-3.5">
           <div className="flex items-center gap-3">
-            <div className={`relative h-12 w-12 shrink-0 rounded-full flex items-center justify-center overflow-hidden ring-1 ring-stone-200/80 shadow-2xs select-none ${!hasCustomAvatar ? gmailBgClass : 'bg-stone-100'}`}>
-              {hasCustomAvatar ? (
-                <img
-                  src={profileData!.avatarUrl!}
-                  alt={displayName}
-                  referrerPolicy="no-referrer"
-                  onError={() => setAvatarError(true)}
-                  className="h-full w-full object-cover rounded-full"
-                />
-              ) : (
-                <span className="font-bold text-white text-lg select-none">
-                  {avatarInitial}
-                </span>
-              )}
-            </div>
+            <UserAvatar name={displayName} email={profileData?.email || storeUser?.email} size="lg" />
 
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5 flex-wrap">
@@ -557,21 +521,7 @@ export default function Profile() {
             {/* User Profile Card */}
             <div className="rounded-lg border border-stone-200 bg-white p-5 space-y-4">
               <div className="flex items-center gap-3.5">
-                <div className={`h-14 w-14 shrink-0 rounded-full flex items-center justify-center overflow-hidden ring-1 ring-stone-200/80 shadow-2xs select-none ${!hasCustomAvatar ? gmailBgClass : 'bg-stone-100'}`}>
-                  {hasCustomAvatar ? (
-                    <img
-                      src={profileData!.avatarUrl!}
-                      alt={displayName}
-                      referrerPolicy="no-referrer"
-                      onError={() => setAvatarError(true)}
-                      className="h-full w-full object-cover rounded-full"
-                    />
-                  ) : (
-                    <span className="font-bold text-white text-xl select-none">
-                      {avatarInitial}
-                    </span>
-                  )}
-                </div>
+                <UserAvatar name={displayName} email={profileData?.email || storeUser?.email} size="xl" />
 
                 <div className="min-w-0 flex-1">
                   <h2 className="text-base font-bold text-stone-900 truncate leading-snug">
@@ -982,49 +932,18 @@ export default function Profile() {
                 <h2 className="text-lg font-serif font-bold text-stone-900 flex items-center gap-2">
                   <UserIcon className="h-5 w-5 text-brand-base" /> Personal Information
                 </h2>
-                <p className="text-xs text-stone-500 mt-0.5">Manage your profile photo, display name, and contact details.</p>
+                <p className="text-xs text-stone-500 mt-0.5">Manage your display name and contact details.</p>
 
                 <form onSubmit={handleUpdateProfile} className="mt-6 space-y-5">
-                  {/* Round Profile Photo Field */}
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Profile Photo</label>
-                    <div className="flex items-center gap-4">
-                      <div className={`relative h-14 w-14 rounded-full overflow-hidden flex items-center justify-center shrink-0 font-bold text-xl select-none ring-1 ring-stone-200/80 shadow-2xs ${!avatarUrl || avatarUrl.includes('unsplash') || avatarError ? gmailBgClass + ' text-white' : 'bg-stone-100'}`}>
-                        {avatarUrl && !avatarUrl.includes('unsplash') && !avatarError ? (
-                          <img
-                            src={avatarUrl}
-                            alt="Preview"
-                            referrerPolicy="no-referrer"
-                            onError={() => setAvatarError(true)}
-                            className="h-full w-full object-cover rounded-full"
-                          />
-                        ) : (
-                          avatarInitial
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <input
-                          type="url"
-                          value={avatarUrl}
-                          onChange={(e) => {
-                            setAvatarUrl(e.target.value);
-                            setAvatarError(false);
-                          }}
-                          placeholder="Paste image URL (e.g. Google profile, gravatar)"
-                          className="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-xs font-medium text-slate-800 outline-none focus:border-brand-base focus:ring-2 focus:ring-brand-base/20"
-                        />
-                        <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                          {avatarUrl && (
-                            <button
-                              type="button"
-                              onClick={() => { setAvatarUrl(''); setAvatarError(false); }}
-                              className="text-[11px] font-bold text-rose-600 hover:text-rose-700 underline"
-                            >
-                              Remove Photo (Use Initials)
-                            </button>
-                          )}
-                          <span className="text-[11px] text-slate-400">Photo will always be framed as a perfect circle.</span>
-                        </div>
+                  {/* DPDP Compliance Notice & UI Avatar Display */}
+                  <div className="rounded-lg border border-stone-200 bg-stone-50 p-4">
+                    <div className="flex items-center gap-3.5">
+                      <UserAvatar name={displayName} email={profileData?.email || storeUser?.email} size="xl" />
+                      <div className="text-xs text-stone-600 space-y-0.5">
+                        <div className="font-semibold text-stone-900">Deterministic Initial Avatar</div>
+                        <p className="text-[11px] text-stone-500">
+                          In accordance with India&apos;s Digital Personal Data Protection (DPDP) Act 2023 data minimization mandates, custom photo uploads are disabled to protect your personal privacy.
+                        </p>
                       </div>
                     </div>
                   </div>

@@ -22,6 +22,7 @@ import { toast } from 'sonner';
 import { searchService, categoryService, authService, getImageUrl } from '@/services/api';
 import { GoogleSignInButton } from '@/components/GoogleSignInButton';
 import { CmsText } from '@/components/common/CmsText';
+import { UserAvatar } from '@/components/UserAvatar';
 
 function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { login } = useStore();
@@ -32,6 +33,7 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const isPreviewMode = typeof window !== 'undefined' && (
     window.self !== window.top ||
@@ -41,6 +43,10 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
   const handleEmailLogin = async (overrideEmail?: string) => {
     if (isPreviewMode) {
       toast.info('Visual Preview is for layout inspection only. Account login is disabled.');
+      return;
+    }
+    if (!agreedToTerms) {
+      toast.error('Please agree to the Terms & Conditions and Privacy Policy to proceed.');
       return;
     }
     const targetEmail = (overrideEmail || emailInput).trim().toLowerCase();
@@ -80,6 +86,10 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
       toast.info('Visual Preview is for layout inspection only. Login is disabled.');
       return;
     }
+    if (!agreedToTerms) {
+      toast.error('Please agree to the Terms & Conditions and Privacy Policy to proceed.');
+      return;
+    }
     const clean = phone.replace(/\D/g, '');
     if (clean.length < 10) return toast.error('Enter a valid 10-digit mobile number');
     setLoading(true);
@@ -105,6 +115,10 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
   const verify = async () => {
     if (isPreviewMode) {
       toast.info('Visual Preview is for layout inspection only. Login is disabled.');
+      return;
+    }
+    if (!agreedToTerms) {
+      toast.error('Please agree to the Terms & Conditions and Privacy Policy to proceed.');
       return;
     }
     if (otp.length !== 4) return toast.error('Enter the 4-digit OTP');
@@ -137,7 +151,7 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
   };
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) { onClose(); setStep('phone'); setOtp(''); } }}>
+    <Dialog open={open} onOpenChange={(v) => { if (!v) { onClose(); setStep('phone'); setOtp(''); setAgreedToTerms(false); } }}>
       <DialogContent className="sm:max-w-[420px] p-0 overflow-hidden bg-white border border-stone-200 shadow-lg rounded-lg">
         {/* Decorative Header with Brand Logo */}
         <div className="relative bg-brand-dark px-6 py-8 text-center overflow-hidden flex flex-col items-center justify-center border-b border-stone-800">
@@ -161,8 +175,17 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
 
         <div className="px-7 py-6">
           {/* Primary Google Sign-In */}
-          <div className="flex flex-col items-center justify-center mb-3">
-            <GoogleSignInButton onSuccess={onClose} width={300} />
+          <div className="relative flex flex-col items-center justify-center mb-3">
+            <div className="relative">
+              <GoogleSignInButton onSuccess={onClose} width={300} />
+              {!agreedToTerms && (
+                <div
+                  onClick={() => toast.error('Please agree to the Terms & Conditions and Privacy Policy below to proceed.')}
+                  className="absolute inset-0 z-20 cursor-pointer"
+                  title="Please agree to the Terms & Conditions and Privacy Policy below"
+                />
+              )}
+            </div>
           </div>
 
           <div className="relative text-center text-[10px] font-bold text-stone-400 uppercase tracking-widest before:absolute before:left-0 before:top-1/2 before:h-px before:w-[28%] before:bg-stone-200 after:absolute after:right-0 after:top-1/2 after:h-px after:w-[28%] after:bg-stone-200 my-4">
@@ -211,9 +234,30 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
                 </div>
               </div>
 
+              {/* Mandatory DPDP Consent Checkbox (Un-checked by default) */}
+              <div className="flex items-start gap-2 pt-1 text-left">
+                <input
+                  type="checkbox"
+                  id="termsConsentEmail"
+                  checked={agreedToTerms}
+                  onChange={(e) => setAgreedToTerms(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-stone-300 text-brand-base accent-brand-base focus:ring-brand-base cursor-pointer shrink-0"
+                />
+                <label htmlFor="termsConsentEmail" className="text-xs text-stone-600 leading-snug cursor-pointer select-none">
+                  I agree to the{' '}
+                  <Link to="/terms" target="_blank" className="font-semibold text-stone-900 underline hover:text-brand-base">
+                    Terms &amp; Conditions
+                  </Link>{' '}
+                  and{' '}
+                  <Link to="/privacy-policy" target="_blank" className="font-semibold text-stone-900 underline hover:text-brand-base">
+                    Privacy Policy
+                  </Link>.
+                </label>
+              </div>
+
               <button 
                 onClick={() => handleEmailLogin()} 
-                disabled={loading}
+                disabled={loading || !agreedToTerms}
                 className="w-full flex items-center justify-center gap-2 rounded-md bg-brand-base py-3 text-sm font-semibold text-white hover:bg-brand-light transition-colors shadow-xs disabled:opacity-50 cursor-pointer"
               >
                 <Mail className="h-4 w-4" /> {loading ? 'Signing in...' : 'Sign In with Email'}
@@ -237,9 +281,31 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
                 </div>
               </div>
               
+              {/* Mandatory DPDP Consent Checkbox (Un-checked by default) */}
+              <div className="flex items-start gap-2 pt-1 text-left">
+                <input
+                  type="checkbox"
+                  id="termsConsentPhone"
+                  checked={agreedToTerms}
+                  onChange={(e) => setAgreedToTerms(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-stone-300 text-brand-base accent-brand-base focus:ring-brand-base cursor-pointer shrink-0"
+                />
+                <label htmlFor="termsConsentPhone" className="text-xs text-stone-600 leading-snug cursor-pointer select-none">
+                  I agree to the{' '}
+                  <Link to="/terms" target="_blank" className="font-semibold text-stone-900 underline hover:text-brand-base">
+                    Terms &amp; Conditions
+                  </Link>{' '}
+                  and{' '}
+                  <Link to="/privacy-policy" target="_blank" className="font-semibold text-stone-900 underline hover:text-brand-base">
+                    Privacy Policy
+                  </Link>.
+                </label>
+              </div>
+
               <button 
                 onClick={sendOtp} 
-                className="w-full flex items-center justify-center gap-2 rounded-md bg-brand-base py-3 text-sm font-semibold text-white hover:bg-brand-light transition-colors shadow-xs cursor-pointer"
+                disabled={!agreedToTerms}
+                className="w-full flex items-center justify-center gap-2 rounded-md bg-brand-base py-3 text-sm font-semibold text-white hover:bg-brand-light transition-colors shadow-xs disabled:opacity-50 cursor-pointer"
               >
                 <MessageCircle className="h-4 w-4" /> Send OTP Securely
               </button>
@@ -486,12 +552,11 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
 
 export default function Header() {
   const { cart, wishlist, user, logout } = useStore();
-  const { logout: authLogout, user: authUser } = useAuthStore();
+  const { logout: authLogout } = useAuthStore();
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [loginOpen, setLoginOpen] = useState(false);
   const [categories, setCategories] = useState<any[]>(WEBSITE_CATEGORIES);
-  const [avatarError, setAvatarError] = useState(false);
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -719,21 +784,7 @@ export default function Header() {
             </Link>
             {user ? (
               <Link to="/profile" className="flex items-center gap-2 rounded-full p-0 md:rounded-md md:px-2.5 md:py-1.5 md:border md:border-brand-base/60 md:hover:bg-brand-base/60 transition-colors text-white">
-                <div className="relative h-6 w-6 shrink-0">
-                  {(authUser?.avatarUrl || user?.avatarUrl) && !(authUser?.avatarUrl || user?.avatarUrl)?.includes('unsplash') && !avatarError ? (
-                    <img
-                      src={(authUser?.avatarUrl || user?.avatarUrl) ?? undefined}
-                      alt={user.name}
-                      referrerPolicy="no-referrer"
-                      onError={() => setAvatarError(true)}
-                      className="h-6 w-6 rounded-full object-cover border border-white/20"
-                    />
-                  ) : (
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-dark border border-white/20 text-[11px] font-bold text-white shadow-xs">
-                      {user.name?.[0]?.toUpperCase() || 'U'}
-                    </div>
-                  )}
-                </div>
+                <UserAvatar name={user.name} email={user.email} size="sm" />
                 <div className="hidden text-left md:block leading-tight">
                   <span className="block max-w-[85px] truncate text-xs font-medium text-white">{user.name.split(' ')[0]}</span>
                   <span className="text-[10px] font-medium text-brand-100/70 flex items-center gap-1">

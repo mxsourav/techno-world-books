@@ -224,4 +224,15 @@
 
 [data-sonner-toast][data-swipe-out='true'][data-swipe-direction='up'] {
   animation-name: swipe-out-up !important;
-}
+}
+
+/* DPDP Act 2023 - Session Replay Masking Guard */
+.ph-no-capture,
+.data-mask,
+.clarity-mask,
+.fs-mask,
+[data-mask="true"],
+[data-private="true"] {
+  --replay-masked: true;
+}
+

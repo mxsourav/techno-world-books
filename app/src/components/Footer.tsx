@@ -4,7 +4,6 @@ import { MapPin, Phone, Globe, Camera } from 'lucide-react';
 import { useStore } from '@/store/StoreContext';
 import { useAuthStore } from '@/store/AuthStore';
 import { toast } from 'sonner';
-import { CmsText } from '@/components/common/CmsText';
 import { InstitutionalModal } from '@/components/InstitutionalModal';
 
 const DEVELOPERS = [
@@ -48,17 +47,21 @@ export default function Footer() {
     <footer className="mt-8 border-t border-stone-800 bg-brand-dark text-stone-300">
       <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-3 sm:px-6 py-8 md:grid-cols-12 md:gap-6 lg:gap-8">
         
-        {/* Col 1: Address (Takes more space) */}
+        {/* Col 1: Registered Entity & Address */}
         <div className="col-span-2 space-y-3 md:col-span-12 lg:col-span-3">
+          <div className="space-y-0.5">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-stone-100">Techno World Books</h3>
+            <p className="text-[11px] text-stone-400">Registered Entity &bull; College Street, Kolkata</p>
+          </div>
           <div className="flex items-start gap-2 text-sm leading-relaxed text-stone-400">
             <MapPin className="mt-1 h-4 w-4 shrink-0 text-stone-500" />
             <p>
-              Address: <CmsText contentKey="footer.address" defaultText="90/6A, Mahatma Gandhi Rd, opp. Grace Cinema, Calcutta University, College Street, Kolkata, West Bengal 700007" label="Footer Address" />
+              90/6A, Mahatma Gandhi Rd, College Street, Kolkata, WB 700007
             </p>
           </div>
           <div className="flex items-center gap-2 text-sm font-semibold mt-2 text-stone-300">
             <Phone className="h-4 w-4 shrink-0 text-stone-500" />
-            <p>Call Us : <CmsText contentKey="footer.phone" defaultText="033 2219 6115" label="Footer Phone" /></p>
+            <p>Call Us : <a href="tel:03322196115" className="hover:underline">033 2219 6115</a></p>
           </div>
           
           {/* Payment Icons */}
@@ -91,14 +94,15 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* Col 3: Policies */}
+        {/* Col 3: Compliance & Policies */}
         <div className="col-span-1 md:col-span-3 lg:col-span-3">
-          <h3 className="mb-2.5 text-xs font-bold uppercase tracking-wider text-stone-100">Policies</h3>
+          <h3 className="mb-2.5 text-xs font-bold uppercase tracking-wider text-stone-100">Policies &amp; Legal</h3>
           <ul className="space-y-1.5 text-sm text-stone-400">
             <li><Link to="/shipping-policy" className="hover:text-white transition-colors">Shipping Policy</Link></li>
-            <li><Link to="/refund-policy" className="hover:text-white transition-colors">Replacement & Refund Policy</Link></li>
+            <li><Link to="/refund-policy" className="hover:text-white transition-colors">Cancellation &amp; Replacement</Link></li>
             <li><Link to="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
             <li><Link to="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
+            <li><Link to="/legal/grievance-redressal" className="hover:text-white font-medium text-stone-300 transition-colors">Grievance Redressal</Link></li>
           </ul>
         </div>
 
@@ -141,6 +145,23 @@ export default function Footer() {
           </ul>
         </div>
 
+      </div>
+
+      {/* Consumer Protection (E-Commerce) Rules 2020 Statutory Disclosure Strip */}
+      <div className="border-t border-stone-800 bg-stone-950/80 px-3 sm:px-6 py-2.5 text-center sm:text-left">
+        <div className="mx-auto max-w-7xl flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-stone-400">
+          <div>
+            <span className="font-semibold text-stone-200">Grievance Redressal Desk:</span>{' '}
+            Officer: Grievance Officer &bull; Email:{' '}
+            <a href="mailto:support@technoworldbooks.in" className="text-stone-300 hover:underline">
+              support@technoworldbooks.in
+            </a>{' '}
+            &bull; SLA: Acknowledged in 48h, resolved in 30 days.
+          </div>
+          <Link to="/legal/grievance-redressal" className="underline font-medium text-stone-300 hover:text-white transition-colors">
+            Grievance Redressal &amp; Disclosures &rarr;
+          </Link>
+        </div>
       </div>
 
       {/* Developer Credits Strip */}

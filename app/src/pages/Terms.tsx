@@ -74,9 +74,12 @@ export default function Terms() {
       <div className="space-y-8 text-sm text-slate-700 leading-relaxed">
         {/* Section 1 */}
         <section className="space-y-3">
-          <h2 className="text-lg font-bold text-slate-900">1. Acceptance of Terms</h2>
+          <h2 className="text-lg font-bold text-slate-900">1. Acceptance of Terms &amp; Contractual Capacity</h2>
           <p>
-            By accessing or placing an order on <b>Techno World Books</b> (&ldquo;the Website&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;our&rdquo;), you acknowledge that you have read, understood, and agreed to be legally bound by these Terms and Conditions, alongside our Privacy Policy and Shipping Policy.
+            By accessing, registering an account, or placing an order on <b>Techno World Books</b> (&ldquo;the Website&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;our&rdquo;), you acknowledge that you have read, understood, and agreed to be legally bound by these Terms and Conditions, alongside our Privacy Policy and Shipping Policy.
+          </p>
+          <p className="rounded-lg border border-slate-200 bg-slate-50 p-3.5 text-xs text-slate-800 font-medium leading-relaxed">
+            <b>Age &amp; Contractual Capacity:</b> Purchases on this platform by individuals under 18 years of age must be made under the supervision and explicit consent of a parent or legal guardian. By completing an order, you confirm that you satisfy this requirement in compliance with the Indian Contract Act, 1872 and the Digital Personal Data Protection (DPDP) Act, 2023.
           </p>
         </section>
 

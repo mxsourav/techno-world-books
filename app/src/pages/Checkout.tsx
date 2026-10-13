@@ -1046,7 +1046,7 @@ export default function Checkout() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-3 py-6 sm:px-6">
+    <div className="mx-auto max-w-7xl px-3 py-6 sm:px-6 ph-no-capture data-mask" data-mask="true" data-private="true">
       <SEOHead
         title="Secure Checkout | Techno World Books"
         description="Complete your book order with secure payment."

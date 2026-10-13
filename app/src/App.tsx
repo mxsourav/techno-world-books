@@ -24,6 +24,7 @@ const Terms = lazy(() => import('@/pages/Terms'));
 const RefundPolicy = lazy(() => import('@/pages/RefundPolicy'));
 const ShippingPolicy = lazy(() => import('@/pages/ShippingPolicy'));
 const PrivacyPolicy = lazy(() => import('@/pages/PrivacyPolicy'));
+const GrievanceRedressal = lazy(() => import('@/pages/GrievanceRedressal'));
 const Contact = lazy(() => import('@/pages/Contact'));
 const OrderSuccess = lazy(() => import('@/pages/OrderSuccess'));
 const MyOrders = lazy(() => import('@/pages/MyOrders'));
@@ -53,6 +54,8 @@ function ScrollToTop() {
       '/refund-policy': 'Cancellation & Replacement Policy | Techno World Books',
       '/shipping-policy': 'Shipping Policy | Techno World Books',
       '/privacy-policy': 'Privacy Policy | Techno World Books',
+      '/legal/grievance-redressal': 'Grievance Redressal & Legal Disclosures | Techno World Books',
+      '/grievance': 'Grievance Redressal & Legal Disclosures | Techno World Books',
       '/contact': 'Contact Us | Techno World Books',
     };
     if (titles[pathname]) document.title = titles[pathname];
@@ -226,6 +229,9 @@ function CustomerStorefront() {
         <Route path="/shipping" element={<Navigate to="/shipping-policy" replace />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/privacy" element={<Navigate to="/privacy-policy" replace />} />
+        <Route path="/legal/grievance-redressal" element={<GrievanceRedressal />} />
+        <Route path="/grievance-redressal" element={<Navigate to="/legal/grievance-redressal" replace />} />
+        <Route path="/grievance" element={<Navigate to="/legal/grievance-redressal" replace />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/contact-us" element={<Contact />} />
         <Route path="/b2b" element={<Navigate to="/?b2b=true" replace />} />
