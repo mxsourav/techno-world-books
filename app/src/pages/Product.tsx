@@ -18,12 +18,184 @@ import { SampleReaderModal } from '@/components/SampleReaderModal';
 import { NotifyStockModal } from '@/components/NotifyStockModal';
 import { RecentlyViewedCarousel } from '@/components/RecentlyViewedCarousel';
 
+function splitAuthorString(str: string): string[] {
+  if (!str || typeof str !== 'string') return [];
+  // Separate adjacent authors where ')' is immediately followed by an uppercase letter (e.g. ")Dr." -> "), Dr.")
+  const normalized = str.replace(/\)\s*(?=[A-Z])/g, '), ');
+  const parts: string[] = [];
+  let current = '';
+  let parenDepth = 0;
+
+  for (let i = 0; i < normalized.length; i++) {
+    const ch = normalized[i];
+    if (ch === '(') parenDepth++;
+    else if (ch === ')' && parenDepth > 0) parenDepth--;
+
+    if ((ch === ',' || ch === ';' || ch === '\n') && parenDepth === 0) {
+      if (current.trim()) parts.push(current.trim());
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  if (current.trim()) parts.push(current.trim());
+
+  return parts.filter(
+    (a) => a && !/^(unknown(\s*author)?|n\/?a|none)$/i.test(a)
+  );
+}
+
+function decodeHtmlEntities(str: string): string {
+  return str
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'");
+}
+
+function normalizeInlineHtml(str: string): string {
+  let s = str;
+  // Convert highlight spans (from execCommand hiliteColor / backColor) into ==...==
+  s = s.replace(
+    /<span\b[^>]*style=["'][^"']*background(?:-color)?\s*:\s*(?!transparent|rgba\(\s*0\s*,\s*0\s*,\s*0\s*,\s*0\s*\)|#fff(?:fff)?\b|rgb\(\s*255\s*,\s*255\s*,\s*255\s*\))[^;"']+[^"']*["'][^>]*>([\s\S]*?)<\/span>/gi,
+    (_, inner) => {
+      const clean = inner.replace(/<[^>]+>/g, '').trim();
+      return clean ? `==${clean}==` : '';
+    }
+  );
+  // Convert <mark ...>...</mark> into ==...==
+  s = s.replace(/<mark\b[^>]*>([\s\S]*?)<\/mark>/gi, (_, inner) => {
+    const clean = inner.replace(/<[^>]+>/g, '').trim();
+    return clean ? `==${clean}==` : '';
+  });
+  // Convert <strong ...>...</strong> and <b ...>...</b> into **...**
+  s = s.replace(/<(strong|b)\b[^>]*>([\s\S]*?)<\/\1>/gi, (_, _tag, inner) => {
+    const clean = inner.replace(/<[^>]+>/g, '').trim();
+    return clean ? `**${clean}**` : '';
+  });
+  // Convert <em ...>...</em> and <i ...>...</i> into *...*
+  s = s.replace(/<(em|i)\b[^>]*>([\s\S]*?)<\/\1>/gi, (_, _tag, inner) => {
+    const clean = inner.replace(/<[^>]+>/g, '').trim();
+    return clean ? `*${clean}*` : '';
+  });
+  return s;
+}
+
+function normalizeRichText(raw: string | null | undefined): string {
+  if (!raw || !raw.trim()) return '';
+  let s = raw;
+
+  // Convert inline tags first
+  s = normalizeInlineHtml(s);
+
+  // Convert <ol ...>...</ol> into numbered lines 1. 2. 3. ...
+  s = s.replace(/<ol\b[^>]*>([\s\S]*?)<\/ol>/gi, (_, olInner: string) => {
+    let idx = 0;
+    const items: string[] = [];
+    olInner.replace(/<li\b[^>]*>([\s\S]*?)<\/li>/gi, (__, liInner: string) => {
+      const text = decodeHtmlEntities(
+        normalizeInlineHtml(liInner)
+          .replace(/<[^>]+>/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim()
+      );
+      if (text) {
+        idx++;
+        items.push(`${idx}. ${text}`);
+      }
+      return '';
+    });
+    return items.length ? `\n${items.join('\n')}\n` : '\n';
+  });
+
+  // Convert <ul ...>...</ul> into bullet lines • ...
+  s = s.replace(/<ul\b[^>]*>([\s\S]*?)<\/ul>/gi, (_, ulInner: string) => {
+    const items: string[] = [];
+    ulInner.replace(/<li\b[^>]*>([\s\S]*?)<\/li>/gi, (__, liInner: string) => {
+      const text = decodeHtmlEntities(
+        normalizeInlineHtml(liInner)
+          .replace(/<[^>]+>/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim()
+      );
+      if (text) {
+        items.push(`• ${text}`);
+      }
+      return '';
+    });
+    return items.length ? `\n${items.join('\n')}\n` : '\n';
+  });
+
+  // Convert any standalone <li ...>...</li>
+  s = s.replace(/<li\b[^>]*>([\s\S]*?)<\/li>/gi, (_, liInner: string) => {
+    const text = decodeHtmlEntities(
+      normalizeInlineHtml(liInner)
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+    );
+    return text ? `\n• ${text}\n` : '\n';
+  });
+
+  // Convert headings <h1..h6 ...>...</h1..h6>
+  s = s.replace(/<h[1-6]\b[^>]*>([\s\S]*?)<\/h[1-6]>/gi, (_, hInner: string) => {
+    const text = decodeHtmlEntities(
+      normalizeInlineHtml(hInner)
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+    );
+    return text ? `\n### ${text}\n` : '\n';
+  });
+
+  // Convert block breaks
+  s = s.replace(/<br\s*\/?>/gi, '\n');
+  s = s.replace(/<\/(p|div|section|article|blockquote|tr)>/gi, '\n');
+
+  // Strip all remaining HTML tags (including <p style="--tw-...">, <span style="...">, etc.)
+  s = s.replace(/<[^>]+>/g, '');
+
+  // Decode HTML entities
+  s = decodeHtmlEntities(s);
+
+  // Clean lines and collapse excessive blank lines
+  const cleanedLines = s
+    .split('\n')
+    .map((line) => line.replace(/\s+/g, ' ').trim());
+
+  const resultLines: string[] = [];
+  for (const line of cleanedLines) {
+    if (!line) {
+      if (resultLines.length > 0 && resultLines[resultLines.length - 1] !== '') {
+        resultLines.push('');
+      }
+    } else {
+      resultLines.push(line);
+    }
+  }
+
+  while (resultLines.length > 0 && resultLines[resultLines.length - 1] === '') {
+    resultLines.pop();
+  }
+
+  const finalStr = resultLines.join('\n').trim();
+  if (/^no description provided\.?$/i.test(finalStr)) return '';
+  return finalStr;
+}
+
+function hasRealBookContent(text: string | null | undefined): boolean {
+  return normalizeRichText(text).length > 0;
+}
+
 function renderBookDescriptionContent(text: string | null | undefined) {
-  if (!text || !text.trim()) {
+  const normalized = normalizeRichText(text);
+  if (!normalized) {
     return null;
   }
 
-  const lines = text.split('\n');
+  const lines = normalized.split('\n');
   const elements: React.ReactNode[] = [];
   let listItems: React.ReactNode[] = [];
 
@@ -85,7 +257,7 @@ function renderBookDescriptionContent(text: string | null | undefined) {
       flushList(`list-${idx}`);
       elements.push(
         <h1 key={`h1-${idx}`} className="text-base font-black text-slate-950 mt-3 mb-1 border-b border-slate-200 pb-1">
-          {line.replace(/^#\s+/, '')}
+          {parseInline(line.replace(/^#\s+/, ''))}
         </h1>
       );
       return;
@@ -95,7 +267,7 @@ function renderBookDescriptionContent(text: string | null | undefined) {
       flushList(`list-${idx}`);
       elements.push(
         <h2 key={`h2-${idx}`} className="text-sm font-black text-slate-900 mt-3 mb-1">
-          {line.replace(/^##\s+/, '')}
+          {parseInline(line.replace(/^##\s+/, ''))}
         </h2>
       );
       return;
@@ -108,7 +280,7 @@ function renderBookDescriptionContent(text: string | null | undefined) {
         <div key={`h3-${idx}`} className="mt-3.5 mb-1.5 flex items-center gap-2 border-b border-emerald-100 pb-1">
           <span className="h-2 w-2 rounded-full bg-emerald-600 shrink-0"></span>
           <h3 className="text-xs font-black uppercase tracking-wider text-emerald-900">
-            {title}
+            {parseInline(title)}
           </h3>
         </div>
       );
@@ -704,9 +876,18 @@ export default function Product() {
   const pages = Number(book.pages || 320);
   const isbn = book.isbn13 || book.isbn10 || book.isbn || '978-93-89314-20-5';
   const publisher = book.publisher || 'Techno World Publications';
-  const rawAuthorCandidate = (book.author || (book.authors && book.authors[0]?.name) || '').trim();
-  const isInvalidAuthor = !rawAuthorCandidate || /^(unknown(\s*author)?|n\/?a|none)$/i.test(rawAuthorCandidate);
-  const author = isInvalidAuthor ? null : rawAuthorCandidate;
+  const authorsList = (() => {
+    const rawSources: string[] = [];
+    if (Array.isArray(book.authorsList) && book.authorsList.length > 0) {
+      rawSources.push(...book.authorsList);
+    } else if (Array.isArray(book.authors) && book.authors.length > 0) {
+      rawSources.push(...book.authors.map((a: any) => (typeof a === 'string' ? a : a?.name || '')));
+    } else if (book.author && typeof book.author === 'string') {
+      rawSources.push(book.author);
+    }
+    return rawSources.flatMap((src) => splitAuthorString(src));
+  })();
+  const author = authorsList.length > 0 ? authorsList.join(', ') : null;
   const authorOrEditorial = author || 'Techno World Editorial Board';
   const pubYear = book.publicationYear || (book.publicationDate ? new Date(book.publicationDate).getFullYear() : 2026);
   const edition = book.edition || '2026 Edition';
@@ -873,13 +1054,14 @@ export default function Product() {
   const seoImageUrl = getImageUrl(book.coverUrl || book.coverImage);
   const discountPercent = mrp && mrp > price ? Math.round(((mrp - price) / mrp) * 100) : 0;
   const seoPageTitle = `${book.title}${author ? ` by ${author}` : ''}${edition ? ` (${edition} Edition)` : ''} — Buy Online at ₹${price} | Techno World Books`;
-  const seoDescription = (book.description && book.description.trim())
-    ? `${book.description.slice(0, 140).trim()}... Buy online at lowest price ₹${price} with fast India Post delivery on Techno World Books.`
+  const cleanPlainDescription = normalizeRichText(book.description).replace(/[#*•=]/g, '').replace(/\s+/g, ' ').trim();
+  const seoDescription = cleanPlainDescription
+    ? `${cleanPlainDescription.slice(0, 140).trim()}... Buy online at lowest price ₹${price} with fast India Post delivery on Techno World Books.`
     : `Buy ${book.title}${author ? ` by ${author}` : ''}${publisher ? ` (${publisher})` : ''} online in India at lowest price ₹${price}${discountPercent > 0 ? ` (${discountPercent}% OFF)` : ''}. Genuine edition, fast India Post Speed Post delivery & secure COD.`;
 
   const bookJsonLd = buildBookJsonLd({
     title: book.title,
-    author,
+    author: author || undefined,
     isbn,
     publisher,
     price,
@@ -1266,12 +1448,20 @@ export default function Product() {
 
               {/* Author & Publisher attribution */}
               <p className="mt-1.5 text-xs text-slate-500">
-                {author ? (
+                {authorsList.length > 0 ? (
                   <>
                     Authored by{' '}
-                    <Link to={`/search?q=${encodeURIComponent(author)}`} className="font-semibold text-brand-base hover:underline">
-                      {author}
-                    </Link>
+                    {authorsList.map((singleAuthor, idx) => (
+                      <span key={`${singleAuthor}-${idx}`}>
+                        {idx > 0 && ', '}
+                        <Link
+                          to={`/search?q=${encodeURIComponent(singleAuthor)}`}
+                          className="font-semibold text-brand-base hover:underline"
+                        >
+                          {singleAuthor}
+                        </Link>
+                      </span>
+                    ))}
                     {' '}· Published by <span className="font-medium text-slate-700">{publisher}</span>
                   </>
                 ) : (
@@ -1498,7 +1688,23 @@ export default function Product() {
 
                     <div className="border-b border-slate-100 pb-2">
                       <span className="text-slate-400 font-medium block">Author(s)</span>
-                      <span className="font-bold text-slate-800">{authorOrEditorial}</span>
+                      <span className="font-bold text-slate-800">
+                        {authorsList.length > 0 ? (
+                          authorsList.map((singleAuthor, idx) => (
+                            <span key={`${singleAuthor}-${idx}`}>
+                              {idx > 0 && ', '}
+                              <Link
+                                to={`/search?q=${encodeURIComponent(singleAuthor)}`}
+                                className="hover:text-brand-base hover:underline"
+                              >
+                                {singleAuthor}
+                              </Link>
+                            </span>
+                          ))
+                        ) : (
+                          authorOrEditorial
+                        )}
+                      </span>
                     </div>
 
                     <div className="border-b border-slate-100 pb-2">
@@ -1560,34 +1766,8 @@ export default function Product() {
             </div>
 
 
-            {/* ================= KEY FEATURES ACCORDION (Dedicated Box from Admin) ================= */}
-            {Boolean(book.shortDescription && book.shortDescription.trim()) && (
-              <div className="rounded-lg border border-blue-200/80 bg-white shadow-xs overflow-hidden">
-                <button
-                  type="button"
-                  onClick={() => toggleSection('keyFeatures')}
-                  className="w-full flex items-center justify-between p-5 bg-blue-50/30 hover:bg-blue-50/60 transition-colors border-b border-blue-100"
-                >
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-blue-600" />
-                    <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-wide">
-                      Key Features & Syllabus Breakdown
-                    </h3>
-                  </div>
-                  {openSections.keyFeatures ? <ChevronUp className="h-4 w-4 text-slate-400" /> : <ChevronDown className="h-4 w-4 text-slate-400" />}
-                </button>
-
-                {openSections.keyFeatures && (
-                  <div className="p-5 text-xs text-slate-700 leading-relaxed bg-white">
-                    {renderBookDescriptionContent(book.shortDescription)}
-                  </div>
-                )}
-              </div>
-            )}
-
-
-            {/* ================= BOOK DESCRIPTION ACCORDION ================= */}
-            {Boolean(book.description && book.description.trim()) && (
+            {/* ================= 1. BOOK DESCRIPTION ACCORDION (First, only if written) ================= */}
+            {hasRealBookContent(book.description) && (
               <div className="rounded-lg border border-stone-200 bg-white shadow-xs overflow-hidden">
                 <button
                   type="button"
@@ -1606,6 +1786,32 @@ export default function Product() {
                 {openSections.description && (
                   <div className="p-5 text-xs text-slate-600 leading-relaxed">
                     {renderBookDescriptionContent(book.description)}
+                  </div>
+                )}
+              </div>
+            )}
+
+
+            {/* ================= 2. KEY FEATURES & SYLLABUS BREAKDOWN ACCORDION (Second, only if written) ================= */}
+            {hasRealBookContent(book.shortDescription) && (
+              <div className="rounded-lg border border-blue-200/80 bg-white shadow-xs overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('keyFeatures')}
+                  className="w-full flex items-center justify-between p-5 bg-blue-50/30 hover:bg-blue-50/60 transition-colors border-b border-blue-100"
+                >
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-blue-600" />
+                    <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-wide">
+                      Key Features & Syllabus Breakdown
+                    </h3>
+                  </div>
+                  {openSections.keyFeatures ? <ChevronUp className="h-4 w-4 text-slate-400" /> : <ChevronDown className="h-4 w-4 text-slate-400" />}
+                </button>
+
+                {openSections.keyFeatures && (
+                  <div className="p-5 text-xs text-slate-700 leading-relaxed bg-white">
+                    {renderBookDescriptionContent(book.shortDescription)}
                   </div>
                 )}
               </div>
