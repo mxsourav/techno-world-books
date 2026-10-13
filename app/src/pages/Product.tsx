@@ -4,7 +4,7 @@ import { Link, useNavigate, useParams, useLocation, useSearchParams } from 'reac
 import {
   ChevronLeft, ChevronRight, Heart, Share2, Truck, ShieldCheck, RotateCcw, MapPin, Zap,
   ShoppingCart, BadgeCheck, Loader2, Star, Tag, ChevronDown, ChevronUp,
-  BookOpen, HelpCircle, Check, Sparkles, Award, AlertCircle, Bell, MessageSquare, Info, X, Layers, ZoomIn
+  BookOpen, HelpCircle, Check, Sparkles, AlertCircle, Bell, MessageSquare, Info, X, Layers, ZoomIn, Lock
 } from 'lucide-react';
 
 import { formatINR } from '@/utils/helpers';
@@ -1057,7 +1057,7 @@ export default function Product() {
   const cleanPlainDescription = normalizeRichText(book.description).replace(/[#*•=]/g, '').replace(/\s+/g, ' ').trim();
   const seoDescription = cleanPlainDescription
     ? `${cleanPlainDescription.slice(0, 140).trim()}... Buy online at lowest price ₹${price} with fast India Post delivery on Techno World Books.`
-    : `Buy ${book.title}${author ? ` by ${author}` : ''}${publisher ? ` (${publisher})` : ''} online in India at lowest price ₹${price}${discountPercent > 0 ? ` (${discountPercent}% OFF)` : ''}. Genuine edition, fast India Post Speed Post delivery & secure COD.`;
+    : `Buy ${book.title}${author ? ` by ${author}` : ''}${publisher ? ` (${publisher})` : ''} online in India at lowest price ₹${price}${discountPercent > 0 ? ` (${discountPercent}% OFF)` : ''}. Genuine edition, fast India Post Speed Post delivery & secure online checkout.`;
 
   const bookJsonLd = buildBookJsonLd({
     title: book.title,
@@ -1642,9 +1642,9 @@ export default function Product() {
                 </div>
 
                 <div className="flex flex-col items-center justify-center rounded-md bg-stone-50 p-2.5 text-center border border-stone-200">
-                  <Award className="h-4 w-4 text-brand-base mb-1" />
-                  <span className="text-[11px] font-bold text-stone-900 leading-tight">COD Available</span>
-                  <span className="text-[10px] text-stone-500">Cash on Delivery</span>
+                  <Lock className="h-4 w-4 text-brand-base mb-1" />
+                  <span className="text-[11px] font-bold text-stone-900 leading-tight">Secure Pay</span>
+                  <span className="text-[10px] text-stone-500">UPI, Cards &amp; NetBanking</span>
                 </div>
 
                 <div className="flex flex-col items-center justify-center rounded-md bg-stone-50 p-2.5 text-center border border-stone-200">

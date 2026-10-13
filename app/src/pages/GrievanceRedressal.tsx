@@ -107,6 +107,37 @@ export default function GrievanceRedressal() {
         </div>
       </div>
 
+      {/* Data Protection Officer (DPDP Act 2023) */}
+      <div className="mb-10 rounded-lg border border-slate-200 bg-slate-50 p-6 sm:p-8 shadow-xs">
+        <div className="max-w-3xl space-y-3">
+          <span className="inline-flex items-center gap-1.5 rounded-md bg-white border border-slate-300 px-3 py-1 text-xs font-medium text-slate-800">
+            <ShieldCheck className="h-3.5 w-3.5 text-brand-base" /> Digital Personal Data Protection (DPDP) Act, 2023
+          </span>
+          <h2 className="font-serif text-2xl font-bold text-slate-900">Data Protection Officer (DPO)</h2>
+          <p className="text-sm text-slate-600 leading-relaxed">
+            In compliance with India&apos;s <b>Digital Personal Data Protection (DPDP) Act, 2023</b>, all technical inquiries regarding personal data processing, consent revocation, data erasure, or third-party logistics data minimization are overseen directly by our Lead System Architect:
+          </p>
+
+          <div className="grid gap-4 sm:grid-cols-2 pt-3 border-t border-slate-200 text-xs">
+            <div>
+              <span className="text-slate-500 font-medium uppercase tracking-wider block">Direct Contact / Developer Line</span>
+              <a href="tel:8509986008" className="text-sm font-mono font-bold text-brand-base hover:underline mt-0.5 block">
+                +91 85099 86008
+              </a>
+            </div>
+            <div>
+              <span className="text-slate-500 font-medium uppercase tracking-wider block">Official Compliance Email</span>
+              <a href="mailto:support@technoworldbooks.in" className="text-sm font-semibold text-brand-base hover:underline mt-0.5 block">
+                support@technoworldbooks.in
+              </a>
+            </div>
+          </div>
+          <p className="text-[11px] text-slate-500 pt-2 border-t border-slate-200">
+            Note: For physical bookstore orders, delivery tracking, or replacement queries, please route via Customer Support / Grievance Desk at <a href="tel:03322196115" className="font-semibold text-slate-700 hover:underline">033 2219 6115</a>.
+          </p>
+        </div>
+      </div>
+
       {/* Escalation Process */}
       <div className="space-y-6 text-sm text-stone-700 leading-relaxed mb-10">
         <h2 className="text-lg font-bold text-stone-900">How to Submit a Grievance</h2>

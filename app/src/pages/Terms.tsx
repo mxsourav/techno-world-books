@@ -137,35 +137,44 @@ export default function Terms() {
 
         {/* Section 5 */}
         <section className="space-y-3">
-          <h2 className="text-lg font-bold text-slate-900">5. Pricing, Shipping Charges & COD Handling Fee</h2>
+          <h2 className="text-lg font-bold text-slate-900">5. Pricing &amp; Shipping Charges</h2>
           <ul className="list-disc pl-5 space-y-1.5 text-slate-600">
             <li><b>Standard Delivery:</b> Flat ₹69 for domestic orders below ₹999. Orders of ₹999 and above qualify for <b>FREE Standard Delivery</b> nationwide.</li>
             <li><b>Speed Post:</b> Flat ₹199 premium express rate nationwide via India Post.</li>
             <li><b>Express Delivery:</b> Flat ₹149 same-day on-demand delivery for eligible Kolkata and Howrah pincodes.</li>
-            <li><b>Cash on Delivery (COD):</b> An additional handling fee of <b>₹20</b> is applicable to all COD orders to cover courier cash processing.</li>
+            <li><b>Payment Mode:</b> All orders are strictly fulfilled on a secure prepaid basis via UPI, Credit/Debit Cards, Net Banking, and digital wallets. We do not support Cash on Delivery (COD).</li>
           </ul>
         </section>
 
         {/* Section 6 */}
         <section className="space-y-3">
-          <h2 className="text-lg font-bold text-slate-900">6. Customer Contact & Grievance Redressal</h2>
+          <h2 className="text-lg font-bold text-slate-900">6. Customer Contact, Grievance Redressal &amp; Data Protection</h2>
           <p>
-            For any queries regarding an active order or replacement submission, contact us:
+            For order tracking, dispatch inquiries, or replacement requests, contact our bookstore support desk:
           </p>
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-1 text-xs text-slate-700">
-            <p><b>Techno World Books</b> (Opp. Grace Cinema, College Street)</p>
-            <p>90/6A, Mahatma Gandhi Rd, Calcutta University, Kolkata, West Bengal 700007</p>
-            <p>Phone: 033 2219 6115 &bull; WhatsApp: <b>+91 747 913 5626</b></p>
-            <p>Email: support@technoworldbooks.in</p>
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2 text-xs text-slate-700">
+            <div>
+              <p className="font-semibold text-slate-900">Techno World Books Customer &amp; Grievance Redressal Desk</p>
+              <p>90/6A, Mahatma Gandhi Rd, Calcutta University, Kolkata, West Bengal 700007</p>
+              <p>Phone: <a href="tel:03322196115" className="font-semibold text-slate-900 hover:underline">033 2219 6115</a> &bull; WhatsApp: <a href="https://wa.me/917479135626" className="font-semibold text-slate-900 hover:underline">+91 747 913 5626</a></p>
+              <p>Email: <a href="mailto:support@technoworldbooks.in" className="font-semibold text-brand-base hover:underline">support@technoworldbooks.in</a></p>
+            </div>
+            <div className="pt-2 border-t border-slate-200">
+              <p className="font-semibold text-slate-900">Data Protection Officer (DPDP Act, 2023)</p>
+              <p className="text-slate-600">For privacy, consent withdrawal, or PII technical inquiries, contact our Platform Architect &amp; DPO directly:</p>
+              <p>Direct Phone: <a href="tel:8509986008" className="font-mono font-bold text-brand-base hover:underline">+91 85099 86008</a></p>
+              <p>Email: <a href="mailto:support@technoworldbooks.in" className="font-semibold text-brand-base hover:underline">support@technoworldbooks.in</a></p>
+            </div>
           </div>
         </section>
       </div>
 
       {/* Bottom Navigation */}
       <div className="mt-12 pt-6 border-t border-slate-200 flex flex-wrap gap-4 text-xs font-semibold">
-        <Link to="/refund-policy" className="text-brand-base hover:underline">Read Refund & Replacement Policy →</Link>
+        <Link to="/refund-policy" className="text-brand-base hover:underline">Read Cancellation &amp; Replacement Policy →</Link>
         <Link to="/shipping-policy" className="text-brand-base hover:underline">Read Shipping Policy →</Link>
         <Link to="/privacy-policy" className="text-brand-base hover:underline">Read Privacy Policy →</Link>
+        <Link to="/legal/grievance-redressal" className="text-brand-base hover:underline">Grievance Redressal Portal →</Link>
         <Link to="/contact" className="text-brand-base hover:underline">Contact Support →</Link>
       </div>
     </div>

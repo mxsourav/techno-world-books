@@ -199,7 +199,7 @@ export default function Listing() {
     : 'Browse Books — School, College, Exam & General | Techno World Books';
 
   const pageDescription = catObj
-    ? `Explore best-selling ${catObj.name} books online at Techno World Books. Huge discounts, fast delivery across India, COD available.`
+    ? `Explore best-selling ${catObj.name} books online at Techno World Books. Huge discounts, fast delivery across India, secure online checkout.`
     : publisherQuery
     ? `Browse all books published by ${publisherQuery}. Genuine academic, competitive exam and literature books with fast delivery.`
     : query

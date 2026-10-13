@@ -198,7 +198,6 @@ export default function Checkout() {
     items,
     subtotal,
     shipping,
-    codFee,
     isShippingCalculated,
     deliveryOptions,
     selectedShippingMethod,
@@ -699,11 +698,6 @@ export default function Checkout() {
       if (!collectorName) return toast.error("Collector's Full Name is required for Store Pickup");
       if (!collectorPhone || collectorPhone.length < 10) {
         return toast.error("Please enter a valid 10-digit mobile phone number for pickup notifications");
-      }
-      if (total > 0) {
-        if (payment === 'cod') {
-          return toast.error("Cash on Delivery is not available for Store Takeaway. Please pay online via UPI, Card, or Net Banking.");
-        }
       }
 
       setIsSubmitting(true);
@@ -1902,13 +1896,6 @@ export default function Checkout() {
               </div>
             )}
 
-            {payment === 'cod' && (
-              <div className="flex justify-between items-center">
-                <dt className="text-stone-600">COD Handling Fee</dt>
-                <dd className="font-medium text-stone-900">+ {formatINR(codFee || 20)}</dd>
-              </div>
-            )}
-
             <div className="flex justify-between border-t border-stone-200 pt-2 text-base font-bold text-stone-900">
               <span>Total</span>
               <span>{formatINR(total)}</span>
@@ -1957,7 +1944,7 @@ export default function Checkout() {
               onClick={handlePlaceOrder}
               className="mt-4 w-full rounded-md bg-brand-base py-3 text-sm font-semibold text-white shadow-xs hover:bg-brand-light disabled:opacity-50 transition-colors cursor-pointer"
             >
-              {isSubmitting ? 'Processing...' : payment === 'cod' ? `Place Order · ${formatINR(total)}` : `Pay ${formatINR(total)} Securely`}
+              {isSubmitting ? 'Processing...' : `Pay ${formatINR(total)} Securely`}
             </button>
           )}
           <p className="mt-2 text-center text-[11px] text-stone-400 flex items-center justify-center gap-1.5">

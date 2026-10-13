@@ -50,7 +50,7 @@ export default function PrivacyPolicy() {
         <section className="space-y-3">
           <h2 className="text-base font-bold text-slate-900">3. Data Sharing with Courier Partners</h2>
           <p>
-            To deliver your parcels, we share necessary recipient details (name, address, phone number, and COD payable amounts) with our shipping logistics providers, including India Post (Department of Posts, Govt. of India) and local on-demand courier partners. We do not sell or rent your personal information to third-party advertisers.
+            To deliver your parcels, we share necessary recipient details (recipient name, delivery address, postal PIN code, and contact phone number) with our shipping logistics providers, including India Post (Department of Posts, Govt. of India) and local on-demand courier partners. We do not sell or rent your personal information to third-party advertisers. All orders on our platform are processed on a secure prepaid basis.
           </p>
         </section>
 
@@ -62,18 +62,27 @@ export default function PrivacyPolicy() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-base font-bold text-slate-900">5. Contacting Our Data Officer</h2>
+          <h2 className="text-base font-bold text-slate-900">5. Data Protection Officer (DPDP Act 2023)</h2>
           <p>
-            If you have questions about your personal data or wish to delete your account, reach out to us at <b>support@technoworldbooks.in</b> or call <b>+91 8509986008</b>.
+            For technical data protection queries, personal data access, consent revocation, or account deletion requests under the Digital Personal Data Protection (DPDP) Act, 2023, you may directly reach out to our Data Protection Officer:
           </p>
+          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-xs space-y-1.5">
+            <p className="font-semibold text-slate-900">Data Protection Officer &amp; Platform Architect</p>
+            <p className="text-slate-700">Direct Phone: <a href="tel:8509986008" className="font-mono font-bold text-brand-base hover:underline">+91 85099 86008</a></p>
+            <p className="text-slate-700">Official Email: <a href="mailto:support@technoworldbooks.in" className="font-bold text-brand-base hover:underline">support@technoworldbooks.in</a></p>
+            <p className="text-slate-500 text-[11px] mt-1 pt-1 border-t border-slate-200">
+              Note: For customer order disputes, physical book replacements, or pre-dispatch cancellations, please contact the bookstore Grievance Desk at <a href="tel:03322196115" className="font-semibold text-slate-700 hover:underline">033 2219 6115</a>.
+            </p>
+          </div>
         </section>
       </div>
 
       {/* Bottom Navigation */}
       <div className="mt-12 pt-6 border-t border-slate-200 flex flex-wrap gap-4 text-xs font-semibold">
         <Link to="/terms" className="text-brand-base hover:underline">Read Terms of Service →</Link>
-        <Link to="/refund-policy" className="text-brand-base hover:underline">Read Refund & Replacement Policy →</Link>
+        <Link to="/refund-policy" className="text-brand-base hover:underline">Read Cancellation &amp; Replacement Policy →</Link>
         <Link to="/shipping-policy" className="text-brand-base hover:underline">Read Shipping Policy →</Link>
+        <Link to="/legal/grievance-redressal" className="text-brand-base hover:underline">Grievance Redressal Portal →</Link>
       </div>
     </div>
   );

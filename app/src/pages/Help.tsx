@@ -9,7 +9,7 @@ const FAQS = [
   { q: 'What is your replacement and cancellation policy?', a: 'We provide replacements only — monetary return refunds are not provided once delivered. If your book arrives damaged, defective, or misprinted, you can request a free replacement within 7 days of delivery by filling out our official Google Replacement Form. Order cancellation with full refund is available exclusively before dispatch. Once dispatched, orders cannot be cancelled, and doorstep delivery refusal (RTO) is strictly non-refundable.' },
   { q: 'Are all books genuine and new?', a: 'Yes. Every title is sourced directly from publishers or authorised distributors. We have a zero-tolerance policy on pirated books.' },
   { q: 'How do Techno Rewards points work?', a: 'Earn 1 Techno Coin for every ₹100 spent (excluding delivery charges). Coins are credited upon delivery and can be redeemed on future orders.' },
-  { q: 'Can I pay cash on delivery?', a: 'Yes, COD is available across serviceable Indian pincodes with a flat ₹20 courier handling fee. UPI, cards, and net banking are also supported.' },
+  { q: 'What payment methods do you accept?', a: 'All orders are processed securely via prepaid digital payments, including UPI (Google Pay, PhonePe, Paytm, BHIM), Credit/Debit Cards, Net Banking, and digital wallets. We operate strictly on a prepaid fulfillment model and do not offer Cash on Delivery (COD).' },
   { q: 'Do you deliver old/rare books safely?', a: 'Rare and collector\'s editions ship in archival wrapping with rigid corner protection and tamper-proof packaging, fully insured.' },
 ];
 
@@ -17,7 +17,7 @@ const TOPICS = [
   { icon: Package, t: 'Order Issues', d: 'Missing, wrong or damaged items' },
   { icon: Truck, t: 'Delivery', d: 'Delays, pincode coverage, address change' },
   { icon: RotateCcw, t: '7-Day Replacement', d: 'Submit Google Form within 7 days' },
-  { icon: CreditCard, t: 'Payments', d: 'Failed payments, COD, invoices' },
+  { icon: CreditCard, t: 'Payments', d: 'UPI, cards, net banking, invoices' },
 ];
 
 export default function Help() {
