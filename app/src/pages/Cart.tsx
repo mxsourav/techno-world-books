@@ -91,7 +91,11 @@ export default function Cart() {
         <div className="space-y-4">
           {items.map((i: any) => (
             <div key={i.bookId} className="flex items-start gap-3 sm:gap-4 rounded-lg border border-stone-200 bg-white p-3.5 sm:p-4 shadow-xs overflow-hidden">
-              <Link to={`/book/${i.slug}`} className="w-[72px] shrink-0 sm:w-20 self-start block overflow-hidden rounded-[4px]">
+              <Link
+                to={`/book/${i.slug}`}
+                className="w-16 sm:w-20 shrink-0 self-start block overflow-hidden rounded-[4px]"
+                style={{ width: 72, minWidth: 72, maxWidth: 72 }}
+              >
                 <BookCover book={{ coverUrl: i.coverUrl, title: i.title, author: i.author, category: i.category } as Book} className="w-full text-[8px] shadow-sm" />
               </Link>
               <div className="min-w-0 flex-1">
@@ -135,7 +139,11 @@ export default function Cart() {
                 return (
                   <div key={i.bookId} className="flex items-center gap-3 border-t border-stone-100 py-3 first:border-0">
                     {sb ? (
-                      <Link to={`/book/${sb.slug}`} className="w-12 shrink-0 sm:w-14 self-start block overflow-hidden rounded-[4px]">
+                      <Link
+                        to={`/book/${sb.slug}`}
+                        className="w-12 sm:w-14 shrink-0 self-start block overflow-hidden rounded-[4px]"
+                        style={{ width: 52, minWidth: 52, maxWidth: 52 }}
+                      >
                         <BookCover book={sb} className="w-full text-[6px] shadow-xs" />
                       </Link>
                     ) : null}
