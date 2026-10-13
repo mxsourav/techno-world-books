@@ -30,9 +30,36 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/icon.png?v=tw3" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
-    <meta name="theme-color" content="#0a2e1f" />
+    <meta name="theme-color" content="#11223f" />
+    <meta name="msapplication-navbutton-color" content="#11223f" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Techno World" />
     <meta name="application-name" content="Techno World" />
+    <script>
+      (function() {
+        try {
+          var raw = localStorage.getItem('techno_world_theme_palette');
+          if (raw) {
+            var p = JSON.parse(raw);
+            var root = document.documentElement;
+            if (p.dark) root.style.setProperty('--brand-dark', p.dark);
+            if (p.base) root.style.setProperty('--brand-base', p.base);
+            if (p.light) root.style.setProperty('--brand-light', p.light);
+            if (p.pitch) root.style.setProperty('--brand-pitch', p.pitch);
+            if (p.subtle) root.style.setProperty('--brand-subtle', p.subtle);
+            if (p.soft) root.style.setProperty('--brand-soft', p.soft);
+            var topColor = p.base || p.dark;
+            if (topColor) {
+              var metas = document.querySelectorAll('meta[name="theme-color"], meta[name="msapplication-navbutton-color"]');
+              for (var i = 0; i < metas.length; i++) {
+                metas[i].setAttribute('content', topColor);
+              }
+            }
+          }
+        } catch (e) {}
+      })();
+    </script>
 
     <!-- Open Graph (Facebook / WhatsApp / LinkedIn) -->
     <meta property="og:title" content="Techno World Books — Buy Books Online in India" />

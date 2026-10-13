@@ -13,15 +13,35 @@ import SEOHead from '@/components/SEOHead';
 import { useCartTotals } from '@/hooks/useCartTotals';
 
 export default function Cart() {
-  const { removeFromCart, setQty, saveForLater, applyCoupon, clearCoupon, savedForLater, moveToCart } = useStore();
+  const { removeFromCart, setQty, saveForLater, applyCoupon, clearCoupon, savedForLater, moveToCart, removeSavedForLater } = useStore();
   const { items, subtotal, mrpTotal, shipping, discount, total, appliedCoupon, loading, error, couponError, isValid, errors } = useCartTotals();
   const [code, setCode] = useState('');
   const [fbt, setFbt] = useState<Book[]>([]);
+  const [savedBooks, setSavedBooks] = useState<Record<string, Book>>({});
   const navigate = useNavigate();
 
   useEffect(() => {
     bookService.getBooks({ bestSeller: true, limit: 8 }).then(res => setFbt(res.data || [])).catch(console.error);
   }, []);
+
+  useEffect(() => {
+    if (!savedForLater || savedForLater.length === 0) {
+      setSavedBooks({});
+      return;
+    }
+    const ids = savedForLater.map((i) => i.bookId).filter(Boolean).join(',');
+    if (!ids) return;
+    bookService
+      .getBooks({ ids, limit: 50 })
+      .then((res) => {
+        const map: Record<string, Book> = {};
+        for (const b of res.data || []) {
+          if (b?.id) map[b.id] = b;
+        }
+        setSavedBooks(map);
+      })
+      .catch(console.error);
+  }, [savedForLater]);
 
   if (loading) {
     return (
@@ -70,33 +90,39 @@ export default function Cart() {
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
         <div className="space-y-4">
           {items.map((i: any) => (
-            <div key={i.bookId} className="flex items-start gap-4 rounded-lg border border-stone-200 bg-white p-4 shadow-xs min-h-[136px]">
-              <Link to={`/book/${i.slug}`} className="w-18 shrink-0 sm:w-20 self-start block">
-                <BookCover book={{ coverUrl: i.coverUrl, title: i.title } as Book} className="text-[8px] shadow-sm" />
+            <div key={i.bookId} className="flex items-start gap-3 sm:gap-4 rounded-lg border border-stone-200 bg-white p-3.5 sm:p-4 shadow-xs overflow-hidden">
+              <Link to={`/book/${i.slug}`} className="w-[72px] shrink-0 sm:w-20 self-start block overflow-hidden rounded-[4px]">
+                <BookCover book={{ coverUrl: i.coverUrl, title: i.title, author: i.author, category: i.category } as Book} className="w-full text-[8px] shadow-sm" />
               </Link>
               <div className="min-w-0 flex-1">
-                <Link to={`/book/${i.slug}`} className="line-clamp-2 text-sm font-semibold text-stone-900 hover:text-brand-base transition-colors">{i.title}</Link>
-                <p className="text-xs text-stone-500 mt-0.5">{i.author}</p>
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-4">
+                  <div className="min-w-0 flex-1">
+                    <Link to={`/book/${i.slug}`} className="line-clamp-2 text-sm font-semibold text-stone-900 hover:text-brand-base transition-colors leading-snug">{i.title}</Link>
+                    {i.author && <p className="text-xs text-stone-500 mt-0.5 truncate">{i.author}</p>}
+                  </div>
+                  <div className="flex items-baseline gap-2 sm:flex-col sm:items-end sm:gap-0 shrink-0 mt-0.5 sm:mt-0">
+                    <p className="text-sm sm:text-base font-bold text-stone-900">{formatINR(i.totalPrice)}</p>
+                    {i.totalMrp > i.totalPrice && (
+                      <p className="text-xs text-stone-400 line-through">{formatINR(i.totalMrp)}</p>
+                    )}
+                  </div>
+                </div>
                 <p className="mt-1.5 text-xs text-stone-500">
                   Delivery by <b className="font-semibold text-stone-800">{new Date(Date.now() + 4 * 86400000).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}</b>
                 </p>
-                <div className="mt-3 flex flex-wrap items-center gap-3">
+                <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
                   <div className="flex items-center rounded-md border border-stone-300 bg-stone-50">
-                    <button onClick={() => setQty(i.bookId, i.quantity - 1)} className="px-2.5 py-1 text-xs font-semibold text-stone-600 hover:bg-stone-200 transition-colors">−</button>
+                    <button onClick={() => setQty(i.bookId, i.quantity - 1)} className="px-2.5 py-1 text-xs font-semibold text-stone-600 hover:bg-stone-200 transition-colors cursor-pointer">−</button>
                     <span className="w-7 text-center text-xs font-semibold text-stone-900">{i.quantity}</span>
-                    <button onClick={() => setQty(i.bookId, i.quantity + 1)} className="px-2.5 py-1 text-xs font-semibold text-stone-600 hover:bg-stone-200 transition-colors">+</button>
+                    <button onClick={() => setQty(i.bookId, i.quantity + 1)} className="px-2.5 py-1 text-xs font-semibold text-stone-600 hover:bg-stone-200 transition-colors cursor-pointer">+</button>
                   </div>
-                  <button onClick={() => { saveForLater(i.bookId); toast.info('Saved for later'); }} className="flex items-center gap-1 text-xs font-medium text-stone-600 hover:text-stone-900 transition-colors">
+                  <button onClick={() => { saveForLater(i.bookId); toast.info('Saved for later'); }} className="flex items-center gap-1 text-xs font-medium text-stone-600 hover:text-stone-900 transition-colors cursor-pointer">
                     <Heart className="h-3.5 w-3.5" /> Save for later
                   </button>
-                  <button onClick={() => removeFromCart(i.bookId)} className="flex items-center gap-1 text-xs font-medium text-stone-600 hover:text-rose-600 transition-colors">
+                  <button onClick={() => removeFromCart(i.bookId)} className="flex items-center gap-1 text-xs font-medium text-stone-600 hover:text-rose-600 transition-colors cursor-pointer">
                     <Trash2 className="h-3.5 w-3.5" /> Remove
                   </button>
                 </div>
-              </div>
-              <div className="text-right">
-                <p className="text-base font-bold text-stone-900">{formatINR(i.totalPrice)}</p>
-                <p className="text-xs text-stone-400 line-through">{formatINR(i.totalMrp)}</p>
               </div>
             </div>
           ))}
@@ -104,15 +130,54 @@ export default function Cart() {
           {savedForLater?.length > 0 && (
             <div className="rounded-lg border border-stone-200 bg-white p-4 shadow-xs">
               <p className="mb-3 text-sm font-semibold text-stone-900">Saved for later ({savedForLater?.length})</p>
-              {savedForLater.map((i: any) => (
-                <div key={i.bookId} className="flex items-center gap-3 border-t border-stone-100 py-3 first:border-0">
-                  <div className="min-w-0 flex-1">
-                    <p className="line-clamp-1 text-sm font-semibold text-stone-800">Book ID: {i.bookId}</p>
-                    <p className="text-xs font-medium text-stone-600">Qty: {i.qty}</p>
+              {savedForLater.map((i: any) => {
+                const sb = savedBooks[i.bookId];
+                return (
+                  <div key={i.bookId} className="flex items-center gap-3 border-t border-stone-100 py-3 first:border-0">
+                    {sb ? (
+                      <Link to={`/book/${sb.slug}`} className="w-12 shrink-0 sm:w-14 self-start block overflow-hidden rounded-[4px]">
+                        <BookCover book={sb} className="w-full text-[6px] shadow-xs" />
+                      </Link>
+                    ) : null}
+                    <div className="min-w-0 flex-1">
+                      {sb ? (
+                        <>
+                          <Link to={`/book/${sb.slug}`} className="line-clamp-2 text-sm font-semibold text-stone-800 hover:text-brand-base transition-colors leading-snug">
+                            {sb.title}
+                          </Link>
+                          {sb.author && <p className="text-xs text-stone-500 mt-0.5 truncate">{sb.author}</p>}
+                          <div className="mt-1 flex items-center gap-2 text-xs">
+                            <span className="font-bold text-stone-900">{formatINR(sb.price)}</span>
+                            {sb.mrp > sb.price && <span className="text-stone-400 line-through">{formatINR(sb.mrp)}</span>}
+                            <span className="text-stone-400">·</span>
+                            <span className="font-medium text-stone-600">Qty: {i.qty}</span>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <p className="line-clamp-1 text-sm font-semibold text-stone-800">Saved Book</p>
+                          <p className="text-xs font-medium text-stone-600">Qty: {i.qty}</p>
+                        </>
+                      )}
+                    </div>
+                    <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 shrink-0">
+                      <button
+                        onClick={() => moveToCart(i.bookId)}
+                        className="rounded-md border border-stone-300 px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-50 transition-colors cursor-pointer"
+                      >
+                        Move to cart
+                      </button>
+                      <button
+                        onClick={() => removeSavedForLater(i.bookId)}
+                        title="Remove from saved"
+                        className="p-1.5 text-stone-400 hover:text-rose-600 transition-colors cursor-pointer"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
-                  <button onClick={() => moveToCart(i.bookId)} className="rounded-md border border-stone-300 px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-50 transition-colors">Move to cart</button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

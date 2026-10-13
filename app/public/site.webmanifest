@@ -4,8 +4,8 @@
   "description": "India's trusted online bookstore from College Street, Kolkata",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a2e1f",
-  "theme_color": "#0a2e1f",
+  "background_color": "#07101F",
+  "theme_color": "#11223f",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",

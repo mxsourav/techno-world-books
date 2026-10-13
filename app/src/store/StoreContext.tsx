@@ -20,6 +20,7 @@ interface StoreState {
   setQty: (bookId: string, qty: number) => void;
   saveForLater: (bookId: string) => void;
   moveToCart: (bookId: string) => void;
+  removeSavedForLater: (bookId: string) => void;
   toggleWishlist: (bookId: string) => void;
   isWishlisted: (bookId: string) => boolean;
   placeOrder: (order: Omit<Order, 'id' | 'placedAt' | 'status' | 'trackingId' | 'expectedDelivery' | 'courier'>) => Order;
@@ -203,6 +204,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       if (item) setSavedForLater((s) => [...s.filter((i) => i.bookId !== bookId), item]);
       return c.filter((i) => i.bookId !== bookId);
     });
+    const token = localStorage.getItem('tw_customer_token') || localStorage.getItem('tw_token');
+    if (token) {
+      cartService.removeItem(bookId).catch(() => {});
+    }
   }, []);
 
   const moveToCart = useCallback((bookId: string) => {
@@ -212,6 +217,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       return s.filter((i) => i.bookId !== bookId);
     });
   }, [addToCart]);
+
+  const removeSavedForLater = useCallback((bookId: string) => {
+    setSavedForLater((s) => s.filter((i) => i.bookId !== bookId));
+  }, []);
 
   const toggleWishlist = useCallback((bookId: string) => {
     setWishlist((w) => (w.includes(bookId) ? w.filter((id) => id !== bookId) : [...w, bookId]));
@@ -289,11 +298,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const value = useMemo<StoreState>(() => ({
     cart, savedForLater, wishlist, orders, user, addresses, searchHistory, recentlyViewed, coupon,
-    addToCart, removeFromCart, setQty, saveForLater, moveToCart, toggleWishlist, isWishlisted,
+    addToCart, removeFromCart, setQty, saveForLater, moveToCart, removeSavedForLater, toggleWishlist, isWishlisted,
     placeOrder, cancelOrder, login, logout, addAddress, addSearchToHistory, addRecentlyViewed,
     applyCoupon, clearCoupon, clearCart,
   }), [cart, savedForLater, wishlist, orders, user, addresses, searchHistory, recentlyViewed, coupon,
-    addToCart, removeFromCart, setQty, saveForLater, moveToCart, toggleWishlist, isWishlisted,
+    addToCart, removeFromCart, setQty, saveForLater, moveToCart, removeSavedForLater, toggleWishlist, isWishlisted,
     placeOrder, cancelOrder, login, logout, addAddress, addSearchToHistory, addRecentlyViewed,
     applyCoupon, clearCoupon, clearCart]);
 

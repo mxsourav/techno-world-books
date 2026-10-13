@@ -206,6 +206,27 @@ export function applyThemePalette(palette: ThemePalette) {
     `${h} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`
   );
 
+  // Dynamically sync mobile browser / installed PWA top status bar color with the active SPA theme
+  // On mobile (<768px), the top-most header bar is --brand-base (palette.base).
+  const topBarColor = palette.base || palette.dark;
+  const themeMetaTags = document.querySelectorAll('meta[name="theme-color"]');
+  if (themeMetaTags.length > 0) {
+    themeMetaTags.forEach((meta) => meta.setAttribute('content', topBarColor));
+  } else {
+    const meta = document.createElement('meta');
+    meta.name = 'theme-color';
+    meta.content = topBarColor;
+    document.head.appendChild(meta);
+  }
+
+  let msNavMeta = document.querySelector('meta[name="msapplication-navbutton-color"]') as HTMLMetaElement | null;
+  if (!msNavMeta) {
+    msNavMeta = document.createElement('meta');
+    msNavMeta.name = 'msapplication-navbutton-color';
+    document.head.appendChild(msNavMeta);
+  }
+  msNavMeta.content = topBarColor;
+
   try {
     localStorage.setItem('techno_world_theme_palette', JSON.stringify(palette));
   } catch {
