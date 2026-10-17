@@ -30,10 +30,10 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/icon.png?v=tw3" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest?v=tw4" />
-    <meta name="theme-color" content="#11223f" />
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#11223f" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#11223f" />
-    <meta name="msapplication-navbutton-color" content="#11223f" />
+    <meta name="theme-color" content="#0B2B19" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#0B2B19" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0B2B19" />
+    <meta name="msapplication-navbutton-color" content="#0B2B19" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Techno World" />
@@ -41,24 +41,7 @@
     <script>
       (function() {
         try {
-          var raw = localStorage.getItem('techno_world_theme_palette');
-          if (raw) {
-            var p = JSON.parse(raw);
-            var root = document.documentElement;
-            if (p.dark) root.style.setProperty('--brand-dark', p.dark);
-            if (p.base) root.style.setProperty('--brand-base', p.base);
-            if (p.light) root.style.setProperty('--brand-light', p.light);
-            if (p.pitch) root.style.setProperty('--brand-pitch', p.pitch);
-            if (p.subtle) root.style.setProperty('--brand-subtle', p.subtle);
-            if (p.soft) root.style.setProperty('--brand-soft', p.soft);
-            var topColor = p.base || p.dark;
-            if (topColor) {
-              var metas = document.querySelectorAll('meta[name="theme-color"], meta[name="msapplication-navbutton-color"]');
-              for (var i = 0; i < metas.length; i++) {
-                metas[i].setAttribute('content', topColor);
-              }
-            }
-          }
+          localStorage.removeItem('techno_world_theme_palette');
         } catch (e) {}
       })();
     </script>

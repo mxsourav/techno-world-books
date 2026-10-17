@@ -4,7 +4,7 @@ import { Link, useNavigate, useParams, useLocation, useSearchParams } from 'reac
 import {
   ChevronLeft, ChevronRight, Heart, Share2, Truck, ShieldCheck, RotateCcw, MapPin, Zap,
   ShoppingCart, BadgeCheck, Loader2, Star, Tag, ChevronDown, ChevronUp,
-  BookOpen, HelpCircle, Check, Sparkles, AlertCircle, Bell, MessageSquare, Info, X, Layers, ZoomIn, Lock
+  BookOpen, HelpCircle, Check, Sparkles, AlertCircle, Bell, MessageSquare, Info, X, Layers, ZoomIn, ZoomOut, Maximize2, Lock
 } from 'lucide-react';
 
 import { formatINR } from '@/utils/helpers';
@@ -461,82 +461,52 @@ export default function Product() {
     setActiveImageIndex(index);
   };
 
-  // Desktop Hover Zoom & Mobile Pinch-to-Zoom states
-  const [isHoverZooming, setIsHoverZooming] = useState(false);
-  const [hoverOrigin, setHoverOrigin] = useState({ x: 50, y: 50 });
-  const [pinchScale, setPinchScale] = useState(1);
+  // Fullscreen Lightbox modal state
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [lightboxZoom, setLightboxZoom] = useState(1);
+  const [lightboxTouchStartX, setLightboxTouchStartX] = useState<number | null>(null);
   const imageCanvasRef = useRef<HTMLDivElement>(null);
-  const startPinchDist = useRef<number>(0);
-  const startPinchScale = useRef<number>(1);
 
-  // Desktop mouse movement tracks zoom focal point
-  const handleMouseMoveZoom = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
-    const y = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100));
-    setHoverOrigin({ x, y });
-    setIsHoverZooming(true);
+  const openLightbox = (index: number) => {
+    setLightboxIndex(index);
+    setLightboxZoom(1);
+    setIsLightboxOpen(true);
   };
 
-  const handleMouseLeaveZoom = () => {
-    setIsHoverZooming(false);
+  const closeLightbox = () => {
+    setIsLightboxOpen(false);
+    setLightboxZoom(1);
   };
 
-  // Mobile pinch-to-zoom with non-passive touchmove to prevent browser page zoom
+  const nextLightboxImage = () => {
+    setLightboxZoom(1);
+    setLightboxIndex((prev) => (prev + 1) % galleryItems.length);
+  };
+
+  const prevLightboxImage = () => {
+    setLightboxZoom(1);
+    setLightboxIndex((prev) => (prev - 1 + galleryItems.length) % galleryItems.length);
+  };
+
+  // Lightbox keyboard navigation & body scroll locking
   useEffect(() => {
-    const container = imageCanvasRef.current;
-    if (!container) return;
+    if (!isLightboxOpen) return;
+    const origOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
 
-    const onTouchStart = (e: TouchEvent) => {
-      if (e.touches.length === 2) {
-        e.preventDefault();
-        const dist = Math.hypot(
-          e.touches[0].clientX - e.touches[1].clientX,
-          e.touches[0].clientY - e.touches[1].clientY
-        );
-        startPinchDist.current = dist;
-        startPinchScale.current = pinchScale;
-      }
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeLightbox();
+      else if (e.key === 'ArrowRight') nextLightboxImage();
+      else if (e.key === 'ArrowLeft') prevLightboxImage();
     };
 
-    const onTouchMove = (e: TouchEvent) => {
-      if (e.touches.length === 2) {
-        // Crucial: stops the browser from zooming the webpage itself
-        e.preventDefault();
-        const dist = Math.hypot(
-          e.touches[0].clientX - e.touches[1].clientX,
-          e.touches[0].clientY - e.touches[1].clientY
-        );
-        if (startPinchDist.current > 0) {
-          const factor = dist / startPinchDist.current;
-          const next = Math.min(4, Math.max(1, startPinchScale.current * factor));
-          setPinchScale(next);
-        }
-      }
-    };
-
-    const onTouchEnd = (e: TouchEvent) => {
-      if (e.touches.length < 2) {
-        startPinchDist.current = 0;
-      }
-    };
-
-    container.addEventListener('touchstart', onTouchStart, { passive: false });
-    container.addEventListener('touchmove', onTouchMove, { passive: false });
-    container.addEventListener('touchend', onTouchEnd);
-
+    window.addEventListener('keydown', handleKeyDown);
     return () => {
-      container.removeEventListener('touchstart', onTouchStart);
-      container.removeEventListener('touchmove', onTouchMove);
-      container.removeEventListener('touchend', onTouchEnd);
+      document.body.style.overflow = origOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [pinchScale]);
-
-  // Reset zoom on slide change
-  useEffect(() => {
-    setPinchScale(1);
-    setIsHoverZooming(false);
-  }, [activeImageIndex]);
+  }, [isLightboxOpen, galleryItems.length]);
 
   const handleGalleryTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
     if (event.touches.length === 1) {
@@ -545,7 +515,6 @@ export default function Product() {
   };
 
   const handleGalleryTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
-    if (pinchScale > 1.05) return; // Don't swipe while zoomed in
     const startX = galleryTouchStartX.current;
     const endX = event.changedTouches[0]?.clientX;
     galleryTouchStartX.current = null;
@@ -557,15 +526,14 @@ export default function Product() {
   };
 
   useEffect(() => {
-    if (galleryItems.length <= 1) return;
+    if (galleryItems.length <= 1 || isLightboxOpen) return;
     const autoScrollTimer = window.setInterval(() => {
-      if (isHoverZooming || pinchScale > 1.05) return;
       setGallerySwipeDirection('next');
       setActiveImageIndex((currentIndex) => (currentIndex + 1) % galleryItems.length);
     }, 30000);
 
     return () => window.clearInterval(autoScrollTimer);
-  }, [galleryItems.length, isHoverZooming, pinchScale]);
+  }, [galleryItems.length, isLightboxOpen]);
   
   // Delivery pincode state
   const [pincode, setPincode] = useState('700006');
@@ -1187,16 +1155,17 @@ export default function Product() {
                 {/* Main Active Preview Canvas */}
                 <div
                   ref={imageCanvasRef}
-                  className="order-1 relative flex h-[370px] min-w-0 w-full items-center justify-center overflow-hidden rounded-xl border border-stone-200/90 bg-white select-none sm:order-2 sm:h-[450px] shadow-xs"
+                  className="order-1 relative flex h-[360px] min-w-0 w-full items-center justify-center overflow-hidden rounded-xl border border-stone-200/90 bg-white select-none sm:order-2 sm:h-[450px] shadow-xs cursor-pointer group"
                   onTouchStart={handleGalleryTouchStart}
                   onTouchEnd={handleGalleryTouchEnd}
+                  onClick={() => openLightbox(activeImageIndex)}
                 >
 
                   {galleryItems.length > 1 && (
                     <>
                       <button
                         type="button"
-                        onClick={() => moveGallery(-1)}
+                        onClick={(e) => { e.stopPropagation(); moveGallery(-1); }}
                         aria-label="Previous product preview"
                         title="Previous Image"
                         className="absolute left-2.5 sm:left-3 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-stone-200 bg-white/95 text-stone-700 shadow-md backdrop-blur-xs transition-all hover:bg-white hover:text-brand-base hover:scale-105 active:scale-95 cursor-pointer"
@@ -1205,7 +1174,7 @@ export default function Product() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => moveGallery(1)}
+                        onClick={(e) => { e.stopPropagation(); moveGallery(1); }}
                         aria-label="Next product preview"
                         title="Next Image"
                         className="absolute right-2.5 sm:right-3 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-stone-200 bg-white/95 text-stone-700 shadow-md backdrop-blur-xs transition-all hover:bg-white hover:text-brand-base hover:scale-105 active:scale-95 cursor-pointer"
@@ -1219,7 +1188,7 @@ export default function Product() {
                   <div className="absolute right-3 top-3 z-30 flex flex-col gap-2">
                     <button
                       type="button"
-                      onClick={() => toggleWishlist(book.id)}
+                      onClick={(e) => { e.stopPropagation(); toggleWishlist(book.id); }}
                       className={`flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-white shadow-md border border-slate-100 transition-transform active:scale-95 ${
                         isWishlisted(book.id) ? 'text-rose-600' : 'text-slate-500 hover:text-rose-600'
                       }`}
@@ -1229,7 +1198,7 @@ export default function Product() {
                     </button>
                     <button
                       type="button"
-                      onClick={handleShare}
+                      onClick={(e) => { e.stopPropagation(); handleShare(); }}
                       className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-white shadow-md border border-slate-100 text-slate-500 hover:text-brand-base transition-transform active:scale-95 cursor-pointer"
                       title="Share book link"
                     >
@@ -1237,7 +1206,8 @@ export default function Product() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         const shareUrl = encodeURIComponent(window.location.href);
                         const shareMsg = encodeURIComponent(`Take a look at "${book.title}" on Techno World Books: `);
                         window.open(`https://api.whatsapp.com/send?text=${shareMsg}${shareUrl}`, '_blank');
@@ -1249,27 +1219,17 @@ export default function Product() {
                     </button>
                   </div>
 
-                  {/* Top-Left Zoom indicator: positioned away from bottom dots to eliminate UI overlap */}
+                  {/* Top-Left Fullscreen trigger pill */}
                   <div className="absolute left-3 top-3 z-30 flex items-center gap-1.5 pointer-events-auto">
-                    {pinchScale > 1.05 ? (
-                      <button
-                        type="button"
-                        onClick={() => setPinchScale(1)}
-                        className="flex items-center gap-1 rounded-full bg-slate-900/90 px-2.5 py-1 text-[11px] font-bold text-white shadow-md backdrop-blur-xs hover:bg-slate-900 active:scale-95 transition-all cursor-pointer"
-                      >
-                        <RotateCcw className="h-3 w-3" />
-                        <span>Reset Zoom ({Math.round(pinchScale * 100)}%)</span>
-                      </button>
-                    ) : (
-                      <span
-                        className={`inline-flex items-center gap-1 rounded-full bg-white/90 border border-stone-200/90 px-2.5 py-1 text-[10px] font-semibold text-stone-600 shadow-xs backdrop-blur-xs pointer-events-none transition-opacity duration-150 ${
-                          isHoverZooming ? 'opacity-0' : 'opacity-100'
-                        }`}
-                      >
-                        <ZoomIn className="h-3 w-3 text-stone-400" />
-                        <span>Hover to zoom · 2 fingers on phone</span>
-                      </span>
-                    )}
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); openLightbox(activeImageIndex); }}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-white/95 border border-stone-200/90 px-2.5 py-1 text-[11px] font-semibold text-stone-700 shadow-xs backdrop-blur-xs hover:bg-white hover:text-brand-base transition-colors cursor-pointer"
+                      title="Click to view high-resolution fullscreen preview"
+                    >
+                      <Maximize2 className="h-3.5 w-3.5 text-stone-500" />
+                      <span>Fullscreen</span>
+                    </button>
                   </div>
 
                   {/* Dots indicator for gallery slides: centered at bottom */}
@@ -1279,7 +1239,7 @@ export default function Product() {
                         <button
                           key={dotIdx}
                           type="button"
-                          onClick={() => selectGalleryImage(dotIdx)}
+                          onClick={(e) => { e.stopPropagation(); selectGalleryImage(dotIdx); }}
                           aria-label={`Slide ${dotIdx + 1}`}
                           className={`h-1.5 rounded-full transition-all cursor-pointer ${
                             activeImageIndex === dotIdx ? 'w-4 bg-white' : 'w-1.5 bg-white/50 hover:bg-white/80'
@@ -1303,46 +1263,17 @@ export default function Product() {
                       />
                     </div>
                   ) : galleryItems[activeImageIndex]?.imageUrl ? (
-                    <div
-                      className="relative flex h-full w-full items-center justify-center overflow-hidden cursor-zoom-in"
-                      onMouseMove={handleMouseMoveZoom}
-                      onMouseLeave={handleMouseLeaveZoom}
-                    >
-                      {/* Normal Centered Image View (when not hover zooming) */}
-                      <div
-                        className={`flex h-full w-full items-center justify-center p-6 sm:p-8 transition-opacity duration-150 ${
-                          isHoverZooming ? 'opacity-0' : 'opacity-100'
-                        }`}
-                      >
-                        <img
-                          src={getImageUrl(galleryItems[activeImageIndex].imageUrl)}
-                          alt={galleryItems[activeImageIndex].title}
-                          style={{
-                            transform: pinchScale > 1 ? `scale(${pinchScale})` : undefined,
-                            transition: pinchScale > 1 ? 'transform 0.1s ease-out' : undefined,
-                            touchAction: 'none',
-                          }}
-                          className="max-h-full max-w-full w-auto h-auto object-contain rounded-lg drop-shadow-md select-none pointer-events-auto"
-                          loading="eager"
-                          draggable={false}
-                        />
-                      </div>
-
-                      {/* Full-Section Magnified Zoom Layer: totally fills the square section edge-to-edge */}
-                      {isHoverZooming && (
-                        <div
-                          className="absolute inset-0 z-10 h-full w-full overflow-hidden pointer-events-none rounded-xl bg-white"
-                          style={{
-                            backgroundImage: `url("${getImageUrl(galleryItems[activeImageIndex].imageUrl)}")`,
-                            backgroundRepeat: 'no-repeat',
-                            backgroundSize: '240% auto',
-                            backgroundPosition: `${hoverOrigin.x}% ${hoverOrigin.y}%`,
-                          }}
-                        />
-                      )}
+                    <div className="flex h-full w-full items-center justify-center p-4 sm:p-8">
+                      <img
+                        src={getImageUrl(galleryItems[activeImageIndex].imageUrl)}
+                        alt={galleryItems[activeImageIndex].title}
+                        className="max-h-full max-w-full w-auto h-auto object-contain rounded-lg drop-shadow-md select-none transition-transform duration-200 group-hover:scale-[1.02]"
+                        loading="eager"
+                        draggable={false}
+                      />
                     </div>
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center p-6 sm:p-8">
+                    <div className="flex h-full w-full items-center justify-center p-4 sm:p-8">
                       <div className="h-[310px] sm:h-[375px] w-auto max-w-full aspect-[3/4.2] drop-shadow-xl transition-all duration-300 flex items-center justify-center mx-auto">
                         <BookCover book={book} className="w-full h-full text-base sm:text-xl drop-shadow-md" />
                       </div>
@@ -1387,17 +1318,17 @@ export default function Product() {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-3 pt-1">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3 pt-1">
                 <button
                   type="button"
                   onClick={() => {
                     addToCart(book.id, 1);
                     toast.success('Added to your cart');
                   }}
-                  className="flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white py-3.5 px-4 text-sm font-bold text-slate-800 shadow-sm transition-all hover:bg-slate-50 hover:border-slate-400 active:scale-[0.99]"
+                  className="flex min-w-0 items-center justify-center gap-1.5 sm:gap-2 rounded-lg border border-slate-300 bg-white py-3 px-2 sm:px-4 text-xs sm:text-sm font-bold text-slate-800 shadow-sm transition-all hover:bg-slate-50 hover:border-slate-400 active:scale-[0.99] cursor-pointer"
                 >
-                  <ShoppingCart className="h-4 w-4 text-slate-700" />
-                  <span>Add to cart</span>
+                  <ShoppingCart className="h-4 w-4 shrink-0 text-slate-700" />
+                  <span className="truncate">Add to cart</span>
                 </button>
 
                 <button
@@ -1406,10 +1337,10 @@ export default function Product() {
                     addToCart(book.id, 1);
                     navigate('/checkout');
                   }}
-                  className="flex items-center justify-center gap-2 rounded-lg bg-brand-base hover:bg-brand-light border border-brand-dark py-3.5 px-4 text-sm font-bold text-white shadow-sm hover:shadow transition-all active:scale-[0.99] cursor-pointer"
+                  className="flex min-w-0 items-center justify-center gap-1.5 sm:gap-2 rounded-lg bg-brand-base hover:bg-brand-light border border-brand-dark py-3 px-2 sm:px-4 text-xs sm:text-sm font-bold text-white shadow-sm hover:shadow transition-all active:scale-[0.99] cursor-pointer"
                 >
-                  <Zap className="h-4 w-4 fill-white text-white" />
-                  <span>Buy at {formatINR(price)}</span>
+                  <Zap className="h-4 w-4 shrink-0 fill-white text-white" />
+                  <span className="truncate">Buy at {formatINR(price)}</span>
                 </button>
               </div>
             )}
@@ -2233,6 +2164,164 @@ export default function Product() {
           onClose={() => setIsNotifyModalOpen(false)}
           book={book}
         />
+      )}
+
+      {/* Dedicated High-Resolution Fullscreen Lightbox Modal */}
+      {isLightboxOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="High-resolution book gallery preview"
+          className="fixed inset-0 z-[100] flex flex-col justify-between bg-black/95 backdrop-blur-md select-none animate-in fade-in duration-200"
+        >
+          {/* Top Bar */}
+          <div className="flex items-center justify-between px-4 py-3 sm:px-6 bg-black/50 border-b border-white/10 z-20">
+            <div className="flex items-center gap-2 sm:gap-3 text-white min-w-0">
+              <span className="text-xs sm:text-sm font-bold text-stone-200">
+                {lightboxIndex + 1} / {galleryItems.length}
+              </span>
+              <span className="hidden sm:inline-block text-stone-500">•</span>
+              <span className="hidden sm:inline-block text-xs font-medium text-stone-300 truncate max-w-md">
+                {book.title}
+              </span>
+            </div>
+
+            {/* Center Zoom Controls */}
+            <div className="flex items-center gap-1.5 sm:gap-2 bg-white/10 rounded-full px-2 py-1">
+              <button
+                type="button"
+                onClick={() => setLightboxZoom(z => Math.max(1, Number((z - 0.5).toFixed(1))))}
+                disabled={lightboxZoom <= 1}
+                className="p-1 rounded-full text-stone-300 hover:text-white disabled:opacity-30 disabled:hover:text-stone-300 cursor-pointer transition-colors"
+                title="Zoom out"
+              >
+                <ZoomOut className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setLightboxZoom(1)}
+                className="text-[11px] font-semibold text-stone-300 hover:text-white px-1.5 transition-colors cursor-pointer"
+                title="Reset zoom"
+              >
+                {Math.round(lightboxZoom * 100)}%
+              </button>
+              <button
+                type="button"
+                onClick={() => setLightboxZoom(z => Math.min(3, Number((z + 0.5).toFixed(1))))}
+                disabled={lightboxZoom >= 3}
+                className="p-1 rounded-full text-stone-300 hover:text-white disabled:opacity-30 disabled:hover:text-stone-300 cursor-pointer transition-colors"
+                title="Zoom in"
+              >
+                <ZoomIn className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Close Button */}
+            <button
+              type="button"
+              onClick={closeLightbox}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+              title="Close fullscreen view (Esc)"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          {/* Center Image Canvas */}
+          <div
+            className="relative flex-1 flex items-center justify-center p-3 sm:p-6 overflow-hidden"
+            onClick={() => setLightboxZoom(z => (z === 1 ? 2 : 1))}
+            onTouchStart={(e) => {
+              if (e.touches.length === 1) {
+                setLightboxTouchStartX(e.touches[0].clientX);
+              }
+            }}
+            onTouchEnd={(e) => {
+              if (lightboxZoom > 1) return; // allow natural pinch/pan when zoomed
+              const startX = lightboxTouchStartX;
+              const endX = e.changedTouches[0]?.clientX;
+              setLightboxTouchStartX(null);
+              if (startX === null || endX === undefined) return;
+              const diff = endX - startX;
+              if (Math.abs(diff) < 50) return;
+              if (diff < 0) nextLightboxImage();
+              else prevLightboxImage();
+            }}
+          >
+            {galleryItems[lightboxIndex]?.imageUrl ? (
+              <img
+                src={getImageUrl(galleryItems[lightboxIndex].imageUrl)}
+                alt={galleryItems[lightboxIndex].title || book.title}
+                style={{
+                  transform: `scale(${lightboxZoom})`,
+                  transition: 'transform 0.2s cubic-bezier(0.2, 0, 0, 1)',
+                  maxHeight: '80vh',
+                  maxWidth: '92vw',
+                }}
+                className="w-auto h-auto object-contain drop-shadow-2xl rounded-sm select-none cursor-zoom-in"
+                draggable={false}
+              />
+            ) : galleryItems[lightboxIndex]?.type === 'pdf' && galleryItems[lightboxIndex]?.pdfUrl ? (
+              <div className="w-full h-full max-w-4xl max-h-[80vh] rounded-lg overflow-hidden bg-white">
+                <iframe
+                  src={`${getImageUrl(galleryItems[lightboxIndex].pdfUrl)}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`}
+                  className="w-full h-full border-0"
+                  title="Sample PDF Preview"
+                />
+              </div>
+            ) : (
+              <div className="h-[380px] w-auto aspect-[3/4.2] drop-shadow-2xl flex items-center justify-center">
+                <BookCover book={book} className="w-full h-full text-xl" />
+              </div>
+            )}
+
+            {/* Desktop Left / Right Navigation Arrows */}
+            {galleryItems.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); prevLightboxImage(); }}
+                  className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 hover:bg-white/25 text-white transition-all cursor-pointer backdrop-blur-xs"
+                  title="Previous image (Left Arrow)"
+                >
+                  <ChevronLeft className="h-6 w-6 stroke-[2.5]" />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); nextLightboxImage(); }}
+                  className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 hover:bg-white/25 text-white transition-all cursor-pointer backdrop-blur-xs"
+                  title="Next image (Right Arrow)"
+                >
+                  <ChevronRight className="h-6 w-6 stroke-[2.5]" />
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* Bottom Thumbnails */}
+          {galleryItems.length > 1 && (
+            <div className="flex items-center justify-center gap-2 p-3 sm:p-4 bg-black/50 border-t border-white/10 overflow-x-auto max-w-full">
+              {galleryItems.map((item, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => { setLightboxIndex(idx); setLightboxZoom(1); }}
+                  className={`h-12 w-9 sm:h-14 sm:w-11 rounded border overflow-hidden transition-all shrink-0 p-0.5 bg-white cursor-pointer ${
+                    lightboxIndex === idx ? 'border-brand-primary ring-2 ring-emerald-400 scale-105' : 'border-white/20 opacity-60 hover:opacity-100'
+                  }`}
+                >
+                  {item.imageUrl ? (
+                    <img src={getImageUrl(item.imageUrl)} alt="" className="w-full h-full object-contain" />
+                  ) : (
+                    <div className="w-full h-full bg-stone-100 flex items-center justify-center text-[8px] font-bold text-stone-700">
+                      p.{idx + 1}
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       )}
 
     </div>

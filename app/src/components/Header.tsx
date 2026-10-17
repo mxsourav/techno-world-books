@@ -488,6 +488,24 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
   );
 }
 
+function highlightSearchMatch(text: string, query: string) {
+  if (!query || !query.trim() || !text) return text;
+  const words = query.trim().split(/\s+/).filter(w => w.length >= 2);
+  if (words.length === 0) return text;
+  const escaped = words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+  const regex = new RegExp(`(${escaped})`, 'gi');
+  const parts = text.split(regex);
+  return parts.map((part, i) =>
+    regex.test(part) ? (
+      <mark key={i} className="bg-emerald-100 text-emerald-900 font-bold px-0.5 rounded-xs">
+        {part}
+      </mark>
+    ) : (
+      part
+    )
+  );
+}
+
 // Search bar component with suggestions and voice search
 export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus?: boolean; className?: string; id?: string }) {
   const [q, setQ] = useState('');
@@ -518,7 +536,7 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
           })
           .catch(() => setSuggestions([]))
           .finally(() => setLoading(false));
-      }, 300);
+      }, 150);
       return () => clearTimeout(timer);
     } else {
       setSuggestions([]);
@@ -564,7 +582,7 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
             <Mic className="h-4 w-4" />
           </button>
         </div>
-        <button onClick={() => submit()} aria-label="Submit search" className="flex shrink-0 items-center justify-center px-4 sm:px-6 bg-brand-dark text-white hover:bg-[#0a2e5c] transition-colors cursor-pointer">
+        <button onClick={() => submit()} aria-label="Submit search" className="flex shrink-0 items-center justify-center px-4 sm:px-6 bg-brand-dark text-white hover:bg-brand-primary transition-colors cursor-pointer">
           <Search className="h-4 w-4" />
         </button>
       </div>
@@ -572,9 +590,9 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
         <div className="absolute left-0 right-0 top-full z-[60] mt-1.5 max-h-[calc(100dvh-160px)] sm:max-h-96 overflow-y-auto overscroll-contain rounded-md border border-stone-200 bg-white py-1.5 shadow-md">
           {q.trim().length > 1 ? (
             loading ? (
-              <div className="px-4 py-3 text-center text-xs text-stone-500">Loading...</div>
+              <div className="px-4 py-3 text-center text-xs text-stone-500">Searching catalog…</div>
             ) : suggestions.length === 0 ? (
-              <div className="px-4 py-3 text-center text-xs text-stone-500">No books found</div>
+              <div className="px-4 py-3 text-center text-xs text-stone-500">No books found for "{q}"</div>
             ) : (
               <>
                 {suggestions.map((b) => {
@@ -595,7 +613,7 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
                     <button
                       key={b.id}
                       onClick={() => { addSearchToHistory(b.title); setOpen(false); setQ(''); navigate(`/book/${b.slug}`); }}
-                      className="group flex w-full items-center gap-3.5 px-3.5 py-2 text-left hover:bg-stone-50 transition-colors border-b border-stone-100 last:border-0"
+                      className="group flex w-full items-center gap-3.5 px-3.5 py-2 text-left hover:bg-emerald-50/40 transition-colors border-b border-stone-100 last:border-0"
                     >
                       <div className="relative h-12 w-9 shrink-0 overflow-hidden rounded bg-stone-50 border border-stone-200 shadow-2xs flex items-center justify-center p-0.5">
                         {coverSrc ? (
@@ -613,11 +631,11 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
                         )}
                       </div>
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-xs sm:text-sm font-semibold text-stone-900 group-hover:text-brand-dark transition-colors">
-                          {b.title}
+                        <span className="block truncate text-xs sm:text-sm font-semibold text-stone-900 group-hover:text-brand-base transition-colors">
+                          {highlightSearchMatch(b.title, q)}
                         </span>
                         <span className="block truncate text-[11px] text-stone-500 mt-0.5">
-                          {b.author && b.author !== 'Unknown' ? <span>{b.author}</span> : null}
+                          {b.author && b.author !== 'Unknown' ? <span>{highlightSearchMatch(b.author, q)}</span> : null}
                           {b.author && b.author !== 'Unknown' && b.category ? <span> • </span> : null}
                           {b.category ? <span className="text-stone-400">{b.category}</span> : null}
                         </span>
