@@ -1,5 +1,8 @@
 import { useState } from 'react';
-import { CheckCircle2, BookOpen, Send, Upload, X, Loader2, Sparkles, MessageSquare, Phone, MapPin, Quote } from 'lucide-react';
+import {
+  CheckCircle2, BookOpen, Send, Upload, X, Loader2, Sparkles, MessageSquare, Phone, MapPin, Quote,
+  BadgeCheck, Tag, ShieldCheck, Truck, Headphones, HeartHandshake
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { bookRequestService } from '@/services/api';
 import { useStore } from '@/store/StoreContext';
@@ -379,18 +382,44 @@ export default function About() {
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {[
-            'Genuine and authentic books',
-            'Competitive pricing',
-            'Secure online shopping',
-            'Fast and reliable delivery across India',
-            'Responsive customer support',
-            'A customer-first approach built on trust and satisfaction'
-          ].map((feature, idx) => (
-            <div key={idx} className="flex items-center p-5 bg-white rounded-lg shadow-xs border border-stone-200">
-              <CheckCircle2 className="h-6 w-6 text-brand-base mr-3.5 flex-shrink-0" />
-              <span className="text-stone-800 font-medium text-base leading-snug">{feature}</span>
-            </div>
-          ))}
+            {
+              title: 'Genuine and authentic books',
+              icon: BadgeCheck,
+            },
+            {
+              title: 'Competitive pricing',
+              icon: Tag,
+            },
+            {
+              title: 'Secure online shopping',
+              icon: ShieldCheck,
+            },
+            {
+              title: 'Fast and reliable delivery across India',
+              icon: Truck,
+            },
+            {
+              title: 'Responsive customer support',
+              icon: Headphones,
+            },
+            {
+              title: 'A customer-first approach built on trust and satisfaction',
+              icon: HeartHandshake,
+            },
+          ].map((item, idx) => {
+            const Icon = item.icon;
+            return (
+              <div
+                key={idx}
+                className="flex items-center p-5 bg-white rounded-lg shadow-xs border border-stone-200 hover:border-emerald-500/40 hover:shadow-sm transition-all group"
+              >
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-800 mr-3.5 group-hover:scale-105 transition-transform border border-emerald-100">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <span className="text-stone-800 font-medium text-base leading-snug">{item.title}</span>
+              </div>
+            );
+          })}
         </div>
 
         <p className="mt-10 text-base text-stone-600 leading-relaxed max-w-3xl mx-auto text-center font-medium">

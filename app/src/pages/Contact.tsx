@@ -103,7 +103,7 @@ export default function Contact() {
             <div className="flex items-center gap-3 text-sm text-stone-700 pt-2 border-t border-stone-100">
               <Phone className="h-5 w-5 text-stone-700 shrink-0" />
               <div>
-                <p className="text-xs text-stone-500 font-medium">Store Landline (9:00 AM – 8:00 PM)</p>
+                <p className="text-xs text-stone-500 font-medium">Store Landline (Mon &ndash; Sat: 10:00 AM &ndash; 8:00 PM)</p>
                 <span className="font-semibold text-stone-900 hover:text-brand-base">
                   <CmsText contentKey="footer.phone" defaultText="033 2257 1650" label="Store Landline" />
                 </span>
@@ -138,7 +138,7 @@ export default function Contact() {
               <Clock className="h-5 w-5 text-stone-700 shrink-0" />
               <div>
                 <p className="text-xs text-stone-500 font-medium">Store & Support Hours</p>
-                <p className="font-semibold text-stone-900">Mon &ndash; Sat: 9:00 AM &ndash; 8:00 PM</p>
+                <p className="font-semibold text-stone-900">Mon &ndash; Sat: 10:00 AM &ndash; 8:00 PM</p>
                 <p className="text-[11px] text-stone-400">Sunday Closed (WhatsApp active)</p>
               </div>
             </div>

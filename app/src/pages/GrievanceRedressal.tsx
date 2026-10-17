@@ -52,7 +52,7 @@ export default function GrievanceRedressal() {
                 Landline: <a href="tel:03322571650" className="hover:underline font-semibold">033 2257 1650</a>
               </p>
               <p className="text-xs text-stone-500 mt-0.5">
-                Monday to Saturday, 10:30 AM – 7:30 PM IST
+                Monday to Saturday, 10:00 AM – 8:00 PM IST
               </p>
             </div>
           </div>

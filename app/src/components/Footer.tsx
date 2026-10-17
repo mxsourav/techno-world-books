@@ -62,7 +62,7 @@ export default function Footer() {
           </div>
           <div className="flex items-center gap-2.5 text-sm font-semibold text-stone-300">
             <Phone className="h-4 w-4 shrink-0 text-stone-500" />
-            <p>Call Us : <a href="tel:03322571650" className="hover:underline hover:text-white transition-colors">033 2257 1650</a></p>
+            <p>Call Us : <a href="tel:03322571650" className="hover:underline hover:text-white transition-colors">033 2257 1650</a> <span className="text-xs font-normal text-stone-400">&bull; Mon &ndash; Sat, 10 AM &ndash; 8 PM</span></p>
           </div>
           
           {/* Payment Icons */}

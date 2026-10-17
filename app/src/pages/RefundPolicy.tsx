@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import { RefreshCw, ExternalLink, ShieldCheck, Phone } from 'lucide-react';
+import { RefreshCw, ExternalLink, ShieldCheck, Phone, FileText } from 'lucide-react';
 import SEOHead from '@/components/SEOHead';
 
 export default function RefundPolicy() {
@@ -208,11 +208,26 @@ export default function RefundPolicy() {
         </section>
       </div>
 
-      {/* Bottom Navigation */}
-      <div className="mt-12 pt-6 border-t border-slate-200 flex flex-wrap gap-4 text-xs font-semibold">
-        <Link to="/terms" className="text-brand-base hover:underline">Read Terms & Conditions →</Link>
-        <Link to="/shipping-policy" className="text-brand-base hover:underline">Read Shipping Policy →</Link>
-        <Link to="/contact" className="text-brand-base hover:underline">Contact Customer Support →</Link>
+      {/* Statutory Policy References */}
+      <div className="mt-12 pt-6 border-t border-stone-200">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-stone-500 mb-3">Statutory Policy References</h3>
+        <div className="flex flex-wrap gap-4 text-xs font-semibold text-brand-base">
+          <Link to="/shipping-policy" className="hover:underline flex items-center gap-1">
+            <FileText className="h-3.5 w-3.5 text-stone-500" /> Shipping Policy
+          </Link>
+          <Link to="/terms" className="hover:underline flex items-center gap-1">
+            <FileText className="h-3.5 w-3.5 text-stone-500" /> Terms &amp; Conditions
+          </Link>
+          <Link to="/privacy-policy" className="hover:underline flex items-center gap-1">
+            <FileText className="h-3.5 w-3.5 text-stone-500" /> Privacy Policy
+          </Link>
+          <Link to="/legal/grievance-redressal" className="hover:underline flex items-center gap-1">
+            <FileText className="h-3.5 w-3.5 text-stone-500" /> Grievance Redressal
+          </Link>
+          <Link to="/contact" className="hover:underline flex items-center gap-1">
+            <FileText className="h-3.5 w-3.5 text-stone-500" /> Contact Support
+          </Link>
+        </div>
       </div>
     </div>
   );
