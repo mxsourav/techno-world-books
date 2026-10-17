@@ -967,22 +967,43 @@ export default function Header() {
             <div className="flex items-center gap-1 shrink-0">
               <DropdownMenu modal={false}>
                 <DropdownMenuTrigger asChild>
-                  <button className="mr-2 flex shrink-0 items-center gap-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-semibold text-brand-100 hover:bg-white/10 hover:text-white transition-colors cursor-pointer outline-none">
-                    <ChevronDown className="h-3.5 w-3.5 text-emerald-400" /> Shop by category
+                  <button className="mr-2 flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 py-1 text-xs font-semibold text-white/95 hover:bg-white/10 hover:text-white transition-colors cursor-pointer outline-none">
+                    <ChevronDown className="h-3.5 w-3.5 text-emerald-300" /> Shop by category
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-60 max-h-96 overflow-y-auto bg-brand-dark/80 backdrop-blur-md border border-brand-200/20 text-emerald-50 p-1.5 shadow-xl shadow-emerald-950/30 rounded-lg z-50">
-                  <div className="px-2 py-1.5 text-[10px] font-bold text-brand-100 uppercase tracking-wider border-b border-brand-200/20 mb-1">
+                <DropdownMenuContent
+                  align="start"
+                  sideOffset={6}
+                  className="w-64 max-h-[480px] overflow-y-auto !bg-white !text-stone-900 border border-stone-200 p-2 shadow-2xl rounded-xl z-50"
+                >
+                  <div className="px-3 py-1.5 text-[10px] font-bold text-stone-400 uppercase tracking-wider border-b border-stone-100 mb-1.5">
                     All Categories
                   </div>
-                  {(categories?.length ? categories : WEBSITE_CATEGORIES).map((c: any) => (
-                    <DropdownMenuItem key={c.slug || c.id} asChild className="focus:bg-white/15 focus:text-white rounded-md cursor-pointer text-xs py-1.5 px-2">
-                      <Link to={`/category/${c.slug}`} className="flex items-center gap-2 w-full">
-                        <BookOpen className="h-3.5 w-3.5 text-brand-100 shrink-0" />
-                        <span>{c.name}</span>
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
+                  <div className="space-y-0.5">
+                    {(categories?.length ? categories : WEBSITE_CATEGORIES).map((c: any) => {
+                      const matchedCategory = WEBSITE_CATEGORIES.find(
+                        (w) => w.slug === c.slug || w.name.toLowerCase() === (c.name || '').toLowerCase()
+                      );
+                      const icon = matchedCategory?.icon;
+
+                      return (
+                        <DropdownMenuItem
+                          key={c.slug || c.id}
+                          asChild
+                          className="focus:bg-emerald-50 focus:text-brand-base hover:bg-stone-50 rounded-lg cursor-pointer text-xs py-2 px-3 transition-colors text-stone-800"
+                        >
+                          <Link to={`/category/${c.slug}`} className="flex items-center gap-2.5 w-full text-stone-800 hover:text-brand-base font-semibold">
+                            {icon ? (
+                              <span className="text-brand-base shrink-0">{icon}</span>
+                            ) : (
+                              <BookOpen className="h-4 w-4 text-brand-base shrink-0" />
+                            )}
+                            <span className="truncate">{c.name}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                      );
+                    })}
+                  </div>
                 </DropdownMenuContent>
               </DropdownMenu>
 
