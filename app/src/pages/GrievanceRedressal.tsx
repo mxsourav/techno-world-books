@@ -49,7 +49,7 @@ export default function GrievanceRedressal() {
             <div>
               <p className="text-xs font-bold uppercase tracking-wider text-stone-500">Customer Helpline &amp; Desk</p>
               <p className="text-sm text-stone-800 font-medium mt-0.5">
-                Landline: <a href="tel:03322196115" className="hover:underline font-semibold">033 2219 6115</a>
+                Landline: <a href="tel:03322571650" className="hover:underline font-semibold">033 2257 1650</a>
               </p>
               <p className="text-xs text-stone-500 mt-0.5">
                 Monday to Saturday, 10:30 AM – 7:30 PM IST
@@ -133,7 +133,7 @@ export default function GrievanceRedressal() {
             </div>
           </div>
           <p className="text-[11px] text-slate-500 pt-2 border-t border-slate-200">
-            Note: For physical bookstore orders, delivery tracking, or replacement queries, please route via Customer Support / Grievance Desk at <a href="tel:03322196115" className="font-semibold text-slate-700 hover:underline">033 2219 6115</a>.
+            Note: For physical bookstore orders, delivery tracking, or replacement queries, please route via Customer Support / Grievance Desk at <a href="tel:03322571650" className="font-semibold text-slate-700 hover:underline">033 2257 1650</a>.
           </p>
         </div>
       </div>
@@ -148,7 +148,7 @@ export default function GrievanceRedressal() {
             <div>
               <p className="font-semibold text-stone-900">Step 1: Contact Customer Support</p>
               <p className="text-xs text-stone-600 mt-0.5">
-                For order tracking, dispatch status, or cancellation requests prior to dispatch, email us at <a href="mailto:support@technoworldbooks.in" className="font-medium underline">support@technoworldbooks.in</a> or call <a href="tel:03322196115" className="font-medium underline">033 2219 6115</a>.
+                For order tracking, dispatch status, or cancellation requests prior to dispatch, email us at <a href="mailto:support@technoworldbooks.in" className="font-medium underline">support@technoworldbooks.in</a> or call <a href="tel:03322571650" className="font-medium underline">033 2257 1650</a>.
               </p>
             </div>
           </div>

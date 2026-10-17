@@ -71,7 +71,7 @@ export default function PrivacyPolicy() {
             <p className="text-slate-700">Direct Phone: <a href="tel:8509986008" className="font-mono font-bold text-brand-base hover:underline">+91 85099 86008</a></p>
             <p className="text-slate-700">Official Email: <a href="mailto:support@technoworldbooks.in" className="font-bold text-brand-base hover:underline">support@technoworldbooks.in</a></p>
             <p className="text-slate-500 text-[11px] mt-1 pt-1 border-t border-slate-200">
-              Note: For customer order disputes, physical book replacements, or pre-dispatch cancellations, please contact the bookstore Grievance Desk at <a href="tel:03322196115" className="font-semibold text-slate-700 hover:underline">033 2219 6115</a>.
+              Note: For customer order disputes, physical book replacements, or pre-dispatch cancellations, please contact the bookstore Grievance Desk at <a href="tel:03322571650" className="font-semibold text-slate-700 hover:underline">033 2257 1650</a>.
             </p>
           </div>
         </section>

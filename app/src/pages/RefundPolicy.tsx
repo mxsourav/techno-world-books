@@ -203,7 +203,7 @@ export default function RefundPolicy() {
             <p><b>Techno World Books</b> &bull; Customer Care Division</p>
             <p>Address: 90/6A, Mahatma Gandhi Rd, Calcutta University, College Street, Kolkata 700007</p>
             <p>WhatsApp Video & Support: <b>+91 747 913 5626</b></p>
-            <p>Phone Support: 033 2219 6115 &bull; Email: support@technoworldbooks.in</p>
+            <p>Phone Support: 033 2257 1650 &bull; Email: support@technoworldbooks.in</p>
           </div>
         </section>
       </div>

@@ -564,10 +564,10 @@ export const GoogleReviewsAndMap: React.FC = () => {
                     <div>
                       <p className="font-semibold text-stone-900">Telephone / Order Desk</p>
                       <a
-                        href="tel:+913322196115"
+                        href="tel:+913322571650"
                         className="text-stone-800 hover:text-stone-950 font-semibold text-xs hover:underline"
                       >
-                        +91 33 2219 6115 / 033 2219 6115
+                        +91 33 2257 1650 / 033 2257 1650
                       </a>
                     </div>
                   </div>
@@ -587,7 +587,7 @@ export const GoogleReviewsAndMap: React.FC = () => {
                 </a>
 
                 <a
-                  href="tel:+913322196115"
+                  href="tel:+913322571650"
                   className="inline-flex items-center justify-center gap-2 rounded-md border border-stone-300 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-stone-800 hover:bg-stone-50 transition-colors shadow-xs"
                 >
                   <Phone className="h-4 w-4 text-stone-600" />

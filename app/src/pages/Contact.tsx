@@ -105,7 +105,7 @@ export default function Contact() {
               <div>
                 <p className="text-xs text-stone-500 font-medium">Store Landline (9:00 AM – 8:00 PM)</p>
                 <span className="font-semibold text-stone-900 hover:text-brand-base">
-                  <CmsText contentKey="footer.phone" defaultText="033 2219 6115" label="Store Landline" />
+                  <CmsText contentKey="footer.phone" defaultText="033 2257 1650" label="Store Landline" />
                 </span>
               </div>
             </div>

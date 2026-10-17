@@ -156,7 +156,7 @@ export default function Terms() {
             <div>
               <p className="font-semibold text-slate-900">Techno World Books Customer &amp; Grievance Redressal Desk</p>
               <p>90/6A, Mahatma Gandhi Rd, Calcutta University, Kolkata, West Bengal 700007</p>
-              <p>Phone: <a href="tel:03322196115" className="font-semibold text-slate-900 hover:underline">033 2219 6115</a> &bull; WhatsApp: <a href="https://wa.me/917479135626" className="font-semibold text-slate-900 hover:underline">+91 747 913 5626</a></p>
+              <p>Phone: <a href="tel:03322571650" className="font-semibold text-slate-900 hover:underline">033 2257 1650</a> &bull; WhatsApp: <a href="https://wa.me/917479135626" className="font-semibold text-slate-900 hover:underline">+91 747 913 5626</a></p>
               <p>Email: <a href="mailto:support@technoworldbooks.in" className="font-semibold text-brand-base hover:underline">support@technoworldbooks.in</a></p>
             </div>
             <div className="pt-2 border-t border-slate-200">

@@ -12,15 +12,15 @@ module.exports = {
         foreground: "hsl(var(--foreground))",
         // Permanent Brand Theme: Signature Deep Forest Green Palette
         brand: {
-          dark: 'var(--brand-dark, #0B2B19)',      // Darkest surface (Headers, footer, dark banners)
-          DEFAULT: 'var(--brand-base, #155D36)',   // Primary Base (Interactive, CTAs, highlights)
-          base: 'var(--brand-base, #155D36)',      // Semantic alias for Base
-          light: 'var(--brand-light, #1E7E48)',    // Lighter interactive hover tint
-          lighter: 'var(--brand-lighter, #269E5B)',// Secondary elevated hover
-          muted: 'var(--brand-muted, #1e3d2b)',    // Muted tone
-          subtle: 'var(--brand-subtle, #eaf5ef)',  // Soft tint for badges and chips
-          soft: 'var(--brand-soft, #f2f8f4)',      // Soft card fill
-          pitch: 'var(--brand-pitch, #06190E)',    // Deepest pitch dark green
+          dark: 'var(--brand-dark, #06140F)',      // Darkest surface (Headers, footer, dark banners)
+          DEFAULT: 'var(--brand-base, #081C15)',   // Primary Base (Interactive, CTAs, highlights)
+          base: 'var(--brand-base, #081C15)',      // Semantic alias for Base
+          light: 'var(--brand-light, #0E2E22)',    // Lighter interactive hover tint
+          lighter: 'var(--brand-lighter, #164433)',// Secondary elevated hover
+          muted: 'var(--brand-muted, #0B241A)',    // Muted tone
+          subtle: 'var(--brand-subtle, #eef7f2)',  // Soft tint for badges and chips
+          soft: 'var(--brand-soft, #f4faf6)',      // Soft card fill
+          pitch: 'var(--brand-pitch, #030A07)',    // Deepest pitch dark green
           accent: 'var(--brand-accent, #D97706)',  // Crisp gold/amber hints for badges
           50: 'var(--brand-50, #f2f8f4)',
           100: 'var(--brand-100, #eaf5ef)',
@@ -30,16 +30,16 @@ module.exports = {
           500: 'var(--brand-500, #4caf50)',
           600: 'var(--brand-600, #2e7d32)',
           700: 'var(--brand-700, #1b5e20)',
-          800: 'var(--brand-base, #155D36)',
-          900: 'var(--brand-dark, #0B2B19)',
-          950: 'var(--brand-pitch, #06190E)',
+          800: 'var(--brand-base, #081C15)',
+          900: 'var(--brand-dark, #06140F)',
+          950: 'var(--brand-pitch, #030A07)',
         },
         primary: {
-          DEFAULT: 'var(--brand-base, #155D36)',
+          DEFAULT: 'var(--brand-base, #081C15)',
           foreground: '#ffffff',
-          dark: 'var(--brand-dark, #0B2B19)',
-          base: 'var(--brand-base, #155D36)',
-          light: 'var(--brand-light, #1E7E48)',
+          dark: 'var(--brand-dark, #06140F)',
+          base: 'var(--brand-base, #081C15)',
+          light: 'var(--brand-light, #0E2E22)',
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",

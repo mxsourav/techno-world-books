@@ -44,9 +44,9 @@ export default function Help() {
           <MessageCircle className="h-7 w-7 text-stone-700" />
           <span><b className="block text-sm font-semibold text-stone-800">Live Chat</b><span className="text-xs text-stone-500">Chat with a support agent</span></span>
         </button>
-        <a href="tel:03322196115" className="flex items-center gap-3 rounded-lg border border-stone-200 bg-white p-4 shadow-xs hover:border-stone-300 transition-colors">
+        <a href="tel:03322571650" className="flex items-center gap-3 rounded-lg border border-stone-200 bg-white p-4 shadow-xs hover:border-stone-300 transition-colors">
           <Phone className="h-7 w-7 text-stone-700" />
-          <span><b className="block text-sm font-semibold text-stone-800">033 2219 6115</b><span className="text-xs text-stone-500">Store Landline, 9 AM – 8 PM</span></span>
+          <span><b className="block text-sm font-semibold text-stone-800">033 2257 1650</b><span className="text-xs text-stone-500">Store Landline, 9 AM – 8 PM</span></span>
         </a>
       </div>
 

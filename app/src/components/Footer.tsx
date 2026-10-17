@@ -44,31 +44,32 @@ export default function Footer() {
   };
 
   return (
-    <footer className="mt-8 border-t border-stone-800 bg-brand-dark text-stone-300">
-      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-3 sm:px-6 py-8 md:grid-cols-12 md:gap-6 lg:gap-8">
+    <footer className="mt-8 border-t border-white/10 bg-[#081C15] text-stone-300">
+      {/* Top Tier: Main Navigation */}
+      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-4 sm:px-6 py-10 md:grid-cols-12 md:gap-6 lg:gap-8">
         
-        {/* Col 1: Registered Entity & Address */}
-        <div className="col-span-2 space-y-3 md:col-span-12 lg:col-span-3">
-          <div className="space-y-0.5">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-stone-100">Techno World Books</h3>
+        {/* Col 1: Brand & Contact */}
+        <div className="col-span-2 space-y-3.5 md:col-span-12 lg:col-span-4">
+          <div className="space-y-1">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-white/80">Techno World Books</h3>
             <p className="text-[11px] text-stone-400">Registered Entity &bull; College Street, Kolkata</p>
           </div>
-          <div className="flex items-start gap-2 text-sm leading-relaxed text-stone-400">
+          <div className="flex items-start gap-2.5 text-sm leading-relaxed text-stone-400">
             <MapPin className="mt-1 h-4 w-4 shrink-0 text-stone-500" />
             <p>
-              90/6A, Mahatma Gandhi Rd, College Street, Kolkata, WB 700007
+              90/6A, Mahatma Gandhi Rd, opp. Grace Cinema, Calcutta University, College Street, Kolkata, WB 700007
             </p>
           </div>
-          <div className="flex items-center gap-2 text-sm font-semibold mt-2 text-stone-300">
+          <div className="flex items-center gap-2.5 text-sm font-semibold text-stone-300">
             <Phone className="h-4 w-4 shrink-0 text-stone-500" />
-            <p>Call Us : <a href="tel:03322196115" className="hover:underline">033 2219 6115</a></p>
+            <p>Call Us : <a href="tel:03322571650" className="hover:underline hover:text-white transition-colors">033 2257 1650</a></p>
           </div>
           
           {/* Payment Icons */}
-          <div className="mt-3 flex items-center gap-2 pt-1">
-            <div className="flex h-7 w-12 items-center justify-center rounded border border-stone-700 bg-stone-900 text-[9px] font-bold text-stone-200">AMEX</div>
-            <div className="flex h-7 w-12 items-center justify-center rounded border border-stone-700 bg-stone-900 text-[11px] font-bold text-stone-200 italic">VISA</div>
-            <div className="flex h-7 w-12 relative items-center justify-center rounded border border-stone-700 bg-white shadow-xs overflow-hidden">
+          <div className="flex items-center gap-2 pt-1.5">
+            <div className="flex h-7 w-12 items-center justify-center rounded border border-white/10 bg-white/5 text-[9px] font-bold text-stone-300">AMEX</div>
+            <div className="flex h-7 w-12 items-center justify-center rounded border border-white/10 bg-white/5 text-[11px] font-bold text-stone-300 italic">VISA</div>
+            <div className="flex h-7 w-12 relative items-center justify-center rounded border border-white/10 bg-white shadow-xs overflow-hidden">
                <div className="w-3.5 h-3.5 rounded-full bg-red-600/90 absolute left-1.5 mix-blend-multiply"></div>
                <div className="w-3.5 h-3.5 rounded-full bg-amber-500/90 absolute right-1.5 mix-blend-multiply"></div>
             </div>
@@ -76,9 +77,9 @@ export default function Footer() {
         </div>
 
         {/* Col 2: Useful Links */}
-        <div className="col-span-1 md:col-span-3 lg:col-span-2">
-          <h3 className="mb-2.5 text-xs font-bold uppercase tracking-wider text-stone-100">Useful Links</h3>
-          <ul className="space-y-1.5 text-sm text-stone-400">
+        <div className="col-span-1 md:col-span-4 lg:col-span-2">
+          <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-white/80">Useful Links</h3>
+          <ul className="space-y-2 text-sm text-stone-400">
             <li><Link to="/about" className="hover:text-white transition-colors">About Us</Link></li>
             <li><Link to="/contact" className="hover:text-white transition-colors">Contact Us</Link></li>
             <li><Link to="/track" className="hover:text-white transition-colors">Track Order</Link></li>
@@ -94,10 +95,10 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* Col 3: Compliance & Policies */}
-        <div className="col-span-1 md:col-span-3 lg:col-span-3">
-          <h3 className="mb-2.5 text-xs font-bold uppercase tracking-wider text-stone-100">Policies &amp; Legal</h3>
-          <ul className="space-y-1.5 text-sm text-stone-400">
+        {/* Col 3: Policies & Legal */}
+        <div className="col-span-1 md:col-span-4 lg:col-span-3">
+          <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-white/80">Policies &amp; Legal</h3>
+          <ul className="space-y-2 text-sm text-stone-400">
             <li><Link to="/shipping-policy" className="hover:text-white transition-colors">Shipping Policy</Link></li>
             <li><Link to="/refund-policy" className="hover:text-white transition-colors">Cancellation &amp; Replacement</Link></li>
             <li><Link to="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
@@ -107,9 +108,9 @@ export default function Footer() {
         </div>
 
         {/* Col 4: My Account */}
-        <div className="col-span-1 md:col-span-3 lg:col-span-2">
-          <h3 className="mb-2.5 text-xs font-bold uppercase tracking-wider text-stone-100">My Account</h3>
-          <ul className="space-y-1.5 text-sm text-stone-400">
+        <div className="col-span-1 md:col-span-2 lg:col-span-1.5">
+          <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-white/80">My Account</h3>
+          <ul className="space-y-2 text-sm text-stone-400">
             <li><Link to="/profile" className="hover:text-white transition-colors">My Account</Link></li>
             <li><Link to="/checkout" className="hover:text-white transition-colors">Checkout</Link></li>
             <li>
@@ -129,9 +130,9 @@ export default function Footer() {
         </div>
 
         {/* Col 5: Follow Us */}
-        <div className="col-span-1 md:col-span-3 lg:col-span-2">
-          <h3 className="mb-2.5 text-xs font-bold uppercase tracking-wider text-stone-100">Follow Us</h3>
-          <ul className="space-y-2 text-sm text-stone-400">
+        <div className="col-span-1 md:col-span-2 lg:col-span-1.5">
+          <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-white/80">Follow Us</h3>
+          <ul className="space-y-2.5 text-sm text-stone-400">
             <li>
               <a href="https://facebook.com" target="_blank" rel="noreferrer" className="flex items-center gap-2 hover:text-white transition-colors">
                 <Globe className="h-4 w-4 text-stone-500" /> Facebook
@@ -147,57 +148,28 @@ export default function Footer() {
 
       </div>
 
-      {/* Consumer Protection (E-Commerce) Rules 2020 Statutory Disclosure Strip */}
-      <div className="border-t border-stone-800 bg-stone-950/80 px-3 sm:px-6 py-2.5 text-center sm:text-left">
-        <div className="mx-auto max-w-7xl flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-stone-400">
-          <div>
-            <span className="font-semibold text-stone-200">Grievance Redressal Desk:</span>{' '}
-            Officer: Grievance Officer &bull; Email:{' '}
-            <a href="mailto:support@technoworldbooks.in" className="text-stone-300 hover:underline">
-              support@technoworldbooks.in
-            </a>{' '}
-            &bull; SLA: Acknowledged in 48h, resolved in 30 days.
-          </div>
-          <Link to="/legal/grievance-redressal" className="underline font-medium text-stone-300 hover:text-white transition-colors">
-            Grievance Redressal &amp; Disclosures &rarr;
-          </Link>
-        </div>
-      </div>
-
-      {/* Developer Credits Strip */}
-      <div className="border-t border-stone-800/80 bg-brand-pitch">
-        <div className="mx-auto max-w-7xl px-3 sm:px-6 py-3 flex flex-col lg:flex-row items-center justify-between gap-3">
+      {/* Bottom Tier: Copyright & Developers */}
+      <div className="border-t border-white/5 bg-[#030A07]">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 py-4 flex flex-col lg:flex-row items-center justify-between gap-4">
+          {/* Left: Copyright & Statutory Disclaimer */}
           <div className="flex flex-col items-center lg:items-start gap-1 text-center lg:text-left">
             <span className="text-[11px] font-bold tracking-[0.08em] text-stone-400 uppercase">
-              © {new Date().getFullYear()} Techno World Books. All rights reserved.
+              © {new Date().getFullYear()} TECHNO WORLD BOOKS. All rights reserved.
             </span>
             <span className="text-[10px] font-semibold tracking-wider text-stone-500 uppercase">
               Official Online Bookstore • College Street, Kolkata
             </span>
-            <span className="text-[10px] text-stone-500 max-w-xl leading-normal">
+            <span className="text-[10px] text-stone-500 max-w-xl leading-normal mt-0.5">
               *Promotional discounts, including &apos;Up to 50%/60% Off&apos;, include applicable coupon codes and promotional discounts on selected category books. Subject to terms &amp; conditions.
-            </span>
-            <span className="text-[10px] text-stone-500 max-w-xl leading-normal">
-              Icon attribution:{' '}
-              <a href="https://iconscout.com/icons/whatsapp" className="underline hover:text-stone-300 transition-colors" target="_blank" rel="noreferrer">
-                Whatsapp
-              </a>{' '}
-              by{' '}
-              <a href="https://iconscout.com/contributors/maninderkaur" className="underline hover:text-stone-300 transition-colors" target="_blank" rel="noreferrer">
-                maninderkaur
-              </a>{' '}
-              on{' '}
-              <a href="https://iconscout.com" className="underline hover:text-stone-300 transition-colors" target="_blank" rel="noreferrer">
-                IconScout
-              </a>
             </span>
           </div>
 
-          <div className="flex flex-row flex-wrap items-center gap-2.5 justify-center">
+          {/* Right: Developer Badges */}
+          <div className="flex flex-row items-center gap-2.5 justify-center shrink-0">
             {DEVELOPERS.map((dev) => (
               <div
                 key={dev.handle}
-                className="relative inline-flex items-center justify-between min-h-[38px] min-w-[144px] px-2.5 py-1.5 pr-8 rounded-md border border-stone-800 bg-stone-900/70 hover:border-stone-700 transition-colors"
+                className="relative inline-flex items-center justify-between min-h-[38px] min-w-[140px] px-3 py-1.5 pr-8 rounded-lg border border-white/10 bg-white/5 hover:border-white/20 transition-all"
               >
                 <div className="flex flex-col items-start justify-center leading-none gap-0.5">
                   <span className="text-[8px] font-bold tracking-[0.08em] text-stone-500 uppercase">
@@ -226,7 +198,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label={`${dev.handle} GitHub`}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 h-5 w-5 rounded-full bg-white flex items-center justify-center overflow-hidden hover:opacity-90 transition-opacity"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 h-5 w-5 rounded-full bg-white flex items-center justify-center overflow-hidden hover:opacity-90 transition-opacity"
                 >
                   <img src="/github-logo.png" alt="GitHub" className="h-4 w-4 object-contain" />
                 </a>

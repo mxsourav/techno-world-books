@@ -138,7 +138,7 @@ export function generateSingleStickerCardHtml(order: any, options: ShippingLabel
   const senderName = options.customSenderName || 'Techno World Books Hub';
   const senderCompany = options.customSenderCompany || 'Techno World Publications';
   const senderAddress = options.customSenderAddress || 'College Street (Bidhan Sarani), Near Presidency, Kolkata - 700006';
-  const senderPhone = options.customSenderPhone || '033-2219-XXXX / 9830000000';
+  const senderPhone = options.customSenderPhone || '033-2257-1650 / 9830000000';
   const senderGst = options.customSenderGst || '19AAACT0000A1Z5';
 
   // Order Items fields (Remappable)

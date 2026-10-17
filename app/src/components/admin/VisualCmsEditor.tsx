@@ -88,7 +88,7 @@ const REGISTERED_CMS_KEYS: EditableKeyInfo[] = [
 
   // Footer (visible across all pages, at bottom)
   { key: 'footer.address', label: 'Store Physical Address', section: 'Contact & Storefront', defaultText: '90/6A, Mahatma Gandhi Rd, opp. Grace Cinema, Calcutta University, College Street, Kolkata, West Bengal 700007', multiline: true },
-  { key: 'footer.phone', label: 'Landline Phone Number', section: 'Contact & Storefront', defaultText: '033 2219 6115' },
+  { key: 'footer.phone', label: 'Landline Phone Number', section: 'Contact & Storefront', defaultText: '033 2257 1650' },
 ];
 
 export interface CategoryOption {

@@ -567,8 +567,7 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
   return (
     <div ref={ref} id={id} className={`relative ${className}`}>
       <div className="flex items-stretch rounded-md bg-white shadow-xs h-10 sm:h-11 w-full overflow-hidden border border-stone-300 focus-within:border-stone-900 transition-colors">
-        <div className="flex-1 flex items-center bg-transparent pl-3 sm:pl-4 min-w-0">
-          <Search className="h-4 w-4 shrink-0 text-stone-400" />
+        <div className="flex-1 flex items-center bg-transparent pl-3.5 sm:pl-4 min-w-0">
           <input
             value={q}
             autoFocus={autoFocus}
@@ -576,13 +575,13 @@ export function SearchBar({ autoFocus = false, className = '', id }: { autoFocus
             onFocus={() => setOpen(true)}
             onKeyDown={(e) => e.key === 'Enter' && submit()}
             placeholder="Search by title, author, ISBN, exam, university…"
-            className="w-full bg-transparent text-xs sm:text-sm text-stone-900 outline-none placeholder:text-stone-400 self-stretch px-2.5 sm:px-3"
+            className="w-full bg-transparent text-xs sm:text-sm text-stone-900 outline-none placeholder:text-stone-400 self-stretch pr-1.5 sm:pr-2"
           />
           <button onClick={voice} aria-label="Voice search" className="shrink-0 text-stone-400 hover:text-stone-700 mx-1.5 sm:mx-2 cursor-pointer">
             <Mic className="h-4 w-4" />
           </button>
         </div>
-        <button onClick={() => submit()} aria-label="Submit search" className="flex shrink-0 items-center justify-center px-4 sm:px-6 bg-brand-dark text-white hover:bg-brand-primary transition-colors cursor-pointer">
+        <button onClick={() => submit()} aria-label="Submit search" className="flex shrink-0 items-center justify-center px-3.5 sm:px-6 bg-brand-dark text-white hover:bg-brand-primary transition-colors cursor-pointer">
           <Search className="h-4 w-4" />
         </button>
       </div>

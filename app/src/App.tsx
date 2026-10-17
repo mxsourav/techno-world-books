@@ -1,6 +1,6 @@
 import { useEffect, Suspense, lazy } from 'react';
 import { Route, Routes, useLocation, Outlet, Navigate } from 'react-router';
-import whatsappIcon from '@/assets/images/whatsapp.svg';
+import { MessageCircle } from 'lucide-react';
 import { Toaster } from 'sonner';
 import { ToastSwipeHandler } from '@/components/common/ToastSwipeHandler';
 import { StoreProvider } from '@/store/StoreContext';
@@ -177,15 +177,15 @@ function CustomerLayout() {
       </main>
       <Footer />
       <HomePopupAd />
-      {/* floating WhatsApp support */}
+      {/* Sleek Minimalist WhatsApp Support Button */}
       <a
         href="https://wa.me/917479135626?text=Hi%20Techno%20World%20Books!%20I%20need%20help%20with%20my%20order."
         target="_blank"
         rel="noreferrer"
         aria-label="WhatsApp Support"
-        className="fixed bottom-5 right-5 z-40 flex h-13 w-13 items-center justify-center rounded-full drop-shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
+        className="fixed bottom-5 right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-[#081C15] hover:bg-[#0E2E22] border border-emerald-500/30 text-white shadow-[0_8px_24px_rgba(0,0,0,0.35)] transition-all duration-200 hover:scale-110 active:scale-95 group"
       >
-        <img src={whatsappIcon} alt="WhatsApp Support" className="h-12 w-12 object-contain select-none" />
+        <MessageCircle className="h-6 w-6 text-emerald-400 group-hover:text-white transition-colors" />
       </a>
     </>
   );

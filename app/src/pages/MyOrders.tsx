@@ -136,7 +136,7 @@ export default function MyOrders() {
                     <p className="text-sm font-semibold text-stone-900">Call Support Desk</p>
                     <span className="rounded-md bg-stone-200 px-2 py-0.5 text-[10px] font-semibold text-stone-800">9 AM – 8 PM</span>
                   </div>
-                  <p className="text-xs text-stone-700 font-mono font-medium mt-0.5">+91 747 913 5626 / 033 2219 6115</p>
+                  <p className="text-xs text-stone-700 font-mono font-medium mt-0.5">+91 747 913 5626 / 033 2257 1650</p>
                   <p className="text-[11px] text-stone-600 mt-1">Direct phone assistance from our College Street office team (Usually replies within hours).</p>
                 </div>
               </a>
