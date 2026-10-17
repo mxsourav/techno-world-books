@@ -4,7 +4,7 @@ import { Link, useNavigate, useParams, useLocation, useSearchParams } from 'reac
 import {
   ChevronLeft, ChevronRight, Heart, Share2, Truck, ShieldCheck, RotateCcw, MapPin, Zap,
   ShoppingCart, BadgeCheck, Loader2, Star, Tag, ChevronDown, ChevronUp,
-  BookOpen, HelpCircle, Check, Sparkles, AlertCircle, Bell, MessageSquare, Info, X, Layers, ZoomIn, ZoomOut, Maximize2, Lock
+  BookOpen, HelpCircle, Check, Sparkles, AlertCircle, Bell, MessageSquare, Info, X, Layers, ZoomIn, ZoomOut, Maximize2, Lock, ExternalLink
 } from 'lucide-react';
 
 import { formatINR } from '@/utils/helpers';
@@ -551,6 +551,7 @@ export default function Product() {
     highlights: true,
     keyFeatures: true,
     description: true,
+    protection: true,
     allDetails: true,
     toc: true,
     qa: false,
@@ -560,6 +561,9 @@ export default function Product() {
   const toggleSection = (section: string) => {
     setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
+
+  // Trust Badge Detailed Policy Modal state ('replacement' | 'secure_pay' | 'genuine' | null)
+  const [activePolicyModal, setActivePolicyModal] = useState<'replacement' | 'secure_pay' | 'genuine' | null>(null);
 
   // Q&A state
   const [liveQuestions, setLiveQuestions] = useState<any[]>([]);
@@ -1095,11 +1099,11 @@ export default function Product() {
       </div>
 
       {/* Main Flipkart-Style Layout Container */}
-      <div className="mx-auto w-full max-w-7xl min-w-0 px-4 py-6 sm:px-6">
-        <div className="grid gap-8 lg:grid-cols-[460px_1fr]">
+      <div className="mx-auto w-full max-w-7xl min-w-0 px-3 py-6 sm:px-6">
+        <div className="grid grid-cols-1 w-full min-w-0 max-w-full gap-8 lg:grid-cols-[460px_minmax(0,1fr)]">
           
           {/* ================= LEFT COLUMN: MEDIA GALLERY & BUY BUTTONS ================= */}
-          <div className="space-y-4 lg:sticky lg:top-[148px] lg:self-start">
+          <div className="w-full min-w-0 max-w-full space-y-4 lg:sticky lg:top-[148px] lg:self-start">
             
             {/* Gallery Container */}
             <div className="w-full min-w-0 overflow-hidden rounded-lg border border-stone-200 bg-white p-2 shadow-xs sm:p-3">
@@ -1349,7 +1353,7 @@ export default function Product() {
 
 
           {/* ================= RIGHT COLUMN: PRODUCT INFO & SPECIFICATIONS ================= */}
-          <div className="space-y-5">
+          <div className="w-full min-w-0 max-w-full space-y-5">
             
             {/* Main Header Box */}
             <div className="rounded-lg border border-stone-200 bg-white p-6 shadow-xs">
@@ -1481,7 +1485,7 @@ export default function Product() {
               <div className="mt-5 border-t border-stone-200 pt-4">
                 <p className="text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">Delivery Details</p>
                 
-                <div className="flex items-center gap-2 max-w-sm">
+                <div className="flex items-center gap-2 w-full max-w-sm min-w-0">
                   <div className="relative flex-1">
                     <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
                     <input
@@ -1565,24 +1569,39 @@ export default function Product() {
               </div>
 
               {/* Trust Badges 3-Pill Grid */}
-              <div className="mt-5 grid grid-cols-3 gap-2 border-t border-stone-200 pt-4">
-                <div className="flex flex-col items-center justify-center rounded-md bg-stone-50 p-2.5 text-center border border-stone-200">
-                  <RotateCcw className="h-4 w-4 text-brand-base mb-1" />
-                  <span className="text-[11px] font-bold text-stone-900 leading-tight">7 Days</span>
-                  <span className="text-[10px] text-stone-500">Easy Replacement</span>
-                </div>
+              <div className="mt-5 grid grid-cols-3 gap-1.5 sm:gap-2 border-t border-stone-200 pt-4 w-full min-w-0 max-w-full">
+                <button
+                  type="button"
+                  onClick={() => setActivePolicyModal('replacement')}
+                  className="group flex flex-col items-center justify-center rounded-lg bg-stone-50 hover:bg-emerald-50/60 p-2 sm:p-2.5 text-center border border-stone-200 hover:border-emerald-300 transition-all cursor-pointer active:scale-95"
+                  title="Click to view 7-Day Replacement Policy details"
+                >
+                  <RotateCcw className="h-4 w-4 text-brand-base mb-1 group-hover:scale-110 transition-transform" />
+                  <span className="text-[11px] font-bold text-stone-900 leading-tight group-hover:text-emerald-800">7 Days</span>
+                  <span className="text-[9px] sm:text-[10px] text-stone-500 group-hover:text-stone-700">Easy Replacement</span>
+                </button>
 
-                <div className="flex flex-col items-center justify-center rounded-md bg-stone-50 p-2.5 text-center border border-stone-200">
-                  <Lock className="h-4 w-4 text-brand-base mb-1" />
-                  <span className="text-[11px] font-bold text-stone-900 leading-tight">Secure Pay</span>
-                  <span className="text-[10px] text-stone-500">UPI, Cards &amp; NetBanking</span>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setActivePolicyModal('secure_pay')}
+                  className="group flex flex-col items-center justify-center rounded-lg bg-stone-50 hover:bg-emerald-50/60 p-2 sm:p-2.5 text-center border border-stone-200 hover:border-emerald-300 transition-all cursor-pointer active:scale-95"
+                  title="Click to view Secure Payment details"
+                >
+                  <Lock className="h-4 w-4 text-brand-base mb-1 group-hover:scale-110 transition-transform" />
+                  <span className="text-[11px] font-bold text-stone-900 leading-tight group-hover:text-emerald-800">Secure Pay</span>
+                  <span className="text-[9px] sm:text-[10px] text-stone-500 group-hover:text-stone-700">UPI, Cards &amp; Net</span>
+                </button>
 
-                <div className="flex flex-col items-center justify-center rounded-md bg-stone-50 p-2.5 text-center border border-stone-200">
-                  <ShieldCheck className="h-4 w-4 text-brand-base mb-1" />
-                  <span className="text-[11px] font-bold text-stone-900 leading-tight">100% Genuine</span>
-                  <span className="text-[10px] text-stone-500">Direct from Publisher</span>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setActivePolicyModal('genuine')}
+                  className="group flex flex-col items-center justify-center rounded-lg bg-stone-50 hover:bg-emerald-50/60 p-2 sm:p-2.5 text-center border border-stone-200 hover:border-emerald-300 transition-all cursor-pointer active:scale-95"
+                  title="Click to view Authenticity & Genuine Publisher details"
+                >
+                  <ShieldCheck className="h-4 w-4 text-brand-base mb-1 group-hover:scale-110 transition-transform" />
+                  <span className="text-[11px] font-bold text-stone-900 leading-tight group-hover:text-emerald-800">100% Genuine</span>
+                  <span className="text-[9px] sm:text-[10px] text-stone-500 group-hover:text-stone-700">Direct Publisher</span>
+                </button>
               </div>
 
             </div>
@@ -1690,6 +1709,81 @@ export default function Product() {
                           '1 Standard Unit'
                         )}
                       </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+
+            {/* ================= TECHNO WORLD ASSURED GUARANTEE & POLICIES ACCORDION ================= */}
+            <div id="trust-policies-accordion" className="rounded-lg border border-stone-200 bg-white shadow-xs overflow-hidden">
+              <button
+                type="button"
+                onClick={() => toggleSection('protection')}
+                className="w-full flex items-center justify-between p-5 bg-white hover:bg-slate-50 transition-colors border-b border-slate-100 cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                  <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-wide">
+                    Techno World Assured: Replacement, Payment &amp; Authenticity
+                  </h3>
+                </div>
+                {openSections.protection ? <ChevronUp className="h-4 w-4 text-slate-400" /> : <ChevronDown className="h-4 w-4 text-slate-400" />}
+              </button>
+
+              {openSections.protection && (
+                <div className="p-5 space-y-4 text-xs text-stone-700 leading-relaxed bg-stone-50/40">
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <div className="rounded-lg border border-stone-200 bg-white p-3.5 space-y-1.5 shadow-2xs">
+                      <div className="flex items-center gap-1.5 font-bold text-stone-900">
+                        <RotateCcw className="h-4 w-4 text-brand-base shrink-0" />
+                        <span>7 Days Easy Replacement</span>
+                      </div>
+                      <p className="text-[11px] text-stone-600 leading-normal">
+                        Complimentary free replacement for misprinted, missing, or transit-damaged copies within 7 calendar days of delivery.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setActivePolicyModal('replacement')}
+                        className="text-[11px] font-semibold text-brand-base hover:underline flex items-center gap-1 pt-1 cursor-pointer"
+                      >
+                        View Full Replacement Details →
+                      </button>
+                    </div>
+
+                    <div className="rounded-lg border border-stone-200 bg-white p-3.5 space-y-1.5 shadow-2xs">
+                      <div className="flex items-center gap-1.5 font-bold text-stone-900">
+                        <Lock className="h-4 w-4 text-brand-base shrink-0" />
+                        <span>100% Secure Payments</span>
+                      </div>
+                      <p className="text-[11px] text-stone-600 leading-normal">
+                        Bank-grade 256-bit SSL encryption. Processed via RBI-compliant Razorpay &amp; Cashfree gateways. UPI, Cards &amp; NetBanking.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setActivePolicyModal('secure_pay')}
+                        className="text-[11px] font-semibold text-brand-base hover:underline flex items-center gap-1 pt-1 cursor-pointer"
+                      >
+                        View Payment Security →
+                      </button>
+                    </div>
+
+                    <div className="rounded-lg border border-stone-200 bg-white p-3.5 space-y-1.5 shadow-2xs">
+                      <div className="flex items-center gap-1.5 font-bold text-stone-900">
+                        <ShieldCheck className="h-4 w-4 text-brand-base shrink-0" />
+                        <span>100% Genuine Direct</span>
+                      </div>
+                      <p className="text-[11px] text-stone-600 leading-normal">
+                        Direct from publishers with official holograms, ISBN-13 barcodes, and authentic invoices. Zero piracy guarantee.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setActivePolicyModal('genuine')}
+                        className="text-[11px] font-semibold text-brand-base hover:underline flex items-center gap-1 pt-1 cursor-pointer"
+                      >
+                        View Authenticity Guarantee →
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -2321,6 +2415,316 @@ export default function Product() {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Trust Badge Detailed Policy Modal */}
+      {activePolicyModal && (
+        <div 
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-stone-900/60 backdrop-blur-xs p-0 sm:p-4 animate-in fade-in duration-200"
+          onClick={() => setActivePolicyModal(null)}
+        >
+          <div 
+            className="w-full sm:max-w-xl max-h-[88vh] flex flex-col rounded-t-2xl sm:rounded-2xl bg-white shadow-2xl border border-stone-200 overflow-hidden animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-stone-200 px-5 py-4 bg-stone-50/70">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-brand-base">
+                  <ShieldCheck className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-stone-900">Techno World Assured Protection</h3>
+                  <p className="text-[11px] text-stone-500">Official College Street Bookstore Standards</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActivePolicyModal(null)}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-stone-400 hover:bg-stone-200/60 hover:text-stone-700 transition-colors cursor-pointer"
+                title="Close"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Segmented Navigation Tabs */}
+            <div className="grid grid-cols-3 border-b border-stone-200 bg-stone-100/70 p-1 gap-1 text-xs font-semibold">
+              <button
+                type="button"
+                onClick={() => setActivePolicyModal('replacement')}
+                className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-md transition-all cursor-pointer ${
+                  activePolicyModal === 'replacement'
+                    ? 'bg-white text-stone-900 font-bold shadow-xs'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-white/60'
+                }`}
+              >
+                <RotateCcw className="h-3.5 w-3.5 text-brand-base shrink-0" />
+                <span className="truncate">7-Day Replacement</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActivePolicyModal('secure_pay')}
+                className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-md transition-all cursor-pointer ${
+                  activePolicyModal === 'secure_pay'
+                    ? 'bg-white text-stone-900 font-bold shadow-xs'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-white/60'
+                }`}
+              >
+                <Lock className="h-3.5 w-3.5 text-brand-base shrink-0" />
+                <span className="truncate">Secure Pay</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActivePolicyModal('genuine')}
+                className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-md transition-all cursor-pointer ${
+                  activePolicyModal === 'genuine'
+                    ? 'bg-white text-stone-900 font-bold shadow-xs'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-white/60'
+                }`}
+              >
+                <ShieldCheck className="h-3.5 w-3.5 text-brand-base shrink-0" />
+                <span className="truncate">100% Genuine</span>
+              </button>
+            </div>
+
+            {/* Modal Body: Scrollable */}
+            <div className="flex-1 overflow-y-auto p-5 space-y-4 text-xs text-stone-700">
+              
+              {/* TAB 1: 7-DAY REPLACEMENT */}
+              {activePolicyModal === 'replacement' && (
+                <div className="space-y-4">
+                  <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3 flex items-start gap-2.5">
+                    <RotateCcw className="h-5 w-5 text-brand-base shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-bold text-emerald-950 text-xs sm:text-sm">7-Day Free Replacement Guarantee</p>
+                      <p className="text-[11px] text-emerald-800 mt-0.5">
+                        Defective, damaged, or wrong editions qualify for a free replacement copy dispatched directly from College Street with zero extra shipping charge.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 pt-1">
+                    <h4 className="font-bold text-stone-900 text-xs uppercase tracking-wider text-stone-500">How Replacement Works:</h4>
+
+                    <div className="space-y-2.5 pl-1">
+                      <div className="flex items-start gap-2.5">
+                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-stone-100 border border-stone-300 text-[10px] font-bold text-stone-700">1</span>
+                        <div>
+                          <p className="font-bold text-stone-900">7 Calendar Days Eligibility Window</p>
+                          <p className="text-[11px] text-stone-600 mt-0.5">
+                            The replacement window remains active for strictly 7 calendar days following delivery confirmation by India Post tracking.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-2.5">
+                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-stone-100 border border-stone-300 text-[10px] font-bold text-stone-700">2</span>
+                        <div>
+                          <p className="font-bold text-stone-900">Covered Issues</p>
+                          <p className="text-[11px] text-stone-600 mt-0.5">
+                            Covers misprinted or blank pages, defective binding, transit crushing, missing pages/supplements, or an incorrect book title.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-2.5">
+                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-stone-100 border border-stone-300 text-[10px] font-bold text-stone-700">3</span>
+                        <div>
+                          <p className="font-bold text-stone-900">Easy Verification via WhatsApp or Form</p>
+                          <p className="text-[11px] text-stone-600 mt-0.5">
+                            Record a brief unboxing video or take clear photos of the damaged/misprinted section and message our dedicated bookstore team.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-2.5">
+                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-stone-100 border border-stone-300 text-[10px] font-bold text-stone-700">4</span>
+                        <div>
+                          <p className="font-bold text-stone-900">Zero Extra Shipping Charge</p>
+                          <p className="text-[11px] text-stone-600 mt-0.5">
+                            Once verified, a fresh, brand-new replacement copy will be dispatched immediately. You pay ₹0 extra for replacement shipping.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-stone-200 flex flex-col sm:flex-row items-center gap-2">
+                    <a
+                      href="https://wa.me/917479135626?text=Hello%20Techno%20World%2C%20I%20have%20an%20inquiry%20regarding%20a%207-day%20replacement%20copy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full sm:w-auto flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 py-2.5 px-4 text-xs font-bold text-white transition-colors cursor-pointer"
+                    >
+                      <MessageSquare className="h-4 w-4" />
+                      <span>WhatsApp Replacement Desk</span>
+                    </a>
+                    <Link
+                      to="/refund-policy"
+                      onClick={() => setActivePolicyModal(null)}
+                      className="w-full sm:w-auto flex items-center justify-center gap-1 rounded-lg border border-stone-300 bg-white hover:bg-stone-50 py-2.5 px-3.5 text-xs font-semibold text-stone-800 transition-colors"
+                    >
+                      <span>Full Policy</span>
+                      <ExternalLink className="h-3.5 w-3.5 text-stone-500" />
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 2: SECURE PAY */}
+              {activePolicyModal === 'secure_pay' && (
+                <div className="space-y-4">
+                  <div className="rounded-lg bg-blue-50 border border-blue-200 p-3 flex items-start gap-2.5">
+                    <Lock className="h-5 w-5 text-blue-700 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-bold text-blue-950 text-xs sm:text-sm">Bank-Grade 256-Bit SSL Encryption</p>
+                      <p className="text-[11px] text-blue-900 mt-0.5">
+                        Your payments are processed through RBI-authorized payment gateways complying with Level 1 PCI-DSS data security standards.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 pt-1">
+                    <h4 className="font-bold text-stone-900 text-xs uppercase tracking-wider text-stone-500">Security Safeguards:</h4>
+
+                    <div className="space-y-2.5 pl-1">
+                      <div className="flex items-start gap-2.5">
+                        <Check className="h-4 w-4 text-brand-base shrink-0 mt-0.5 stroke-[2.5]" />
+                        <div>
+                          <p className="font-bold text-stone-900">RBI-Regulated Payment Gateways</p>
+                          <p className="text-[11px] text-stone-600 mt-0.5">
+                            Seamless checkout via Razorpay and Cashfree, certified under Reserve Bank of India mandates for digital transactions.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-2.5">
+                        <Check className="h-4 w-4 text-brand-base shrink-0 mt-0.5 stroke-[2.5]" />
+                        <div>
+                          <p className="font-bold text-stone-900">Accepted Payment Methods</p>
+                          <p className="text-[11px] text-stone-600 mt-0.5">
+                            • <b>UPI</b>: Google Pay, PhonePe, Paytm, BHIM, Cred, and any bank UPI app.<br />
+                            • <b>Cards</b>: Visa, MasterCard, RuPay, Maestro debit &amp; credit cards with 2-Factor OTP.<br />
+                            • <b>Net Banking</b>: Direct bank login across 50+ Indian commercial &amp; private banks.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-2.5">
+                        <Check className="h-4 w-4 text-brand-base shrink-0 mt-0.5 stroke-[2.5]" />
+                        <div>
+                          <p className="font-bold text-stone-900">Zero Credential Storage</p>
+                          <p className="text-[11px] text-stone-600 mt-0.5">
+                            Techno World never sees or stores your CVV, debit/credit card numbers, or netbanking passwords. All authentication happens strictly on your bank's secure page.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-stone-200 flex justify-end">
+                    <Link
+                      to="/privacy-policy"
+                      onClick={() => setActivePolicyModal(null)}
+                      className="flex items-center gap-1 rounded-lg border border-stone-300 bg-white hover:bg-stone-50 py-2.5 px-4 text-xs font-semibold text-stone-800 transition-colors"
+                    >
+                      <span>Read Privacy &amp; Data Security Policy</span>
+                      <ExternalLink className="h-3.5 w-3.5 text-stone-500" />
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 3: 100% GENUINE */}
+              {activePolicyModal === 'genuine' && (
+                <div className="space-y-4">
+                  <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 flex items-start gap-2.5">
+                    <ShieldCheck className="h-5 w-5 text-amber-800 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-bold text-amber-950 text-xs sm:text-sm">Direct Publisher Procurement &amp; Anti-Piracy Policy</p>
+                      <p className="text-[11px] text-amber-900 mt-0.5">
+                        Techno World Books is a premier bookstore on College Street, Kolkata, operating since 2002. Every single book is 100% genuine and original.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 pt-1">
+                    <h4 className="font-bold text-stone-900 text-xs uppercase tracking-wider text-stone-500">Authenticity Guarantee:</h4>
+
+                    <div className="space-y-2.5 pl-1">
+                      <div className="flex items-start gap-2.5">
+                        <Check className="h-4 w-4 text-brand-base shrink-0 mt-0.5 stroke-[2.5]" />
+                        <div>
+                          <p className="font-bold text-stone-900">Direct from Authorized Publishers</p>
+                          <p className="text-[11px] text-stone-600 mt-0.5">
+                            Sourced directly from academic publishers (Techno World Publications, Oxford University Press, Pearson, McGraw Hill, Kalyani, S. Chand, PHI, etc.).
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-2.5">
+                        <Check className="h-4 w-4 text-brand-base shrink-0 mt-0.5 stroke-[2.5]" />
+                        <div>
+                          <p className="font-bold text-stone-900">Original Holograms &amp; ISBN Verification</p>
+                          <p className="text-[11px] text-stone-600 mt-0.5">
+                            Every book carries the publisher's official anti-piracy security hologram, registered ISBN-13 barcode, and authentic print binding.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-2.5">
+                        <Check className="h-4 w-4 text-brand-base shrink-0 mt-0.5 stroke-[2.5]" />
+                        <div>
+                          <p className="font-bold text-stone-900">Official Computerized GST Invoice</p>
+                          <p className="text-[11px] text-stone-600 mt-0.5">
+                            Every delivery includes an authorized, itemized tax invoice valid for student bursaries, university book grants, and academic reimbursements.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-2.5">
+                        <Check className="h-4 w-4 text-brand-base shrink-0 mt-0.5 stroke-[2.5]" />
+                        <div>
+                          <p className="font-bold text-stone-900">Strict Zero-Piracy Mandate</p>
+                          <p className="text-[11px] text-stone-600 mt-0.5">
+                            We have a zero-tolerance policy against photocopied, duplicate, or pirated prints. You always receive authentic, fresh printings.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-stone-200 flex flex-col sm:flex-row items-center justify-between gap-2">
+                    <span className="text-[11px] text-stone-500 font-medium">90/6A MG Road, College Street, Kolkata</span>
+                    <Link
+                      to="/about"
+                      onClick={() => setActivePolicyModal(null)}
+                      className="flex items-center gap-1 rounded-lg border border-stone-300 bg-white hover:bg-stone-50 py-2.5 px-4 text-xs font-semibold text-stone-800 transition-colors"
+                    >
+                      <span>About Our Bookstore</span>
+                      <ExternalLink className="h-3.5 w-3.5 text-stone-500" />
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+            </div>
+
+            {/* Modal Bottom Close Button */}
+            <div className="border-t border-stone-200 bg-stone-50 p-3 sm:p-4 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setActivePolicyModal(null)}
+                className="w-full sm:w-auto rounded-lg bg-stone-900 hover:bg-stone-800 px-5 py-2 text-xs font-bold text-white transition-colors cursor-pointer"
+              >
+                Done / Close
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
