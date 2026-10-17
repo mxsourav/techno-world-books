@@ -214,6 +214,7 @@ function CustomerStorefront() {
         <Route path="/account" element={<Navigate to="/profile" replace />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/track" element={<Track />} />
+        <Route path="/track/shipment" element={<Track />} />
         <Route path="/blog" element={<BlogList />} />
         <Route path="/blog/:slug" element={<BlogPost />} />
         <Route path="/about" element={<About />} />

@@ -190,6 +190,8 @@ export default function Home() {
     if (knownSlugs.includes(s)) return s;
 
     // Keyword detection
+    if (s.includes('techno') || s.includes('publication')) return 'techno-world-publication';
+    if (s.includes('science')) return 'science';
     if (s.includes('bengali') || s.includes('bangla')) return 'bengali';
     if (s.includes('medic') || s.includes('health') || s.includes('doctor') || s.includes('pharm') || s.includes('nurs')) return 'medical';
     if (s.includes('engine') || s.includes('tech') || s.includes('comput') || s.includes('coding') || s.includes('software')) return 'engineering';
@@ -213,8 +215,11 @@ export default function Home() {
       if (!b) return false;
       const cat = (b.category || '').toLowerCase();
       const tags = (b.tags || []).map((t: string) => t.toLowerCase());
+      const bookCats = Array.isArray((b as any).categories)
+        ? (b as any).categories.map((c: any) => (typeof c === 'string' ? c : c?.slug || c?.name || '').toLowerCase())
+        : [];
 
-      if (cat === activeSlug) return true;
+      if (cat === activeSlug || bookCats.includes(activeSlug)) return true;
       if (cat.includes(activeSlug) || activeSlug.includes(cat)) return true;
 
       if (targetQuery && targetQuery !== defaultSlug) {
@@ -222,6 +227,8 @@ export default function Home() {
         if (tags.some((t: string) => targetQuery.includes(t) || t.includes(targetQuery))) return true;
       }
 
+      if (activeSlug === 'techno-world-publication' && (cat.includes('techno') || (b.publisher && /techno world/i.test(b.publisher)) || tags.includes('techno') || bookCats.some((c: string) => c.includes('techno')))) return true;
+      if (activeSlug === 'science' && (cat.includes('science') || cat.includes('physics') || cat.includes('chemistry') || tags.includes('science') || bookCats.some((c: string) => c.includes('science')))) return true;
       if (activeSlug === 'competitive-exams' && (cat.includes('competitive') || cat.includes('exam') || cat.includes('civil') || tags.includes('jee') || tags.includes('neet') || tags.includes('upsc'))) return true;
       if (activeSlug === 'non-fiction' && (cat.includes('non-fiction') || cat.includes('literature') || cat.includes('humanities') || tags.includes('finance') || tags.includes('biography'))) return true;
       if (activeSlug === 'medical' && (cat.includes('medical') || cat.includes('nursing') || cat.includes('pharmacy') || tags.includes('mbbs') || tags.includes('anatomy'))) return true;
@@ -799,6 +806,26 @@ export default function Home() {
             contentKey="home.section_engineering"
             books={byCategory(t('home.section_engineering', 'Engineering & Technology Books'), 'engineering')} 
             viewAllLink={viewAllFor(t('home.section_engineering', 'Engineering & Technology Books'), 'engineering')} 
+            loading={loading} 
+          />
+
+          {/* 5.1 Science Books */}
+          <BookRow 
+            iconUrl={BOOK_ROW_ICON_URLS.engineering}
+            title="Science & Fundamental Research" 
+            contentKey="home.section_science"
+            books={byCategory(t('home.section_science', 'Science & Fundamental Research'), 'science')} 
+            viewAllLink={viewAllFor(t('home.section_science', 'Science & Fundamental Research'), 'science')} 
+            loading={loading} 
+          />
+
+          {/* 5.2 Techno World Publications In-House Titles */}
+          <BookRow 
+            iconUrl={BOOK_ROW_ICON_URLS.university}
+            title="Techno World Publications" 
+            contentKey="home.section_tw_publication"
+            books={byCategory(t('home.section_tw_publication', 'Techno World Publications'), 'techno-world-publication')} 
+            viewAllLink={viewAllFor(t('home.section_tw_publication', 'Techno World Publications'), 'techno-world-publication')} 
             loading={loading} 
           />
 

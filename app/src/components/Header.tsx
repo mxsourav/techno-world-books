@@ -23,12 +23,16 @@ import { searchService, categoryService, authService, getImageUrl } from '@/serv
 import { GoogleSignInButton } from '@/components/GoogleSignInButton';
 import { CmsText } from '@/components/common/CmsText';
 import { UserAvatar } from '@/components/UserAvatar';
+import { AvatarPicker, validateFullName, validateAge } from '@/components/AvatarPicker';
 
 function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { login } = useStore();
   const { login: authLogin } = useAuthStore();
   const [loginTab, setLoginTab] = useState<'email' | 'phone'>('email');
   const [emailInput, setEmailInput] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [ageInput, setAgeInput] = useState('');
+  const [avatarKey, setAvatarKey] = useState('reader_open_book');
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
@@ -55,12 +59,28 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
       return;
     }
 
-    const userName = targetEmail.split('@')[0];
+    if (fullName.trim()) {
+      const nameCheck = validateFullName(fullName);
+      if (!nameCheck.valid) {
+        toast.error(nameCheck.error || 'Please enter a valid full name.');
+        return;
+      }
+    }
+
+    const ageCheck = validateAge(ageInput);
+    if (!ageCheck.valid) {
+      toast.error(ageCheck.error || 'Age must be between 10 and 90.');
+      return;
+    }
+
+    const userName = fullName.trim() || targetEmail.split('@')[0];
     setLoading(true);
     try {
       const res = await authService.devGoogleBypass({
         name: userName,
         email: targetEmail,
+        avatarKey,
+        age: ageInput ? parseInt(ageInput, 10) : undefined,
       });
       if (res.success && res.data) {
         authLogin(res.data.accessToken, res.data.user, res.data.refreshToken);
@@ -69,6 +89,8 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
           name: res.data.user.name,
           email: res.data.user.email,
           phone: res.data.user.phone || '',
+          avatarKey: res.data.user.avatarKey,
+          age: res.data.user.age,
           rewardPoints: Number(res.data.user.technoPoints ?? 0),
         });
         toast.success(`Welcome, ${res.data.user.name}! Signed in successfully.`);
@@ -92,6 +114,27 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
     }
     const clean = phone.replace(/\D/g, '');
     if (clean.length < 10) return toast.error('Enter a valid 10-digit mobile number');
+
+    const targetEmail = emailInput.trim().toLowerCase();
+    if (!targetEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(targetEmail)) {
+      toast.error('Email address is strictly mandatory for account registration & invoices.');
+      return;
+    }
+
+    if (fullName.trim()) {
+      const nameCheck = validateFullName(fullName);
+      if (!nameCheck.valid) {
+        toast.error(nameCheck.error || 'Please enter a valid full name.');
+        return;
+      }
+    }
+
+    const ageCheck = validateAge(ageInput);
+    if (!ageCheck.valid) {
+      toast.error(ageCheck.error || 'Age must be between 10 and 90.');
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await authService.sendOtp(clean);
@@ -127,6 +170,10 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
       const res = await authService.verifyOtp({
         phone: phone.trim(),
         otp: otp.trim(),
+        name: fullName.trim() || undefined,
+        email: emailInput.trim().toLowerCase() || undefined,
+        avatarKey,
+        age: ageInput ? parseInt(ageInput, 10) : undefined,
       });
       if (res.success && res.data) {
         const user = res.data.user;
@@ -136,6 +183,8 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
           name: user.name,
           email: user.email,
           phone: user.phone || phone,
+          avatarKey: user.avatarKey,
+          age: user.age,
           rewardPoints: Number(user.technoPoints ?? 0),
         });
         toast.success(`Welcome back, ${user.name}!`);
@@ -152,16 +201,17 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) { onClose(); setStep('phone'); setOtp(''); setAgreedToTerms(false); } }}>
-      <DialogContent className="sm:max-w-[420px] p-0 overflow-hidden bg-white border border-stone-200 shadow-lg rounded-lg">
+      <DialogContent className="sm:max-w-[480px] max-h-[92vh] overflow-y-auto p-0 bg-white border border-stone-200 shadow-xl rounded-xl">
         {/* Decorative Header with Brand Logo */}
-        <div className="relative bg-brand-dark px-6 py-8 text-center overflow-hidden flex flex-col items-center justify-center border-b border-stone-800">
+        <div className="relative bg-brand-dark px-6 py-6 text-center overflow-hidden flex flex-col items-center justify-center border-b border-stone-800 shrink-0">
           <div className="relative z-10 flex flex-col items-center">
             <DialogTitle className="sr-only">Sign In to Techno World Books</DialogTitle>
             <img
               src="/techno_world.png"
               alt="Techno World Books Logo"
-              className="h-12 sm:h-14 w-auto object-contain brightness-0 invert drop-shadow-sm"
+              className="h-10 sm:h-12 w-auto object-contain brightness-0 invert drop-shadow-sm"
             />
+            <p className="mt-1 text-xs text-brand-100 font-medium">India's Authoritative Technical & Academic Bookstore</p>
           </div>
         </div>
 
@@ -173,11 +223,11 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
           </div>
         )}
 
-        <div className="px-7 py-6">
+        <div className="px-6 py-5">
           {/* Primary Google Sign-In */}
           <div className="relative flex flex-col items-center justify-center mb-3">
             <div className="relative">
-              <GoogleSignInButton onSuccess={onClose} width={300} />
+              <GoogleSignInButton onSuccess={onClose} width={320} />
               {!agreedToTerms && (
                 <div
                   onClick={() => toast.error('Please agree to the Terms & Conditions and Privacy Policy below to proceed.')}
@@ -188,25 +238,25 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
             </div>
           </div>
 
-          <div className="relative text-center text-[10px] font-bold text-stone-400 uppercase tracking-widest before:absolute before:left-0 before:top-1/2 before:h-px before:w-[28%] before:bg-stone-200 after:absolute after:right-0 after:top-1/2 after:h-px after:w-[28%] after:bg-stone-200 my-4">
-            OR SIGN IN WITH
+          <div className="relative text-center text-[10px] font-bold text-stone-400 uppercase tracking-widest before:absolute before:left-0 before:top-1/2 before:h-px before:w-[26%] before:bg-stone-200 after:absolute after:right-0 after:top-1/2 after:h-px after:w-[26%] after:bg-stone-200 my-4">
+            OR CONTINUE WITH
           </div>
 
           {/* Method Tabs */}
-          <div className="flex rounded-md bg-stone-100 p-1 mb-5 border border-stone-200">
+          <div className="flex rounded-lg bg-stone-100 p-1 mb-4 border border-stone-200">
             <button
               type="button"
               onClick={() => setLoginTab('email')}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold rounded transition-all ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer ${
                 loginTab === 'email' ? 'bg-white text-stone-900 shadow-xs' : 'text-stone-500 hover:text-stone-800'
               }`}
             >
-              <Mail className="h-3.5 w-3.5" /> Email Sign In
+              <Mail className="h-3.5 w-3.5" /> Email Direct
             </button>
             <button
               type="button"
               onClick={() => setLoginTab('phone')}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold rounded transition-all ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer ${
                 loginTab === 'phone' ? 'bg-white text-stone-900 shadow-xs' : 'text-stone-500 hover:text-stone-800'
               }`}
             >
@@ -215,26 +265,57 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
           </div>
 
           {loginTab === 'email' ? (
-            <div className="space-y-4">
+            <div className="space-y-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-semibold text-stone-600 mb-1 uppercase tracking-wider">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="e.g. Sourav Biswas"
+                    className="w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 outline-none focus:ring-1 focus:ring-brand-base focus:border-brand-base transition-colors placeholder:text-stone-400"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-semibold text-stone-600 mb-1 uppercase tracking-wider">
+                    Age (10–90)
+                  </label>
+                  <input
+                    type="number"
+                    min="10"
+                    max="90"
+                    value={ageInput}
+                    onChange={(e) => setAgeInput(e.target.value)}
+                    placeholder="e.g. 24"
+                    className="w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 outline-none focus:ring-1 focus:ring-brand-base focus:border-brand-base transition-colors placeholder:text-stone-400"
+                  />
+                </div>
+              </div>
+
               <div>
-                <label className="block text-[11px] font-semibold text-stone-600 mb-1.5 uppercase tracking-wider">
+                <label className="block text-[11px] font-semibold text-stone-600 mb-1 uppercase tracking-wider">
                   Email Address
                 </label>
-                <div className="flex items-center gap-2.5 rounded-md border border-stone-300 bg-white px-3 py-2.5 overflow-hidden focus-within:ring-1 focus-within:ring-stone-900 focus-within:border-stone-900 transition-colors">
+                <div className="flex items-center gap-2.5 rounded-md border border-stone-300 bg-white px-3 py-2 overflow-hidden focus-within:ring-1 focus-within:ring-brand-base focus-within:border-brand-base transition-colors">
                   <Mail className="h-4 w-4 text-stone-400 shrink-0" />
                   <input
                     type="email"
                     value={emailInput}
                     onChange={(e) => setEmailInput(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter') handleEmailLogin(); }}
-                    placeholder="Enter your email address"
+                    placeholder="name@example.com"
                     className="w-full bg-transparent text-sm text-stone-900 outline-none placeholder:text-stone-400"
-                    autoFocus
                   />
                 </div>
               </div>
 
-              {/* Mandatory DPDP Consent Checkbox (Un-checked by default) */}
+              {/* Minimalist Silhouette Avatar Picker */}
+              <AvatarPicker value={avatarKey} onChange={setAvatarKey} className="pt-1" />
+
+              {/* Mandatory DPDP Consent Checkbox */}
               <div className="flex items-start gap-2 pt-1 text-left">
                 <input
                   type="checkbox"
@@ -251,37 +332,89 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
                   and{' '}
                   <Link to="/privacy-policy" target="_blank" className="font-semibold text-stone-900 underline hover:text-brand-base">
                     Privacy Policy
-                  </Link>.
+                  </Link>. Address is deferred to checkout.
                 </label>
               </div>
 
               <button 
                 onClick={() => handleEmailLogin()} 
                 disabled={loading || !agreedToTerms}
-                className="w-full flex items-center justify-center gap-2 rounded-md bg-brand-base py-3 text-sm font-semibold text-white hover:bg-brand-light transition-colors shadow-xs disabled:opacity-50 cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 rounded-md bg-brand-base py-2.5 text-sm font-semibold text-white hover:bg-brand-light transition-colors shadow-xs disabled:opacity-50 cursor-pointer"
               >
                 <Mail className="h-4 w-4" /> {loading ? 'Signing in...' : 'Sign In with Email'}
               </button>
             </div>
           ) : step === 'phone' ? (
-            <div className="space-y-4">
+            <div className="space-y-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-semibold text-stone-600 mb-1 uppercase tracking-wider">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="e.g. Sourav Biswas"
+                    className="w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 outline-none focus:ring-1 focus:ring-brand-base focus:border-brand-base transition-colors placeholder:text-stone-400"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-semibold text-stone-600 mb-1 uppercase tracking-wider">
+                    Age (10–90)
+                  </label>
+                  <input
+                    type="number"
+                    min="10"
+                    max="90"
+                    value={ageInput}
+                    onChange={(e) => setAgeInput(e.target.value)}
+                    placeholder="e.g. 24"
+                    className="w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 outline-none focus:ring-1 focus:ring-brand-base focus:border-brand-base transition-colors placeholder:text-stone-400"
+                  />
+                </div>
+              </div>
+
               <div>
-                <label className="block text-[11px] font-semibold text-stone-600 mb-1.5 uppercase tracking-wider">Mobile Number</label>
-                <div className="flex items-center gap-0 rounded-md border border-stone-300 bg-white overflow-hidden focus-within:ring-1 focus-within:ring-stone-900 focus-within:border-stone-900 transition-colors">
-                  <div className="bg-stone-50 px-3 py-2.5 border-r border-stone-200 flex items-center justify-center">
+                <label className="block text-[11px] font-semibold text-stone-600 mb-1 uppercase tracking-wider">
+                  Mobile Number
+                </label>
+                <div className="flex items-center gap-0 rounded-md border border-stone-300 bg-white overflow-hidden focus-within:ring-1 focus-within:ring-brand-base focus-within:border-brand-base transition-colors">
+                  <div className="bg-stone-50 px-3 py-2 border-r border-stone-200 flex items-center justify-center">
                     <span className="text-sm font-semibold text-stone-700">+91</span>
                   </div>
                   <input
                     value={phone}
                     onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                     placeholder="Enter 10-digit number"
-                    className="w-full bg-transparent px-3 py-2.5 text-sm text-stone-900 outline-none placeholder:text-stone-400"
+                    className="w-full bg-transparent px-3 py-2 text-sm text-stone-900 outline-none placeholder:text-stone-400"
                     inputMode="numeric"
                   />
                 </div>
               </div>
+
+              {/* Mandatory Email for Phone Registration */}
+              <div>
+                <label className="flex items-center justify-between text-[11px] font-semibold text-stone-600 mb-1 uppercase tracking-wider">
+                  <span>Email Address</span>
+                  <span className="text-[10px] text-amber-700 font-medium">Mandatory for Invoices</span>
+                </label>
+                <div className="flex items-center gap-2.5 rounded-md border border-stone-300 bg-white px-3 py-2 overflow-hidden focus-within:ring-1 focus-within:ring-brand-base focus-within:border-brand-base transition-colors">
+                  <Mail className="h-4 w-4 text-stone-400 shrink-0" />
+                  <input
+                    type="email"
+                    value={emailInput}
+                    onChange={(e) => setEmailInput(e.target.value)}
+                    placeholder="name@example.com (Required)"
+                    className="w-full bg-transparent text-sm text-stone-900 outline-none placeholder:text-stone-400"
+                  />
+                </div>
+              </div>
+
+              {/* Minimalist Silhouette Avatar Picker */}
+              <AvatarPicker value={avatarKey} onChange={setAvatarKey} className="pt-1" />
               
-              {/* Mandatory DPDP Consent Checkbox (Un-checked by default) */}
+              {/* Mandatory DPDP Consent Checkbox */}
               <div className="flex items-start gap-2 pt-1 text-left">
                 <input
                   type="checkbox"
@@ -298,26 +431,29 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
                   and{' '}
                   <Link to="/privacy-policy" target="_blank" className="font-semibold text-stone-900 underline hover:text-brand-base">
                     Privacy Policy
-                  </Link>.
+                  </Link>. Address is deferred to checkout.
                 </label>
               </div>
 
               <button 
                 onClick={sendOtp} 
-                disabled={!agreedToTerms}
-                className="w-full flex items-center justify-center gap-2 rounded-md bg-brand-base py-3 text-sm font-semibold text-white hover:bg-brand-light transition-colors shadow-xs disabled:opacity-50 cursor-pointer"
+                disabled={!agreedToTerms || loading}
+                className="w-full flex items-center justify-center gap-2 rounded-md bg-brand-base py-2.5 text-sm font-semibold text-white hover:bg-brand-light transition-colors shadow-xs disabled:opacity-50 cursor-pointer"
               >
-                <MessageCircle className="h-4 w-4" /> Send OTP Securely
+                <MessageCircle className="h-4 w-4" /> {loading ? 'Sending code...' : 'Send OTP Securely'}
               </button>
             </div>
           ) : (
-            <div className="space-y-5 text-center">
-              <div className="inline-flex h-11 w-11 items-center justify-center rounded-md bg-stone-100 text-stone-800 border border-stone-200 mb-1">
+            <div className="space-y-5 text-center py-2">
+              <div className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-emerald-50 text-brand-base border border-emerald-200 mb-1">
                 <MessageCircle className="h-5 w-5" />
               </div>
               <div>
                 <p className="text-sm font-medium text-stone-700">Enter the verification code sent to</p>
                 <p className="text-sm font-bold text-stone-900 mt-0.5">+91 {phone}</p>
+                {emailInput && (
+                  <p className="text-xs text-stone-500 mt-0.5">Linked with {emailInput}</p>
+                )}
               </div>
               
               <div className="flex justify-center pt-1">
@@ -335,14 +471,14 @@ function LoginDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
                 <button 
                   onClick={verify} 
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 rounded-md bg-brand-base py-3 text-sm font-semibold text-white hover:bg-brand-light transition-colors shadow-xs disabled:opacity-50 cursor-pointer"
+                  className="w-full flex items-center justify-center gap-2 rounded-md bg-brand-base py-2.5 text-sm font-semibold text-white hover:bg-brand-light transition-colors shadow-xs disabled:opacity-50 cursor-pointer"
                 >
-                  {loading ? 'Verifying...' : 'Verify & Login'}
+                  {loading ? 'Verifying...' : 'Verify & Complete Setup'}
                 </button>
               </div>
               
-              <button onClick={() => setStep('phone')} className="text-xs font-semibold text-stone-500 hover:text-stone-900 transition-colors">
-                ← Change mobile number
+              <button onClick={() => setStep('phone')} className="text-xs font-semibold text-stone-500 hover:text-stone-900 transition-colors cursor-pointer">
+                ← Change mobile number / details
               </button>
             </div>
           )}
@@ -784,7 +920,7 @@ export default function Header() {
             </Link>
             {user ? (
               <Link to="/profile" className="flex items-center gap-2 rounded-full p-0 md:rounded-md md:px-2.5 md:py-1.5 md:border md:border-brand-base/60 md:hover:bg-brand-base/60 transition-colors text-white">
-                <UserAvatar name={user.name} email={user.email} size="sm" />
+                <UserAvatar name={user.name} email={user.email} avatarKey={user.avatarKey} size="sm" />
                 <div className="hidden text-left md:block leading-tight">
                   <span className="block max-w-[85px] truncate text-xs font-medium text-white">{user.name.split(' ')[0]}</span>
                   <span className="text-[10px] font-medium text-brand-100/70 flex items-center gap-1">

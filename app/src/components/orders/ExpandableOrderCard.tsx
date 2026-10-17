@@ -2,16 +2,36 @@ import React, { useState } from 'react';
 import { Link } from 'react-router';
 import {
   ChevronDown,
-  Check,
   Download,
   Loader2,
   HelpCircle,
   ExternalLink,
   BookOpen,
+  FileText,
+  Package,
+  Truck,
+  Home,
+  Share2,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { formatINR } from '@/utils/helpers';
 import { getImageUrl } from '@/services/api';
 import { BookCover } from '@/components/BookCover';
+
+function getStepIcon(stepKey: string) {
+  switch (stepKey) {
+    case 'placed':
+      return FileText;
+    case 'packed':
+      return Package;
+    case 'dispatched':
+      return Truck;
+    case 'delivered':
+      return Home;
+    default:
+      return FileText;
+  }
+}
 
 export interface ExpandableOrderCardProps {
   order: any;
@@ -253,36 +273,42 @@ export function ExpandableOrderCard({
                 <div className="max-w-xl mx-auto w-full">
                   <div className="flex items-start">
                     {trackingMeta.steps.map((step, idx) => {
-                      const isCompleted = idx <= trackingMeta.currentStepIndex;
+                      const isPast = idx < trackingMeta.currentStepIndex || (trackingMeta.isDelivered && idx <= trackingMeta.currentStepIndex);
+                      const isActive = idx === trackingMeta.currentStepIndex && !trackingMeta.isDelivered;
                       const isLineCompleted = idx < trackingMeta.currentStepIndex;
+                      const StepIcon = getStepIcon(step.key);
 
                       return (
                         <React.Fragment key={step.key}>
                           {/* Step Node */}
                           <div className="flex flex-col items-center text-center shrink-0 w-16 sm:w-20">
-                            <div
-                              className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] shrink-0 transition-colors duration-200 ${
-                                isCompleted
-                                  ? 'bg-brand-base text-white'
-                                  : 'bg-white border-2 border-stone-200 text-stone-400'
-                              }`}
-                            >
-                              {isCompleted ? (
-                                <Check className="h-3 w-3 stroke-[2.5]" />
-                              ) : (
-                                <span className="w-1.5 h-1.5 rounded-full bg-stone-300" />
+                            <div className="relative flex items-center justify-center">
+                              {isActive && (
+                                <span className="absolute -inset-1 rounded-full bg-emerald-500/30 animate-ping pointer-events-none" />
                               )}
+                              <div
+                                className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 transition-colors duration-200 relative z-10 ${
+                                  isPast
+                                    ? 'bg-[#0B2B19] text-white shadow-2xs'
+                                    : isActive
+                                    ? 'bg-emerald-50 border-2 border-[#155D36] text-[#155D36] font-bold shadow-2xs'
+                                    : 'bg-stone-100 border border-stone-200 text-stone-400'
+                                }`}
+                                title={`${step.label}: ${step.sublabel || ''}`}
+                              >
+                                <StepIcon className="w-3.5 h-3.5" />
+                              </div>
                             </div>
                             <div className="mt-2 flex flex-col items-center w-full">
                               <span
                                 className={`text-[11px] font-medium leading-tight ${
-                                  isCompleted ? 'text-stone-900 font-semibold' : 'text-stone-400'
+                                  isPast || isActive ? 'text-stone-900 font-semibold' : 'text-stone-400'
                                 }`}
                               >
                                 {step.label}
                               </span>
                               {step.sublabel && (
-                                <span className="text-[10px] text-stone-400 mt-0.5 leading-tight truncate max-w-full">
+                                <span className="text-[10px] text-stone-400 mt-0.5 leading-tight truncate max-w-full font-mono">
                                   {step.sublabel}
                                 </span>
                               )}
@@ -292,8 +318,8 @@ export function ExpandableOrderCard({
                           {/* Connecting Line (1px) */}
                           {idx < trackingMeta.steps.length - 1 && (
                             <div
-                              className={`flex-1 h-[1px] mt-3 mx-1 sm:mx-2 transition-colors duration-300 ${
-                                isLineCompleted ? 'bg-brand-base' : 'bg-stone-200'
+                              className={`flex-1 h-[1px] mt-3.5 mx-1 sm:mx-2 transition-colors duration-300 ${
+                                isLineCompleted ? 'bg-[#155D36]' : 'bg-stone-200'
                               }`}
                             />
                           )}
@@ -516,6 +542,31 @@ export function ExpandableOrderCard({
                       <Download className="h-3.5 w-3.5 text-stone-500" />
                     )}
                     <span>Download Invoice</span>
+                  </button>
+                )}
+
+                {/* Shareable Cryptographic Tracking Link */}
+                {(order.trackingToken || order.trackingNumber || order.orderNumber) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const token = order.trackingToken || order.trackingNumber || order.orderNumber;
+                      const shareUrl = order.trackingToken
+                        ? `https://www.technoworldbooks.in/track/shipment?token=${order.trackingToken}`
+                        : `https://www.technoworldbooks.in/track?id=${encodeURIComponent(token)}`;
+                      if (navigator?.clipboard?.writeText) {
+                        navigator.clipboard.writeText(shareUrl)
+                          .then(() => toast.success('Cryptographic tracking link copied to clipboard!'))
+                          .catch(() => toast.info(`Tracking Link: ${shareUrl}`));
+                      } else {
+                        toast.info(`Tracking Link: ${shareUrl}`);
+                      }
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50 hover:border-stone-300 transition-colors shadow-2xs cursor-pointer"
+                    title="Copy shareable tracking link"
+                  >
+                    <Share2 className="h-3.5 w-3.5 text-stone-500" />
+                    <span>Share Tracking</span>
                   </button>
                 )}
 

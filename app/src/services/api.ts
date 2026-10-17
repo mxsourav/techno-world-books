@@ -500,16 +500,16 @@ export const authService = {
   login: (data: { email: string; password: string }) => api.post<any>('/auth/login', data),
   logout: () => api.post<any>('/auth/logout'),
   me: () => api.get<any>('/auth/me'),
-  googleAuth: (data: { credential: string }) => api.post<any>('/auth/google', data),
+  googleAuth: (data: { credential: string; avatarKey?: string; age?: number }) => api.post<any>('/auth/google', data),
   sendOtp: (phone: string) => api.post<{ success: boolean; message: string; sandboxMode?: boolean; devOtp?: string }>('/auth/otp/send', { phone }),
-  verifyOtp: (data: { phone: string; otp: string; name?: string }) => api.post<any>('/auth/otp/verify', data),
-  devGoogleBypass: (data?: { email?: string; name?: string; googleId?: string; avatarUrl?: string }) =>
+  verifyOtp: (data: { phone: string; otp: string; name?: string; email?: string; avatarKey?: string; age?: number }) => api.post<any>('/auth/otp/verify', data),
+  devGoogleBypass: (data?: { email?: string; name?: string; googleId?: string; avatarUrl?: string; avatarKey?: string; age?: number }) =>
     api.post<any>('/auth/google/dev-bypass', data || {}),
 };
 
 export const profileService = {
   getProfile: () => api.get<any>('/profile'),
-  updateProfile: (data: { name?: string; phone?: string | null; avatarUrl?: string | null }) =>
+  updateProfile: (data: { name?: string; phone?: string | null; avatarUrl?: string | null; avatarKey?: string | null; age?: number | null }) =>
     api.patch<any>('/profile', data),
   getAddresses: () => api.get<any[]>('/profile/address'),
   createAddress: (data: {
@@ -557,7 +557,10 @@ export const shippingService = {
     isCOD?: boolean;
     codValue?: number;
   }) => api.post<any>('/shipping/tariff', data),
-  trackShipment: (identifier: string) => api.get<any>(`/shipping/track/${identifier}`),
+  trackShipment: (identifier: string, params?: { phone?: string; email?: string; token?: string }) =>
+    api.get<any>(`/shipping/track/${identifier}`, params),
+  trackByToken: (token: string) =>
+    api.get<any>('/shipping/track', { token }),
   bookShipment: (orderId: string, data?: any) => api.post<any>(`/shipping/book/${orderId}`, data || {}),
   getShippingLabel: (orderId: string) => api.get<any>(`/shipping/label/${orderId}`),
 };

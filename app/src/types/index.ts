@@ -90,6 +90,8 @@ export interface User {
   email: string;
   phone: string;
   avatarUrl?: string | null;
+  avatarKey?: string | null;
+  age?: number | null;
   rewardPoints: number;
   technoPoints?: number;
   technoWallet?: number;

@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://technoworldbooks.in/</loc>
-    <lastmod>2026-10-13T10:05:00+00:00</lastmod>
+    <lastmod>2026-10-17T07:56:48+00:00</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -3067,12 +3067,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://technoworldbooks.in/book/ethics-integrity-and-aptitude-for-civil-services-examination-syllabus-master-13-9789390000563</loc>
-    <lastmod>2026-10-08T03:24:01+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://technoworldbooks.in/book/bd-chaurasias-handbook-of-general-anatomy-syllabus-master-13-9789390000567</loc>
     <lastmod>2026-09-25T18:17:03+00:00</lastmod>
     <changefreq>weekly</changefreq>
@@ -3387,12 +3381,6 @@
   <url>
     <loc>https://technoworldbooks.in/book/higher-engineering-mathematics-semester-1-14-9789390000625</loc>
     <lastmod>2026-09-25T18:17:03+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/contemporary-abstract-algebra-semester-1-14-9789390000624</loc>
-    <lastmod>2026-09-26T11:18:44+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -4285,12 +4273,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://technoworldbooks.in/book/west-bengal-primary-tet-success-guide-practice-sets-prelims-and-mains-18-9789390000790</loc>
-    <lastmod>2026-10-08T00:15:54+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://technoworldbooks.in/book/ethics-integrity-and-aptitude-for-civil-services-examination-prelims-and-mains-18-9789390000793</loc>
     <lastmod>2026-09-25T18:17:04+00:00</lastmod>
     <changefreq>weekly</changefreq>
@@ -4335,12 +4317,6 @@
   <url>
     <loc>https://technoworldbooks.in/book/problems-in-general-physics-prelims-and-mains-18-9789390000811</loc>
     <lastmod>2026-09-25T18:17:04+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/a-modern-approach-to-verbal-non-verbal-reasoning-prelims-and-mains-18-9789390000796</loc>
-    <lastmod>2026-10-12T04:47:21+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -4443,12 +4419,6 @@
   <url>
     <loc>https://technoworldbooks.in/book/object-oriented-programming-with-c-prelims-and-mains-18-9789390000820</loc>
     <lastmod>2026-09-25T18:17:04+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/python-crash-course-hands-on-project-guide-prelims-and-mains-18-9789390000821</loc>
-    <lastmod>2026-10-06T18:33:59+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -5041,12 +5011,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://technoworldbooks.in/book/wbcs-general-studies-manual-comprehensive-guide-2026-edition-21-9789390000926</loc>
-    <lastmod>2026-10-06T18:33:59+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://technoworldbooks.in/book/general-science-for-competitive-exams-aditya-ranjan-2700-2026-edition-21-9789390000932</loc>
     <lastmod>2026-09-25T18:17:05+00:00</lastmod>
     <changefreq>weekly</changefreq>
@@ -5257,12 +5221,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://technoworldbooks.in/book/sanchita-collected-poems-of-kazi-nazrul-islam-2026-edition-21-9789390000965</loc>
-    <lastmod>2026-10-05T17:32:01+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://technoworldbooks.in/book/wbcs-general-studies-manual-comprehensive-guide-vol-1-22-9789390000972</loc>
     <lastmod>2026-09-25T18:17:05+00:00</lastmod>
     <changefreq>weekly</changefreq>
@@ -5378,54 +5336,6 @@
   </url>
   <url>
     <loc>https://technoworldbooks.in/book/cengage-jee-advanced-calculus-by-g-tewani-vol-1-22-9789390000991</loc>
-    <lastmod>2026-09-25T18:17:05+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/contemporary-abstract-algebra-vol-1-22-9789390000992</loc>
-    <lastmod>2026-09-25T18:17:05+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/higher-engineering-mathematics-vol-1-22-9789390000993</loc>
-    <lastmod>2026-09-25T18:17:05+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/advanced-engineering-mathematics-vol-1-22-9789390000994</loc>
-    <lastmod>2026-09-25T18:17:05+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/problems-in-general-physics-vol-1-22-9789390000995</loc>
-    <lastmod>2026-09-25T18:17:05+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/concepts-of-physics-by-hc-verma-vol-1-22-9789390000996</loc>
-    <lastmod>2026-09-25T18:17:05+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/engineering-mechanics-statics-and-dynamics-vol-1-22-9789390000997</loc>
-    <lastmod>2026-09-25T18:17:05+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/fundamentals-of-classical-thermodynamics-vol-1-22-9789390000998</loc>
-    <lastmod>2026-09-25T18:17:05+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/let-us-c-yashavant-kanetkar-vol-1-22-9789390000999</loc>
     <lastmod>2026-09-25T18:17:05+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -5987,47 +5897,29 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://technoworldbooks.in/book/problems-in-physical-chemistry-for-neet-2026-edition-21-9789390000941</loc>
-    <lastmod>2026-09-26T17:39:47+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://technoworldbooks.in/book/bd-chaurasias-handbook-of-general-anatomy-vol-1-22-9789390000981</loc>
     <lastmod>2026-09-25T18:17:05+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://technoworldbooks.in/book/the-routledge-history-of-literature-in-english-prelims-and-mains-18-9789390000822</loc>
-    <lastmod>2026-10-05T17:35:43+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/computer-graphics-9992</loc>
-    <lastmod>2026-10-12T04:45:39+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <image:image>
-      <image:loc>https://res.cloudinary.com/tcsmyxe2/image/upload/v1791567084/Home/books/computer-graphics-9992/images/cover_1791567082898.jpg</image:loc>
-      <image:title>Computer Graphics</image:title>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://technoworldbooks.in/book/indian-economy-for-upsc-state-psc-prelims-mains-vol-1-22-9789390000971</loc>
-    <lastmod>2026-10-12T04:45:39+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://technoworldbooks.in/book/competency-based-bd-chaurasia-s-human-anatomy-4-vol-set-6386</loc>
-    <lastmod>2026-10-13T08:10:48+00:00</lastmod>
+    <lastmod>2026-10-14T11:16:26+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
     <image:image>
       <image:loc>https://res.cloudinary.com/tcsmyxe2/image/upload/v1791822021/Home/books/competency-based-bd-chaurasia-s-human-anatomy-4-vol-set-6386/images/cover_1791822019622.jpg</image:loc>
-      <image:title>Competency-Based BD Chaurasia&apos;s Human Anatomy (4 Vol. Set)</image:title>
+      <image:title>BD Chaurasia&apos;s Human Anatomy (4 Vol. Set)</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://technoworldbooks.in/book/textbook-of-bacteriology-7161</loc>
+    <lastmod>2026-10-17T06:34:16+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://res.cloudinary.com/tcsmyxe2/image/upload/v1792218845/Home/books/textbook-of-bacteriology-7161/images/cover_1792218843887.jpg</image:loc>
+      <image:title>Textbook of Bacteriology</image:title>
     </image:image>
   </url>
   <url>
@@ -6127,62 +6019,74 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://technoworldbooks.in/category/science</loc>
+    <lastmod>2026-10-17T07:07:20+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://technoworldbooks.in/category/techno-world-publication</loc>
+    <lastmod>2026-10-17T07:07:20+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://technoworldbooks.in/search</loc>
-    <lastmod>2026-10-13T10:05:00+00:00</lastmod>
+    <lastmod>2026-10-17T07:56:48+00:00</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/blog</loc>
-    <lastmod>2026-10-13T10:05:00+00:00</lastmod>
+    <lastmod>2026-10-17T07:56:48+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/track</loc>
-    <lastmod>2026-10-13T10:05:00+00:00</lastmod>
+    <lastmod>2026-10-17T07:56:48+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/about</loc>
-    <lastmod>2026-10-13T10:05:00+00:00</lastmod>
+    <lastmod>2026-10-17T07:56:48+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/contact</loc>
-    <lastmod>2026-10-13T10:05:00+00:00</lastmod>
+    <lastmod>2026-10-17T07:56:48+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/help</loc>
-    <lastmod>2026-10-13T10:05:00+00:00</lastmod>
+    <lastmod>2026-10-17T07:56:48+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/terms</loc>
-    <lastmod>2026-10-13T10:05:00+00:00</lastmod>
+    <lastmod>2026-10-17T07:56:48+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/shipping-policy</loc>
-    <lastmod>2026-10-13T10:05:00+00:00</lastmod>
+    <lastmod>2026-10-17T07:56:48+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/refund-policy</loc>
-    <lastmod>2026-10-13T10:05:00+00:00</lastmod>
+    <lastmod>2026-10-17T07:56:48+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://technoworldbooks.in/privacy-policy</loc>
-    <lastmod>2026-10-13T10:05:00+00:00</lastmod>
+    <lastmod>2026-10-17T07:56:48+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>

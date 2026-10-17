@@ -14,14 +14,24 @@ export interface ThemePalette {
 
 export const PRESET_PALETTES: ThemePalette[] = [
   {
-    id: 'midnight-obsidian',
-    name: 'Midnight Obsidian (#07101F)',
-    dark: '#07101F',
-    base: '#11223f',
-    light: '#1b3766',
-    pitch: '#030810',
-    subtle: '#e8effa',
-    soft: '#f0f5fb',
+    id: 'heritage-forest',
+    name: 'Heritage Forest (OG Green)',
+    dark: '#0B2B19',
+    base: '#155D36',
+    light: '#1E7E48',
+    pitch: '#06190E',
+    subtle: '#eaf5ef',
+    soft: '#f2f8f4',
+  },
+  {
+    id: 'deep-emerald',
+    name: 'Deep Emerald (#0F3D24)',
+    dark: '#0F3D24',
+    base: '#1E7E48',
+    light: '#28A745',
+    pitch: '#082515',
+    subtle: '#eaf5ef',
+    soft: '#f2f8f4',
   },
   {
     id: 'crimson-red',
@@ -32,36 +42,6 @@ export const PRESET_PALETTES: ThemePalette[] = [
     pitch: '#140306',
     subtle: '#fbecee',
     soft: '#fdf4f5',
-  },
-  {
-    id: 'heritage-forest',
-    name: 'Heritage Forest (OG Green)',
-    dark: '#071F15',
-    base: '#0F3D24',
-    light: '#185d38',
-    pitch: '#0A261A',
-    subtle: '#eaf5ef',
-    soft: '#f2f8f4',
-  },
-  {
-    id: 'royal-navy',
-    name: 'Royal Navy (#00142C)',
-    dark: '#00142c',
-    base: '#002554',
-    light: '#0a3d82',
-    pitch: '#000b1a',
-    subtle: '#eaf0f8',
-    soft: '#f0f5fb',
-  },
-  {
-    id: 'deep-sapphire',
-    name: 'Deep Sapphire (#051329)',
-    dark: '#051329',
-    base: '#0e2e5c',
-    light: '#18478a',
-    pitch: '#020914',
-    subtle: '#e9f0fa',
-    soft: '#f1f6fd',
   },
   {
     id: 'imperial-burgundy',
@@ -95,7 +75,7 @@ export const PRESET_PALETTES: ThemePalette[] = [
   },
 ];
 
-const DEFAULT_PALETTE = PRESET_PALETTES[0]; // #07101F
+const DEFAULT_PALETTE = PRESET_PALETTES[0]; // #0B2B19 / #155D36
 
 /**
  * Calculates complementary shades from an arbitrary 6-digit hex string
@@ -237,7 +217,7 @@ export function applyThemePalette(palette: ThemePalette) {
 export default function ThemePaletteCustomizer() {
   const [isOpen, setIsOpen] = useState(false);
   const [activePalette, setActivePalette] = useState<ThemePalette>(DEFAULT_PALETTE);
-  const [customInputHex, setCustomInputHex] = useState('#07101F');
+  const [customInputHex, setCustomInputHex] = useState('#0B2B19');
 
   // Initialize theme palette on mount
   useEffect(() => {
@@ -245,7 +225,20 @@ export default function ThemePaletteCustomizer() {
     try {
       const saved = localStorage.getItem('techno_world_theme_palette');
       if (saved) {
-        initial = JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        // Purge deprecated navy palette entries
+        if (
+          parsed.id === 'midnight-obsidian' ||
+          parsed.id === 'royal-navy' ||
+          parsed.id === 'deep-sapphire' ||
+          parsed.dark === '#07101F' ||
+          parsed.dark === '#00142c'
+        ) {
+          localStorage.removeItem('techno_world_theme_palette');
+          initial = DEFAULT_PALETTE;
+        } else {
+          initial = parsed;
+        }
       }
     } catch {
       initial = DEFAULT_PALETTE;
@@ -410,7 +403,7 @@ export default function ThemePaletteCustomizer() {
                     type="text"
                     value={customInputHex}
                     maxLength={7}
-                    placeholder="#07101F"
+                    placeholder="#0B2B19"
                     onChange={(e) => {
                       const val = e.target.value.toUpperCase();
                       setCustomInputHex(val);
@@ -458,7 +451,7 @@ export default function ThemePaletteCustomizer() {
                 className="flex items-center gap-1 text-[11px] font-medium text-stone-600 hover:text-stone-900 transition-colors cursor-pointer"
               >
                 <RotateCcw className="h-3 w-3" />
-                <span>Reset (#07101F)</span>
+                <span>Reset (OG Green)</span>
               </button>
             </div>
           </div>

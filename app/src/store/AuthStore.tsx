@@ -7,6 +7,8 @@ interface User {
   role: string;
   phone?: string;
   avatarUrl?: string | null;
+  avatarKey?: string | null;
+  age?: number | null;
 }
 
 interface AuthState {

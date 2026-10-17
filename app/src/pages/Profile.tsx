@@ -36,10 +36,11 @@ import { GoogleSignInButton } from '@/components/GoogleSignInButton';
 import SEOHead from '@/components/SEOHead';
 import { DeveloperFeedbackBanner } from '@/components/common/DeveloperFeedbackBanner';
 import { UserAvatar } from '@/components/UserAvatar';
+import { AvatarPicker, validateFullName, validateAge } from '@/components/AvatarPicker';
 
 export default function Profile() {
-  const { logout: authLogout, accessToken } = useAuthStore();
-  const { logout: storeLogout, user: storeUser } = useStore();
+  const { logout: authLogout, accessToken, user: authUser, login: authLogin } = useAuthStore();
+  const { logout: storeLogout, user: storeUser, login: storeLogin } = useStore();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
@@ -55,6 +56,8 @@ export default function Profile() {
   // Edit Profile State
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [avatarKey, setAvatarKey] = useState('reader_open_book');
+  const [age, setAge] = useState('');
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
 
   // Address Modals & State
@@ -121,6 +124,8 @@ export default function Profile() {
         setProfileData(res.data);
         setName(res.data.name || '');
         setPhone(res.data.phone || '');
+        if (res.data.avatarKey) setAvatarKey(res.data.avatarKey);
+        if (res.data.age) setAge(String(res.data.age));
         setAddresses(res.data.addresses || []);
         setPaymentMethods(res.data.savedPaymentMethods || []);
       }
@@ -201,20 +206,35 @@ export default function Profile() {
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return toast.error('Name cannot be empty');
+    const nameCheck = validateFullName(name);
+    if (!nameCheck.valid) {
+      return toast.error(nameCheck.error || 'Please enter a genuine name.');
+    }
     if (phone && !/^[6-9]\d{9}$/.test(phone)) {
       return toast.error('Enter a valid 10-digit mobile number');
+    }
+    const ageCheck = validateAge(age);
+    if (!ageCheck.valid) {
+      return toast.error(ageCheck.error || 'Age must be between 10 and 90 years.');
     }
 
     setIsUpdatingProfile(true);
     try {
       const res = await profileService.updateProfile({
-        name,
+        name: name.trim(),
         phone: phone || null,
+        avatarKey,
+        age: age ? parseInt(age, 10) : null,
       });
-      if (res.success) {
+      if (res.success && res.data) {
         toast.success('Profile updated successfully!');
         setProfileData((prev: any) => ({ ...prev, ...res.data }));
+        if (authUser && authLogin && accessToken) {
+          authLogin(accessToken, { ...authUser, name: res.data.name, avatarKey: res.data.avatarKey, age: res.data.age });
+        }
+        if (storeUser && storeLogin) {
+          storeLogin({ ...storeUser, name: res.data.name, avatarKey: res.data.avatarKey, age: res.data.age });
+        }
       }
     } catch (err: any) {
       toast.error(err.message || 'Failed to update profile');
@@ -521,7 +541,7 @@ export default function Profile() {
             {/* User Profile Card */}
             <div className="rounded-lg border border-stone-200 bg-white p-5 space-y-4">
               <div className="flex items-center gap-3.5">
-                <UserAvatar name={displayName} email={profileData?.email || storeUser?.email} size="xl" />
+                <UserAvatar name={displayName} email={profileData?.email || storeUser?.email} avatarKey={profileData?.avatarKey || avatarKey} size="xl" />
 
                 <div className="min-w-0 flex-1">
                   <h2 className="text-base font-bold text-stone-900 truncate leading-snug">
@@ -938,15 +958,18 @@ export default function Profile() {
                   {/* DPDP Compliance Notice & UI Avatar Display */}
                   <div className="rounded-lg border border-stone-200 bg-stone-50 p-4">
                     <div className="flex items-center gap-3.5">
-                      <UserAvatar name={displayName} email={profileData?.email || storeUser?.email} size="xl" />
+                      <UserAvatar name={displayName} email={profileData?.email || storeUser?.email} avatarKey={avatarKey} size="xl" />
                       <div className="text-xs text-stone-600 space-y-0.5">
-                        <div className="font-semibold text-stone-900">Deterministic Initial Avatar</div>
+                        <div className="font-semibold text-stone-900">Silhouette Avatar &amp; Privacy</div>
                         <p className="text-[11px] text-stone-500">
-                          In accordance with India&apos;s Digital Personal Data Protection (DPDP) Act 2023 data minimization mandates, custom photo uploads are disabled to protect your personal privacy.
+                          In accordance with DPDP Act 2023 data minimization, select from our curated copyright-free faceless silhouettes below.
                         </p>
                       </div>
                     </div>
                   </div>
+
+                  {/* Curated Faceless Silhouette Avatar Selector */}
+                  <AvatarPicker value={avatarKey} onChange={setAvatarKey} className="pt-1 pb-2" />
 
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Full Name</label>
@@ -957,6 +980,20 @@ export default function Profile() {
                       className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 outline-none focus:border-brand-base focus:ring-2 focus:ring-brand-base/20"
                       required
                     />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Age (10–90 Years)</label>
+                    <input
+                      type="number"
+                      min="10"
+                      max="90"
+                      value={age}
+                      onChange={(e) => setAge(e.target.value)}
+                      placeholder="Enter your age (e.g. 24)"
+                      className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 outline-none focus:border-brand-base focus:ring-2 focus:ring-brand-base/20"
+                    />
+                    <span className="text-[11px] text-slate-400 mt-1 block">Simple numerical age box, between 10 and 90 years.</span>
                   </div>
 
                   <div>
